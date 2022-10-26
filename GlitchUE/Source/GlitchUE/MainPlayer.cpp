@@ -8,6 +8,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Engine/EngineTypes.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/World.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -57,6 +60,8 @@ void AMainPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	PlayerInputComponent->BindAction("PlaceObject", IE_Pressed, this, &AMainPlayer::PlaceObject);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainPlayer::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainPlayer::MoveRight);
 
@@ -67,6 +72,10 @@ void AMainPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("TurnRate", this, &AMainPlayer::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AMainPlayer::LookUpAtRate);
+}
+
+void AMainPlayer::Tick(float DeltaTime){
+	
 }
 
 void AMainPlayer::TurnAtRate(float Rate)
@@ -108,4 +117,24 @@ void AMainPlayer::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AMainPlayer::PreviewObject(){
+	FHitResult Hit;
+	FCollisionQueryParams QueryParams;
+	FCollisionResponseParams Responseparam;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, Responseparam) && PlacableActor->PreviewObject()){
+		PlacableActorLocation = Hit.Location;
+		PlacableActor->PlaceObject(PlacableActorLocation.GridSnap(100));
+	} else {
+		PlacableActor->PlaceObject(PlacableActor->GetOriginalLocation());
+	}
+}
+
+
+void AMainPlayer::PlaceObject() {
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(PlacableActorLocation);
+	FActorSpawnParameters ActorsSpawnParameters;
+	GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), SpawnTransform, ActorsSpawnParameters);
 }

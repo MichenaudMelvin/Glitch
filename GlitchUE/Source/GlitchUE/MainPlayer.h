@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Public/PlacableObject/PlacableObject.h"
 #include "GameFramework/Character.h"
 #include "MainPlayer.generated.h"
 
@@ -48,10 +49,26 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
+	float InteractionLength = 1000;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Placable")
+	UPlacableObject* PlacableActor;
+
+	FVector PlacableActorLocation;
+
+	UFUNCTION(BlueprintCallable)
+	void PlaceObject();
+
+	UFUNCTION(BlueprintCallable)
+	void PreviewObject();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	/** Returns CameraBoom subobject **/
