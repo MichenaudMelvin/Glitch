@@ -60,7 +60,7 @@ void AMainPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("PlaceObject", IE_Pressed, this, &AMainPlayer::PlaceObject);
+	//PlayerInputComponent->BindAction("PlaceObject", IE_Pressed, this, &AMainPlayer::PlaceObject);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainPlayer::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainPlayer::MoveRight);
