@@ -74,10 +74,6 @@ void AMainPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AMainPlayer::LookUpAtRate);
 }
 
-void AMainPlayer::Tick(float DeltaTime){
-	
-}
-
 void AMainPlayer::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
