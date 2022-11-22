@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Public/PlacableObject/PlacableObject.h"
 #include "GameFramework/Character.h"
 #include "MainPlayer.generated.h"
 
@@ -31,8 +32,10 @@ public:
 
 protected:
 	/** Called for forwards/backward input */
+	UFUNCTION(BlueprintCallable)
 	void MoveForward(float Value);
 
+	UFUNCTION(BlueprintCallable)
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
@@ -40,13 +43,29 @@ protected:
 	 * Called via input to turn at a given rate. 
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
+	UFUNCTION(BlueprintCallable)
 	void TurnAtRate(float Rate);
 
 	/**
 	 * Called via input to turn look up/down at a given rate. 
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
+	UFUNCTION(BlueprintCallable)
 	void LookUpAtRate(float Rate);
+
+	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
+	float InteractionLength = 1000;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Placable")
+	UPlacableObject* PlacableActor;
+
+	FVector PlacableActorLocation;
+
+	UFUNCTION(BlueprintCallable)
+	void PlaceObject();
+
+	UFUNCTION(BlueprintCallable)
+	void PreviewObject();
 
 protected:
 	// APawn interface
