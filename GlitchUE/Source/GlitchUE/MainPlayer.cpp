@@ -76,7 +76,7 @@ void AMainPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void AMainPlayer::TurnAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
+	// calculate delta for this frame from the rate 
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
@@ -84,6 +84,13 @@ void AMainPlayer::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AMainPlayer::AddControllerPitchInput(float Rate) {
+	if (bInvertYAxis) {
+		Rate = Rate * -1;
+	}
+	Super::AddControllerPitchInput(Rate);
 }
 
 void AMainPlayer::MoveForward(float Value)

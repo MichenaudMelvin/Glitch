@@ -53,6 +53,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void LookUpAtRate(float Rate);
 
+	virtual void AddControllerPitchInput(float Rate) override;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
 	float InteractionLength = 1000;
 
@@ -66,6 +68,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void PreviewObject();
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bInvertYAxis;
 
 protected:
 	// APawn interface
