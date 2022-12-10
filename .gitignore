@@ -13,9 +13,16 @@
 **/*[Ss]aved/
 **/*[Mm]annequin/
 **/*[Ss]tarterContent/
+**/*[Pp]lugin/
 **/*[Pp]lugins/
+**/*[Pp]opcornFX/
 
+# VSCode files
 .vscode/
+*.ignore
+*.code-workspace
+
+# Visual studio files
 .vs/
 
 # Compiled Object files
