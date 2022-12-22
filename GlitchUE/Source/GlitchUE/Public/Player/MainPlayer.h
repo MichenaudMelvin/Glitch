@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Public/PlacableObject/PlacableObject.h"
+#include "PlacableObject/PlacableObject.h"
 #include "GameFramework/Character.h"
 #include "MainPlayer.generated.h"
 

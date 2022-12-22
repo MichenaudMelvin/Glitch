@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "GlitchUEGameMode.h"
-#include "MainPlayer.h"
+#include "Player/MainPlayer.h"
 #include "UObject/ConstructorHelpers.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode()
