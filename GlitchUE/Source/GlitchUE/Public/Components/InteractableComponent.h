@@ -23,13 +23,13 @@ class GLITCHUE_API UInteractableComponent : public UActorComponent{
 public:	
 	UInteractableComponent();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Interactable")
+	bool CheckComponent(UPrimitiveComponent* ComponentToCheck);
+
 protected:
 	virtual void BeginPlay() override;
 
 	TSet<UPrimitiveComponent*> InteractableComponentSet;
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Interactable")
-	bool CheckComponent(UPrimitiveComponent* ComponentToCheck);
 
 	#pragma region Add/Remove Interactable
 
@@ -52,25 +52,27 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Feedback")
 	bool bOutlineFeedback = true;
 
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
-
 	UPROPERTY(BlueprintAssignable, Category = "Interaction")
 	FKOnInteract OnInteract;
-	
-	UFUNCTION(BlueprintCallable, Category = "Feedback")
-	void Feedback();
 
 	UPROPERTY(BlueprintAssignable, Category = "Feedback")
 	FKOnFeedback OnFeedback;
 
-	UFUNCTION(BlueprintCallable, Category = "Feedback")
-	void Unfeedback();
-
 	UPROPERTY(BlueprintAssignable, Category = "Feedback")
 	FKOnUnfeedback OnUnfeedback;
 
+	UFUNCTION(Category = "Feedback")
 	void OutlineFeedback(bool bOutline);
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
+	UFUNCTION(BlueprintCallable, Category = "Feedback")
+	void Feedback();
+
+	UFUNCTION(BlueprintCallable, Category = "Feedback")
+	void Unfeedback();
 
 	#pragma endregion
 

@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "PlacableObject/PlacableObject.h"
+#include "Components/InteractableComponent.h"
 #include "GameFramework/Character.h"
+#include "MainPlayerController.h"
 #include "MainPlayer.generated.h"
 
 UCLASS(config=Game)
@@ -55,13 +57,12 @@ protected:
 
 	virtual void AddControllerPitchInput(float Rate) override;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
-	float InteractionLength = 1000;
-
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	UPlacableObject* PlacableActor;
 
 	FVector PlacableActorLocation;
+
+	AMainPlayerController* MainPlayerController;
 
 	UFUNCTION(BlueprintCallable)
 	void PlaceObject();
@@ -72,10 +73,34 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
-protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// End of APawn interface
+	UPROPERTY(BlueprintReadWrite, Category = "Construction")
+	int Golds = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "Construction")
+	void GiveGolds(int Amount);
+
+	#pragma region Interaction
+
+	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
+	float InteractionLength = 1000.0f;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
+	UInteractableComponent* CurrentCheckedObject;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Interaction")
+	bool InteractionLineTrace(FHitResult& outHit);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	void InteractionTick();
+	virtual void InteractionTick_Implementation();
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void Interact();
+
+	UFUNCTION(Category = "Interaction")
+	void UnfeedbackCurrentCheckedObject();
+
+	#pragma endregion
 
 public:
 	/** Returns CameraBoom subobject **/

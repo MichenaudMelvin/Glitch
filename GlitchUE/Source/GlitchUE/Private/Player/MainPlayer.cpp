@@ -15,8 +15,7 @@
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
 
-AMainPlayer::AMainPlayer()
-{
+AMainPlayer::AMainPlayer(){
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -50,53 +49,82 @@ AMainPlayer::AMainPlayer()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
-
-void AMainPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
-{
-	// Set up gameplay key bindings
-	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-	//PlayerInputComponent->BindAction("PlaceObject", IE_Pressed, this, &AMainPlayer::PlaceObject);
-
-	PlayerInputComponent->BindAxis("MoveForward", this, &AMainPlayer::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AMainPlayer::MoveRight);
-
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AMainPlayer::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AMainPlayer::LookUpAtRate);
+void AMainPlayer::GiveGolds(int Amount){
+	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
 }
 
-void AMainPlayer::TurnAtRate(float Rate)
-{
+#pragma region Interaction
+
+
+
+
+bool AMainPlayer::InteractionLineTrace(FHitResult& outHitResult){
+	FCollisionQueryParams QueryParams;
+	FCollisionResponseParams Responseparam;
+	return GetWorld()->LineTraceSingleByChannel(outHitResult, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, Responseparam);
+}
+
+void AMainPlayer::InteractionTick_Implementation(){
+	FHitResult HitResult;
+
+	if (!InteractionLineTrace(HitResult)) {
+		UnfeedbackCurrentCheckedObject();
+		return;
+	}
+
+	if (HitResult.Actor == nullptr) {
+		UnfeedbackCurrentCheckedObject();
+		return;
+	}
+
+	UInteractableComponent* hittedInteractable = Cast<UInteractableComponent>(HitResult.Actor->GetComponentByClass(UInteractableComponent::StaticClass()));
+	
+	if (hittedInteractable == nullptr) {
+		UnfeedbackCurrentCheckedObject();
+		return;
+	}
+
+	if ((hittedInteractable != CurrentCheckedObject) && (hittedInteractable->CheckComponent(HitResult.GetComponent()))){
+		CurrentCheckedObject = hittedInteractable;
+		CurrentCheckedObject->Feedback();
+	}
+}
+
+void AMainPlayer::Interact() {
+	if (IsValid(CurrentCheckedObject)) {
+		CurrentCheckedObject->Interact(MainPlayerController, this);
+	}
+}
+
+void AMainPlayer::UnfeedbackCurrentCheckedObject() {
+	if (IsValid(CurrentCheckedObject)) {
+		CurrentCheckedObject->Unfeedback();
+	}
+
+	CurrentCheckedObject = nullptr;
+}
+
+#pragma endregion
+
+void AMainPlayer::TurnAtRate(float Rate){
 	// calculate delta for this frame from the rate 
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AMainPlayer::LookUpAtRate(float Rate)
-{
+void AMainPlayer::LookUpAtRate(float Rate){
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AMainPlayer::AddControllerPitchInput(float Rate) {
+void AMainPlayer::AddControllerPitchInput(float Rate){
 	if (bInvertYAxis) {
 		Rate = Rate * -1;
 	}
 	Super::AddControllerPitchInput(Rate);
 }
 
-void AMainPlayer::MoveForward(float Value)
-{
-	if ((Controller != nullptr) && (Value != 0.0f))
-	{
+void AMainPlayer::MoveForward(float Value){
+	if ((Controller != nullptr) && (Value != 0.0f)){
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -107,10 +135,8 @@ void AMainPlayer::MoveForward(float Value)
 	}
 }
 
-void AMainPlayer::MoveRight(float Value)
-{
-	if ( (Controller != nullptr) && (Value != 0.0f) )
-	{
+void AMainPlayer::MoveRight(float Value){
+	if ( (Controller != nullptr) && (Value != 0.0f) ){
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -135,7 +161,7 @@ void AMainPlayer::PreviewObject(){
 }
 
 
-void AMainPlayer::PlaceObject() {
+void AMainPlayer::PlaceObject(){
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(PlacableActorLocation);
 	FActorSpawnParameters ActorsSpawnParameters;

@@ -7,8 +7,7 @@
 #include "MainPlayerController.generated.h"
 
 UCLASS()
-class GLITCHUE_API AMainPlayerController : public APlayerController
-{
+class GLITCHUE_API AMainPlayerController : public APlayerController{
 	GENERATED_BODY()
 	
 };
