@@ -11,5 +11,6 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 	GENERATED_BODY()
 	
 	public:
+		UFUNCTION(BlueprintCallable)
 		static void OutlineComponent(bool SetOutline, UPrimitiveComponent* Component);
 };

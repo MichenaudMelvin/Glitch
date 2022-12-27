@@ -32,7 +32,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
-protected:
 	/** Called for forwards/backward input */
 	UFUNCTION(BlueprintCallable)
 	void MoveForward(float Value);
@@ -57,6 +56,7 @@ protected:
 
 	virtual void AddControllerPitchInput(float Rate) override;
 
+protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	UPlacableObject* PlacableActor;
 
@@ -90,6 +90,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Interaction")
 	bool InteractionLineTrace(FHitResult& outHit);
 
+public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void InteractionTick();
 	virtual void InteractionTick_Implementation();
@@ -97,6 +98,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void Interact();
 
+protected:
 	UFUNCTION(Category = "Interaction")
 	void UnfeedbackCurrentCheckedObject();
 

@@ -55,9 +55,6 @@ void AMainPlayer::GiveGolds(int Amount){
 
 #pragma region Interaction
 
-
-
-
 bool AMainPlayer::InteractionLineTrace(FHitResult& outHitResult){
 	FCollisionQueryParams QueryParams;
 	FCollisionResponseParams Responseparam;
