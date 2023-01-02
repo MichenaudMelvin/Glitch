@@ -11,6 +11,8 @@
 #include "Engine/EngineTypes.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -22,6 +24,8 @@ AMainPlayer::AMainPlayer(){
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
+
+	PrimaryActorTick.bCanEverTick = true;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -47,7 +51,31 @@ AMainPlayer::AMainPlayer(){
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	#pragma region Timelines
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/ZeroToOneCurve"));
+	check(Curve.Succeeded());
+
+	ZeroToOneCurve = Curve.Object;
+
+	#pragma endregion
 }
+
+
+void AMainPlayer::BeginPlay(){
+	Super::BeginPlay();
+
+	MainPlayerController = Cast<AMainPlayerController>(GetController());
+
+	CameraTransitionTL = NewObject<UTimelineComponent>();
+
+	FOnTimelineFloat UpdateEvent = FOnTimelineFloat();
+	UpdateEvent.BindUFunction(this, FName{ TEXT("Test") });
+
+	CameraTransitionTL->AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+}
+
 
 void AMainPlayer::GiveGolds(int Amount){
 	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
@@ -61,7 +89,7 @@ bool AMainPlayer::InteractionLineTrace(FHitResult& outHitResult){
 	return GetWorld()->LineTraceSingleByChannel(outHitResult, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, Responseparam);
 }
 
-void AMainPlayer::InteractionTick_Implementation(){
+void AMainPlayer::InteractionTick(){
 	FHitResult HitResult;
 
 	if (!InteractionLineTrace(HitResult)) {
@@ -148,8 +176,8 @@ void AMainPlayer::MoveRight(float Value){
 void AMainPlayer::PreviewObject(){
 	FHitResult Hit;
 	FCollisionQueryParams QueryParams;
-	FCollisionResponseParams Responseparam;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, Responseparam) && PlacableActor->PreviewObject()){
+	FCollisionResponseParams ResponseParam;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PlacableActor->PreviewObject()){
 		PlacableActorLocation = Hit.Location;
 		PlacableActor->PlaceObject(PlacableActorLocation.GridSnap(100));
 	} else {
@@ -164,3 +192,102 @@ void AMainPlayer::PlaceObject(){
 	FActorSpawnParameters ActorsSpawnParameters;
 	GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), SpawnTransform, ActorsSpawnParameters);
 }
+
+AMainPlayerController* AMainPlayer::GetMainPlayerController() {
+	return MainPlayerController;
+}
+
+#pragma region Mark
+
+void AMainPlayer::LaunchMark(){
+	FTransform MarkTransform;
+	MarkTransform.SetLocation(GetActorLocation());
+	MarkTransform.SetRotation(FindMarkLaunchRotation());
+	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
+	Mark->Launch(MarkTransform);
+
+	MainPlayerController->UnbindGlitch();
+	MainPlayerController->OnUseGlitchPressed.AddDynamic(this, &AMainPlayer::TPToMark);
+}
+
+FQuat AMainPlayer::FindMarkLaunchRotation(){
+	FHitResult HitResult;
+	FVector StartLocation = FollowCamera->GetComponentLocation();
+	FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->__PPO__MaxDistance()) + StartLocation;
+
+	FCollisionQueryParams QueryParams;
+	FCollisionResponseParams ResponseParam;
+
+	FVector TargetRotation = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) ? HitResult.ImpactPoint : EndLocation;
+	return UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetRotation).Quaternion();
+}
+
+void AMainPlayer::TPToMark() {
+
+	MainPlayerController->UnbindMovement();
+	MainPlayerController->UnbindCamera();
+	MainPlayerController->UnbindGlitch();
+
+	StopJumping();
+	Mark->PlaceMark();
+	// health comp // can take damages = false
+	GetCharacterMovement()->GravityScale = 0;
+	GetCharacterMovement()->Velocity = FVector::ZeroVector;
+
+	FRotator CapsuleRotation = FRotator::ZeroRotator;
+	CapsuleRotation.Yaw = Mark->GetActorRotation().Yaw;
+	GetCapsuleComponent()->SetRelativeRotation(CapsuleRotation);
+	GetMesh()->SetVisibility(false, true);
+	
+	CurrentControlRotation = MainPlayerController->GetControlRotation();
+	CurrentCameraPosition = FollowCamera->GetComponentLocation();
+	TargetControlRotation = UKismetMathLibrary::FindLookAtRotation(CurrentCameraPosition, Mark->GetActorLocation());
+
+
+	// start glitch dash FX
+
+	CameraTransitionTL->PlayFromStart();
+
+	// glitch camera trace
+
+	// glitch trace
+
+	// reset movement
+
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget = this;
+
+	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, 0.2f, false, EMoveComponentAction::Type::Move, LatentInfo);
+	
+	MainPlayerController->BindMovement();
+	MainPlayerController->BindCamera();
+
+	// bind glitch
+
+	// reset overlapped static mesh comp
+
+	Mark->ResetMark();
+	GetMesh()->SetVisibility(true, true);
+	GetCharacterMovement()->GravityScale = 1;
+
+	// health comp can take damages
+}
+
+void AMainPlayer::UseGlitchPressed_Implementation() {
+
+}
+
+void AMainPlayer::UseGlitchReleassed_Implementation() {
+	UE_LOG(LogTemp, Warning, TEXT("Releassed"));
+}
+
+void AMainPlayer::SetMark(AMark* NewMark) {
+	Mark = NewMark;
+}
+
+void AMainPlayer::LookAtMark(float Value){	
+	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
+	UE_LOG(LogTemp, Warning, TEXT("The float value is: %f"), Value);
+}
+
+#pragma endregion

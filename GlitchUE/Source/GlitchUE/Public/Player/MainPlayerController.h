@@ -61,6 +61,9 @@ class GLITCHUE_API AMainPlayerController : public APlayerController{
 
 
 protected:
+
+	virtual void BeginPlay() override;
+
 	AMainPlayer* MainPlayer;
 
 #pragma region Deletages
@@ -135,76 +138,65 @@ public:
 	#pragma region Actions
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void BindMovement();
-	virtual void BindMovement_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void UnbindMovement();
-	virtual void UnbindMovement_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void BindCamera();
-	virtual void BindCamera_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void UnbindCamera();
-	virtual void UnbindCamera_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void BindJump();
-	virtual void BindJump_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void UnbindJump();
-	virtual void UnbindJump_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void BindSneak();
-	virtual void BindSneak_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void UnbindSneak();
-	virtual void UnbindSneak_Implementation();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
 	void BindSprint();
-	virtual void BindSprint_Implementation();
+	void BindSprint_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void UnbindSprint();
-	virtual void UnbindSprint_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	void BindGlitch();
+	
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	void UnbindGlitch();
+
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void BindInteraction();
-	virtual void BindInteraction_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void UnbindInteraction();
-	virtual void UnbindInteraction_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void BindNormalMode();
-	virtual void BindNormalMode_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void BindConstructionMode();
-	virtual void BindConstructionMode_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void BindPause();
-	virtual void BindPause_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void UnbindPause();
-	virtual void UnbindPause_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Category = "Delegates")
 	void UnbindAll();
-	virtual void UnbindAll_Implementation();
 
 	#pragma endregion
 
 #pragma endregion
-
 };

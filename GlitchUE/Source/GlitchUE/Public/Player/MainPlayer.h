@@ -7,11 +7,12 @@
 #include "Components/InteractableComponent.h"
 #include "GameFramework/Character.h"
 #include "MainPlayerController.h"
+#include "Mark/Mark.h"
+#include "Components/TimelineComponent.h"
 #include "MainPlayer.generated.h"
 
 UCLASS(config=Game)
-class AMainPlayer : public ACharacter
-{
+class AMainPlayer : public ACharacter{
 	GENERATED_BODY()
 
 	/** Camera boom positioning the camera behind the character */
@@ -32,6 +33,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
+protected:
+
+	virtual void BeginPlay() override;
+
+	#pragma region Movement
+
+public:
 	/** Called for forwards/backward input */
 	UFUNCTION(BlueprintCallable)
 	void MoveForward(float Value);
@@ -57,6 +65,8 @@ public:
 	virtual void AddControllerPitchInput(float Rate) override;
 
 protected:
+	#pragma endregion
+
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	UPlacableObject* PlacableActor;
 
@@ -64,6 +74,10 @@ protected:
 
 	AMainPlayerController* MainPlayerController;
 
+public:
+	AMainPlayerController* GetMainPlayerController();
+
+protected:
 	UFUNCTION(BlueprintCallable)
 	void PlaceObject();
 
@@ -91,9 +105,8 @@ protected:
 	bool InteractionLineTrace(FHitResult& outHit);
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void InteractionTick();
-	virtual void InteractionTick_Implementation();
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void Interact();
@@ -104,10 +117,59 @@ protected:
 
 	#pragma endregion
 
+#pragma region Mark
+
+protected:
+	UTimelineComponent* CameraTransitionTL;
+
+	//pourquoi "class" 
+	UPROPERTY(BlueprintReadWrite)
+	class AMark* Mark;
+
+public:
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
+	void LaunchMark();
+
+	FQuat FindMarkLaunchRotation();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
+	void TPToMark();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Mark")
+	void UseGlitchPressed();
+	void UseGlitchPressed_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Mark")
+	void UseGlitchReleassed();
+	void UseGlitchReleassed_Implementation();
+
+	void SetMark(AMark* NewMark);
+
+	FVector CurrentCameraPosition;
+
+	FRotator CurrentControlRotation;
+
+	FRotator TargetControlRotation;
+
+	UFUNCTION()
+	void LookAtMark(float Value);
+
+#pragma endregion
+
+#pragma region Others
+
+	UCurveFloat* ZeroToOneCurve;
+
+#pragma endregion
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	// je pige pas
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
+	FORCEINLINE class AMark* GetMark() const { return Mark; }
 };
 
