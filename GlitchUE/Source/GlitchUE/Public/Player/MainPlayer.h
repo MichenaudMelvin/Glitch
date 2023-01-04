@@ -90,7 +90,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Construction")
 	int Golds = 0;
 
-	UFUNCTION(BlueprintCallable, Category = "Construction")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Construction")
 	void GiveGolds(int Amount);
 
 	#pragma region Interaction
@@ -108,7 +108,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void InteractionTick();
 
-	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Interaction")
 	void Interact();
 
 protected:
@@ -162,6 +162,10 @@ public:
 	UCurveFloat* ZeroToOneCurve;
 
 #pragma endregion
+
+public:
+	UFUNCTION(Exec)
+	void TestFunction();
 
 public:
 	/** Returns CameraBoom subobject **/

@@ -47,7 +47,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPlaceObject);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchPressed);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchReleassed);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchReleased);
 
 #pragma endregion
 
@@ -55,16 +55,38 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPause);
 
 #pragma endregion
 
+UENUM(BlueprintType)
+enum class EGameplayMode : uint8 {
+
+	CPF_Normal
+	UMETA(DisplayName = "Normal"),
+
+	CPF_Construction
+	UMETA(DisplayName = "Construction"),
+
+	CPF_Destruction
+	UMETA(DisplayName = "Destruction"),
+};
+
 UCLASS()
 class GLITCHUE_API AMainPlayerController : public APlayerController{
 	GENERATED_BODY()
-
 
 protected:
 
 	virtual void BeginPlay() override;
 
 	AMainPlayer* MainPlayer;
+
+	FTimerDynamicDelegate InteractionTickDelegate;
+
+	EGameplayMode GameplayMode;
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
+	void SelectNewGameplayMode(EGameplayMode NewGameplayMode);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")
+	EGameplayMode GetGameplayMode();
 
 #pragma region Deletages
 
@@ -124,7 +146,7 @@ public:
 	FKOnUseGlitchPressed OnUseGlitchPressed;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
-	FKOnUseGlitchReleassed OnUseGlitchReleassed;
+	FKOnUseGlitchReleased OnUseGlitchReleased;
 
 	#pragma endregion
 
@@ -138,62 +160,62 @@ public:
 	#pragma region Actions
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindMovement();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindMovement();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindCamera();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindCamera();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindJump();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindJump();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindSneak();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindSneak();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
 	void BindSprint();
 	void BindSprint_Implementation();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindSprint();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindGlitch();
 	
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindGlitch();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindInteraction();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindInteraction();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindNormalMode();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindConstructionMode();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindPause();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindPause();
 
-	UFUNCTION(BlueprintCallable, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindAll();
 
 	#pragma endregion

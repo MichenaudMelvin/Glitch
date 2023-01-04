@@ -243,7 +243,6 @@ void AMainPlayer::TPToMark() {
 	CurrentCameraPosition = FollowCamera->GetComponentLocation();
 	TargetControlRotation = UKismetMathLibrary::FindLookAtRotation(CurrentCameraPosition, Mark->GetActorLocation());
 
-
 	// start glitch dash FX
 
 	CameraTransitionTL->PlayFromStart();
@@ -262,8 +261,6 @@ void AMainPlayer::TPToMark() {
 	MainPlayerController->BindMovement();
 	MainPlayerController->BindCamera();
 
-	// bind glitch
-
 	// reset overlapped static mesh comp
 
 	Mark->ResetMark();
@@ -278,8 +275,9 @@ void AMainPlayer::UseGlitchPressed_Implementation() {
 }
 
 void AMainPlayer::UseGlitchReleassed_Implementation() {
-	UE_LOG(LogTemp, Warning, TEXT("Releassed"));
+
 }
+
 
 void AMainPlayer::SetMark(AMark* NewMark) {
 	Mark = NewMark;
@@ -291,3 +289,7 @@ void AMainPlayer::LookAtMark(float Value){
 }
 
 #pragma endregion
+
+void AMainPlayer::TestFunction(){
+	UE_LOG(LogTemp, Warning, TEXT("Test function called"));
+}

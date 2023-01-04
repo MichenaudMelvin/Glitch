@@ -10,11 +10,33 @@ void AMainPlayerController::BeginPlay() {
 	Super::BeginPlay();
 	
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
+
+	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
+	SelectNewGameplayMode(EGameplayMode::CPF_Normal);
 }
 
 #pragma region Bind
 
 #pragma region Movement
+
+void AMainPlayerController::SelectNewGameplayMode(EGameplayMode NewGameplayMode){
+	GameplayMode = NewGameplayMode;
+	switch (GameplayMode){
+		case EGameplayMode::CPF_Normal:
+			BindNormalMode();
+			//CameraAimRevrse
+			break;
+		
+		case EGameplayMode::CPF_Construction:
+			BindConstructionMode();
+			//CamreaAim
+			break;
+	}
+}
+
+EGameplayMode AMainPlayerController::GetGameplayMode(){
+	return GameplayMode;
+}
 
 void AMainPlayerController::BindMovement() {
 	UnbindMovement();
@@ -70,24 +92,24 @@ void AMainPlayerController::BindGlitch(){
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::TPToMark);
 	} else {
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchPressed);
-		OnUseGlitchReleassed.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchReleassed);
+		OnUseGlitchReleased.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchReleassed);
 	}
 }
 
 void AMainPlayerController::UnbindGlitch(){
 	OnUseGlitchPressed.Clear();
-	OnUseGlitchReleassed.Clear();
+	OnUseGlitchReleased.Clear();
 }
 
 void AMainPlayerController::BindInteraction() {
 	UnbindInteraction();
 	OnInteractPlayer.AddDynamic(MainPlayer, &AMainPlayer::Interact);
-	GetWorld()->GetTimerManager().SetTimer(InteractionTimer, 0.1f, true, 0.0f);
+	GetWorld()->GetTimerManager().SetTimer(InteractionTimer, InteractionTickDelegate, 0.1f, true, 0.0f);
 }
 
 void AMainPlayerController::UnbindInteraction() {
 	OnInteractPlayer.Clear();
-	InteractionTimer.Invalidate();
+	GetWorldTimerManager().ClearTimer(InteractionTimer);
 }
 
 #pragma endregion
