@@ -15,6 +15,7 @@ UCLASS(config=Game)
 class AMainPlayer : public ACharacter{
 	GENERATED_BODY()
 
+	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -35,6 +36,7 @@ public:
 
 protected:
 
+	virtual void Tick(float deltaTime) override;
 	virtual void BeginPlay() override;
 
 	#pragma region Movement
@@ -61,6 +63,7 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable)
 	void LookUpAtRate(float Rate);
+
 
 	virtual void AddControllerPitchInput(float Rate) override;
 
@@ -124,7 +127,7 @@ protected:
 
 	//pourquoi "class" 
 	UPROPERTY(BlueprintReadWrite)
-	class AMark* Mark;
+	AMark* Mark;
 
 public:
 
@@ -135,6 +138,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void TPToMark();
+
+	UFUNCTION()
+	void EndTL();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Mark")
 	void UseGlitchPressed();

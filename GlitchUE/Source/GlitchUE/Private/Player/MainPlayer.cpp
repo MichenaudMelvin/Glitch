@@ -71,11 +71,16 @@ void AMainPlayer::BeginPlay(){
 	CameraTransitionTL = NewObject<UTimelineComponent>();
 
 	FOnTimelineFloat UpdateEvent = FOnTimelineFloat();
-	UpdateEvent.BindUFunction(this, FName{ TEXT("Test") });
+	FOnTimelineEventStatic FinishedEvent = FOnTimelineEventStatic();
+
+	UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
+	FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
 
 	CameraTransitionTL->AddInterpFloat(ZeroToOneCurve, UpdateEvent);
-}
+	CameraTransitionTL->SetTimelineFinishedFunc(FinishedEvent);
+	CameraTransitionTL->RegisterComponentWithWorld(GetWorld());
 
+}
 
 void AMainPlayer::GiveGolds(int Amount){
 	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
@@ -246,28 +251,6 @@ void AMainPlayer::TPToMark() {
 	// start glitch dash FX
 
 	CameraTransitionTL->PlayFromStart();
-
-	// glitch camera trace
-
-	// glitch trace
-
-	// reset movement
-
-	FLatentActionInfo LatentInfo;
-	LatentInfo.CallbackTarget = this;
-
-	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, 0.2f, false, EMoveComponentAction::Type::Move, LatentInfo);
-	
-	MainPlayerController->BindMovement();
-	MainPlayerController->BindCamera();
-
-	// reset overlapped static mesh comp
-
-	Mark->ResetMark();
-	GetMesh()->SetVisibility(true, true);
-	GetCharacterMovement()->GravityScale = 1;
-
-	// health comp can take damages
 }
 
 void AMainPlayer::UseGlitchPressed_Implementation() {
@@ -278,6 +261,13 @@ void AMainPlayer::UseGlitchReleassed_Implementation() {
 
 }
 
+void AMainPlayer::Tick(float deltaTime){
+	Super::Tick(deltaTime);
+
+	if (CameraTransitionTL != NULL){
+		CameraTransitionTL->TickComponent(deltaTime, ELevelTick::LEVELTICK_TimeOnly, NULL);
+	}
+}
 
 void AMainPlayer::SetMark(AMark* NewMark) {
 	Mark = NewMark;
@@ -285,7 +275,34 @@ void AMainPlayer::SetMark(AMark* NewMark) {
 
 void AMainPlayer::LookAtMark(float Value){	
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
-	UE_LOG(LogTemp, Warning, TEXT("The float value is: %f"), Value);
+}
+
+void AMainPlayer::EndTL() {
+	// glitch camera trace
+
+	// glitch trace
+
+	// reset movement
+
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget = this;
+
+	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, 0.2f, false, EMoveComponentAction::Type::Move, LatentInfo);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){		
+
+	MainPlayerController->BindMovement();
+	MainPlayerController->BindCamera();
+
+	// reset overlapped static mesh comp
+
+	Mark->ResetMark();
+	GetMesh()->SetVisibility(true, true);
+	GetCharacterMovement()->GravityScale = 1;
+
+	// health comp can take damages
+	}, 0.2f, false);
 }
 
 #pragma endregion
