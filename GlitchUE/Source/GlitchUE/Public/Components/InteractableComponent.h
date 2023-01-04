@@ -32,7 +32,7 @@ protected:
 	TSet<UPrimitiveComponent*> InteractableComponentSet;
 
 	#pragma region Add/Remove Interactable
-
+public:
 	UFUNCTION(BlueprintCallable, Category = "Interactable")
 	void AddInteractable(UPrimitiveComponent* ComponentToAdd);
 
@@ -48,7 +48,7 @@ protected:
 	#pragma endregion
 
 	#pragma region Interaction & feedback
-
+protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Feedback")
 	bool bOutlineFeedback = true;
 
