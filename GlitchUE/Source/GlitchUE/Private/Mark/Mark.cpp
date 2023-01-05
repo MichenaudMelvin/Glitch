@@ -86,13 +86,13 @@ bool AMark::GetIsMarkPlaced(){
 void AMark::PlaceMark(){
 	StopProjectile();
 	bIsMarkPlaced = true;
-	DistanceTimer.Invalidate();
+	GetWorldTimerManager().ClearTimer(DistanceTimer);
 }
 
 void AMark::ResetMark(){
 	bIsMarkPlaced = false;
 	Player->GetMainPlayerController()->BindGlitch();
-	DistanceTimer.Invalidate();
+	GetWorldTimerManager().ClearTimer(DistanceTimer);
 	// invalidate beam timer
 	SetActorLocation(OriginalLocation);
 	StopProjectile();
@@ -112,7 +112,7 @@ float AMark::GetDistanceToLaunchPoint() {
 }
 
 void AMark::CheckDistance() {
-	if ((GetDistanceToLaunchPoint() >= MaxDistance) && bIsMarkPlaced){
+	if ((GetDistanceToLaunchPoint() >= MaxDistance) && !bIsMarkPlaced){
 		ResetMark();
 	}
 }

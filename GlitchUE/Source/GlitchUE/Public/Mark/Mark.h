@@ -80,6 +80,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Distance")
 	float MaxDistance;
 
+public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Distance")
 	float GetMaxDistance();
 

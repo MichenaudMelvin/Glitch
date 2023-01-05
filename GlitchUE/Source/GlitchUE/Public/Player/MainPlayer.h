@@ -125,7 +125,6 @@ protected:
 protected:
 	UTimelineComponent* CameraTransitionTL;
 
-	//pourquoi "class" 
 	UPROPERTY(BlueprintReadWrite)
 	AMark* Mark;
 
@@ -150,6 +149,9 @@ public:
 	void UseGlitchReleassed();
 	void UseGlitchReleassed_Implementation();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
+	AMark* GetMark() const { return Mark; }
+
 	void SetMark(AMark* NewMark);
 
 	FVector CurrentCameraPosition;
@@ -160,6 +162,14 @@ public:
 
 	UFUNCTION()
 	void LookAtMark(float Value);
+
+	void StartGlitchDashFX();
+
+	void GlitchCameraTrace();
+
+	void GlitchTrace();
+
+	void ResetOverlappedStaticMeshComp();
 
 #pragma endregion
 
@@ -178,8 +188,5 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	// je pige pas
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
-	FORCEINLINE class AMark* GetMark() const { return Mark; }
 };
 

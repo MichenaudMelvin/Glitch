@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
+#include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
 
 UCLASS()
@@ -22,4 +23,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Position", meta = (ExposeOnSpawn = "true"))
 	ANexus* Nexus;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Position", meta = (ExposeOnSpawn = "true"))
+	TArray<AConstructionZone*> ConstructionZoneList;
 };

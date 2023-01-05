@@ -18,15 +18,27 @@ void AGlitchUEGameMode::BeginPlay() {
 	// set wave manager
 }
 
+EPhases AGlitchUEGameMode::GetPhases(){
+	return CurrentPhase;
+}
+
 void AGlitchUEGameMode::SetNewPhase(EPhases NewPhase){
 	CurrentPhase = NewPhase;
 	switch (CurrentPhase){
-	case EPhases::CPF_Infiltration:
+	case EPhases::Infiltration:
 		break;
-	case EPhases::CPF_TowerDefense:
+	case EPhases::TowerDefense:
 		//WaveManager->StartWave();
 		break;
 	}
+}
+
+ELevelState AGlitchUEGameMode::GetLevelState(){
+	return LevelState;
+}
+
+void AGlitchUEGameMode::SetLevelState(ELevelState newState){
+	LevelState = newState;
 }
 
 void AGlitchUEGameMode::AddGlitch(float AddedValue){

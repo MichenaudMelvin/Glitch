@@ -11,11 +11,21 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
 UENUM(BlueprintType)
 enum class EPhases : uint8 {
 
-	CPF_Infiltration
+	Infiltration
 	UMETA(DisplayName = "Infiltration"),
 
-	CPF_TowerDefense
+	TowerDefense
 	UMETA(DisplayName = "TowerDefense"),
+};
+
+UENUM(BlueprintType)
+enum class ELevelState : uint8 {
+
+	Normal
+	UMETA(DisplayName = "Normal"),
+
+	Alerted
+	UMETA(DisplayName = "Alerted"),
 };
 
 UCLASS(minimalapi)
@@ -28,7 +38,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	EPhases CurrentPhase;
+	EPhases CurrentPhase = EPhases::Infiltration;
+
+	ELevelState LevelState = ELevelState::Normal;
 
 	float GlitchValue;
 
@@ -38,9 +50,18 @@ protected:
 	FKOnGlitchMax OnGlitchMax;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Phases")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Phases")
+	EPhases GetPhases();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Phases")
 	void SetNewPhase(EPhases NewPhase);
 
-	UFUNCTION(BlueprintCallable, Category = "Glitch")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelState")
+	ELevelState GetLevelState();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "LevelState")
+	void SetLevelState(ELevelState newState);
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
 	void AddGlitch(float AddedValue);
 };

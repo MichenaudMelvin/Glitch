@@ -80,6 +80,15 @@ void AMainPlayer::BeginPlay(){
 	CameraTransitionTL->SetTimelineFinishedFunc(FinishedEvent);
 	CameraTransitionTL->RegisterComponentWithWorld(GetWorld());
 
+	UpdateEvent.Clear();
+	FinishedEvent.Unbind();
+	//UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
+	//FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
+
+	CameraTransitionTL->AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	CameraTransitionTL->SetTimelineFinishedFunc(FinishedEvent);
+	CameraTransitionTL->RegisterComponentWithWorld(GetWorld());
+
 }
 
 void AMainPlayer::GiveGolds(int Amount){
@@ -218,7 +227,7 @@ void AMainPlayer::LaunchMark(){
 FQuat AMainPlayer::FindMarkLaunchRotation(){
 	FHitResult HitResult;
 	FVector StartLocation = FollowCamera->GetComponentLocation();
-	FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->__PPO__MaxDistance()) + StartLocation;
+	FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxDistance()) + StartLocation;
 
 	FCollisionQueryParams QueryParams;
 	FCollisionResponseParams ResponseParam;
@@ -248,7 +257,7 @@ void AMainPlayer::TPToMark() {
 	CurrentCameraPosition = FollowCamera->GetComponentLocation();
 	TargetControlRotation = UKismetMathLibrary::FindLookAtRotation(CurrentCameraPosition, Mark->GetActorLocation());
 
-	// start glitch dash FX
+	StartGlitchDashFX();
 
 	CameraTransitionTL->PlayFromStart();
 }
@@ -264,9 +273,7 @@ void AMainPlayer::UseGlitchReleassed_Implementation() {
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
 
-	if (CameraTransitionTL != NULL){
-		CameraTransitionTL->TickComponent(deltaTime, ELevelTick::LEVELTICK_TimeOnly, NULL);
-	}
+	CameraTransitionTL->TickComponent(deltaTime, ELevelTick::LEVELTICK_TimeOnly, NULL);
 }
 
 void AMainPlayer::SetMark(AMark* NewMark) {
@@ -275,6 +282,32 @@ void AMainPlayer::SetMark(AMark* NewMark) {
 
 void AMainPlayer::LookAtMark(float Value){	
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
+}
+
+void AMainPlayer::StartGlitchDashFX(){
+	//class UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFX, );
+}
+
+void AMainPlayer::GlitchCameraTrace(){
+	FVector BoxHalfSize = FVector::OneVector;
+	BoxHalfSize *= 50;
+
+	TArray<AActor*> ActorsToIgnore;
+	TArray<FHitResult> HitResultList;
+
+	UKismetSystemLibrary::BoxTraceMultiByProfile(this, FollowCamera->GetComponentLocation(), Mark->GetActorLocation(), BoxHalfSize, FRotator::ZeroRotator, FName(TEXT("GlitchCamera")), false, ActorsToIgnore, EDrawDebugTrace::None, HitResultList, true, FColor::Red, FColor::Green, 0.5f);
+
+	//for (int i = 0; i < sizeof(HitResultList); i++) {
+		//HitResultList[i].Component.IsA(UStaticMeshComponent::StaticClass);
+	//}
+}
+
+void AMainPlayer::GlitchTrace(){
+
+}
+
+void AMainPlayer::ResetOverlappedStaticMeshComp(){
+
 }
 
 void AMainPlayer::EndTL() {
