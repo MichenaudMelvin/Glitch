@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Perception/AIPerceptionComponent.h"
 #include "MainAIController.generated.h"
 
 UCLASS()
@@ -18,4 +19,19 @@ protected:
 
 	UBehaviorTree* BehaviorTree;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float StunTime = 5.0f;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float InvestigatingTime = 0.2f;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UAIPerceptionComponent* AIPerception;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "AIPerception")
+	void PerceptionUpdate(AActor* Actor, FAIStimulus Stimulus);
+	void PerceptionUpdate_Implementation(AActor* Actor, FAIStimulus Stimulus);
+
+private:
+	void SetPlayerValues(AActor* Player);
 };
