@@ -146,7 +146,7 @@ void AMainPlayerController::BindNormalMode() {
 	BindCamera();
 	BindInteraction();
 	BindGlitch();
-	// bind open selection wheel
+	BindOpenSelectionWheel();
 }
 
 void AMainPlayerController::BindConstructionMode() {
@@ -154,7 +154,7 @@ void AMainPlayerController::BindConstructionMode() {
 	BindMovement();
 	BindCamera();
 	// bind construction
-	// bind open selection wheel
+	BindOpenSelectionWheel();
 }
 
 
@@ -169,13 +169,17 @@ void AMainPlayerController::UnbindPause() {
 	OnPause.Clear();
 }
 
+void AMainPlayerController::BindOpenSelectionWheel_Implementation(){}
+
+void AMainPlayerController::UnbindOpenSelectionWheel_Implementation(){}
+
 void AMainPlayerController::UnbindAll(){
 	UnbindMovement();
 	UnbindCamera();
 	UnbindInteraction();
 	UnbindGlitch();
 	// unbind construction
-	// unbind open selection wheel
+	UnbindOpenSelectionWheel();
 	// unbind rotate objects
 }
 

@@ -51,6 +51,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchReleased);
 
 #pragma endregion
 
+#pragma region UI
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnOpenSelectionWheelPressed);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnOpenSelectionWheelReleased);
+
+#pragma endregion
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPause);
 
 #pragma endregion
@@ -150,6 +158,16 @@ public:
 
 	#pragma endregion
 
+	#pragma region UI
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|UI")
+	FKOnOpenSelectionWheelPressed OnOpenSelectionWheelPressed;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|UI")
+	FKOnOpenSelectionWheelReleased OnOpenSelectionWheelReleased;
+
+	#pragma endregion
+
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Pause")
 	FKOnPause OnPause;
 
@@ -214,6 +232,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindPause();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
+	void BindOpenSelectionWheel();
+	void BindOpenSelectionWheel_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
+	void UnbindOpenSelectionWheel();
+	void UnbindOpenSelectionWheel_Implementation();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindAll();

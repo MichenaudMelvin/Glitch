@@ -75,20 +75,22 @@ void AMainPlayer::BeginPlay(){
 
 	UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
 	FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
+	UE_LOG(LogTemp, Warning, TEXT("The boolean value is %s"), (FinishedEvent.IsBound() ? TEXT("true") : TEXT("false")));
 
 	CameraTransitionTL->AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	CameraTransitionTL->SetTimelineFinishedFunc(FinishedEvent);
 	CameraTransitionTL->RegisterComponentWithWorld(GetWorld());
 
-	UpdateEvent.Clear();
-	FinishedEvent.Unbind();
+	//UpdateEvent.Clear();
+	//FinishedEvent.Unbind();
 	//UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
 	//FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
 
+	/*
 	CameraTransitionTL->AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	CameraTransitionTL->SetTimelineFinishedFunc(FinishedEvent);
 	CameraTransitionTL->RegisterComponentWithWorld(GetWorld());
-
+	*/
 }
 
 void AMainPlayer::GiveGolds(int Amount){
@@ -272,8 +274,8 @@ void AMainPlayer::UseGlitchReleassed_Implementation() {
 
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
-
-	CameraTransitionTL->TickComponent(deltaTime, ELevelTick::LEVELTICK_TimeOnly, NULL);
+	
+	//CameraTransitionTL->TickComponent(deltaTime, ELevelTick::LEVELTICK_TimeOnly, NULL);
 }
 
 void AMainPlayer::SetMark(AMark* NewMark) {
@@ -282,6 +284,7 @@ void AMainPlayer::SetMark(AMark* NewMark) {
 
 void AMainPlayer::LookAtMark(float Value){	
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
+	UE_LOG(LogTemp, Warning, TEXT("The float value is: %f"), Value);
 }
 
 void AMainPlayer::StartGlitchDashFX(){

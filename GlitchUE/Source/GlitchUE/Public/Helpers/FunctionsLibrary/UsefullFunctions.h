@@ -13,4 +13,12 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 	public:
 		UFUNCTION(BlueprintCallable)
 		static void OutlineComponent(bool SetOutline, UPrimitiveComponent* Component);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Sorting")
+		//https://dev.epicgames.com/community/snippets/xBY/unreal-engine-sort-actor-array-based-on-distance-from-target
+		static TArray<AActor*> SortActorsByDistanceToActor(TArray<AActor*> Actors, AActor* Target);
+
+		UFUNCTION()
+		//https://dev.epicgames.com/community/snippets/xBY/unreal-engine-sort-actor-array-based-on-distance-from-target
+		static void QuickSortByDistance(TArray<AActor*>& InArray, int low, int high, const AActor* Actor);
 };
