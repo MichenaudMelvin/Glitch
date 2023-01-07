@@ -123,7 +123,7 @@ protected:
 #pragma region Mark
 
 protected:
-	UTimelineComponent* CameraTransitionTL;
+	FTimeline CameraTransitionTL;
 
 	UPROPERTY(BlueprintReadWrite)
 	AMark* Mark;

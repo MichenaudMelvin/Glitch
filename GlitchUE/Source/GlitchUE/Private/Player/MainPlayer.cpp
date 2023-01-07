@@ -68,18 +68,14 @@ void AMainPlayer::BeginPlay(){
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 
-	CameraTransitionTL = NewObject<UTimelineComponent>();
-
 	FOnTimelineFloat UpdateEvent = FOnTimelineFloat();
 	FOnTimelineEventStatic FinishedEvent = FOnTimelineEventStatic();
 
 	UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
 	FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
-	UE_LOG(LogTemp, Warning, TEXT("The boolean value is %s"), (FinishedEvent.IsBound() ? TEXT("true") : TEXT("false")));
 
-	CameraTransitionTL->AddInterpFloat(ZeroToOneCurve, UpdateEvent);
-	CameraTransitionTL->SetTimelineFinishedFunc(FinishedEvent);
-	CameraTransitionTL->RegisterComponentWithWorld(GetWorld());
+	CameraTransitionTL.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	CameraTransitionTL.SetTimelineFinishedFunc(FinishedEvent);
 
 	//UpdateEvent.Clear();
 	//FinishedEvent.Unbind();
@@ -261,7 +257,7 @@ void AMainPlayer::TPToMark() {
 
 	StartGlitchDashFX();
 
-	CameraTransitionTL->PlayFromStart();
+	CameraTransitionTL.PlayFromStart();
 }
 
 void AMainPlayer::UseGlitchPressed_Implementation() {
@@ -275,7 +271,7 @@ void AMainPlayer::UseGlitchReleassed_Implementation() {
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
 	
-	//CameraTransitionTL->TickComponent(deltaTime, ELevelTick::LEVELTICK_TimeOnly, NULL);
+	CameraTransitionTL.TickTimeline(deltaTime);
 }
 
 void AMainPlayer::SetMark(AMark* NewMark) {

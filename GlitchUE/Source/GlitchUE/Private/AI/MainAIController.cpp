@@ -11,11 +11,15 @@
 
 AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))) {
-	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
+
+	Blackboard = CreateDefaultSubobject<UBlackboardComponent>(TEXT("Blackboard"));
 }
 
 void AMainAIController::BeginPlay() {
 	RunBehaviorTree(BehaviorTree);
+
+	AIPerception = NewObject<UAIPerceptionComponent>();
+
 	Blackboard->SetValueAsFloat(FName(TEXT("StunTime")), StunTime);
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
 }
