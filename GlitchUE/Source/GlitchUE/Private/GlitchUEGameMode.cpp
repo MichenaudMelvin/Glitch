@@ -45,5 +45,6 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	GlitchValue = FMath::Clamp(AddedValue + GlitchValue, 0.0f, GlitchMaxValue);
 	if (GlitchValue == GlitchMaxValue) {
 		OnGlitchMax.Broadcast();
+		GlitchValue = 0;
 	}
 }

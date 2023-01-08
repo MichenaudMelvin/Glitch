@@ -93,9 +93,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Construction")
 	int Golds = 0;
 
+public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Construction")
 	void GiveGolds(int Amount);
 
+protected:
 	#pragma region Interaction
 
 	UPROPERTY(BlueprintReadWrite, Category = "Interaction")

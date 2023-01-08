@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 	
+#include "AI/GeneralTaks/BTTask_LookAtActor.h"
 #include "AIController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "AI/GeneralTaks/BTTask_LookAtActor.h"
 
 UBTTask_LookAtActor::UBTTask_LookAtActor(){
 	NodeName = "Look at Target";

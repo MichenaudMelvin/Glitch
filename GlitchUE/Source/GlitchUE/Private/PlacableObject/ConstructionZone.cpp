@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "PlacableObject/ConstructionZone.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/BoxComponent.h"
-#include "PlacableObject/ConstructionZone.h"
-
 
 AConstructionZone::AConstructionZone() {
 
