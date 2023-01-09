@@ -35,7 +35,7 @@ void UInteractableComponent::RemoveInteractable(UPrimitiveComponent* ComponentTo
 }
 
 void UInteractableComponent::RemoveInteractables(TArray<UPrimitiveComponent*> ComponentsToRemove){
-	for (int i = 0; i < sizeof(ComponentsToRemove); i++) {
+	for (int i = 0; i < ComponentsToRemove.Num(); i++) {
 		RemoveInteractable(ComponentsToRemove[i]);
 	}
 }
@@ -59,16 +59,12 @@ void UInteractableComponent::Unfeedback(){
 }
 
 void UInteractableComponent::OutlineFeedback(bool bOutline){
-	// crée 16 élements chai pas pourquoi
 	TArray<UPrimitiveComponent*> interactableList = InteractableComponentSet.Array();
 	
-	//fonctionne juste avec le 1er element de la liste
-	UUsefullFunctions::OutlineComponent(bOutline, interactableList[0]);
 
-	// cause un crash parce qu'il essaie d'accéder aux truc qui existent pas
-	/*for (int i = 0; i < sizeof(interactableList); i++) {
+	for (int i = 0; i < interactableList.Num(); i++) {
 		UUsefullFunctions::OutlineComponent(bOutline, interactableList[i]);
-	}*/
+	}
 }
 
 #pragma endregion

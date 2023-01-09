@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "Objectives/Catalyseur.h"
 #include "Engine/DataTable.h"
+#include "AI/MainAICharacter.h"
+#include "Spawner.h"
 #include "WaveManager.generated.h"
 
 UENUM(BlueprintType)
@@ -20,11 +22,23 @@ struct FWaveGolds{
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int Golds;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	EWaveEvent WaveEvent;
+};
+
+USTRUCT(BlueprintType)
+struct FAIToSpawn{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TSubclassOf<AMainAICharacter> AIToSpawn;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int NumberToSpawn;
 };
 
 USTRUCT(BlueprintType)
@@ -40,9 +54,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bStopAtEnd;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TArray<FAIToSpawn> AIToSpawnList;
 };
-
-
 
 UCLASS()
 class GLITCHUE_API AWaveManager : public AActor{
@@ -56,15 +71,22 @@ protected:
 
 	TSet<ACatalyseur*> CatalyseursList;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
+	TSet<ASpawner*> SpawnerList;
+
+	TArray<ASpawner*> ActiveSpawnerList;
+
 	AMainPlayer* Player;
 
 	int CurrentWaveNumber = 0;
 
 	int NumberOfWaves;
 
-	//int WaveNumber;
-
 	UDataTable* WavesData;
+
+	void EnableCatalyseurs();
+	
+	void DisableCatalyseurs();
 
 public:
 	void StartWave();
@@ -72,5 +94,9 @@ public:
 	void EndWave();
 
 private:
+	void SpawnEnemies();
+
 	FWave* GetCurrentWaveData();
+
+	void RefreshActiveSpawners();
 };

@@ -296,7 +296,7 @@ void AMainPlayer::GlitchCameraTrace(){
 
 	UKismetSystemLibrary::BoxTraceMultiByProfile(this, FollowCamera->GetComponentLocation(), Mark->GetActorLocation(), BoxHalfSize, FRotator::ZeroRotator, FName(TEXT("GlitchCamera")), false, ActorsToIgnore, EDrawDebugTrace::None, HitResultList, true, FColor::Red, FColor::Green, 0.5f);
 
-	//for (int i = 0; i < sizeof(HitResultList); i++) {
+	//for (int i = 0; i < HitResultList.Num(); i++) {
 		//HitResultList[i].Component.IsA(UStaticMeshComponent::StaticClass);
 	//}
 }

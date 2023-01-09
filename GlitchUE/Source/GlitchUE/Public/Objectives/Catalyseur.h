@@ -8,6 +8,20 @@
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
 
+class ASpawner;
+
+USTRUCT(BlueprintType)
+struct FStateAtWave{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int EnableAtWave;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int DisableAtWave;
+};
+
 UCLASS()
 class GLITCHUE_API ACatalyseur : public AAbstractObjectif{
 	GENERATED_BODY()
@@ -21,9 +35,24 @@ protected:
 
 	virtual void OnHealthNull() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Position", meta = (ExposeOnSpawn = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
+	FStateAtWave StateAtWave;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
+	int EnableAtWave;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
+	int DisableAtWave;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
+	TArray<ASpawner*> SpawnerList;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nexus", meta = (ExposeOnSpawn = "true"))
 	ANexus* Nexus;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Position", meta = (ExposeOnSpawn = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;
+
+public:
+	FStateAtWave GetStateAtWave();
 };

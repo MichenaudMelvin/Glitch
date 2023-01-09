@@ -37,6 +37,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Activable")
 	EState State;
 
+public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
 	FKOnActivated OnActivated;
 

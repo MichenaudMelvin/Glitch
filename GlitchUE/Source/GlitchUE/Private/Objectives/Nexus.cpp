@@ -2,11 +2,13 @@
 
 
 #include "Objectives/Nexus.h"
+#include "Kismet/GameplayStatics.h"
+#include "GlitchUEGameMode.h"
+#include "AI/Waves/WaveManager.h"
 
 ANexus::ANexus() {
 	Interaction = CreateDefaultSubobject<UInteractableComponent>(TEXT("NexusInteraction"));
 }
-
 
 void ANexus::BeginPlay() {
 	Super::BeginPlay();
@@ -15,7 +17,8 @@ void ANexus::BeginPlay() {
 
 void ANexus::ActiveObjectif(){
 	if (ActivableComp->GetState() == EState::CPF_Activated) {
-		ActivableComp->ActivateObject();
-		//set gamemode phase
+		Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this))->SetNewPhase(EPhases::TowerDefense);
+
+		WaveManager->StartWave();
 	}
 }

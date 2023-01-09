@@ -31,14 +31,15 @@ protected:
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Perception")
 	//UAIPerceptionStimuliSourceComponent* AIPerceptionTarget;
 
+	UFUNCTION()
 	virtual void ActiveObjectif();
 
+	UFUNCTION()
 	virtual void DesactivateObjectif();
 
+	UFUNCTION()
 	virtual void OnHealthNull();
 
-public:	
-	virtual void Tick(float DeltaTime) override;
-
+public:
 	UActivableComponent* GetActivableComp();
 };

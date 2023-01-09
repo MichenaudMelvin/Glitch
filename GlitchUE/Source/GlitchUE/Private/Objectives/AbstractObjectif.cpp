@@ -18,6 +18,9 @@ AAbstractObjectif::AAbstractObjectif(){
 
 void AAbstractObjectif::BeginPlay(){
 	Super::BeginPlay();
+
+	ActivableComp->OnActivated.AddDynamic(this, &AAbstractObjectif::ActiveObjectif);
+	ActivableComp->OnDesactivated.AddDynamic(this, &AAbstractObjectif::DesactivateObjectif);
 }
 
 void AAbstractObjectif::ActiveObjectif(){}
@@ -25,12 +28,6 @@ void AAbstractObjectif::ActiveObjectif(){}
 void AAbstractObjectif::DesactivateObjectif(){}
 
 void AAbstractObjectif::OnHealthNull(){}
-
-
-void AAbstractObjectif::Tick(float DeltaTime){
-	Super::Tick(DeltaTime);
-
-}
 
 UActivableComponent* AAbstractObjectif::GetActivableComp() {
 	return ActivableComp;

@@ -7,6 +7,8 @@
 #include "Components/InteractableComponent.h"
 #include "Nexus.generated.h"
 
+class AWaveManager;
+
 UCLASS()
 class GLITCHUE_API ANexus : public AAbstractObjectif{
 	GENERATED_BODY()
@@ -17,7 +19,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInteractableComponent* Interaction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
+	AWaveManager* WaveManager;
 
 	virtual void ActiveObjectif() override;
 };
