@@ -7,6 +7,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/ActivableComponent.h"
 //#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Components/InteractableComponent.h"
 #include "AbstractObjectif.generated.h"
 
 UCLASS(Abstract)
@@ -28,6 +29,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Actiable")
 	UActivableComponent* ActivableComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	UInteractableComponent* InteractableComp;
+
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Perception")
 	//UAIPerceptionStimuliSourceComponent* AIPerceptionTarget;
 
@@ -39,6 +43,9 @@ protected:
 
 	UFUNCTION()
 	virtual void OnHealthNull();
+
+	UFUNCTION()
+	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 public:
 	UActivableComponent* GetActivableComp();

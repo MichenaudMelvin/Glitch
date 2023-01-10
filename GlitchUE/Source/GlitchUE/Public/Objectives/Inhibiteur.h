@@ -15,9 +15,6 @@ public:
 	AInhibiteur();
 
 protected:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Actiable")
-	UInteractableComponent* InteractableComp;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;
 };

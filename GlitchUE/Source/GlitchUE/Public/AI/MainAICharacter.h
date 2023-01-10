@@ -9,9 +9,10 @@
 #include "Components/HealthComponent.h"
 #include "MainAICharacter.generated.h"
 
+class AWaveManager;
+
 UCLASS()
-class GLITCHUE_API AMainAICharacter : public ACharacter
-{
+class GLITCHUE_API AMainAICharacter : public ACharacter{
 	GENERATED_BODY()
 
 public:
@@ -26,9 +27,15 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UHealthComponent* HealthComp;
+	
+	UFUNCTION()
+	void HealthNull();
+
+	AWaveManager* WaveManager;
 
 public:
 	UFUNCTION(BlueprintCallable)
 	void StunAI();
 
+	void SetWaveManager(AWaveManager* NewWaveManager);
 };

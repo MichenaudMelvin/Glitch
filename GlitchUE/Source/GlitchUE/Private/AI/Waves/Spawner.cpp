@@ -4,13 +4,20 @@
 #include "AI/Waves/Spawner.h"
 #include "Engine/World.h"
 #include "AI/MainAIController.h"
+#include "AI/Waves/WaveManager.h"
 
 ASpawner::ASpawner(){
 	PrimaryActorTick.bCanEverTick = false;
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	SpawnerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpawnerMseh"));
+	SpawnerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpawnerMesh"));
 
-	SpawnerMesh->SetupAttachment(RootComponent);
+	SpawnerMesh->SetMobility(EComponentMobility::Static);
+
+	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("ActivableComp"));
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/EditorMeshes/EditorCylinder"));
+	check(Mesh.Succeeded());
+
+	SpawnerMesh->SetStaticMesh(Mesh.Object);
 }
 
 void ASpawner::Spawn(int numberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn){
@@ -19,6 +26,8 @@ void ASpawner::Spawn(int numberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn)
 	for (int i = 0; i < numberToSpawn; i++) {
 		AMainAICharacter* NewPawn = GetWorld()->SpawnActor<AMainAICharacter>(AIToSpawn, GetActorLocation(), GetActorRotation(), ActorSpawnParameters);
 		NewPawn->SpawnDefaultController();
+		NewPawn->SetWaveManager(WaveManager);
+		WaveManager->AddAIToList(NewPawn);
 		AMainAIController* AIController = Cast<AMainAIController>(NewPawn->Controller);
 	}
 }

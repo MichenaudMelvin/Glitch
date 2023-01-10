@@ -52,6 +52,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Feedback")
 	bool bOutlineFeedback = true;
 
+	UFUNCTION(Category = "Feedback")
+	void OutlineFeedback(bool bOutline);
+
+public:
 	UPROPERTY(BlueprintAssignable, Category = "Interaction")
 	FKOnInteract OnInteract;
 
@@ -60,9 +64,6 @@ protected:
 
 	UPROPERTY(BlueprintAssignable, Category = "Feedback")
 	FKOnUnfeedback OnUnfeedback;
-
-	UFUNCTION(Category = "Feedback")
-	void OutlineFeedback(bool bOutline);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")

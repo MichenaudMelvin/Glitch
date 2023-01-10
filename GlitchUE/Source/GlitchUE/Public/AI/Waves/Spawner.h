@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/ActivableComponent.h"
 #include "AI/MainAICharacter.h"
+#include "WaveManager.h"
 #include "Spawner.generated.h"
 
 UCLASS()
@@ -22,6 +23,9 @@ protected:
 	UStaticMeshComponent* SpawnerMesh;
 
 	UActivableComponent* ActivableComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
+	AWaveManager* WaveManager;
 
 public:
 	void Spawn(int numberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn);

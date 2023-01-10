@@ -87,7 +87,6 @@ void AMainPlayerController::UnbindSprint() {
 
 void AMainPlayerController::BindGlitch(){
 	UnbindGlitch();
-	UE_LOG(LogTemp, Warning, TEXT("BindGlitch"));
 	if (MainPlayer->GetMark()->GetIsMarkPlaced()) {
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::TPToMark);
 	} else {
@@ -99,7 +98,6 @@ void AMainPlayerController::BindGlitch(){
 void AMainPlayerController::UnbindGlitch(){
 	OnUseGlitchPressed.Clear();
 	OnUseGlitchReleased.Clear();
-	UE_LOG(LogTemp, Warning, TEXT("UnbindGlitch"));
 }
 
 void AMainPlayerController::BindInteraction() {

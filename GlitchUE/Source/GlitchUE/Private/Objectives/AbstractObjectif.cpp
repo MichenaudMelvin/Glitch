@@ -9,10 +9,19 @@ AAbstractObjectif::AAbstractObjectif(){
 
 	MeshObjectif->SetupAttachment(RootComponent);
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/EditorMeshes/EditorCube"));
+	check(Mesh.Succeeded());
+
+	MeshObjectif->SetStaticMesh(Mesh.Object);
+
+	MeshObjectif->SetMobility(EComponentMobility::Static);
+
 	//AIPerceptionTarget = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AITarget"));
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
+
+	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 
 }
 
@@ -21,6 +30,8 @@ void AAbstractObjectif::BeginPlay(){
 
 	ActivableComp->OnActivated.AddDynamic(this, &AAbstractObjectif::ActiveObjectif);
 	ActivableComp->OnDesactivated.AddDynamic(this, &AAbstractObjectif::DesactivateObjectif);
+
+	InteractableComp->OnInteract.AddDynamic(this, &AAbstractObjectif::Interact);
 }
 
 void AAbstractObjectif::ActiveObjectif(){}
@@ -28,6 +39,8 @@ void AAbstractObjectif::ActiveObjectif(){}
 void AAbstractObjectif::DesactivateObjectif(){}
 
 void AAbstractObjectif::OnHealthNull(){}
+
+void AAbstractObjectif::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){}
 
 UActivableComponent* AAbstractObjectif::GetActivableComp() {
 	return ActivableComp;

@@ -2,6 +2,7 @@
 
 
 #include "AI/MainAICharacter.h"
+#include "AI/Waves/WaveManager.h"
 
 AMainAICharacter::AMainAICharacter(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -18,8 +19,19 @@ void AMainAICharacter::BeginPlay(){
 	Blackboard->SetValueAsVector(FName(TEXT("OriginalPosition")), GetActorLocation());
 
 	AIControllerClass;
+
+	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
 }
 
 void AMainAICharacter::StunAI() {
 	Blackboard->SetValueAsBool(FName(TEXT("IsStun")), true);
+}
+
+void AMainAICharacter::HealthNull() {
+	WaveManager->RemoveAIFromList(this);
+	Destroy();
+}
+
+void AMainAICharacter::SetWaveManager(AWaveManager* NewWaveManager) {
+	WaveManager = NewWaveManager;
 }

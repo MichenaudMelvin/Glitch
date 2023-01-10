@@ -5,11 +5,16 @@
 #include "Components/BoxComponent.h"
 
 AConstructionZone::AConstructionZone() {
+	PrimaryActorTick.bCanEverTick = false;
 
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
 
 	UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
-	BoxComp->SetBoxExtent(FVector::OneVector * 100);
+	BoxComp->SetBoxExtent(FVector::OneVector * 200);
+
+	BoxComp->SetMobility(EComponentMobility::Static);
+
+	InitialState = EState::CPF_Desactivated;
 }
 
 void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {

@@ -7,18 +7,24 @@
 #include "AI/Waves/WaveManager.h"
 
 ANexus::ANexus() {
-	Interaction = CreateDefaultSubobject<UInteractableComponent>(TEXT("NexusInteraction"));
+
 }
 
 void ANexus::BeginPlay() {
 	Super::BeginPlay();
-	Interaction->AddInteractable(MeshObjectif);
+	InteractableComp->AddInteractable(MeshObjectif);
 }
 
 void ANexus::ActiveObjectif(){
 	if (ActivableComp->GetState() == EState::CPF_Activated) {
 		Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this))->SetNewPhase(EPhases::TowerDefense);
-
+		UE_LOG(LogTemp, Warning, TEXT("Hello"));
 		WaveManager->StartWave();
+	}
+}
+
+void ANexus::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
+	if (ActivableComp->GetState() == EState::CPF_Desactivated) {
+		ActivableComp->ActivateObject();
 	}
 }

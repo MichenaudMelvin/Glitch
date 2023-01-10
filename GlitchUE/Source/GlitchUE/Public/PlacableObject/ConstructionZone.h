@@ -20,6 +20,9 @@ protected:
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", meta = (ExposeOnSpawn = "true"))
+	EState InitialState;
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Activable")
 	UActivableComponent* GetActivableComp();

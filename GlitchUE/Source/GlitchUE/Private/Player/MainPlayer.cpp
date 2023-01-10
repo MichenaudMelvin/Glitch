@@ -280,7 +280,6 @@ void AMainPlayer::SetMark(AMark* NewMark) {
 
 void AMainPlayer::LookAtMark(float Value){	
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
-	UE_LOG(LogTemp, Warning, TEXT("The float value is: %f"), Value);
 }
 
 void AMainPlayer::StartGlitchDashFX(){

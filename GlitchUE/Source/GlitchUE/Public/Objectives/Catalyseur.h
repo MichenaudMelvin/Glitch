@@ -39,12 +39,6 @@ protected:
 	FStateAtWave StateAtWave;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
-	int EnableAtWave;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
-	int DisableAtWave;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
 	TArray<ASpawner*> SpawnerList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nexus", meta = (ExposeOnSpawn = "true"))

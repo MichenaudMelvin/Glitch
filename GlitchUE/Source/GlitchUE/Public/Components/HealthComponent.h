@@ -42,6 +42,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void AddHealth(float HealthAmount);
 
+public:
 	UPROPERTY(BlueprintAssignable, Category = "Damages")
 	FKOnReciveDamages OnReciveDamages;
 

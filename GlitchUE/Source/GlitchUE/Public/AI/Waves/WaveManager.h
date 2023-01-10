@@ -7,9 +7,10 @@
 #include "GameFramework/Actor.h"
 #include "Objectives/Catalyseur.h"
 #include "Engine/DataTable.h"
-#include "AI/MainAICharacter.h"
 #include "Spawner.h"
 #include "WaveManager.generated.h"
+
+class AMainAICharacter;
 
 UENUM(BlueprintType)
 enum class EWaveEvent : uint8 {
@@ -47,7 +48,7 @@ struct FWave : public FTableRowBase{
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	float WaveDuration;
+	float NextWaveTimer;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FWaveGolds GivenGolds;
@@ -68,7 +69,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	
 	TSet<ACatalyseur*> CatalyseursList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
@@ -84,6 +85,8 @@ protected:
 
 	UDataTable* WavesData;
 
+	TSet<AMainAICharacter*> WaveAIList;
+
 	void EnableCatalyseurs();
 	
 	void DisableCatalyseurs();
@@ -93,6 +96,10 @@ public:
 
 	void EndWave();
 
+	void AddAIToList(AMainAICharacter* AIToAdd);
+
+	void RemoveAIFromList(AMainAICharacter* AIToRemove);
+
 private:
 	void SpawnEnemies();
 
@@ -100,3 +107,12 @@ private:
 
 	void RefreshActiveSpawners();
 };
+
+//Wat
+//https://forums.unrealengine.com/t/get-all-actors-of-class-in-c/329740/2
+template<typename T>
+void FindAllActors(UWorld* World, TArray<T*>& Out) {
+	for (TActorIterator<T> It(World); It; ++It) {
+		Out.Add(*It);
+	}
+}

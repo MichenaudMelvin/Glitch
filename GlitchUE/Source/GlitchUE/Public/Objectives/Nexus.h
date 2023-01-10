@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Objectives/AbstractObjectif.h"
-#include "Components/InteractableComponent.h"
 #include "Nexus.generated.h"
 
 class AWaveManager;
@@ -19,11 +18,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UInteractableComponent* Interaction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
 	AWaveManager* WaveManager;
 
 	virtual void ActiveObjectif() override;
+	
+	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 };

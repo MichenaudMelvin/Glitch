@@ -4,5 +4,5 @@
 #include "Objectives/Inhibiteur.h"
 
 AInhibiteur::AInhibiteur() {
-	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("InhibiteurInteraction"));
+
 }

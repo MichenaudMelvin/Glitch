@@ -5,11 +5,11 @@
 #include "AI/Waves/Spawner.h"
 
 void ACatalyseur::BeginPlay() {
-
+	Super::BeginPlay();
 }
 
 void ACatalyseur::ActiveObjectif(){
-	if (Nexus->GetActivableComp()->GetState() == EState::CPF_Activated && ActivableComp->GetState() == EState::CPF_Desactivated) {
+	if (Nexus->GetActivableComp()->GetState() == EState::CPF_Activated) {
 		for (int i = 0; i < ConstructionZoneList.Num(); i++) {
 			ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
 		}

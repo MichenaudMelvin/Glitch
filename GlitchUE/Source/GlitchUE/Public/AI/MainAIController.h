@@ -17,6 +17,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UBehaviorTree* BehaviorTree;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
