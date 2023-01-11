@@ -32,7 +32,15 @@ void UHealthComponent::TakeMaxDamages(){
 }
 
 void UHealthComponent::AddHealth(float HealthAmount){
+	// à faire
+}
 
+bool UHealthComponent::GetCanTakeDamages(){
+	return bCanTakeDamages;
+}
+
+void UHealthComponent::SetCanTakeDamages(bool bValue){
+	bCanTakeDamages = bValue;
 }
 
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PlacableObject/PlacableObject.h"
 #include "Components/InteractableComponent.h"
+#include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "MainPlayerController.h"
 #include "Mark/Mark.h"
@@ -92,12 +93,19 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SprintToSneak();
 	void SprintToSneak_Implementation();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void ResetMovement();
+	void ResetMovement_Implementation();
 
 protected:
 	#pragma endregion
 
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	UPlacableObject* PlacableActor;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+	UHealthComponent* HealthComp;
 
 	FVector PlacableActorLocation;
 
@@ -191,13 +199,19 @@ public:
 	UFUNCTION()
 	void LookAtMark(float Value);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Mark")
 	void StartGlitchDashFX();
+	void StartGlitchDashFX_Implementation();
 
 	void GlitchCameraTrace();
 
+	TSet<UStaticMeshComponent*> OverlappedMeshes;
+
+	TArray<ECollisionResponse> OverlappedMeshesCollisionResponse;
+
 	void GlitchTrace();
 
-	void ResetOverlappedStaticMeshComp();
+	void ResetOverlappedMeshes();
 
 #pragma endregion
 

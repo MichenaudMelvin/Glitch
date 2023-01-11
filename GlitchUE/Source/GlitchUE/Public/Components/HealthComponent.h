@@ -30,7 +30,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	float CurrentHealth;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Damages")
 	bool bCanTakeDamages = true;
 
 	UFUNCTION(BlueprintCallable, Category = "Damages")
@@ -48,4 +47,10 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Damages")
 	FKOnHealthNull OnHealthNull;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Damages")
+	bool GetCanTakeDamages();
+
+	UFUNCTION(BlueprintCallable, Category = "Damages")
+	void SetCanTakeDamages(bool bValue);
 };

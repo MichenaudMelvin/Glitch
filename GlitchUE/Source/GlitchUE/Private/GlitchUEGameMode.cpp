@@ -2,6 +2,7 @@
 
 #include "GlitchUEGameMode.h"
 #include "Player/MainPlayer.h"
+#include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
@@ -47,4 +48,8 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 		OnGlitchMax.Broadcast();
 		GlitchValue = 0;
 	}
+}
+
+void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation){
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
 }

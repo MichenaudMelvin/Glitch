@@ -49,6 +49,8 @@ AMainPlayer::AMainPlayer(){
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
@@ -166,6 +168,8 @@ void AMainPlayer::SneakReleased_Implementation(){}
 
 void AMainPlayer::SprintToSneak_Implementation(){}
 
+void AMainPlayer::ResetMovement_Implementation(){}
+
 EPlayerMovementMode AMainPlayer::GetMovementMode(){
 	return MovementMode;
 }
@@ -256,7 +260,8 @@ void AMainPlayer::TPToMark() {
 
 	StopJumping();
 	Mark->PlaceMark();
-	// health comp // can take damages = false
+	// camera aim reverse
+	HealthComp->SetCanTakeDamages(false);
 	GetCharacterMovement()->GravityScale = 0;
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
@@ -274,13 +279,9 @@ void AMainPlayer::TPToMark() {
 	CameraTransitionTL.PlayFromStart();
 }
 
-void AMainPlayer::UseGlitchPressed_Implementation() {
+void AMainPlayer::UseGlitchPressed_Implementation() {}
 
-}
-
-void AMainPlayer::UseGlitchReleassed_Implementation() {
-
-}
+void AMainPlayer::UseGlitchReleassed_Implementation() {}
 
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
@@ -296,7 +297,7 @@ void AMainPlayer::LookAtMark(float Value){
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
 }
 
-void AMainPlayer::StartGlitchDashFX(){
+void AMainPlayer::StartGlitchDashFX_Implementation(){
 	//class UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFX, );
 }
 
@@ -307,27 +308,42 @@ void AMainPlayer::GlitchCameraTrace(){
 	TArray<AActor*> ActorsToIgnore;
 	TArray<FHitResult> HitResultList;
 
-	UKismetSystemLibrary::BoxTraceMultiByProfile(this, FollowCamera->GetComponentLocation(), Mark->GetActorLocation(), BoxHalfSize, FRotator::ZeroRotator, FName(TEXT("GlitchCamera")), false, ActorsToIgnore, EDrawDebugTrace::None, HitResultList, true, FColor::Red, FColor::Green, 0.5f);
+	UKismetSystemLibrary::BoxTraceMulti(this, FollowCamera->GetComponentLocation(), Mark->GetActorLocation(), BoxHalfSize, FRotator::ZeroRotator, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, ActorsToIgnore, EDrawDebugTrace::None, HitResultList, true, FColor::Red, FColor::Green, 0.5f);
 
-	//for (int i = 0; i < HitResultList.Num(); i++) {
-		//HitResultList[i].Component.IsA(UStaticMeshComponent::StaticClass);
-	//}
+	for (int i = 0; i < HitResultList.Num(); i++) {
+		if (HitResultList[i].GetComponent()->IsA(UStaticMeshComponent::StaticClass())) {
+			UStaticMeshComponent* CurrentStaticMeshComp = Cast<UStaticMeshComponent>(HitResultList[i].GetComponent());
+			
+			if (!OverlappedMeshes.Contains(CurrentStaticMeshComp)){
+				OverlappedMeshes.Add(CurrentStaticMeshComp);
+				OverlappedMeshesCollisionResponse.Add(CurrentStaticMeshComp->GetCollisionResponseToChannel(ECollisionChannel::ECC_Camera));
+				CurrentStaticMeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+			}
+		}
+	}
 }
 
 void AMainPlayer::GlitchTrace(){
 
 }
 
-void AMainPlayer::ResetOverlappedStaticMeshComp(){
+void AMainPlayer::ResetOverlappedMeshes(){
+	TArray<UStaticMeshComponent*> OverlappedMeshesArray = OverlappedMeshes.Array();
 
+	for (int i = 0; i < OverlappedMeshesArray.Num(); i++) {
+		OverlappedMeshesArray[i]->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, OverlappedMeshesCollisionResponse[i]);
+	}
+
+	OverlappedMeshes.Empty();
+	OverlappedMeshesCollisionResponse.Empty();
 }
 
 void AMainPlayer::EndTL() {
-	// glitch camera trace
+	GlitchCameraTrace();
 
-	// glitch trace
+	GlitchTrace();
 
-	// reset movement
+	ResetMovement();
 
 	FLatentActionInfo LatentInfo;
 	LatentInfo.CallbackTarget = this;
@@ -335,18 +351,18 @@ void AMainPlayer::EndTL() {
 	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, 0.2f, false, EMoveComponentAction::Type::Move, LatentInfo);
 
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){		
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 
-	MainPlayerController->BindMovement();
-	MainPlayerController->BindCamera();
+		MainPlayerController->BindMovement();
+		MainPlayerController->BindCamera();
 
-	// reset overlapped static mesh comp
+		ResetOverlappedMeshes();
 
-	Mark->ResetMark();
-	GetMesh()->SetVisibility(true, true);
-	GetCharacterMovement()->GravityScale = 1;
+		Mark->ResetMark();
+		GetMesh()->SetVisibility(true, true);
+		GetCharacterMovement()->GravityScale = 1;
 
-	// health comp can take damages
+		HealthComp->SetCanTakeDamages(true);
 	}, 0.2f, false);
 }
 

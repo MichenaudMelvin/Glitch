@@ -64,4 +64,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
 	void AddGlitch(float AddedValue);
+
+#pragma region ConsoleCommands
+
+
+private:
+	UFUNCTION(Exec)
+	void SetGlobalTimeDilation(float TimeDilation);
+
+#pragma endregion
+
 };
