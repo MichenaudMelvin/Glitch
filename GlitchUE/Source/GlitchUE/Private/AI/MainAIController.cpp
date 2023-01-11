@@ -6,8 +6,10 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "Perception/AIPerceptionSystem.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "Perception/AISense_Sight.h"
 #include "Player/MainPlayer.h"
+
 
 AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))) {
@@ -20,40 +22,39 @@ AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer
 void AMainAIController::BeginPlay() {
 	Super::BeginPlay();
 
+	RunBehaviorTree(BehaviorTree);
+	UseBlackboard(BlackboardData, Blackboard);
+
 	//AIPerception = NewObject<UAIPerceptionComponent>();
 
-	//UE_LOG(LogTemp, Warning, TEXT("The boolean value is %s"), (IsValid(AIPerception) ? TEXT("true") : TEXT("false")));
-
 	Blackboard->SetValueAsFloat(FName(TEXT("StunTime")), StunTime);
+	Blackboard->SetValueAsFloat(FName(TEXT("InvestigatingTime")), InvestigatingTime);
+
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
-	
-	//RunBehaviorTree(BehaviorTree);
 }
 
 void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, FAIStimulus Stimulus) {
-	/*
-	UE_LOG(LogTemp, Warning, TEXT("Hello"));
 	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Sight::StaticClass()) {
-		UE_LOG(LogTemp, Warning, TEXT("STIMULUS == SIGHT"));
 		if (Cast<AMainPlayer>(Actor)) {
-			UE_LOG(LogTemp, Warning, TEXT("CAST"));
 			if (IsValid(Blackboard->GetValueAsObject(FName(TEXT("Player"))))) {
-				UE_LOG(LogTemp, Warning, TEXT("GET BB VAL"));
 				SetPlayerValues(Actor);
 			} 
 			else {
-				UE_LOG(LogTemp, Warning, TEXT("ELSE"));
-				Blackboard->SetValueAsBool(FName(TEXT("Player")), true);
+				Blackboard->SetValueAsBool(FName(TEXT("Investigate")), true);
 				Blackboard->SetValueAsVector(FName(TEXT("InvestigationLocation")), Actor->GetActorLocation());
-				
-				FTimerHandle TimerHandle;
 
+				SetPlayerValues(Actor);
+
+				FTimerHandle TimerHandle;
+				
+				// fait crash le probleme viens probablement du timerhandle
+				/*
 				GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
 					SetPlayerValues(Actor);
-				}, InvestigatingTime, false);
+				}, Blackboard->GetValueAsFloat(FName(TEXT("InvestigatingTime"))), false);*/
 			}
 		}
-	}*/
+	}
 }
 
 void AMainAIController::SetPlayerValues(AActor* Player) {

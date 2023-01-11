@@ -29,6 +29,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	UAIPerceptionComponent* AIPerception;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UBlackboardData* BlackboardData;
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "AIPerception")
 	void PerceptionUpdate(AActor* Actor, FAIStimulus Stimulus);
 	void PerceptionUpdate_Implementation(AActor* Actor, FAIStimulus Stimulus);
