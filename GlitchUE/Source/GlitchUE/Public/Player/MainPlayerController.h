@@ -206,6 +206,14 @@ public:
 	void BindSprint();
 	void BindSprint_Implementation();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
+	void BindConstruction();
+	void BindConstruction_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
+	void UnbindConstruction();
+	void UnbindConstruction_Implementation();
+
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindSprint();
 

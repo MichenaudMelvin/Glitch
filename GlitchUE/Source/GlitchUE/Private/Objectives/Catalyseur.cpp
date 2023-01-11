@@ -6,6 +6,10 @@
 
 void ACatalyseur::BeginPlay() {
 	Super::BeginPlay();
+
+	if (!IsValid(Nexus)) {
+		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s N'A PAS DE NEXUS"), *this->GetName());
+	}
 }
 
 void ACatalyseur::ActiveObjectif(){

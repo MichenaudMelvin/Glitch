@@ -11,11 +11,17 @@
 #include "Components/TimelineComponent.h"
 #include "MainPlayer.generated.h"
 
+UENUM(BlueprintType)
+enum class EPlayerMovementMode : uint8{
+	Normal,
+	Sneaking,
+	Sprinting,
+};
+
 UCLASS(config=Game)
 class AMainPlayer : public ACharacter{
 	GENERATED_BODY()
 
-	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -41,7 +47,16 @@ protected:
 
 	#pragma region Movement
 
+protected:
+	EPlayerMovementMode MovementMode;
+
 public:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	EPlayerMovementMode GetMovementMode();
+
+	UFUNCTION(BlueprintCallable)
+	void SetMovementMode(EPlayerMovementMode NewMovementMode);
+
 	/** Called for forwards/backward input */
 	UFUNCTION(BlueprintCallable)
 	void MoveForward(float Value);
@@ -64,8 +79,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LookUpAtRate(float Rate);
 
-
 	virtual void AddControllerPitchInput(float Rate) override;
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void SneakPressed();
+	void SneakPressed_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void SneakReleased();
+	void SneakReleased_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void SprintToSneak();
+	void SprintToSneak_Implementation();
 
 protected:
 	#pragma endregion

@@ -28,6 +28,14 @@ void AWaveManager::BeginPlay(){
 	FindAllActors<ACatalyseur>(GetWorld(), CatalyseurArray);
 	
 	CatalyseursList = TSet<ACatalyseur*>(CatalyseurArray);
+
+	if (CatalyseursList.Num() == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("LA LISTE DES CATALYSEURS DU WAVE MANAGER EST VIDE"));
+	}
+
+	if (SpawnerList.Num() == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("LA LISTE DES SPAWNER DU WAVE MANAGER EST VIDE"));
+	}
 }
 
 void AWaveManager::EnableCatalyseurs(){

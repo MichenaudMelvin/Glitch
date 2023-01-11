@@ -67,6 +67,19 @@ void AMainPlayerController::UnbindJump() {
 
 void AMainPlayerController::BindSneak(){
 	UnbindSneak();
+	OnSneakReleased.AddDynamic(MainPlayer, &AMainPlayer::SneakReleased);
+
+	switch (MainPlayer->GetMovementMode()){
+	case EPlayerMovementMode::Normal:
+		OnSneakPressed.AddDynamic(MainPlayer, &AMainPlayer::SneakPressed);
+		break;
+	case EPlayerMovementMode::Sneaking:
+		OnSneakPressed.AddDynamic(MainPlayer, &AMainPlayer::SneakPressed);
+		break;
+	case EPlayerMovementMode::Sprinting:
+		OnSneakPressed.AddDynamic(MainPlayer, &AMainPlayer::SprintToSneak);
+		break;
+	}
 }
 
 void AMainPlayerController::UnbindSneak() {
@@ -80,6 +93,10 @@ void AMainPlayerController::BindSprint_Implementation() {
 	//
 	//}
 }
+
+void AMainPlayerController::BindConstruction_Implementation(){}
+
+void AMainPlayerController::UnbindConstruction_Implementation(){}
 
 void AMainPlayerController::UnbindSprint() {
 	OnSprint.Clear();
@@ -150,7 +167,7 @@ void AMainPlayerController::BindConstructionMode() {
 	UnbindAll();
 	BindMovement();
 	BindCamera();
-	// bind construction
+	BindConstruction();
 	BindOpenSelectionWheel();
 }
 
@@ -175,7 +192,7 @@ void AMainPlayerController::UnbindAll(){
 	UnbindCamera();
 	UnbindInteraction();
 	UnbindGlitch();
-	// unbind construction
+	UnbindConstruction();
 	UnbindOpenSelectionWheel();
 	// unbind rotate objects
 }

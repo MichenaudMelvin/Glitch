@@ -160,6 +160,20 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 	Super::AddControllerPitchInput(Rate);
 }
 
+void AMainPlayer::SneakPressed_Implementation(){}
+
+void AMainPlayer::SneakReleased_Implementation(){}
+
+void AMainPlayer::SprintToSneak_Implementation(){}
+
+EPlayerMovementMode AMainPlayer::GetMovementMode(){
+	return MovementMode;
+}
+
+void AMainPlayer::SetMovementMode(EPlayerMovementMode NewMovementMode){
+	MovementMode = NewMovementMode;
+}
+
 void AMainPlayer::MoveForward(float Value){
 	if ((Controller != nullptr) && (Value != 0.0f)){
 		// find out which way is forward
