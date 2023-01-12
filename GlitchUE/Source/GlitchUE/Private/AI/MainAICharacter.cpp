@@ -35,3 +35,7 @@ void AMainAICharacter::HealthNull() {
 void AMainAICharacter::SetWaveManager(AWaveManager* NewWaveManager) {
 	WaveManager = NewWaveManager;
 }
+
+AMainAIController* AMainAICharacter::GetMainAIController(){
+	return AIController;
+}

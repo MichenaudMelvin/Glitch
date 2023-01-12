@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "AI/Waves/WaveManager.h"
+#include "Player/MainPlayer.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
@@ -28,6 +30,16 @@ enum class ELevelState : uint8 {
 	UMETA(DisplayName = "Alerted"),
 };
 
+UENUM(BlueprintType)
+namespace EGlitchEvent {
+	enum Type{
+		UpgradeAlliesUnits,
+		UpgradeEnemiesAI,
+		UpgradePlayer,
+		RandomFX,
+	};
+}
+
 UCLASS(minimalapi)
 class AGlitchUEGameMode : public AGameModeBase{
 	GENERATED_BODY()
@@ -38,12 +50,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	AMainPlayer* MainPlayer;
+
 	EPhases CurrentPhase = EPhases::Infiltration;
 
 	ELevelState LevelState = ELevelState::Normal;
 
+	AWaveManager* WaveManager;
+
 	float GlitchValue;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
 	float GlitchMaxValue;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
@@ -65,8 +82,20 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
 	void AddGlitch(float AddedValue);
 
-#pragma region ConsoleCommands
+protected:
+	UFUNCTION(Exec, Category = "Glitch")
+	void GlitchUpgradeAlliesUnits();
 
+	UFUNCTION(Exec, Category = "Glitch")
+	void GlitchUpgradeEnemiesAI();
+
+	UFUNCTION(Exec, Category = "Glitch")
+	void GlitchUpgradePlayer();
+
+	UFUNCTION(Exec, Category = "Glitch")
+	void GlitchRandomFX();
+
+#pragma region ConsoleCommands
 
 private:
 	UFUNCTION(Exec)

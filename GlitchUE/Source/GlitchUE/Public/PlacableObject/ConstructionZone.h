@@ -15,7 +15,9 @@ public:
 	AConstructionZone();
 
 protected:
+	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UActivableComponent* ActivableComp;
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

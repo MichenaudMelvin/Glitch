@@ -45,7 +45,7 @@ public:
 	FKOnDesactivated OnDesactivated;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Activable")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Activable")
 	EState GetState();
 
 	UFUNCTION(BlueprintCallable, Category = "Activable")

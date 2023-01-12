@@ -13,16 +13,11 @@ ANexus::ANexus() {
 void ANexus::BeginPlay() {
 	Super::BeginPlay();
 	InteractableComp->AddInteractable(MeshObjectif);
-
-	if (!IsValid(WaveManager)) {
-		UE_LOG(LogTemp, Fatal, TEXT("LE NEXUS N'A PAS DE WAVEMANAGER"));
-	}
 }
 
 void ANexus::ActiveObjectif(){
 	if (ActivableComp->GetState() == EState::CPF_Activated) {
 		Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this))->SetNewPhase(EPhases::TowerDefense);
-		WaveManager->StartWave();
 	}
 }
 

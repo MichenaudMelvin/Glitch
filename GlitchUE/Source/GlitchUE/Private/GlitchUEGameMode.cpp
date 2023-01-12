@@ -3,7 +3,10 @@
 #include "GlitchUEGameMode.h"
 #include "Player/MainPlayer.h"
 #include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
+#include "PlacableObject/PlacableActor.h"
 #include "UObject/ConstructorHelpers.h"
+#include "AI/Waves/WaveManager.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	// set default pawn class to our Blueprinted character
@@ -16,7 +19,10 @@ AGlitchUEGameMode::AGlitchUEGameMode(){
 
 void AGlitchUEGameMode::BeginPlay() {
 	//set player
-	// set wave manager
+
+	TArray<AWaveManager*> WaveManagerArray;
+	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
+	WaveManager = WaveManagerArray[0];
 }
 
 EPhases AGlitchUEGameMode::GetPhases(){
@@ -29,7 +35,7 @@ void AGlitchUEGameMode::SetNewPhase(EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
-		//WaveManager->StartWave();
+		WaveManager->StartWave();
 		break;
 	}
 }
@@ -45,11 +51,59 @@ void AGlitchUEGameMode::SetLevelState(ELevelState newState){
 void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	GlitchValue = FMath::Clamp(AddedValue + GlitchValue, 0.0f, GlitchMaxValue);
 	if (GlitchValue == GlitchMaxValue) {
-		OnGlitchMax.Broadcast();
+
+		//OnGlitchMax.Broadcast();
+
+		EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
+
+		switch (RandomGlitchType){
+		case EGlitchEvent::UpgradeAlliesUnits:
+			UE_LOG(LogTemp, Warning, TEXT("UpgradeAlliesUnits"));
+			GlitchUpgradeAlliesUnits();
+			break;
+		
+		case EGlitchEvent::UpgradeEnemiesAI:
+			UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
+			GlitchUpgradeEnemiesAI();
+			break;
+		
+		case EGlitchEvent::UpgradePlayer:
+			UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
+			GlitchUpgradePlayer();
+			break;
+		
+		case EGlitchEvent::RandomFX:
+			UE_LOG(LogTemp, Warning, TEXT("RandomFX"));
+			GlitchRandomFX();
+			break;
+		}
+
 		GlitchValue = 0;
 	}
 }
 
+void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
+	TArray<APlacableActor*> PlacableActorList;
+	FindAllActors<APlacableActor>(GetWorld(), PlacableActorList);
+	//MainPlayer
+}
+
+void AGlitchUEGameMode::GlitchUpgradeEnemiesAI(){
+
+}
+
+void AGlitchUEGameMode::GlitchUpgradePlayer() {
+
+}
+
+void AGlitchUEGameMode::GlitchRandomFX() {
+
+}
+
+#pragma region ConsoleCommands
+
 void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation){
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
 }
+
+#pragma endregion
