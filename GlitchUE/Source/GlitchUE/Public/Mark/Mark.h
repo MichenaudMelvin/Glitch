@@ -1,0 +1,88 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Player/MainPlayer.h"
+#include "Mark.generated.h"
+
+UCLASS()
+class GLITCHUE_API AMark : public AActor
+{
+	GENERATED_BODY()
+	
+public:	
+	AMark();
+
+protected:
+	virtual void BeginPlay() override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
+	UStaticMeshComponent* MarkMesh;
+
+	AMainPlayer* Player;
+
+	FVector OriginalLocation;
+
+#pragma region Projectile
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
+	UProjectileMovementComponent* ProjectileMovement;	
+
+	void StartProjectile();
+
+	void StopProjectile();
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Projectile")
+	FVector GetTPLocation();
+
+protected:
+	bool LocationTrace(float UpTraceValue, FVector& outImpactPoint);
+
+	FVector LaunchLocation;
+
+	UFUNCTION()
+	void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+public:
+	bool bIsMarkPlaced = false;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Projectile")
+	bool GetIsMarkPlaced();
+
+#pragma endregion
+
+#pragma region MarkMovement
+
+	UFUNCTION(BlueprintCallable, Category = "MarkMovement")
+	void PlaceMark();
+
+	UFUNCTION(BlueprintCallable, Category = "MarkMovement")
+	void ResetMark();
+
+	UFUNCTION(BlueprintCallable, Category = "MarkMovement")
+	void Launch(FTransform StartTransform);
+
+#pragma endregion
+
+#pragma region Distance
+
+protected:
+	float GetDistanceToLaunchPoint();
+
+	void CheckDistance();
+
+	FTimerHandle DistanceTimer;
+
+	UPROPERTY(EditAnywhere, Category = "Distance")
+	float MaxDistance;
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Distance")
+	float GetMaxDistance();
+
+#pragma endregion
+};
