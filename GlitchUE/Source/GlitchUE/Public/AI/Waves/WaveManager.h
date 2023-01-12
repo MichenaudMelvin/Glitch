@@ -8,6 +8,7 @@
 #include "Objectives/Catalyseur.h"
 #include "Engine/DataTable.h"
 #include "Spawner.h"
+#include "EngineUtils.h"
 #include "WaveManager.generated.h"
 
 class AMainAICharacter;

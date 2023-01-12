@@ -38,4 +38,6 @@ public:
 	void StunAI();
 
 	void SetWaveManager(AWaveManager* NewWaveManager);
+
+	AMainAIController* GetMainAIController();
 };
