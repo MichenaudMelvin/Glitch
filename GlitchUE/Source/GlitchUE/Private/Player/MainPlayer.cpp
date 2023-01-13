@@ -13,6 +13,8 @@
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "GlitchUEGameMode.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -342,6 +344,9 @@ void AMainPlayer::EndTL() {
 	GlitchCameraTrace();
 
 	GlitchTrace();
+
+	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchDashValue + OverlappedMeshes.Num());
+	UE_LOG(LogTemp, Warning, TEXT("AddedGlitchDashValue : %f"), GlitchDashValue + OverlappedMeshes.Num());
 
 	ResetMovement();
 

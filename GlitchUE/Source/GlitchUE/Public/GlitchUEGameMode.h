@@ -83,6 +83,9 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
 	void AddGlitch(float AddedValue);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Glitch")
+	float GetCurrentGlitchValue();
+
 protected:
 	UFUNCTION(Exec, Category = "Glitch")
 	void GlitchUpgradeAlliesUnits();

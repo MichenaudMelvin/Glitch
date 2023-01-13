@@ -188,6 +188,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
 	AMark* GetMark() const { return Mark; }
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Mark")
+	float GlitchDashValue;
+
 	void SetMark(AMark* NewMark);
 
 	FVector CurrentCameraPosition;

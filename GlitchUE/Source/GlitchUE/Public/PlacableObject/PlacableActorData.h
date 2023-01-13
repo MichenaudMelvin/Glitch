@@ -28,4 +28,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Golds")
 	bool HasEnoughGolds(int PlayerGolds);
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
+	float GlitchUpgradeDuration;
 };

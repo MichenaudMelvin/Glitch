@@ -83,6 +83,10 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	}
 }
 
+float AGlitchUEGameMode::GetCurrentGlitchValue(){
+	return GlitchValue;
+}
+
 void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
