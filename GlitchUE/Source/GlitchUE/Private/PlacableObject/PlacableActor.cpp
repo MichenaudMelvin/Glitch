@@ -2,6 +2,7 @@
 
 
 #include "PlacableObject/PlacableActor.h"
+#include "..\..\Public\PlacableObject\PlacableActor.h"
 
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -22,4 +23,15 @@ void APlacableActor::SetData_Implementation(UPlacableActorData* NewData){
 
 void APlacableActor::Upgrade(){
 	SetData(CurrentData->NextUpgrade);
+}
+
+void APlacableActor::GlitchUpgrade_Implementation(){
+	// Ici set les upgrades dans les fonctions qui vont hériter
+
+	FTimerHandle TimerHandle;
+
+	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
+		//reset à l'upgrade actuel
+		SetData(CurrentData);
+	}, CurrentData->GlitchUpgradeDuration, false);
 }

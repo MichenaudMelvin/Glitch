@@ -20,7 +20,7 @@ AConstructionZone::AConstructionZone() {
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
 
-	switch (ActivableComp->GetState()){
+	switch (InitialState){
 	case EState::CPF_Activated:
 		ActivableComp->ActivateObject();
 		break;

@@ -19,4 +19,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
 	float DelayWetweenEachAttack;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
+	float UpgradedGlitchDamages;
 };

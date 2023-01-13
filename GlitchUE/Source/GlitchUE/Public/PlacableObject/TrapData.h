@@ -20,4 +20,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
 	float TrapAttackDelay;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
+	float UpgradedGlitchAttackDelay;
 };

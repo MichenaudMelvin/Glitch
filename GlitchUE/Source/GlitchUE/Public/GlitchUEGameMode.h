@@ -50,6 +50,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
 	AMainPlayer* MainPlayer;
 
 	EPhases CurrentPhase = EPhases::Infiltration;

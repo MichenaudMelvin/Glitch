@@ -39,12 +39,14 @@ protected:
 	FName Name;
 
 public:
-
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "PlayerActions")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "PlayerActions")
 	void SetData(UPlacableActorData* NewData);
-	void SetData_Implementation(UPlacableActorData* NewData);
+	virtual void SetData_Implementation(UPlacableActorData* NewData);
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 	void Upgrade();
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent,  Category = "Glitch")
+	void GlitchUpgrade();
+	virtual void GlitchUpgrade_Implementation();
 };
