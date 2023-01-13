@@ -29,7 +29,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Actiable")
 	UActivableComponent* ActivableComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
 	UInteractableComponent* InteractableComp;
 
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Perception")

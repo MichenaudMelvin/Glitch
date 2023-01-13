@@ -17,4 +17,14 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;
+
+	virtual void BeginPlay() override;
+
+	virtual void ActiveObjectif() override;
+
+	virtual void DesactivateObjectif()override;
+
+	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
+
+	void ActivateLinkedElements(bool bActivate);
 };

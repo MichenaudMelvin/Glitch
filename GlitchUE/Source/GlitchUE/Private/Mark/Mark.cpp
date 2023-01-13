@@ -71,7 +71,7 @@ bool AMark::LocationTrace(float UpTraceValue, FVector& outImpactPoint) {
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 
-	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), GetActorLocation(), TraceEnd, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::Persistent, hitResult, true, FLinearColor::Yellow, FLinearColor::Red, 1.0f);
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), GetActorLocation(), TraceEnd, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, hitResult, true, FLinearColor::Red, FLinearColor::Green, 0);
 	outImpactPoint = hitResult.ImpactPoint;
 
 	return bHit;

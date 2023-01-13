@@ -20,6 +20,8 @@ AConstructionZone::AConstructionZone() {
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
 
+	
+
 	switch (InitialState){
 	case EState::CPF_Activated:
 		ActivableComp->ActivateObject();
@@ -37,6 +39,25 @@ void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 	FVector BoxExtent = UKismetMathLibrary::Vector_SnappedToGrid(BoxComp->GetUnscaledBoxExtent(), 200);
 	Cast<UBoxComponent>(GetCollisionComponent())->SetBoxExtent(BoxExtent);
+}
+
+void AConstructionZone::ToggleActivation(bool bActivate){
+	if (bActivate) {
+		ActivableComp->ActivateObject();
+	}
+	else {
+		ActivableComp->DesactivateObject();
+	}
+
+	SetActorHiddenInGame(bActivate);
+}
+
+void AConstructionZone::ActiveObjectif(){
+	ToggleActivation(true);
+}
+
+void AConstructionZone::DesactivateObjectif(){
+	ToggleActivation(false);
 }
 
 UActivableComponent* AConstructionZone::GetActivableComp(){
