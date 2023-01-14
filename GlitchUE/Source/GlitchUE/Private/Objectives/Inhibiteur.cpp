@@ -5,19 +5,20 @@
 #include "GlitchUEGameMode.h"
 #include "Kismet/GameplayStatics.h"
 
-AInhibiteur::AInhibiteur() {
+AInhibiteur::AInhibiteur(){
 
 }
 
 void AInhibiteur::BeginPlay(){
 	Super::BeginPlay();
+	InteractableComp->AddInteractable(MeshObjectif);
 
-	if (ConstructionZoneList.Num() == 0) {
+	if (ConstructionZoneList.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
 	}
 }
 
-void AInhibiteur::ActiveObjectif() {
+void AInhibiteur::ActiveObjectif(){
 	ActivateLinkedElements(true);
 }
 

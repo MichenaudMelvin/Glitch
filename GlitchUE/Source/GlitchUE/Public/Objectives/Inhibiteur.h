@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Objectives/AbstractObjectif.h"
 #include "PlacableObject/ConstructionZone.h"
-#include "Components/InteractableComponent.h"
 #include "Inhibiteur.generated.h"
 
 UCLASS()
