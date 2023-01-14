@@ -21,7 +21,7 @@ public:
 	UPlacableActorData* NextUpgrade;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Mesh")
-	TArray<UStaticMesh*> MeshList;
+	TArray<UStreamableRenderAsset*> MeshList;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Mesh")
 	UStaticMesh* FullMesh;

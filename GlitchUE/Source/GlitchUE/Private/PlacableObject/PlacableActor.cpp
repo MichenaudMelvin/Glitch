@@ -15,10 +15,14 @@ void APlacableActor::BeginPlay(){
 	Super::BeginPlay();
 }
 
+void APlacableActor::SetMesh() {
+	BaseMesh->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[0]));
+}
+
 void APlacableActor::SetData_Implementation(UPlacableActorData* NewData){
 	CurrentData = NewData;
 	Name = CurrentData->Name;
-	BaseMesh->SetStaticMesh(CurrentData->MeshList[0]);
+	SetMesh();
 }
 
 void APlacableActor::Upgrade(){
@@ -31,7 +35,7 @@ void APlacableActor::GlitchUpgrade_Implementation(){
 	FTimerHandle TimerHandle;
 
 	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		//reset à l'upgrade actuel
+		//reset à l'upgrade actuelle
 		SetData(CurrentData);
 	}, CurrentData->GlitchUpgradeDuration, false);
 }

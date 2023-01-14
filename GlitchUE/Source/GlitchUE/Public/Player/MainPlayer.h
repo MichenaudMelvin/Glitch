@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PlacableObject/PlacableObject.h"
+#include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
@@ -102,7 +102,7 @@ protected:
 	#pragma endregion
 
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
-	UPlacableObject* PlacableActor;
+	APreviewPlacableActor* PreviewPlacableActor;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
 	UHealthComponent* HealthComp;

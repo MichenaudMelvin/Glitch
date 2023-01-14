@@ -38,6 +38,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
 	FName Name;
 
+	UFUNCTION(BlueprintCallable, Category = "Appearence")
+	virtual void SetMesh();
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "PlayerActions")
 	void SetData(UPlacableActorData* NewData);
@@ -46,7 +49,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 	void Upgrade();
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent,  Category = "Glitch")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Glitch")
 	void GlitchUpgrade();
 	virtual void GlitchUpgrade_Implementation();
 };

@@ -209,11 +209,11 @@ void AMainPlayer::PreviewObject(){
 	FHitResult Hit;
 	FCollisionQueryParams QueryParams;
 	FCollisionResponseParams ResponseParam;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PlacableActor->PreviewObject()){
+	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PreviewPlacableActor->CanBePlaced()){
 		PlacableActorLocation = Hit.Location;
-		PlacableActor->PlaceObject(PlacableActorLocation.GridSnap(100));
+		PreviewPlacableActor->SetActorLocation(PlacableActorLocation.GridSnap(100));
 	} else {
-		PlacableActor->PlaceObject(PlacableActor->GetOriginalLocation());
+		PreviewPlacableActor->ResetActor();
 	}
 }
 
