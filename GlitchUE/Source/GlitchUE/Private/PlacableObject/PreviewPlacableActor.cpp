@@ -9,6 +9,8 @@ APreviewPlacableActor::APreviewPlacableActor(){
 	BaseMesh->CastShadow = false;
 
 	static ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("/Game/VFX/Shaders/Hologram/M_HologramShader"));
+	check(Material.Succeeded());
+
 	HologramMaterial = Material.Object;
 
 	BaseMesh->SetMaterial(0, HologramMaterial);

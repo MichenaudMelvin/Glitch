@@ -93,6 +93,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
 	void SelectNewGameplayMode(EGameplayMode NewGameplayMode);
 
+public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")
 	EGameplayMode GetGameplayMode();
 
