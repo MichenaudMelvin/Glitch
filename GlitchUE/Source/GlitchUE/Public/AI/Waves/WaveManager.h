@@ -5,13 +5,12 @@
 #include "CoreMinimal.h"
 #include "Player/MainPlayer.h"
 #include "GameFramework/Actor.h"
-#include "Objectives/Catalyseur.h"
 #include "Engine/DataTable.h"
-#include "Spawner.h"
-#include "EngineUtils.h"
 #include "WaveManager.generated.h"
 
 class AMainAICharacter;
+class ASpawner;
+class ACatalyseur;
 
 UENUM(BlueprintType)
 enum class EWaveEvent : uint8 {

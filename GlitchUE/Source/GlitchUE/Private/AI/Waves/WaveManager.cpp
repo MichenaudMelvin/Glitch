@@ -3,6 +3,9 @@
 
 #include "AI/Waves/WaveManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objectives/Catalyseur.h"
+#include "AI/Waves/Spawner.h"
+#include "EngineUtils.h"
 
 AWaveManager::AWaveManager(){
 	PrimaryActorTick.bCanEverTick = true;

@@ -7,10 +7,12 @@
 #include "Components/InteractableComponent.h"
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
-#include "MainPlayerController.h"
-#include "Mark/Mark.h"
 #include "Components/TimelineComponent.h"
 #include "MainPlayer.generated.h"
+
+class AMainPlayerController;
+class AMark;
+class AMainAICharacter;
 
 UENUM(BlueprintType)
 enum class EPlayerMovementMode : uint8{
@@ -211,6 +213,8 @@ public:
 	TSet<UStaticMeshComponent*> OverlappedMeshes;
 
 	TArray<ECollisionResponse> OverlappedMeshesCollisionResponse;
+
+	TSet<AMainAICharacter*> OverlappedAICharacters;
 
 	void GlitchTrace();
 

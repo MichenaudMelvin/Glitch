@@ -28,7 +28,10 @@ void AMainAICharacter::StunAI() {
 }
 
 void AMainAICharacter::HealthNull() {
-	WaveManager->RemoveAIFromList(this);
+	if (IsValid(WaveManager)) {
+		WaveManager->RemoveAIFromList(this);
+	}
+
 	Destroy();
 }
 
