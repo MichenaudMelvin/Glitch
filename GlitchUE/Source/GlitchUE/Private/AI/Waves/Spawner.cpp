@@ -32,7 +32,7 @@ void ASpawner::Spawn(int numberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn)
 		NewPawn->SetWaveManager(WaveManager);
 		WaveManager->AddAIToList(NewPawn);
 		AMainAIController* AIController = Cast<AMainAIController>(NewPawn->Controller);
-		Gamemode->AddGlitch(NewPawn->GetMainAIController()->AISpawnGlitchValue * numberToSpawn);
+		Gamemode->AddGlitch(NewPawn->GetMainAIController()->AISpawnGlitchValue);
 	}
 }
 

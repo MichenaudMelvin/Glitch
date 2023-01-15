@@ -50,6 +50,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
 	AMainPlayer* MainPlayer;
 
 	EPhases CurrentPhase = EPhases::Infiltration;
@@ -81,6 +82,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
 	void AddGlitch(float AddedValue);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Glitch")
+	float GetCurrentGlitchValue();
 
 protected:
 	UFUNCTION(Exec, Category = "Glitch")

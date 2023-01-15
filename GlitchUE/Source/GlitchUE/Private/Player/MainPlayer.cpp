@@ -13,6 +13,8 @@
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "GlitchUEGameMode.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -207,11 +209,11 @@ void AMainPlayer::PreviewObject(){
 	FHitResult Hit;
 	FCollisionQueryParams QueryParams;
 	FCollisionResponseParams ResponseParam;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PlacableActor->PreviewObject()){
+	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PreviewPlacableActor->CanBePlaced()){
 		PlacableActorLocation = Hit.Location;
-		PlacableActor->PlaceObject(PlacableActorLocation.GridSnap(100));
+		PreviewPlacableActor->SetActorLocation(PlacableActorLocation.GridSnap(100));
 	} else {
-		PlacableActor->PlaceObject(PlacableActor->GetOriginalLocation());
+		PreviewPlacableActor->ResetActor();
 	}
 }
 
@@ -342,6 +344,9 @@ void AMainPlayer::EndTL() {
 	GlitchCameraTrace();
 
 	GlitchTrace();
+
+	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchDashValue + OverlappedMeshes.Num());
+	UE_LOG(LogTemp, Warning, TEXT("AddedGlitchDashValue : %f"), GlitchDashValue + OverlappedMeshes.Num());
 
 	ResetMovement();
 

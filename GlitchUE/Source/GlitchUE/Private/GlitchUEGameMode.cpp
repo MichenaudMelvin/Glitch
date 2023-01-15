@@ -7,6 +7,7 @@
 #include "PlacableObject/PlacableActor.h"
 #include "UObject/ConstructorHelpers.h"
 #include "AI/Waves/WaveManager.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	// set default pawn class to our Blueprinted character
@@ -18,7 +19,7 @@ AGlitchUEGameMode::AGlitchUEGameMode(){
 }
 
 void AGlitchUEGameMode::BeginPlay() {
-	//set player
+	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	TArray<AWaveManager*> WaveManagerArray;
 	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
@@ -82,10 +83,16 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	}
 }
 
+float AGlitchUEGameMode::GetCurrentGlitchValue(){
+	return GlitchValue;
+}
+
 void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
-	TArray<APlacableActor*> PlacableActorList;
-	FindAllActors<APlacableActor>(GetWorld(), PlacableActorList);
-	//MainPlayer
+	TArray<AActor*> PlacableActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
+
+	PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
+	Cast<APlacableActor>(PlacableActorList[0])->GlitchUpgrade();
 }
 
 void AGlitchUEGameMode::GlitchUpgradeEnemiesAI(){

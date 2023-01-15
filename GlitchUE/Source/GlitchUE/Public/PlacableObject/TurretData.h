@@ -18,5 +18,8 @@ public:
 	float TurretRadius;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
-	float DelayWetweenEachAttack;
+	float FireRate;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
+	float UpgradedGlitchDamages;
 };

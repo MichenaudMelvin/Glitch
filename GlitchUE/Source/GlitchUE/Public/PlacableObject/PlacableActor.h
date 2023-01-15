@@ -5,7 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "PlacableActorData.h"
+#include "Components/HealthComponent.h"
 #include "PlacableActor.generated.h"
+
+class AMainPlayerController;
+class AMainPlayer;
+class UInteractableComponent;
 
 USTRUCT(BlueprintType)
 struct FPlacableActorCreation{
@@ -29,22 +34,36 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
 	UStaticMeshComponent* BaseMesh;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 	UPlacableActorData* CurrentData;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	UInteractableComponent* InteractableComp;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
 	FName Name;
 
-public:
+	UPROPERTY(BlueprintReadOnly, Category = "AI")
+	TSet<UHealthComponent*> AIHealthList;
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "PlayerActions")
-	void SetData(UPlacableActorData* NewData);
-	void SetData_Implementation(UPlacableActorData* NewData);
+	UFUNCTION(BlueprintCallable, Category = "Appearence")
+	virtual void SetMesh();
+
+	UFUNCTION()
+	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
+	void SellObject(AMainPlayer* MainPlayer);
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
+	virtual void SetData(UPlacableActorData* NewData);
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 	void Upgrade();
 
+	UFUNCTION(BlueprintCallable, Category = "Glitch")
+	virtual void GlitchUpgrade();
 };

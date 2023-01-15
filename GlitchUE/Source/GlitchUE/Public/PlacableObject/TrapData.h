@@ -19,5 +19,8 @@ public:
 	float TrapDuration;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
-	float TrapAttackDelay;
+	float TrapAttackRate;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
+	float UpgradedGlitchAttackRate;
 };

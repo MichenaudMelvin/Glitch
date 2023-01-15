@@ -25,6 +25,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", meta = (ExposeOnSpawn = "true"))
 	EState InitialState;
 
+	void ToggleActivation(bool bActivate);
+
+	void ActiveObjectif();
+
+	void DesactivateObjectif();
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Activable")
 	UActivableComponent* GetActivableComp();

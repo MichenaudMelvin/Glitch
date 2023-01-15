@@ -3,7 +3,7 @@
 #include "Objectives/AbstractObjectif.h"
 
 AAbstractObjectif::AAbstractObjectif(){
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	MeshObjectif = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshObjectif"));
 
