@@ -7,6 +7,7 @@
 ATurretSKHead::ATurretSKHead(){
 	TurretHead = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TurretHead"));
 	TurretHead->SetupAttachment(TurretPillar);
+	TurretHead->SetRelativeLocation(FVector(0, 0, 100));
 }
 
 void ATurretSKHead::BeginPlay(){
@@ -24,11 +25,11 @@ void ATurretSKHead::LookAtTarget(AActor* Target){
 void ATurretSKHead::RotateToTarget(float Alpha){
 	Super::RotateToTarget(Alpha);
 
-	FRotator TargetRotator;
+	FRotator TargetRotator = FRotator::ZeroRotator;
 
 	TargetRotator.Pitch = FMath::Lerp(CurrentPitchRotation, AILookAtRotation.Pitch, Alpha);
 
-	TurretHead->SetWorldRotation(TargetRotator);
+	TurretHead->SetRelativeRotation(TargetRotator);
 }
 
 void ATurretSKHead::SetMesh(){

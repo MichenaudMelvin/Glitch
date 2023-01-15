@@ -8,6 +8,8 @@
 #include "PlacableObject/TurretData.h"
 
 ATurret::ATurret() {
+	PrimaryActorTick.bCanEverTick = true;
+
 	TurretPillar = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pillar"));
 	TurretPillar->SetupAttachment(BaseMesh);
 	
@@ -33,7 +35,7 @@ void ATurret::BeginPlay(){
 	//InteractableComp->AddInteractable(TurretHead);
 
 	FOnTimelineFloat UpdateEvent;
-	UpdateEvent.BindUFunction(this, FName{ TEXT("RotateToTarget") });
+	UpdateEvent.BindDynamic(this, &ATurret::RotateToTarget);
 	RotateTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 }
 
@@ -56,7 +58,7 @@ void ATurret::RotateToTarget(float Alpha){
 	}
 
 	AILookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
-	FRotator TargetRotator;
+	FRotator TargetRotator = FRotator::ZeroRotator;
 
 	TargetRotator.Yaw = FMath::Lerp(CurrentYawRotation, AILookAtRotation.Yaw, Alpha);
 
