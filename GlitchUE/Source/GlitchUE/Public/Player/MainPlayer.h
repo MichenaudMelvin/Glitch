@@ -126,7 +126,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Construction")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Construction")
 	int Golds = 0;
 
 public:

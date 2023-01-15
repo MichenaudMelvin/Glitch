@@ -72,15 +72,16 @@ protected:
 	
 	TSet<ACatalyseur*> CatalyseursList;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
 	TSet<ASpawner*> SpawnerList;
 
 	TArray<ASpawner*> ActiveSpawnerList;
 
 	AMainPlayer* Player;
 
+	UPROPERTY(BlueprintReadOnly)
 	int CurrentWaveNumber = 0;
 
+	UPROPERTY(BlueprintReadOnly)
 	int NumberOfWaves;
 
 	UDataTable* WavesData;
@@ -91,10 +92,21 @@ protected:
 	
 	void DisableCatalyseurs();
 
-public:
-	void StartWave();
+	//UFUNCTION(BlueprintCallable, BlueprintPure)
+	// pourquoi j'ai pas le droit de la mettre en UFUNCTION
+	FWave* GetCurrentWaveData();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
+	void GetCurrentWaveDataBP(TArray<FAIToSpawn>& AIToSpawnList, bool& bStopAtEnd, FWaveGolds& GivenGolds, float& NextWaveTimer);
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
+	void StartWave();
+	virtual void StartWave_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
 	void EndWave();
+	virtual void EndWave_Implementation();
 
 	void AddAIToList(AMainAICharacter* AIToAdd);
 
@@ -102,8 +114,6 @@ public:
 
 private:
 	void SpawnEnemies();
-
-	FWave* GetCurrentWaveData();
 
 	void RefreshActiveSpawners();
 };

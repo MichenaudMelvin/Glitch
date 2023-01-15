@@ -8,7 +8,7 @@
 #include "EngineUtils.h"
 
 AWaveManager::AWaveManager(){
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	RootComponent->SetMobility(EComponentMobility::Static);
@@ -26,17 +26,24 @@ void AWaveManager::BeginPlay(){
 
 	NumberOfWaves = WavesData->GetRowNames().Num();
 
-	TArray<ACatalyseur*> CatalyseurArray;	
+	TArray<ACatalyseur*> CatalyseurArray;
+
 	FindAllActors<ACatalyseur>(GetWorld(), CatalyseurArray);
-	
+
 	CatalyseursList = TSet<ACatalyseur*>(CatalyseurArray);
 
 	if (CatalyseursList.Num() == 0) {
-		UE_LOG(LogTemp, Fatal, TEXT("LA LISTE DES CATALYSEURS DU WAVE MANAGER EST VIDE"));
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN CATALYSEUR EST PLACE DANS LA SCENE"));
 	}
 
+	TArray<ASpawner*> SpawnerArray;
+
+	FindAllActors<ASpawner>(GetWorld(), SpawnerArray);
+
+	SpawnerList = TSet<ASpawner*>(SpawnerArray);
+
 	if (SpawnerList.Num() == 0) {
-		UE_LOG(LogTemp, Fatal, TEXT("LA LISTE DES SPAWNER DU WAVE MANAGER EST VIDE"));
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST PLACE DANS LA SCENE"));
 	}
 }
 
@@ -63,7 +70,7 @@ void AWaveManager::DisableCatalyseurs() {
 	RefreshActiveSpawners();
 }
 
-void AWaveManager::StartWave() {
+void AWaveManager::StartWave_Implementation() {
 
 	FWave* CurrentWave = GetCurrentWaveData();
 	if (CurrentWave->GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
@@ -75,7 +82,7 @@ void AWaveManager::StartWave() {
 	SpawnEnemies();
 }
 
-void AWaveManager::EndWave() {
+void AWaveManager::EndWave_Implementation() {
 
 	DisableCatalyseurs();
 
@@ -119,6 +126,13 @@ void AWaveManager::SpawnEnemies(){
 
 FWave* AWaveManager::GetCurrentWaveData() {
 	return WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber], "");
+}
+
+void AWaveManager::GetCurrentWaveDataBP(TArray<FAIToSpawn>& AIToSpawnList, bool& bStopAtEnd, FWaveGolds& GivenGolds, float& NextWaveTimer) {
+	AIToSpawnList = GetCurrentWaveData()->AIToSpawnList;
+	bStopAtEnd = GetCurrentWaveData()->bStopAtEnd;
+	GivenGolds = GetCurrentWaveData()->GivenGolds;
+	NextWaveTimer = GetCurrentWaveData()->NextWaveTimer;
 }
 
 void AWaveManager::RefreshActiveSpawners() {

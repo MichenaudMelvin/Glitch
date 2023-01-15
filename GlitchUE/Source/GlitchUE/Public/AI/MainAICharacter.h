@@ -40,4 +40,6 @@ public:
 	void SetWaveManager(AWaveManager* NewWaveManager);
 
 	AMainAIController* GetMainAIController();
+
+	UHealthComponent* GetHealthComp();
 };

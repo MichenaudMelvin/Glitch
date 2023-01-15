@@ -3,12 +3,35 @@
 
 #include "Objectives/Catalyseur.h"
 #include "AI/Waves/Spawner.h"
+#include "Kismet/GameplayStatics.h"
 
 void ACatalyseur::BeginPlay() {
 	Super::BeginPlay();
 
-	if (!IsValid(Nexus)) {
-		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s N'A PAS DE NEXUS"), *this->GetName());
+	TArray<AActor*> NexusTemp;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusTemp);
+
+	if (NexusTemp.Num() == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN NEXUS N'EST PLACE DANS LA SCENE"));
+	}
+
+	Nexus = Cast<ANexus>(NexusTemp[0]);
+
+	if (SpawnerList.Num() == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s N'AFFECTE AUCUN SPAWNER"), *this->GetName());
+	}
+
+	// je sais pas si c'est obligatoire pour un catalyseur
+	//if (ConstructionZoneList.Num() == 0) {
+		//UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
+	//}
+
+	if (StateAtWave.EnableAtWave == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s NE COMMENCE A AUCUNE VAGUE"), *this->GetName());
+	}
+
+	if (StateAtWave.DisableAtWave == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s NE TERMINE A AUCUNE VAGUE"), *this->GetName());
 	}
 }
 
@@ -34,7 +57,7 @@ void ACatalyseur::DesactivateObjectif() {
 	}
 }
 
-void ACatalyseur::OnHealthNull(){
+void ACatalyseur::HealthNull(){
 	ActivableComp->DesactivateObject();
 }
 

@@ -42,7 +42,10 @@ protected:
 	virtual void DesactivateObjectif();
 
 	UFUNCTION()
-	virtual void OnHealthNull();
+	virtual void TakeDamages();
+
+	UFUNCTION()
+	virtual void HealthNull();
 
 	UFUNCTION()
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);

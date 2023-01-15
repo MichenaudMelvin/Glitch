@@ -42,3 +42,7 @@ void AMainAICharacter::SetWaveManager(AWaveManager* NewWaveManager) {
 AMainAIController* AMainAICharacter::GetMainAIController(){
 	return AIController;
 }
+
+UHealthComponent* AMainAICharacter::GetHealthComp(){
+	return HealthComp;
+}

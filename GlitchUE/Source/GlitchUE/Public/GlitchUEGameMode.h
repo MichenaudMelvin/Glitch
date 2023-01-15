@@ -105,6 +105,9 @@ private:
 	UFUNCTION(Exec)
 	void SetGlobalTimeDilation(float TimeDilation);
 
+	UFUNCTION(Exec)
+	void NextWave();
+
 #pragma endregion
 
 };

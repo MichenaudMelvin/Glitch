@@ -18,13 +18,14 @@ public:
 	ASpawner();
 
 protected:
+	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	UStaticMeshComponent* SpawnerMesh;
 
+	UPROPERTY(EditAnywhere)
 	UActivableComponent* ActivableComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
 	AWaveManager* WaveManager;
 
 public:

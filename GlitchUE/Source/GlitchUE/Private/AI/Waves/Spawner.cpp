@@ -22,6 +22,12 @@ ASpawner::ASpawner(){
 	SpawnerMesh->SetStaticMesh(Mesh.Object);
 }
 
+void ASpawner::BeginPlay(){
+	TArray<AActor*> WaveManagerTemp;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaveManager::StaticClass(), WaveManagerTemp);
+	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
+}
+
 void ASpawner::Spawn(int numberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn){
 	FActorSpawnParameters ActorSpawnParameters;
 	AGlitchUEGameMode* Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this));
