@@ -4,6 +4,7 @@
 #include "AI/Waves/WaveManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/Catalyseur.h"
+#include "Objectives/Nexus.h"
 #include "AI/Waves/Spawner.h"
 #include "EngineUtils.h"
 
@@ -45,6 +46,16 @@ void AWaveManager::BeginPlay(){
 	if (SpawnerList.Num() == 0) {
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST PLACE DANS LA SCENE"));
 	}
+
+	TArray<AActor*> NexusArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
+	
+	if (NexusArray.Num() == 0){
+		UE_LOG(LogTemp, Fatal, TEXT("LE NEXUS N'EST PAS PLACE DANS LA SCENE"));
+	}
+	
+	Nexus = Cast<ANexus>(NexusArray[0]);
+
 }
 
 void AWaveManager::EnableCatalyseurs(){
@@ -148,10 +159,14 @@ void AWaveManager::RefreshActiveSpawners() {
 
 void AWaveManager::AddAIToList(AMainAICharacter* AIToAdd) {
 	WaveAIList.Add(AIToAdd);
+	OnRefreshAIList.Broadcast();
 }
 
 void AWaveManager::RemoveAIFromList(AMainAICharacter* AIToRemove){
 	WaveAIList.Remove(AIToRemove);
+
+	OnRefreshAIList.Broadcast();
+
 	if (WaveAIList.Num() == 0) {
 		if (HaveTheSpawnerFinished()) {
 			EndWave();

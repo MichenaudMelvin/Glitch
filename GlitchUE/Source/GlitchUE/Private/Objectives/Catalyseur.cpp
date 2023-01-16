@@ -11,10 +11,6 @@ void ACatalyseur::BeginPlay() {
 	TArray<AActor*> NexusTemp;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusTemp);
 
-	if (NexusTemp.Num() == 0) {
-		UE_LOG(LogTemp, Fatal, TEXT("AUCUN NEXUS N'EST PLACE DANS LA SCENE"));
-	}
-
 	Nexus = Cast<ANexus>(NexusTemp[0]);
 
 	if (SpawnerList.Num() == 0) {

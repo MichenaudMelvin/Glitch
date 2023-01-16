@@ -11,6 +11,9 @@
 class AMainAICharacter;
 class ASpawner;
 class ACatalyseur;
+class ANexus;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnRefreshAIList);
 
 UENUM(BlueprintType)
 enum class EWaveEvent : uint8 {
@@ -76,6 +79,9 @@ protected:
 
 	TArray<ASpawner*> ActiveSpawnerList;
 
+	UPROPERTY(BlueprintReadOnly)
+	ANexus* Nexus;
+
 	AMainPlayer* Player;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -86,6 +92,7 @@ protected:
 
 	UDataTable* WavesData;
 
+	UPROPERTY(BlueprintReadOnly)
 	TSet<AMainAICharacter*> WaveAIList;
 
 	void EnableCatalyseurs();
@@ -98,6 +105,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	void GetCurrentWaveDataBP(TArray<FAIToSpawn>& AIToSpawnList, bool& bStopAtEnd, FWaveGolds& GivenGolds, float& NextWaveTimer);
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable)
+	FKOnRefreshAIList OnRefreshAIList;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
