@@ -116,6 +116,8 @@ private:
 	void SpawnEnemies();
 
 	void RefreshActiveSpawners();
+
+	bool HaveTheSpawnerFinished();
 };
 
 //Wat

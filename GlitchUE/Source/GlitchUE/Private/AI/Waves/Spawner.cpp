@@ -26,22 +26,41 @@ void ASpawner::BeginPlay(){
 	TArray<AActor*> WaveManagerTemp;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaveManager::StaticClass(), WaveManagerTemp);
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
+	Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this));
 }
 
-void ASpawner::Spawn(int numberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn){
-	FActorSpawnParameters ActorSpawnParameters;
-	AGlitchUEGameMode* Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this));
+void ASpawner::BeginSpawn(int NumberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn) {
+	CurrentAITOSpawn = AIToSpawn;
+	NumberOfAISpawn = NumberToSpawn;
 
-	for (int i = 0; i < numberToSpawn; i++) {
-		AMainAICharacter* NewPawn = GetWorld()->SpawnActor<AMainAICharacter>(AIToSpawn, GetActorLocation(), GetActorRotation(), ActorSpawnParameters);
-		NewPawn->SpawnDefaultController();
-		NewPawn->SetWaveManager(WaveManager);
-		WaveManager->AddAIToList(NewPawn);
-		AMainAIController* AIController = Cast<AMainAIController>(NewPawn->Controller);
-		Gamemode->AddGlitch(NewPawn->GetMainAIController()->AISpawnGlitchValue);
+	CurrentNumberOfAISpawned = 0;
+
+	SpawnAI();
+}
+
+
+void ASpawner::SpawnAI() {
+	AMainAICharacter* NewPawn = GetWorld()->SpawnActor<AMainAICharacter>(CurrentAITOSpawn, GetActorLocation(), GetActorRotation(), ActorSpawnParameters);
+	NewPawn->SpawnDefaultController();
+	NewPawn->SetWaveManager(WaveManager);
+	WaveManager->AddAIToList(NewPawn);
+	AMainAIController* AIController = Cast<AMainAIController>(NewPawn->Controller);
+	Gamemode->AddGlitch(NewPawn->GetMainAIController()->AISpawnGlitchValue);
+
+	CurrentNumberOfAISpawned++;
+
+	if (AnyAILeftToSpawn()) {
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+			SpawnAI();
+		}, SpawnDelay, false);
 	}
 }
 
 UActivableComponent* ASpawner::GetActivableComp(){
 	return ActivableComp;
+}
+
+bool ASpawner::AnyAILeftToSpawn(){
+	return CurrentNumberOfAISpawned < NumberOfAISpawn;
 }

@@ -119,7 +119,7 @@ void AWaveManager::SpawnEnemies(){
 	for (int i = 0; i < ListOfAIToSpawn.Num(); i++) {
 		int NumberToSpawnForEachSpawners = ListOfAIToSpawn[i].NumberToSpawn / ActiveSpawnerList.Num();
 		for (int j = 0; j < ActiveSpawnerList.Num(); j++) {
-			ActiveSpawnerList[j]->Spawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn);
+			ActiveSpawnerList[j]->BeginSpawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn);
 		}
 	}
 }
@@ -153,6 +153,18 @@ void AWaveManager::AddAIToList(AMainAICharacter* AIToAdd) {
 void AWaveManager::RemoveAIFromList(AMainAICharacter* AIToRemove){
 	WaveAIList.Remove(AIToRemove);
 	if (WaveAIList.Num() == 0) {
-		EndWave();
+		if (HaveTheSpawnerFinished()) {
+			EndWave();
+		}
 	}
+}
+
+bool AWaveManager::HaveTheSpawnerFinished() {
+	for (int i = 0; i < ActiveSpawnerList.Num(); i++) {
+		if (ActiveSpawnerList[i]->AnyAILeftToSpawn()) {
+			return false;
+		}
+	}
+
+	return true;
 }

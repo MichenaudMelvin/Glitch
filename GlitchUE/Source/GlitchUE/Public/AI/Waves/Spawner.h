@@ -7,11 +7,11 @@
 #include "Components/ActivableComponent.h"
 #include "AI/MainAICharacter.h"
 #include "WaveManager.h"
+#include "GlitchUEGameMode.h"
 #include "Spawner.generated.h"
 
 UCLASS()
-class GLITCHUE_API ASpawner : public AActor
-{
+class GLITCHUE_API ASpawner : public AActor{
 	GENERATED_BODY()
 	
 public:	
@@ -28,8 +28,25 @@ protected:
 
 	AWaveManager* WaveManager;
 
+	void SpawnAI();
+
+	AGlitchUEGameMode* Gamemode;
+	
+	FActorSpawnParameters ActorSpawnParameters;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float SpawnDelay = 1.0f;
+
+	int NumberOfAISpawn;
+
+	int CurrentNumberOfAISpawned;
+
+	TSubclassOf<AMainAICharacter> CurrentAITOSpawn;
+
 public:
-	void Spawn(int numberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn);
+	void BeginSpawn(int NumberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn);
 
 	UActivableComponent* GetActivableComp();
+
+	bool AnyAILeftToSpawn();
 };

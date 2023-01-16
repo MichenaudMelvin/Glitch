@@ -34,6 +34,7 @@ void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 	UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
 
 	FVector BoxExtent = UKismetMathLibrary::Vector_SnappedToGrid(BoxComp->GetUnscaledBoxExtent(), 200);
+	BoxExtent.Z = 100;
 	Cast<UBoxComponent>(GetCollisionComponent())->SetBoxExtent(BoxExtent);
 }
 
