@@ -20,8 +20,6 @@ AConstructionZone::AConstructionZone() {
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
 
-	
-
 	switch (InitialState){
 	case EState::CPF_Activated:
 		ActivableComp->ActivateObject();
@@ -33,11 +31,10 @@ void AConstructionZone::BeginPlay(){
 }
 
 void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
 	UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
 
 	FVector BoxExtent = UKismetMathLibrary::Vector_SnappedToGrid(BoxComp->GetUnscaledBoxExtent(), 200);
+	BoxExtent.Z = 100;
 	Cast<UBoxComponent>(GetCollisionComponent())->SetBoxExtent(BoxExtent);
 }
 

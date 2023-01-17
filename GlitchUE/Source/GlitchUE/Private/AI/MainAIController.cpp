@@ -35,29 +35,28 @@ void AMainAIController::BeginPlay() {
 
 void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, FAIStimulus Stimulus) {
 	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Sight::StaticClass()) {
-		if (Cast<AMainPlayer>(Actor)) {
+		if (Actor->IsA(AMainPlayer::StaticClass())) {
+			AActor* Player = Actor;
+			UE_LOG(LogTemp, Warning, TEXT("Hello World"));
+
 			if (IsValid(Blackboard->GetValueAsObject(FName(TEXT("Player"))))) {
-				SetPlayerValues(Actor);
+				SetPlayerValues(Player);
 			} 
 			else {
 				Blackboard->SetValueAsBool(FName(TEXT("Investigate")), true);
-				Blackboard->SetValueAsVector(FName(TEXT("InvestigationLocation")), Actor->GetActorLocation());
-
-				SetPlayerValues(Actor);
+				Blackboard->SetValueAsVector(FName(TEXT("InvestigationLocation")), Player->GetActorLocation());
 
 				FTimerHandle TimerHandle;
 				
-				// fait crash le probleme viens probablement du timerhandle
-				/*
 				GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-					SetPlayerValues(Actor);
-				}, Blackboard->GetValueAsFloat(FName(TEXT("InvestigatingTime"))), false);*/
+					SetPlayerValues(Player);
+				}, Blackboard->GetValueAsFloat(FName(TEXT("InvestigatingTime"))), false);
 			}
 		}
 	}
 }
 
 void AMainAIController::SetPlayerValues(AActor* Player) {
-	Blackboard->SetValueAsObject(FName(TEXT("Player")), Player);
-	Blackboard->SetValueAsVector(FName(TEXT("PlayerLocation")), Player->GetActorLocation());
+	//Blackboard->SetValueAsObject(FName(TEXT("Player")), Player);
+	//Blackboard->SetValueAsVector(FName(TEXT("PlayerLocation")), Player->GetActorLocation());
 }

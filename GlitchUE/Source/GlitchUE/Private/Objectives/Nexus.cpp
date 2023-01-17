@@ -12,7 +12,11 @@ ANexus::ANexus() {
 
 void ANexus::BeginPlay() {
 	Super::BeginPlay();
-	InteractableComp->AddInteractable(MeshObjectif);
+}
+
+void ANexus::HealthNull(){
+	Super::HealthNull();
+	UE_LOG(LogTemp, Warning, TEXT("Le nexus n'a plus de vie"));
 }
 
 void ANexus::ActiveObjectif(){

@@ -18,6 +18,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void HealthNull() override;
+
 	virtual void ActiveObjectif() override;
 	
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;

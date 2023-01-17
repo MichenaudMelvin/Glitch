@@ -24,7 +24,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category = "Health")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Health")
 	float MaxHealth = 100.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
@@ -32,6 +32,7 @@ protected:
 
 	bool bCanTakeDamages = true;
 
+public:
 	UFUNCTION(BlueprintCallable, Category = "Damages")
 	void TakeDamages(float DamagesAmount);
 
@@ -41,7 +42,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void AddHealth(float HealthAmount);
 
-public:
 	UPROPERTY(BlueprintAssignable, Category = "Damages")
 	FKOnReciveDamages OnReciveDamages;
 

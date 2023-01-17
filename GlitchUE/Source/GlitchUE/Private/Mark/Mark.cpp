@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "Player/MainPlayerController.h"
 
 AMark::AMark() {
 	PrimaryActorTick.bCanEverTick = false;

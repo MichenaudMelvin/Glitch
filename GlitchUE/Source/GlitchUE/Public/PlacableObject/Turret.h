@@ -47,6 +47,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void LookAtTarget(AActor* Target);
 
+	UFUNCTION()
 	virtual void RotateToTarget(float Alpha);
 
 	virtual void GlitchUpgrade() override;

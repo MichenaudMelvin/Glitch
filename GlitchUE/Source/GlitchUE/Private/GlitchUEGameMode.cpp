@@ -8,6 +8,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "AI/Waves/WaveManager.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "AI/MainAICharacter.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	// set default pawn class to our Blueprinted character
@@ -23,6 +24,10 @@ void AGlitchUEGameMode::BeginPlay() {
 
 	TArray<AWaveManager*> WaveManagerArray;
 	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
+	if (WaveManagerArray.Num() == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
+	}
+
 	WaveManager = WaveManagerArray[0];
 }
 
@@ -111,6 +116,14 @@ void AGlitchUEGameMode::GlitchRandomFX() {
 
 void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation){
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
+}
+
+void AGlitchUEGameMode::NextWave(){
+	TArray<AActor*> AIList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAICharacter::StaticClass(), AIList);
+	for (int i = 0; i < AIList.Num(); i++) {
+		Cast<AMainAICharacter>(AIList[i])->GetHealthComp()->TakeMaxDamages();
+	}
 }
 
 #pragma endregion
