@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "Player/MainPlayerController.h"
 
 AMark::AMark() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -46,15 +47,18 @@ FVector AMark::GetTPLocation() {
 	float PlayerHalffHeight = Player->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	FVector ImpactPoint;
 
+	//line trace sur le sol
 	if (LocationTrace(-PlayerHalffHeight, ImpactPoint)) {
 		ImpactPoint.Z += PlayerHalffHeight;
 	}
+	//line trace sur le plafond
 	else if (LocationTrace(PlayerHalffHeight, ImpactPoint)) {
 		ImpactPoint.Z -= PlayerHalffHeight;
 	}
 	else {
 		ImpactPoint = GetActorLocation();
 	}
+
 
 	return ImpactPoint;
 }
@@ -65,11 +69,10 @@ bool AMark::LocationTrace(float UpTraceValue, FVector& outImpactPoint) {
 	FVector TraceEnd = GetActorLocation();
 	TraceEnd.Z += UpTraceValue;
 
-	FCollisionQueryParams QueryParams;
-	FCollisionResponseParams Responseparam;
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
 
-	bool bHit = GetWorld()->LineTraceSingleByChannel(hitResult, GetActorLocation(), TraceEnd, ECC_Visibility, QueryParams, Responseparam);
-
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), GetActorLocation(), TraceEnd, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, hitResult, true, FLinearColor::Red, FLinearColor::Green, 0);
 	outImpactPoint = hitResult.ImpactPoint;
 
 	return bHit;

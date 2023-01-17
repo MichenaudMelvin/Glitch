@@ -7,6 +7,8 @@
 #include "PlacableObject/PlacableActor.h"
 #include "UObject/ConstructorHelpers.h"
 #include "AI/Waves/WaveManager.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "AI/MainAICharacter.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	// set default pawn class to our Blueprinted character
@@ -18,10 +20,14 @@ AGlitchUEGameMode::AGlitchUEGameMode(){
 }
 
 void AGlitchUEGameMode::BeginPlay() {
-	//set player
+	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	TArray<AWaveManager*> WaveManagerArray;
 	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
+	if (WaveManagerArray.Num() == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
+	}
+
 	WaveManager = WaveManagerArray[0];
 }
 
@@ -82,10 +88,16 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	}
 }
 
+float AGlitchUEGameMode::GetCurrentGlitchValue(){
+	return GlitchValue;
+}
+
 void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
-	TArray<APlacableActor*> PlacableActorList;
-	FindAllActors<APlacableActor>(GetWorld(), PlacableActorList);
-	//MainPlayer
+	TArray<AActor*> PlacableActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
+
+	PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
+	Cast<APlacableActor>(PlacableActorList[0])->GlitchUpgrade();
 }
 
 void AGlitchUEGameMode::GlitchUpgradeEnemiesAI(){
@@ -104,6 +116,14 @@ void AGlitchUEGameMode::GlitchRandomFX() {
 
 void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation){
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
+}
+
+void AGlitchUEGameMode::NextWave(){
+	TArray<AActor*> AIList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAICharacter::StaticClass(), AIList);
+	for (int i = 0; i < AIList.Num(); i++) {
+		Cast<AMainAICharacter>(AIList[i])->GetHealthComp()->TakeMaxDamages();
+	}
 }
 
 #pragma endregion

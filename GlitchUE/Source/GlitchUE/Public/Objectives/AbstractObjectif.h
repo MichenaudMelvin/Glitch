@@ -29,7 +29,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Actiable")
 	UActivableComponent* ActivableComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
 	UInteractableComponent* InteractableComp;
 
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Perception")
@@ -42,7 +42,10 @@ protected:
 	virtual void DesactivateObjectif();
 
 	UFUNCTION()
-	virtual void OnHealthNull();
+	virtual void TakeDamages();
+
+	UFUNCTION()
+	virtual void HealthNull();
 
 	UFUNCTION()
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);

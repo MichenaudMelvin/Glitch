@@ -3,7 +3,7 @@
 #include "Objectives/AbstractObjectif.h"
 
 AAbstractObjectif::AAbstractObjectif(){
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	MeshObjectif = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshObjectif"));
 
@@ -31,14 +31,20 @@ void AAbstractObjectif::BeginPlay(){
 	ActivableComp->OnActivated.AddDynamic(this, &AAbstractObjectif::ActiveObjectif);
 	ActivableComp->OnDesactivated.AddDynamic(this, &AAbstractObjectif::DesactivateObjectif);
 
+	InteractableComp->AddInteractable(MeshObjectif);
 	InteractableComp->OnInteract.AddDynamic(this, &AAbstractObjectif::Interact);
+
+	HealthComp->OnReciveDamages.AddDynamic(this, &AAbstractObjectif::TakeDamages);
+	HealthComp->OnHealthNull.AddDynamic(this, &AAbstractObjectif::HealthNull);
 }
 
 void AAbstractObjectif::ActiveObjectif(){}
 
 void AAbstractObjectif::DesactivateObjectif(){}
 
-void AAbstractObjectif::OnHealthNull(){}
+void AAbstractObjectif::TakeDamages(){}
+
+void AAbstractObjectif::HealthNull(){}
 
 void AAbstractObjectif::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){}
 

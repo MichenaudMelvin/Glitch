@@ -33,7 +33,7 @@ protected:
 
 	virtual void DesactivateObjectif() override;
 
-	virtual void OnHealthNull() override;
+	virtual void HealthNull() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
 	FStateAtWave StateAtWave;
@@ -41,7 +41,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
 	TArray<ASpawner*> SpawnerList;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nexus", meta = (ExposeOnSpawn = "true"))
 	ANexus* Nexus;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))

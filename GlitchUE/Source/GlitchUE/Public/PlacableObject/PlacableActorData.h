@@ -21,11 +21,14 @@ public:
 	UPlacableActorData* NextUpgrade;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Mesh")
-	TArray<UStaticMesh*> MeshList;
+	TArray<UStreamableRenderAsset*> MeshList;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Mesh")
 	UStaticMesh* FullMesh;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Golds")
 	bool HasEnoughGolds(int PlayerGolds);
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
+	float GlitchUpgradeDuration;
 };

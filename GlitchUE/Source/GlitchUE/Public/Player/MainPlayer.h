@@ -3,14 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PlacableObject/PlacableObject.h"
+#include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
-#include "MainPlayerController.h"
-#include "Mark/Mark.h"
 #include "Components/TimelineComponent.h"
 #include "MainPlayer.generated.h"
+
+class AMainPlayerController;
+class AMark;
+class AMainAICharacter;
 
 UENUM(BlueprintType)
 enum class EPlayerMovementMode : uint8{
@@ -102,7 +104,7 @@ protected:
 	#pragma endregion
 
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
-	UPlacableObject* PlacableActor;
+	APreviewPlacableActor* PreviewPlacableActor;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
 	UHealthComponent* HealthComp;
@@ -124,7 +126,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Construction")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Construction")
 	int Golds = 0;
 
 public:
@@ -188,6 +190,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
 	AMark* GetMark() const { return Mark; }
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Mark")
+	float GlitchDashValue;
+
 	void SetMark(AMark* NewMark);
 
 	FVector CurrentCameraPosition;
@@ -208,6 +213,8 @@ public:
 	TSet<UStaticMeshComponent*> OverlappedMeshes;
 
 	TArray<ECollisionResponse> OverlappedMeshesCollisionResponse;
+
+	TSet<AMainAICharacter*> OverlappedAICharacters;
 
 	void GlitchTrace();
 

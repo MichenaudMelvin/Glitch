@@ -13,6 +13,11 @@
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "GlitchUEGameMode.h"
+#include "AI/MainAICharacter.h"
+#include "Player/MainPlayerController.h"
+#include "Mark/Mark.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -207,11 +212,11 @@ void AMainPlayer::PreviewObject(){
 	FHitResult Hit;
 	FCollisionQueryParams QueryParams;
 	FCollisionResponseParams ResponseParam;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PlacableActor->PreviewObject()){
+	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PreviewPlacableActor->CanBePlaced()){
 		PlacableActorLocation = Hit.Location;
-		PlacableActor->PlaceObject(PlacableActorLocation.GridSnap(100));
+		PreviewPlacableActor->SetActorLocation(PlacableActorLocation.GridSnap(100));
 	} else {
-		PlacableActor->PlaceObject(PlacableActor->GetOriginalLocation());
+		PreviewPlacableActor->ResetActor();
 	}
 }
 
@@ -324,7 +329,26 @@ void AMainPlayer::GlitchCameraTrace(){
 }
 
 void AMainPlayer::GlitchTrace(){
+	OverlappedAICharacters.Empty();
 
+	TArray<AActor*> ActorToIgnore;
+	ActorToIgnore.Add(Mark);
+	
+	TArray<FHitResult> HitResultList;
+
+	UKismetSystemLibrary::BoxTraceMulti(GetWorld(), GetActorLocation(), Mark->GetActorLocation(), FVector(25, 25, 25), FRotator::ZeroRotator, UEngineTypes::ConvertToTraceType(ECC_Camera), false, ActorToIgnore, EDrawDebugTrace::None, HitResultList, true, FLinearColor::Red, FLinearColor::Green, 1);
+	
+	for (int i = 0; i < HitResultList.Num(); i++) {
+		if (HitResultList[i].GetActor()->IsA(AMainAICharacter::StaticClass())) {
+			AMainAICharacter* CurrentAICharacter = Cast<AMainAICharacter>(HitResultList[i].GetActor());
+
+			if (!OverlappedAICharacters.Contains(CurrentAICharacter)) {
+				OverlappedAICharacters.Add(CurrentAICharacter);
+				CurrentAICharacter->StunAI();
+			}
+			
+		}
+	}
 }
 
 void AMainPlayer::ResetOverlappedMeshes(){
@@ -342,6 +366,9 @@ void AMainPlayer::EndTL() {
 	GlitchCameraTrace();
 
 	GlitchTrace();
+
+	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
+	UE_LOG(LogTemp, Warning, TEXT("AddedGlitchDashValue : %f"), GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 	ResetMovement();
 
