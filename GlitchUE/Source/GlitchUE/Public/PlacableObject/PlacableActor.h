@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "PlacableActorData.h"
 #include "Components/HealthComponent.h"
+#include "AI/MainAICharacter.h"
+#include "Objectives/Nexus.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
@@ -47,7 +49,10 @@ protected:
 	FName Name;
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI")
-	TSet<UHealthComponent*> AIHealthList;
+	TSet<AMainAICharacter*> AIList;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Nexus", meta = (ExposeOnSpawn = "true"))
+	ANexus* Nexus;
 
 	UFUNCTION(BlueprintCallable, Category = "Appearence")
 	virtual void SetMesh();
