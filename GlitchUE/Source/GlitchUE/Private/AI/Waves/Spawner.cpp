@@ -64,3 +64,7 @@ UActivableComponent* ASpawner::GetActivableComp(){
 bool ASpawner::AnyAILeftToSpawn(){
 	return CurrentNumberOfAISpawned < NumberOfAISpawn;
 }
+
+void ASpawner::ForceEndSpawn() {
+	NumberOfAISpawn = CurrentNumberOfAISpawned;
+}

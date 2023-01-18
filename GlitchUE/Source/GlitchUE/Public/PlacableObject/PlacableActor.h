@@ -8,6 +8,7 @@
 #include "Components/HealthComponent.h"
 #include "AI/MainAICharacter.h"
 #include "Objectives/Nexus.h"
+#include "Components/AudioComponent.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
@@ -44,6 +45,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 	UInteractableComponent* InteractableComp;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Data")
+	UAudioComponent* AudioComp;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
 	FName Name;

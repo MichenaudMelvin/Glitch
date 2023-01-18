@@ -46,3 +46,16 @@ AMainAIController* AMainAICharacter::GetMainAIController(){
 UHealthComponent* AMainAICharacter::GetHealthComp(){
 	return HealthComp;
 }
+
+void AMainAICharacter::GlitchUpgrade_Implementation(){
+	// Ici set les upgrades dans les fonctions qui vont hériter
+
+	FTimerHandle TimerHandle;
+
+	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
+		//reset à l'upgrade actuelle
+		ResetGlitchUpgrade();
+	}, GlitchUpgradeDuration, false);
+}
+
+void AMainAICharacter::ResetGlitchUpgrade_Implementation(){}

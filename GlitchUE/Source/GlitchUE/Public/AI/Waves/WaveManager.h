@@ -122,6 +122,11 @@ public:
 
 	void RemoveAIFromList(AMainAICharacter* AIToRemove);
 
+	// DEBUG ONLY
+	void SetWave(int NewWave);
+
+	int GetCurrentWaveNumber();
+
 private:
 	void SpawnEnemies();
 

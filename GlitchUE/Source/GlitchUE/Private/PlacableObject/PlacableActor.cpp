@@ -13,6 +13,9 @@ APlacableActor::APlacableActor(){
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	SetRootComponent(BaseMesh);
 
+	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
+	AudioComp->SetupAttachment(BaseMesh);
+
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 }
 

@@ -99,6 +99,8 @@ protected:
 	UFUNCTION(Exec, Category = "Glitch")
 	void GlitchRandomFX();
 
+	void CheckAvailableGlitchEvents();
+
 #pragma region ConsoleCommands
 
 private:
@@ -107,6 +109,9 @@ private:
 
 	UFUNCTION(Exec)
 	void NextWave();
+
+	UFUNCTION(Exec)
+	void GoToWave(int NewWave);
 
 #pragma endregion
 

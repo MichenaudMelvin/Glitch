@@ -27,6 +27,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UHealthComponent* HealthComp;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	float GlitchUpgradeDuration;
 	
 	UFUNCTION()
 	void HealthNull();
@@ -42,4 +45,12 @@ public:
 	AMainAIController* GetMainAIController();
 
 	UHealthComponent* GetHealthComp();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void GlitchUpgrade();
+	virtual void GlitchUpgrade_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ResetGlitchUpgrade();
+	virtual void ResetGlitchUpgrade_Implementation();
 };

@@ -59,27 +59,27 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	if (GlitchValue == GlitchMaxValue) {
 
 		//OnGlitchMax.Broadcast();
+		CheckAvailableGlitchEvents();
+		EGlitchEvent::Type RandomGlitchType;
 
-		EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
+		while (true){
+			RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
+		}
 
 		switch (RandomGlitchType){
 		case EGlitchEvent::UpgradeAlliesUnits:
-			UE_LOG(LogTemp, Warning, TEXT("UpgradeAlliesUnits"));
 			GlitchUpgradeAlliesUnits();
 			break;
 		
 		case EGlitchEvent::UpgradeEnemiesAI:
-			UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
 			GlitchUpgradeEnemiesAI();
 			break;
 		
 		case EGlitchEvent::UpgradePlayer:
-			UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
 			GlitchUpgradePlayer();
 			break;
 		
 		case EGlitchEvent::RandomFX:
-			UE_LOG(LogTemp, Warning, TEXT("RandomFX"));
 			GlitchRandomFX();
 			break;
 		}
@@ -93,22 +93,50 @@ float AGlitchUEGameMode::GetCurrentGlitchValue(){
 }
 
 void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
+	UE_LOG(LogTemp, Warning, TEXT("UpgradeAlliesUnits"));
+
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
 
-	PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
-	Cast<APlacableActor>(PlacableActorList[0])->GlitchUpgrade();
+	if (PlacableActorList.Num() > 0) {
+		PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
+		Cast<APlacableActor>(PlacableActorList[0])->GlitchUpgrade();
+	} else {
+		UE_LOG(LogTemp, Warning, TEXT("Aucune tourlles dans le monde"));
+	}
 }
 
 void AGlitchUEGameMode::GlitchUpgradeEnemiesAI(){
+	UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
+	
+	TArray<AActor*> AIList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAICharacter::StaticClass(), AIList);
+
+	if (AIList.Num() > 0) {
+		AIList = UUsefullFunctions::SortActorsByDistanceToActor(AIList, MainPlayer);
+		Cast<AMainAICharacter>(AIList[0])->GlitchUpgrade();
+	} else{
+		UE_LOG(LogTemp, Warning, TEXT("Aucun ennemis dans le monde"));
+	}
 
 }
 
 void AGlitchUEGameMode::GlitchUpgradePlayer() {
+	UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
 
+	MainPlayer->GlitchUpgrade();
 }
 
 void AGlitchUEGameMode::GlitchRandomFX() {
+	UE_LOG(LogTemp, Warning, TEXT("RandomFX"));
+}
+
+void AGlitchUEGameMode::CheckAvailableGlitchEvents(){
+	TArray<AActor*> PlacableActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
+
+	TArray<AActor*> AIList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAICharacter::StaticClass(), AIList);
 
 }
 
@@ -119,11 +147,11 @@ void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation){
 }
 
 void AGlitchUEGameMode::NextWave(){
-	TArray<AActor*> AIList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAICharacter::StaticClass(), AIList);
-	for (int i = 0; i < AIList.Num(); i++) {
-		Cast<AMainAICharacter>(AIList[i])->GetHealthComp()->TakeMaxDamages();
-	}
+	WaveManager->SetWave(WaveManager->GetCurrentWaveNumber() + 1);
+}
+
+void AGlitchUEGameMode::GoToWave(int NewWave){
+	WaveManager->SetWave(NewWave);
 }
 
 #pragma endregion
