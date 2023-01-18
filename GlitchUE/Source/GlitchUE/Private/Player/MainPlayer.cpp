@@ -96,7 +96,7 @@ void AMainPlayer::BeginPlay(){
 	*/
 }
 
-void AMainPlayer::GiveGolds(int Amount){
+void AMainPlayer::GiveGolds_Implementation(int Amount){
 	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
 }
 
@@ -361,6 +361,12 @@ void AMainPlayer::ResetOverlappedMeshes(){
 	OverlappedMeshes.Empty();
 	OverlappedMeshesCollisionResponse.Empty();
 }
+
+void AMainPlayer::GlitchUpgrade_Implementation(){
+
+}
+
+void AMainPlayer::ResetGlitchUpgrade_Implementation(){}
 
 void AMainPlayer::EndTL() {
 	GlitchCameraTrace();

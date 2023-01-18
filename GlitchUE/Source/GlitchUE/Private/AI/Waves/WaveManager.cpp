@@ -112,10 +112,9 @@ void AWaveManager::EndWave_Implementation() {
 		return;
 	}
 
-	CurrentWaveNumber++;
-
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+		CurrentWaveNumber++;
 		StartWave();
 	}, GetCurrentWaveData()->NextWaveTimer, false);
 }
@@ -172,6 +171,24 @@ void AWaveManager::RemoveAIFromList(AMainAICharacter* AIToRemove){
 			EndWave();
 		}
 	}
+}
+
+void AWaveManager::SetWave(int NewWave){
+	CurrentWaveNumber = NewWave - 1;
+
+	for (int i = 0; i < ActiveSpawnerList.Num(); i++) {
+		ActiveSpawnerList[i]->ForceEndSpawn();
+	}
+
+	TArray<AMainAICharacter*> AIList = WaveAIList.Array();
+
+	for (int i = 0; i < AIList.Num(); i++) {
+		AIList[i]->GetHealthComp()->TakeMaxDamages();
+	}
+}
+
+int AWaveManager::GetCurrentWaveNumber(){
+	return CurrentWaveNumber;
 }
 
 bool AWaveManager::HaveTheSpawnerFinished() {

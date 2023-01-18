@@ -49,4 +49,7 @@ public:
 	UActivableComponent* GetActivableComp();
 
 	bool AnyAILeftToSpawn();
+
+	//DEBUG ONLY
+	void ForceEndSpawn();
 };

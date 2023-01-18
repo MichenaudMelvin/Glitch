@@ -130,8 +130,9 @@ protected:
 	int Golds = 0;
 
 public:
-	UFUNCTION(BlueprintCallable, Exec, Category = "Construction")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
 	void GiveGolds(int Amount);
+	virtual void GiveGolds_Implementation(int Amount);
 
 protected:
 	#pragma region Interaction
@@ -219,6 +220,15 @@ public:
 	void GlitchTrace();
 
 	void ResetOverlappedMeshes();
+
+	public:
+		UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+		void GlitchUpgrade();
+		virtual void GlitchUpgrade_Implementation();
+
+		UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+		void ResetGlitchUpgrade();
+		virtual void ResetGlitchUpgrade_Implementation();
 
 #pragma endregion
 

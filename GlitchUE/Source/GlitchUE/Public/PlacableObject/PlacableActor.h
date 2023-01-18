@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "PlacableActorData.h"
 #include "Components/HealthComponent.h"
+#include "AI/MainAICharacter.h"
+#include "Objectives/Nexus.h"
+#include "Components/AudioComponent.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
@@ -43,11 +46,17 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
 	UInteractableComponent* InteractableComp;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Data")
+	UAudioComponent* AudioComp;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
 	FName Name;
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI")
-	TSet<UHealthComponent*> AIHealthList;
+	TSet<AMainAICharacter*> AIList;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Nexus", meta = (ExposeOnSpawn = "true"))
+	ANexus* Nexus;
 
 	UFUNCTION(BlueprintCallable, Category = "Appearence")
 	virtual void SetMesh();
