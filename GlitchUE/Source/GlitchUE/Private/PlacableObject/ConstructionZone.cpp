@@ -10,7 +10,7 @@ AConstructionZone::AConstructionZone() {
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
 
 	UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
-	BoxComp->SetBoxExtent(FVector::OneVector * 200);
+	BoxComp->SetBoxExtent(FVector::OneVector * 100);
 
 	BoxComp->SetMobility(EComponentMobility::Static);
 

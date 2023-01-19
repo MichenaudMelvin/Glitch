@@ -37,7 +37,6 @@ void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, FAIStimul
 	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Sight::StaticClass()) {
 		if (Actor->IsA(AMainPlayer::StaticClass())) {
 			AActor* Player = Actor;
-			UE_LOG(LogTemp, Warning, TEXT("Hello World"));
 
 			if (IsValid(Blackboard->GetValueAsObject(FName(TEXT("Player"))))) {
 				SetPlayerValues(Player);
