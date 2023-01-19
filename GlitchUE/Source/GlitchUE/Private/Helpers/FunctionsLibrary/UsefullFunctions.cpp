@@ -18,6 +18,11 @@ TArray<AActor*> UUsefullFunctions::SortActorsByDistanceToActor(TArray<AActor*> A
 }
 
 void UUsefullFunctions::QuickSortByDistance(TArray<AActor*>& InArray, int low, int high, const AActor* Actor){
+	if (InArray.Num() == 0 ) {
+		UE_LOG(LogTemp, Warning, TEXT("Array null"));
+		return;
+	}
+	
 	int i = low;
 	int j = high;
 	// Select a pivot
