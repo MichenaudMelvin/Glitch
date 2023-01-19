@@ -9,6 +9,7 @@
 #include "AI/MainAICharacter.h"
 #include "Objectives/Nexus.h"
 #include "Components/AudioComponent.h"
+#include "Components/TimelineComponent.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
@@ -36,6 +37,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
 	UStaticMeshComponent* BaseMesh;
@@ -65,6 +67,22 @@ protected:
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 	void SellObject(AMainPlayer* MainPlayer);
+
+	FTimeline FadeInAppearence;
+
+	UFUNCTION()
+	void FadeIn(float Alpha);
+
+	UCurveFloat* ZeroToOneCurve;
+
+	UMaterialParameterCollection* AppearenceMaterialCollection;
+
+	UFUNCTION(BlueprintCallable, Category = "Appearence")
+	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Appearence")
+	void EndAppearence();
+	virtual void EndAppearence_Implementation();
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")

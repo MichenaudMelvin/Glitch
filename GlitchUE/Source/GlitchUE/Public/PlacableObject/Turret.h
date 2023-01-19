@@ -92,4 +92,6 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void EndOverlap(AActor* OverlappedActor);
 	void EndOverlap_Implementation(AActor* OverlappedActor);
+
+	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
 };

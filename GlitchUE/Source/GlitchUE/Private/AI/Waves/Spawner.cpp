@@ -14,9 +14,11 @@ ASpawner::ASpawner(){
 
 	SpawnerMesh->SetMobility(EComponentMobility::Static);
 
+	SpawnerMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("ActivableComp"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/EditorMeshes/EditorCylinder"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/BasicShapes/Sphere"));
 	check(Mesh.Succeeded());
 
 	SpawnerMesh->SetStaticMesh(Mesh.Object);

@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/HealthComponent.h"
 #include "Components/ActivableComponent.h"
-//#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Components/InteractableComponent.h"
 #include "AbstractObjectif.generated.h"
 
@@ -32,8 +32,8 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
 	UInteractableComponent* InteractableComp;
 
-	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Perception")
-	//UAIPerceptionStimuliSourceComponent* AIPerceptionTarget;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Perception")
+	UAIPerceptionStimuliSourceComponent* AIPerceptionTarget;
 
 	UFUNCTION()
 	virtual void ActiveObjectif();
