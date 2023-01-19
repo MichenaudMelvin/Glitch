@@ -145,3 +145,10 @@ void ATurret::EndOverlap_Implementation(AActor* OverlappedActor){
 		AIList.Remove(Cast<AMainAICharacter>(OverlappedActor));
 	}
 }
+
+void ATurret::SetObjectMaterial(UMaterialInterface* NewMaterial){
+	Super::SetObjectMaterial(NewMaterial);
+
+	TurretPillar->SetMaterial(0, NewMaterial);
+	Cast<UMeshComponent>(TurretHead)->SetMaterial(0, NewMaterial);
+}

@@ -6,6 +6,8 @@
 #include "Components/InteractableComponent.h"
 #include "Player/MainPlayer.h"
 #include "Player/MainPlayerController.h"
+#include "Components/TimelineComponent.h"
+#include "Kismet/KismetMaterialLibrary.h"
 
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -17,6 +19,17 @@ APlacableActor::APlacableActor(){
 	AudioComp->SetupAttachment(BaseMesh);
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/ZeroToOneCurve"));
+	check(Curve.Succeeded());
+
+	ZeroToOneCurve = Curve.Object;
+
+	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/ConstructionNumeric/MPC_Construction"));
+	//check(MPC.Succeeded());
+
+	//AppearenceMaterialCollection = MPC.Object;
+
 }
 
 void APlacableActor::BeginPlay(){
@@ -24,6 +37,21 @@ void APlacableActor::BeginPlay(){
 
 	InteractableComp->OnInteract.AddDynamic(this, &APlacableActor::Interact);
 	InteractableComp->AddInteractable(BaseMesh);
+
+	FOnTimelineFloat UpdateEvent;
+	FOnTimelineEvent FinishedEvent;
+
+	UpdateEvent.BindDynamic(this, &APlacableActor::FadeIn);
+	FinishedEvent.BindDynamic(this, &APlacableActor::EndAppearence);
+
+	FadeInAppearence.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	FadeInAppearence.SetTimelineFinishedFunc(FinishedEvent);
+
+	FadeInAppearence.PlayFromStart();
+}
+
+void APlacableActor::Tick(float DeltaTime){
+	FadeInAppearence.TickTimeline(DeltaTime);
 }
 
 void APlacableActor::SetMesh() {
@@ -40,6 +68,16 @@ void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 	MainPlayer->GiveGolds(CurrentData->Cost);
 	Destroy();
 }
+
+void APlacableActor::FadeIn(float Alpha){
+	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), AppearenceMaterialCollection, FName("Appearence"), Alpha);
+}
+
+void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){
+	BaseMesh->SetMaterial(0, NewMaterial);
+}
+
+void APlacableActor::EndAppearence_Implementation(){}
 
 void APlacableActor::SetData(UPlacableActorData* NewData){
 	CurrentData = NewData;
