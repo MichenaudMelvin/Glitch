@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Objectives/AbstractObjectif.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
 
 AAbstractObjectif::AAbstractObjectif(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -9,14 +10,17 @@ AAbstractObjectif::AAbstractObjectif(){
 
 	MeshObjectif->SetupAttachment(RootComponent);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/EditorMeshes/EditorCube"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/BasicShapes/Cube1"));
 	check(Mesh.Succeeded());
 
 	MeshObjectif->SetStaticMesh(Mesh.Object);
 
 	MeshObjectif->SetMobility(EComponentMobility::Static);
 
-	//AIPerceptionTarget = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AITarget"));
+	MeshObjectif->SetCanEverAffectNavigation(false);
+
+	AIPerceptionTarget = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AITarget"));
+
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
