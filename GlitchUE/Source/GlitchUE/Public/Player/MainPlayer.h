@@ -79,6 +79,30 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Camera")
 	ETimelineDirection::Type GetCameraAimDirection();
 
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void CameraZoom(float TargetZoom);
+
+	float TargetZoomValue;
+
+	float CurrentZoomValue;
+
+	FTimeline CameraZoomTransition;
+
+	UFUNCTION()
+	void CameraZoomUpdate(float Alpha);
+
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void CameraFOV(float TargetFOV);
+
+	float TargetFOVValue;
+
+	float CurrentFOVValue;
+
+	FTimeline CameraFOVTransition;
+
+	UFUNCTION()
+	void CameraFOVUpdate(float Alpha);
+
 	#pragma endregion
 
 

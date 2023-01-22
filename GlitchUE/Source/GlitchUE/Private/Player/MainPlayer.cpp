@@ -91,6 +91,16 @@ void AMainPlayer::BeginPlay(){
 
 	CameraAimTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	CameraAimTransition.SetTimelineFinishedFunc(FinishedEvent);
+
+	UpdateEvent.Unbind();
+	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraZoomUpdate);
+
+	CameraZoomTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+
+	UpdateEvent.Unbind();
+	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraFOVUpdate);
+
+	CameraFOVTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 }
 
 #pragma region Camera
@@ -117,6 +127,26 @@ void AMainPlayer::CameraAimFinished_Implementation(){}
 
 ETimelineDirection::Type AMainPlayer::GetCameraAimDirection(){
 	return CameraAimTimelineDirection;
+}
+
+void AMainPlayer::CameraZoom(float TargetZoom){
+	TargetZoomValue = TargetZoom;
+	CurrentZoomValue = CameraBoom->TargetArmLength;
+	CameraZoomTransition.PlayFromStart();
+}
+
+void AMainPlayer::CameraZoomUpdate(float Alpha){
+	CameraBoom->TargetArmLength = FMath::Lerp(CurrentZoomValue, TargetZoomValue, Alpha);
+}
+
+void AMainPlayer::CameraFOV(float TargetFOV){
+	TargetFOVValue = TargetFOV;
+	CurrentFOVValue = FollowCamera->FieldOfView;
+	CameraZoomTransition.PlayFromStart();
+}
+
+void AMainPlayer::CameraFOVUpdate(float Alpha){
+	FollowCamera->FieldOfView = FMath::Lerp(CurrentFOVValue, TargetFOVValue, Alpha);
 }
 
 void AMainPlayer::GiveGolds_Implementation(int Amount){
@@ -329,6 +359,8 @@ void AMainPlayer::Tick(float deltaTime){
 	
 	CameraTransitionTL.TickTimeline(deltaTime);
 	CameraAimTransition.TickTimeline(deltaTime);
+	CameraZoomTransition.TickTimeline(deltaTime);
+	CameraFOVTransition.TickTimeline(deltaTime);
 }
 
 void AMainPlayer::SetMark(AMark* NewMark) {
