@@ -256,4 +256,8 @@ public:
 	#pragma endregion
 
 #pragma endregion
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Pause")
+	void PauseGame();
+	virtual void PauseGame_Implementation();
 };
