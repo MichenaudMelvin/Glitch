@@ -64,18 +64,19 @@ void ATurret::LookAtTarget(){
 void ATurret::RotateToTarget(float Alpha){
 	if (!IsValid(CurrentTarget)){
 		RotateTimeline.Stop();
+		EndRotate();
 		return;
 	}
 	
 	AILookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
 	FRotator PillarRotator = FRotator::ZeroRotator;
-	FRotator HeadRotator = FRotator::ZeroRotator;
+	//FRotator HeadRotator = FRotator::ZeroRotator;
 
 	PillarRotator.Yaw = FMath::Lerp(CurrentYawRotation, AILookAtRotation.Yaw, Alpha);
-	HeadRotator.Pitch = FMath::Lerp(CurrentPitchRotation, AILookAtRotation.Pitch, Alpha);
+	//HeadRotator.Pitch = FMath::Lerp(CurrentPitchRotation, AILookAtRotation.Pitch, Alpha);
 
 	TurretPillar->SetWorldRotation(PillarRotator);
-	TurretHead->SetRelativeRotation(HeadRotator);
+	//TurretHead->SetRelativeRotation(HeadRotator);
 }
 
 void ATurret::EndRotate_Implementation(){}

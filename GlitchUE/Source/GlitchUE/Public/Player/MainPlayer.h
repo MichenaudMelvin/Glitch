@@ -48,6 +48,64 @@ protected:
 	virtual void Tick(float deltaTime) override;
 	virtual void BeginPlay() override;
 
+	#pragma region Camera
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
+	void CameraAim();
+	virtual void CameraAim_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
+	void CameraAimReverse();
+	virtual void CameraAimReverse_Implementation();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Camera")
+	void CameraStopAim();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera")
+	void CameraAimUpdate(float Alpha);
+	virtual void CameraAimUpdate_Implementation(float Alpha);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera")
+	void CameraAimFinished();
+	virtual void CameraAimFinished_Implementation();
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FVector AimOffset = FVector(75, 75, 60);
+
+	FTimeline CameraAimTransition;
+	
+	ETimelineDirection::Type CameraAimTimelineDirection;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Camera")
+	ETimelineDirection::Type GetCameraAimDirection();
+
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void CameraZoom(float TargetZoom);
+
+	float TargetZoomValue;
+
+	float CurrentZoomValue;
+
+	FTimeline CameraZoomTransition;
+
+	UFUNCTION()
+	void CameraZoomUpdate(float Alpha);
+
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void CameraFOV(float TargetFOV);
+
+	float TargetFOVValue;
+
+	float CurrentFOVValue;
+
+	FTimeline CameraFOVTransition;
+
+	UFUNCTION()
+	void CameraFOVUpdate(float Alpha);
+
+	#pragma endregion
+
+
 	#pragma region Movement
 
 protected:
@@ -180,13 +238,11 @@ public:
 	UFUNCTION()
 	void EndTL();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Mark")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void UseGlitchPressed();
-	void UseGlitchPressed_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Mark")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void UseGlitchReleassed();
-	void UseGlitchReleassed_Implementation();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
 	AMark* GetMark() const { return Mark; }

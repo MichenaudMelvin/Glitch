@@ -76,7 +76,7 @@ void AMainPlayer::BeginPlay(){
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 
 	FOnTimelineFloat UpdateEvent = FOnTimelineFloat();
-	FOnTimelineEventStatic FinishedEvent = FOnTimelineEventStatic();
+	FOnTimelineEvent FinishedEvent = FOnTimelineEvent();
 
 	UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
 	FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
@@ -84,21 +84,76 @@ void AMainPlayer::BeginPlay(){
 	CameraTransitionTL.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	CameraTransitionTL.SetTimelineFinishedFunc(FinishedEvent);
 
-	//UpdateEvent.Clear();
-	//FinishedEvent.Unbind();
-	//UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
-	//FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
+	UpdateEvent.Unbind();
+	FinishedEvent.Unbind();
+	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraAimUpdate);
+	FinishedEvent.BindDynamic(this, &AMainPlayer::CameraAimFinished);
 
-	/*
-	CameraTransitionTL->AddInterpFloat(ZeroToOneCurve, UpdateEvent);
-	CameraTransitionTL->SetTimelineFinishedFunc(FinishedEvent);
-	CameraTransitionTL->RegisterComponentWithWorld(GetWorld());
-	*/
+	CameraAimTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	CameraAimTransition.SetTimelineFinishedFunc(FinishedEvent);
+
+	UpdateEvent.Unbind();
+	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraZoomUpdate);
+
+	CameraZoomTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+
+	UpdateEvent.Unbind();
+	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraFOVUpdate);
+
+	CameraFOVTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+}
+
+#pragma region Camera
+
+void AMainPlayer::CameraAim_Implementation(){
+	CameraAimTransition.Play();
+	CameraAimTimelineDirection = ETimelineDirection::Forward;
+}
+
+void AMainPlayer::CameraAimReverse_Implementation(){
+	CameraAimTransition.Reverse();
+	CameraAimTimelineDirection = ETimelineDirection::Backward;
+}
+
+void AMainPlayer::CameraStopAim(){
+	CameraAimTransition.Stop();
+}
+
+void AMainPlayer::CameraAimUpdate_Implementation(float Alpha){
+	CameraBoom->SocketOffset = UKismetMathLibrary::VLerp(FVector::ZeroVector, AimOffset, Alpha);
+}
+
+void AMainPlayer::CameraAimFinished_Implementation(){}
+
+ETimelineDirection::Type AMainPlayer::GetCameraAimDirection(){
+	return CameraAimTimelineDirection;
+}
+
+void AMainPlayer::CameraZoom(float TargetZoom){
+	TargetZoomValue = TargetZoom;
+	CurrentZoomValue = CameraBoom->TargetArmLength;
+	CameraZoomTransition.PlayFromStart();
+}
+
+void AMainPlayer::CameraZoomUpdate(float Alpha){
+	CameraBoom->TargetArmLength = FMath::Lerp(CurrentZoomValue, TargetZoomValue, Alpha);
+}
+
+void AMainPlayer::CameraFOV(float TargetFOV){
+	TargetFOVValue = TargetFOV;
+	CurrentFOVValue = FollowCamera->FieldOfView;
+	CameraZoomTransition.PlayFromStart();
+}
+
+void AMainPlayer::CameraFOVUpdate(float Alpha){
+	FollowCamera->FieldOfView = FMath::Lerp(CurrentFOVValue, TargetFOVValue, Alpha);
 }
 
 void AMainPlayer::GiveGolds_Implementation(int Amount){
 	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
 }
+
+#pragma endregion
 
 #pragma region Interaction
 
@@ -284,14 +339,28 @@ void AMainPlayer::TPToMark() {
 	CameraTransitionTL.PlayFromStart();
 }
 
-void AMainPlayer::UseGlitchPressed_Implementation() {}
+void AMainPlayer::UseGlitchPressed() {
+	CameraAim();
+}
 
-void AMainPlayer::UseGlitchReleassed_Implementation() {}
+void AMainPlayer::UseGlitchReleassed() {
+	CameraStopAim();
+	LaunchMark();
+
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+		CameraAimReverse();
+	}, 1.0f, false);
+}
 
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
 	
 	CameraTransitionTL.TickTimeline(deltaTime);
+	CameraAimTransition.TickTimeline(deltaTime);
+	CameraZoomTransition.TickTimeline(deltaTime);
+	CameraFOVTransition.TickTimeline(deltaTime);
 }
 
 void AMainPlayer::SetMark(AMark* NewMark) {

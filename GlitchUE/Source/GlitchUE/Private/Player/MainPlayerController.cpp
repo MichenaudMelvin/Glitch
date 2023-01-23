@@ -177,7 +177,7 @@ void AMainPlayerController::BindConstructionMode() {
 
 void AMainPlayerController::BindPause() {
 	UnbindPause();
-	// bind pause
+	OnPause.AddDynamic(this, &AMainPlayerController::PauseGame);
 }
 
 void AMainPlayerController::UnbindPause() {
@@ -196,6 +196,11 @@ void AMainPlayerController::UnbindAll(){
 	UnbindConstruction();
 	UnbindOpenSelectionWheel();
 	// unbind rotate objects
+}
+
+void AMainPlayerController::PauseGame_Implementation(){
+	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
+	SetShowMouseCursor(!bShowMouseCursor);
 }
 
 #pragma endregion
