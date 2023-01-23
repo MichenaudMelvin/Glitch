@@ -112,7 +112,10 @@ private:
 
 	UFUNCTION(Exec)
 	void GoToWave(int NewWave);
-
+	
+	UFUNCTION(Exec)
+	void CrashGame();
+		
 #pragma endregion
 
 };

@@ -154,4 +154,8 @@ void AGlitchUEGameMode::GoToWave(int NewWave){
 	WaveManager->SetWave(NewWave);
 }
 
+void AGlitchUEGameMode::CrashGame(){
+	UE_LOG(LogTemp, Fatal, TEXT("CRASH"));
+}
+
 #pragma endregion

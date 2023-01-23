@@ -64,6 +64,7 @@ void ATurret::LookAtTarget(){
 void ATurret::RotateToTarget(float Alpha){
 	if (!IsValid(CurrentTarget)){
 		RotateTimeline.Stop();
+		EndRotate();
 		return;
 	}
 	
