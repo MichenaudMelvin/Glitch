@@ -7,6 +7,8 @@
 #include "Player/MainPlayer.h"
 #include "Player/MainPlayerController.h"
 #include "Components/TimelineComponent.h"
+#include "NavAreas/NavArea_Default.h"
+#include "NavAreas/NavArea_Obstacle.h"
 #include "Kismet/KismetMaterialLibrary.h"
 
 APlacableActor::APlacableActor(){
@@ -20,10 +22,14 @@ APlacableActor::APlacableActor(){
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 
+	NavModifierComp = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavModifier"));
+
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/ZeroToOneCurve"));
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
+
+	NavModifierComp->SetAreaClass(UNavArea_Default::StaticClass());
 
 	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/ConstructionNumeric/MPC_Construction"));
 	//check(MPC.Succeeded());

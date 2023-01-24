@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "AI/Waves/WaveManager.h"
 #include "Player/MainPlayer.h"
+#include "Curves/CurveLinearColor.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
@@ -49,6 +50,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTime) override;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
 	AMainPlayer* MainPlayer;
@@ -85,6 +87,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Glitch")
 	float GetCurrentGlitchValue();
+
+protected:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UMaterialParameterCollection* AlertedMaterial;
+
+private:
+	FTimeline LevelStateTimeline;
+
+	UCurveLinearColor* ColorCurve;
+
+	UFUNCTION()
+	void AlertLevelUpdate(FLinearColor NewColor);
 
 protected:
 	UFUNCTION(Exec, Category = "Glitch")

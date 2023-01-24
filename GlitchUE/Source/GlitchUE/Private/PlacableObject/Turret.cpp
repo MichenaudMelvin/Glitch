@@ -32,6 +32,8 @@ ATurret::ATurret() {
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
+
+	TurretRadius->SetCanEverAffectNavigation(false);
 }
 
 void ATurret::BeginPlay(){

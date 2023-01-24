@@ -20,6 +20,8 @@ void APreviewPlacableActor::BeginPlay(){
 	Super::BeginPlay();
 
 	OriginalLocation = GetActorLocation();
+
+	NavModifierComp->DestroyComponent();
 }
 
 bool APreviewPlacableActor::CheckSpotSpace() {

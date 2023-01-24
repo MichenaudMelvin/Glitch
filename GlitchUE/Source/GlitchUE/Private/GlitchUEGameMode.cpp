@@ -9,6 +9,9 @@
 #include "AI/Waves/WaveManager.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "AI/MainAICharacter.h"
+#include "Components/TimelineComponent.h"
+#include "Kismet/KismetMaterialLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	// set default pawn class to our Blueprinted character
@@ -17,6 +20,18 @@ AGlitchUEGameMode::AGlitchUEGameMode(){
 	// {
 	// 	DefaultPawnClass = PlayerPawnBPClass.Class;
 	// }
+
+	PrimaryActorTick.bCanEverTick = true;
+
+	static ConstructorHelpers::FObjectFinder<UCurveLinearColor> Curve(TEXT("/Game/Blueprint/Curves/LevelStateCurve"));
+	check(Curve.Succeeded());
+
+	ColorCurve = Curve.Object;
+	
+	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/Dissolver/MPC_Dissolver"));
+	//check(MPC.Succeeded());
+
+	//AlertedMaterial = MPC.Object;
 }
 
 void AGlitchUEGameMode::BeginPlay() {
@@ -29,6 +44,17 @@ void AGlitchUEGameMode::BeginPlay() {
 	}
 
 	WaveManager = WaveManagerArray[0];
+
+	FOnTimelineLinearColor UpdateEvent;
+
+	UpdateEvent.BindDynamic(this, &AGlitchUEGameMode::AlertLevelUpdate);
+	LevelStateTimeline.AddInterpLinearColor(ColorCurve, UpdateEvent);
+}
+
+void AGlitchUEGameMode::Tick(float deltaTime){
+	Super::Tick(deltaTime);
+	
+	LevelStateTimeline.TickTimeline(deltaTime);
 }
 
 EPhases AGlitchUEGameMode::GetPhases(){
@@ -52,6 +78,18 @@ ELevelState AGlitchUEGameMode::GetLevelState(){
 
 void AGlitchUEGameMode::SetLevelState(ELevelState newState){
 	LevelState = newState;
+	switch (LevelState){
+	case ELevelState::Normal:
+		LevelStateTimeline.Reverse();
+		break;
+	case ELevelState::Alerted:
+		LevelStateTimeline.Play();
+		break;
+	}
+}
+
+void AGlitchUEGameMode::AlertLevelUpdate(FLinearColor NewColor) {
+	UKismetMaterialLibrary::SetVectorParameterValue(GetWorld(), AlertedMaterial, FName(TEXT("Emissive")), NewColor);
 }
 
 void AGlitchUEGameMode::AddGlitch(float AddedValue){
