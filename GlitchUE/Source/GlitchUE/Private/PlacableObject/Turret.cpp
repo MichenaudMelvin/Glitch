@@ -29,6 +29,11 @@ ATurret::ATurret() {
 	TurretHead->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 
 	TurretRadius->SetCanEverAffectNavigation(false);
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
+	check(Curve.Succeeded());
+
+	ZeroToOneCurve = Curve.Object;
 }
 
 void ATurret::BeginPlay(){
