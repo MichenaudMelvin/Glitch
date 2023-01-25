@@ -23,10 +23,15 @@ AGlitchUEGameMode::AGlitchUEGameMode(){
 
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<UCurveLinearColor> Curve(TEXT("/Game/Blueprint/Curves/LevelStateCurve"));
-	check(Curve.Succeeded());
+	static ConstructorHelpers::FObjectFinder<UCurveLinearColor> Color(TEXT("/Game/Blueprint/Curves/CC_LevelStateCurve"));
+	check(Color.Succeeded());
 
-	ColorCurve = Curve.Object;
+	ColorCurve = Color.Object;
+	
+	static ConstructorHelpers::FObjectFinder<UCurveLinearColor> Blinking(TEXT("/Game/Blueprint/Curves/CC_BlinkingAlertCurve"));
+	check(Blinking.Succeeded());
+
+	BlinkingCurve = Blinking.Object;
 	
 	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/Dissolver/MPC_Dissolver"));
 	//check(MPC.Succeeded());
@@ -46,15 +51,26 @@ void AGlitchUEGameMode::BeginPlay() {
 	WaveManager = WaveManagerArray[0];
 
 	FOnTimelineLinearColor UpdateEvent;
+	FOnTimelineEvent FinishEvent;
 
-	UpdateEvent.BindDynamic(this, &AGlitchUEGameMode::AlertLevelUpdate);
+	UpdateEvent.BindDynamic(this, &AGlitchUEGameMode::UpdateLevelColor);
+	FinishEvent.BindDynamic(this, &AGlitchUEGameMode::AlertLevelFinished);
+
 	LevelStateTimeline.AddInterpLinearColor(ColorCurve, UpdateEvent);
+	LevelStateTimeline.SetTimelineFinishedFunc(FinishEvent);
+
+	FinishEvent.Unbind();
+	FinishEvent.BindDynamic(this, &AGlitchUEGameMode::BlinkingFinished);
+	
+	BlinkingTimeline.AddInterpLinearColor(BlinkingCurve, UpdateEvent);
+	BlinkingTimeline.SetTimelineFinishedFunc(FinishEvent);
 }
 
 void AGlitchUEGameMode::Tick(float deltaTime){
 	Super::Tick(deltaTime);
 	
 	LevelStateTimeline.TickTimeline(deltaTime);
+	BlinkingTimeline.TickTimeline(deltaTime);
 }
 
 EPhases AGlitchUEGameMode::GetPhases(){
@@ -80,16 +96,47 @@ void AGlitchUEGameMode::SetLevelState(ELevelState newState){
 	LevelState = newState;
 	switch (LevelState){
 	case ELevelState::Normal:
-		LevelStateTimeline.Reverse();
+		RequestNormalState = true;
+		LevelStateTimelineDirection = ETimelineDirection::Backward;
 		break;
 	case ELevelState::Alerted:
 		LevelStateTimeline.Play();
+		LevelStateTimelineDirection = ETimelineDirection::Forward;
 		break;
 	}
 }
 
-void AGlitchUEGameMode::AlertLevelUpdate(FLinearColor NewColor) {
+void AGlitchUEGameMode::UpdateLevelColor(FLinearColor NewColor) {
 	UKismetMaterialLibrary::SetVectorParameterValue(GetWorld(), AlertedMaterial, FName(TEXT("Emissive")), NewColor);
+}
+
+void AGlitchUEGameMode::AlertLevelFinished(){
+	switch (LevelStateTimelineDirection) {
+	case ETimelineDirection::Forward:
+		BlinkingTimeline.PlayFromStart();
+		BlinkingTimelineDirection = ETimelineDirection::Forward;
+		break;
+	case ETimelineDirection::Backward:
+		break;
+	}
+}
+
+void AGlitchUEGameMode::BlinkingFinished(){
+	switch (BlinkingTimelineDirection){
+	case ETimelineDirection::Forward:
+		if (!RequestNormalState) {
+			BlinkingTimeline.Reverse();
+			BlinkingTimelineDirection = ETimelineDirection::Backward;
+		} else {
+			RequestNormalState = false;
+			LevelStateTimeline.Reverse();
+		}
+		break;
+	case ETimelineDirection::Backward:
+		BlinkingTimeline.Play();
+		BlinkingTimelineDirection = ETimelineDirection::Forward;
+		break;
+	}
 }
 
 void AGlitchUEGameMode::AddGlitch(float AddedValue){

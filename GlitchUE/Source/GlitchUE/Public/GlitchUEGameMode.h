@@ -97,8 +97,24 @@ private:
 
 	UCurveLinearColor* ColorCurve;
 
+	bool RequestNormalState = false;
+
+	ETimelineDirection::Type LevelStateTimelineDirection;
+
+	ETimelineDirection::Type BlinkingTimelineDirection;
+
 	UFUNCTION()
-	void AlertLevelUpdate(FLinearColor NewColor);
+	void UpdateLevelColor(FLinearColor NewColor);
+
+	UFUNCTION()
+	void AlertLevelFinished();
+
+	FTimeline BlinkingTimeline;
+
+	UCurveLinearColor* BlinkingCurve;
+
+	UFUNCTION()
+	void BlinkingFinished();
 
 protected:
 	UFUNCTION(Exec, Category = "Glitch")
