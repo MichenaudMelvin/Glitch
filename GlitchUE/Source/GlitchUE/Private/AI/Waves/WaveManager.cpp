@@ -83,9 +83,9 @@ void AWaveManager::DisableCatalyseurs() {
 
 void AWaveManager::StartWave_Implementation() {
 
-	FWave* CurrentWave = GetCurrentWaveData();
-	if (CurrentWave->GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
-		Player->GiveGolds(CurrentWave->GivenGolds.Golds);
+	FWave CurrentWave = GetCurrentWaveData();
+	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
+		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
 
 	EnableCatalyseurs();
@@ -97,17 +97,17 @@ void AWaveManager::EndWave_Implementation() {
 
 	DisableCatalyseurs();
 
-	FWave* CurrentWave = GetCurrentWaveData();
+	FWave CurrentWave = GetCurrentWaveData();
 
 	if (CurrentWaveNumber == NumberOfWaves) {
 		return;
 	}
 
-	if (CurrentWave->GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
-		Player->GiveGolds(CurrentWave->GivenGolds.Golds);
+	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
+		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
 
-	if (GetCurrentWaveData()->bStopAtEnd) {
+	if (GetCurrentWaveData().bStopAtEnd) {
 		CurrentWaveNumber++;
 		return;
 	}
@@ -116,11 +116,11 @@ void AWaveManager::EndWave_Implementation() {
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
 		CurrentWaveNumber++;
 		StartWave();
-	}, GetCurrentWaveData()->NextWaveTimer, false);
+	}, GetCurrentWaveData().NextWaveTimer, false);
 }
 
 void AWaveManager::SpawnEnemies(){
-	TArray<FAIToSpawn> ListOfAIToSpawn = GetCurrentWaveData()->AIToSpawnList;
+	TArray<FAIToSpawn> ListOfAIToSpawn = GetCurrentWaveData().AIToSpawnList;
 
 	if (ActiveSpawnerList.Num() == 0) {
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST ACTIF PENDANT LA VAGUE %d"), CurrentWaveNumber+1);
@@ -134,15 +134,8 @@ void AWaveManager::SpawnEnemies(){
 	}
 }
 
-FWave* AWaveManager::GetCurrentWaveData() {
-	return WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber], "");
-}
-
-void AWaveManager::GetCurrentWaveDataBP(TArray<FAIToSpawn>& AIToSpawnList, bool& bStopAtEnd, FWaveGolds& GivenGolds, float& NextWaveTimer) {
-	AIToSpawnList = GetCurrentWaveData()->AIToSpawnList;
-	bStopAtEnd = GetCurrentWaveData()->bStopAtEnd;
-	GivenGolds = GetCurrentWaveData()->GivenGolds;
-	NextWaveTimer = GetCurrentWaveData()->NextWaveTimer;
+FWave AWaveManager::GetCurrentWaveData() {
+	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber], "");
 }
 
 void AWaveManager::RefreshActiveSpawners() {

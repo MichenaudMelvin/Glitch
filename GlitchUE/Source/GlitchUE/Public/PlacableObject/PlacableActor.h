@@ -10,6 +10,7 @@
 #include "Objectives/Nexus.h"
 #include "Components/AudioComponent.h"
 #include "Components/TimelineComponent.h"
+#include "NavModifierComponent.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
@@ -50,6 +51,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Data")
 	UAudioComponent* AudioComp;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Navigation")
+	UNavModifierComponent* NavModifierComp;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
 	FName Name;

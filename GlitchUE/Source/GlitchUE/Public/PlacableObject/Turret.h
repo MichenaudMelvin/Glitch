@@ -29,7 +29,7 @@ protected:
 	USkeletalMeshComponent* TurretHead;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Vision")
-	USphereComponent* TurretRadius;
+	USphereComponent* TurretVision;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	float Damages;

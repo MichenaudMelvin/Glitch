@@ -99,12 +99,8 @@ protected:
 	
 	void DisableCatalyseurs();
 
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
-	// pourquoi j'ai pas le droit de la mettre en UFUNCTION
-	FWave* GetCurrentWaveData();
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
-	void GetCurrentWaveDataBP(TArray<FAIToSpawn>& AIToSpawnList, bool& bStopAtEnd, FWaveGolds& GivenGolds, float& NextWaveTimer);
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FWave GetCurrentWaveData();
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FKOnRefreshAIList OnRefreshAIList;
