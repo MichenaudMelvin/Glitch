@@ -7,7 +7,6 @@
 #include "Player/MainPlayer.h"
 #include "Player/MainPlayerController.h"
 #include "Components/TimelineComponent.h"
-#include "NavAreas/NavArea_Default.h"
 #include "NavAreas/NavArea_Obstacle.h"
 #include "Kismet/KismetMaterialLibrary.h"
 
@@ -29,7 +28,7 @@ APlacableActor::APlacableActor(){
 
 	ZeroToOneCurve = Curve.Object;
 
-	NavModifierComp->SetAreaClass(UNavArea_Default::StaticClass());
+	NavModifierComp->SetAreaClass(UNavArea_Obstacle::StaticClass());
 
 	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/ConstructionNumeric/MPC_Construction"));
 	//check(MPC.Succeeded());

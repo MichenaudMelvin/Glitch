@@ -19,16 +19,9 @@ ATurret::ATurret() {
 	TurretHead->SetupAttachment(TurretPillar);
 	TurretHead->SetRelativeLocation(FVector(0, 0, 100));
 
-	TurretRadius = CreateDefaultSubobject<USphereComponent>(TEXT("TurretRadius"));
-	TurretRadius->SetupAttachment(BaseMesh);
-	TurretRadius->SetCollisionResponseToAllChannels(ECR_Overlap);
-	TurretRadius->SetSphereRadius(100, false);
-
 	BaseMesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	TurretPillar->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	TurretHead->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-
-	TurretRadius->SetCanEverAffectNavigation(false);
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
