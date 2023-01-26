@@ -5,6 +5,11 @@
 #include "AI/Waves/Spawner.h"
 #include "Kismet/GameplayStatics.h"
 
+ACatalyseur::ACatalyseur() {
+	TECHMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TECHMesh"));
+	TECHMesh->SetCanEverAffectNavigation(false);
+}
+
 void ACatalyseur::BeginPlay() {
 	Super::BeginPlay();
 

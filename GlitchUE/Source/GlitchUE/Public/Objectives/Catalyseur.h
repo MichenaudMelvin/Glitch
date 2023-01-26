@@ -26,6 +26,9 @@ UCLASS()
 class GLITCHUE_API ACatalyseur : public AAbstractObjectif{
 	GENERATED_BODY()
 
+public:
+	ACatalyseur();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -34,6 +37,9 @@ protected:
 	virtual void DesactivateObjectif() override;
 
 	virtual void HealthNull() override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
+	USkeletalMeshComponent* TECHMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
 	FStateAtWave StateAtWave;

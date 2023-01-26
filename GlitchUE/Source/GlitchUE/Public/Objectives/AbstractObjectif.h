@@ -21,7 +21,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
-	UStaticMeshComponent* MeshObjectif;
+	USkeletalMeshComponent* MeshObjectif;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
 	UHealthComponent* HealthComp;
