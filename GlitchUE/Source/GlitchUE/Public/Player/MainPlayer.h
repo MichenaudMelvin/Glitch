@@ -230,6 +230,12 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void LaunchMark();
 
+	UPROPERTY(EditAnywhere, Category = "Sound")
+		class USoundBase* tpStart;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+		class USoundBase* tpFinal;
+
 	FQuat FindMarkLaunchRotation();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")

@@ -18,6 +18,7 @@
 #include "AI/MainAICharacter.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
+#include "Sound/SoundBase.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -325,6 +326,9 @@ void AMainPlayer::TPToMark() {
 	GetCharacterMovement()->GravityScale = 0;
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
+	// Play sound start of the teleportation
+	UGameplayStatics::SpawnSound2D(this, tpStart);
+
 	FRotator CapsuleRotation = FRotator::ZeroRotator;
 	CapsuleRotation.Yaw = Mark->GetActorRotation().Yaw;
 	GetCapsuleComponent()->SetRelativeRotation(CapsuleRotation);
@@ -438,6 +442,10 @@ void AMainPlayer::GlitchUpgrade_Implementation(){
 void AMainPlayer::ResetGlitchUpgrade_Implementation(){}
 
 void AMainPlayer::EndTL() {
+
+	// Play sound start of the teleportation
+	UGameplayStatics::SpawnSound2D(this, tpFinal);
+
 	GlitchCameraTrace();
 
 	GlitchTrace();
