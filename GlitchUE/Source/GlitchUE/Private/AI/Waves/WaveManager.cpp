@@ -62,7 +62,7 @@ void AWaveManager::EnableCatalyseurs(){
 	TArray<ACatalyseur*> CatalyseurArray = CatalyseursList.Array();
 
 	for (int i = 0; i < CatalyseurArray.Num(); i++) {
-		if (CatalyseurArray[i]->GetStateAtWave().EnableAtWave == CurrentWaveNumber+1) {
+		if (CatalyseurArray[i]->GetStateAtWave().EnableAtWave == CurrentWaveNumber) {
 			CatalyseurArray[i]->GetActivableComp()->ActivateObject();
 		}
 	}
@@ -73,7 +73,7 @@ void AWaveManager::EnableCatalyseurs(){
 void AWaveManager::DisableCatalyseurs() {
 	TArray<ACatalyseur*> CatalyseurArray = CatalyseursList.Array();
 	for (int i = 0; i < CatalyseurArray.Num(); i++) {
-		if (CatalyseurArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber + 1) {
+		if (CatalyseurArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber) {
 			CatalyseurArray[i]->GetActivableComp()->DesactivateObject();
 		}
 	}
@@ -123,7 +123,7 @@ void AWaveManager::SpawnEnemies(){
 	TArray<FAIToSpawn> ListOfAIToSpawn = GetCurrentWaveData().AIToSpawnList;
 
 	if (ActiveSpawnerList.Num() == 0) {
-		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST ACTIF PENDANT LA VAGUE %d"), CurrentWaveNumber+1);
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST ACTIF PENDANT LA VAGUE %d"), CurrentWaveNumber);
 	}
 
 	for (int i = 0; i < ListOfAIToSpawn.Num(); i++) {
@@ -135,7 +135,7 @@ void AWaveManager::SpawnEnemies(){
 }
 
 FWave AWaveManager::GetCurrentWaveData() {
-	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber], "");
+	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber-1], "");
 }
 
 void AWaveManager::RefreshActiveSpawners() {

@@ -85,7 +85,7 @@ protected:
 	AMainPlayer* Player;
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 0;
+	int CurrentWaveNumber = 1;
 
 	UPROPERTY(BlueprintReadOnly)
 	int NumberOfWaves;

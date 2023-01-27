@@ -195,7 +195,7 @@ public:
 protected:
 	#pragma region Interaction
 
-	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
 	float InteractionLength = 1000.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
