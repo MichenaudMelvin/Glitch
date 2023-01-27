@@ -231,10 +231,8 @@ public:
 	void LaunchMark();
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
-		class USoundBase* tpStart;
-
-	UPROPERTY(EditAnywhere, Category = "Sound")
-		class USoundBase* tpFinal;
+	class USoundbasse* TpStart;
+	class USoundbasse* TpFinal;
 
 	FQuat FindMarkLaunchRotation();
 

@@ -327,7 +327,7 @@ void AMainPlayer::TPToMark() {
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
 	// Play sound start of the teleportation
-	UGameplayStatics::SpawnSound2D(this, tpStart);
+	UGameplayStatics::SpawnSound2D(this, TpStart);
 
 	FRotator CapsuleRotation = FRotator::ZeroRotator;
 	CapsuleRotation.Yaw = Mark->GetActorRotation().Yaw;
@@ -443,8 +443,8 @@ void AMainPlayer::ResetGlitchUpgrade_Implementation(){}
 
 void AMainPlayer::EndTL() {
 
-	// Play sound start of the teleportation
-	UGameplayStatics::SpawnSound2D(this, tpFinal);
+	// Play sound final of the teleportation
+	UGameplayStatics::SpawnSound2D(this, TpFinal);
 
 	GlitchCameraTrace();
 
