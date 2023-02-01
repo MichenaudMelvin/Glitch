@@ -79,6 +79,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	AActor* GetFirstAI();
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AActor* GetLastAI();
 
 	FRotator AILookAtRotation;
 

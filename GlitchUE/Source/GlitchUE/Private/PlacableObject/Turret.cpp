@@ -126,6 +126,17 @@ AActor* ATurret::GetFirstAI(){
 	return UUsefullFunctions::SortActorsByDistanceToActor(ActorArray, Cast<AActor>(Nexus))[0];
 }
 
+AActor* ATurret::GetLastAI(){
+	TArray<AMainAICharacter*> AIArray = AIList.Array();
+	TArray<AActor*> ActorArray;
+
+	for (int i = 0; i < AIArray.Num(); i++) {
+		ActorArray.Add(AIArray[i]);
+	}
+
+	return UUsefullFunctions::SortActorsByDistanceToActor(ActorArray, Cast<AActor>(Nexus))[ActorArray.Num()-1];
+}
+
 bool ATurret::DoesAIListContainSomething(){
 	return AIList.Num() > 0;
 }
