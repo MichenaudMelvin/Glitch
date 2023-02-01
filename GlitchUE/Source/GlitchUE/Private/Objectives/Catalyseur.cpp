@@ -18,15 +18,6 @@ void ACatalyseur::BeginPlay() {
 
 	Nexus = Cast<ANexus>(NexusTemp[0]);
 
-	if (SpawnerList.Num() == 0) {
-		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s N'AFFECTE AUCUN SPAWNER"), *this->GetName());
-	}
-
-	// je sais pas si c'est obligatoire pour un catalyseur
-	//if (ConstructionZoneList.Num() == 0) {
-		//UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
-	//}
-
 	if (StateAtWave.EnableAtWave == 0) {
 		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s NE COMMENCE A AUCUNE VAGUE"), *this->GetName());
 	}
@@ -41,20 +32,12 @@ void ACatalyseur::ActiveObjectif(){
 		for (int i = 0; i < ConstructionZoneList.Num(); i++) {
 			ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
 		}
-
-		for (int i = 0; i < SpawnerList.Num(); i++) {
-			SpawnerList[i]->GetActivableComp()->ActivateObject();
-		}
 	}
 }
 
 void ACatalyseur::DesactivateObjectif() {
 	for (int i = 0; i < ConstructionZoneList.Num(); i++) {
 		ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
-	}
-
-	for (int i = 0; i < SpawnerList.Num(); i++){
-		SpawnerList[i]->GetActivableComp()->DesactivateObject();
 	}
 }
 

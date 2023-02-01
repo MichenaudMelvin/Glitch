@@ -8,8 +8,6 @@
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
 
-class ASpawner;
-
 USTRUCT(BlueprintType)
 struct FStateAtWave{
 	GENERATED_BODY()
@@ -43,9 +41,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
 	FStateAtWave StateAtWave;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
-	TArray<ASpawner*> SpawnerList;
 
 	ANexus* Nexus;
 

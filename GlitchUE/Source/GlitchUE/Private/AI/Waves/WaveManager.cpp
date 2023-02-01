@@ -66,8 +66,6 @@ void AWaveManager::EnableCatalyseurs(){
 			CatalyseurArray[i]->GetActivableComp()->ActivateObject();
 		}
 	}
-
-	RefreshActiveSpawners();
 }
 
 void AWaveManager::DisableCatalyseurs() {
@@ -77,8 +75,26 @@ void AWaveManager::DisableCatalyseurs() {
 			CatalyseurArray[i]->GetActivableComp()->DesactivateObject();
 		}
 	}
+}
 
-	RefreshActiveSpawners();
+void AWaveManager::EnableSpawners(){
+	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
+	for (int i = 0; i < SpawnerArray.Num(); i++) {
+		if (SpawnerArray[i]->GetStateAtWave().EnableAtWave == CurrentWaveNumber) {
+			SpawnerArray[i]->GetActivableComp()->ActivateObject();
+			ActiveSpawnerList.Add(SpawnerArray[i]);
+		}
+	}
+}
+
+void AWaveManager::DisableSpawner(){
+	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
+	for (int i = 0; i < SpawnerArray.Num(); i++) {
+		if (SpawnerArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber) {
+			SpawnerArray[i]->GetActivableComp()->DesactivateObject();
+			ActiveSpawnerList.Remove(SpawnerArray[i]);
+		}
+	}
 }
 
 void AWaveManager::StartWave_Implementation() {
@@ -89,6 +105,7 @@ void AWaveManager::StartWave_Implementation() {
 	}
 
 	EnableCatalyseurs();
+	EnableSpawners();
 
 	SpawnEnemies();
 }
@@ -96,6 +113,7 @@ void AWaveManager::StartWave_Implementation() {
 void AWaveManager::EndWave_Implementation() {
 
 	DisableCatalyseurs();
+	DisableSpawner();
 
 	FWave CurrentWave = GetCurrentWaveData();
 
@@ -136,17 +154,6 @@ void AWaveManager::SpawnEnemies(){
 
 FWave AWaveManager::GetCurrentWaveData() {
 	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber-1], "");
-}
-
-void AWaveManager::RefreshActiveSpawners() {
-	ActiveSpawnerList.Empty();
-	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
-
-	for (int i = 0; i < SpawnerArray.Num(); i++) {
-		if (SpawnerArray[i]->GetActivableComp()->GetState() == EState::CPF_Activated) {
-			ActiveSpawnerList.Add(SpawnerArray[i]);
-		}
-	}
 }
 
 void AWaveManager::AddAIToList(AMainAICharacter* AIToAdd) {
