@@ -16,6 +16,7 @@
 class AMainPlayerController;
 class AMainPlayer;
 class UInteractableComponent;
+class AConstructionZone;
 
 USTRUCT(BlueprintType)
 struct FPlacableActorCreation{
@@ -81,6 +82,8 @@ protected:
 
 	UMaterialParameterCollection* AppearenceMaterialCollection;
 
+	AConstructionZone* AffectedConstructionZone;
+
 	UFUNCTION(BlueprintCallable, Category = "Appearence")
 	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
 
@@ -91,6 +94,8 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 	virtual void SetData(UPlacableActorData* NewData);
+
+	void SetConstructionZone(AConstructionZone* NewConstructionZone);
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 	void Upgrade();

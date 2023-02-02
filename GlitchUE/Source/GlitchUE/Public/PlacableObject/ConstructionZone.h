@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/TriggerBox.h"
 #include "Components/ActivableComponent.h"
+#include "PlacableActor.h"
 #include "ConstructionZone.generated.h"
 
 UCLASS()
@@ -31,7 +32,17 @@ protected:
 
 	void DesactivateObjectif();
 
+	APlacableActor* UnitInZone;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OccupiedSlot(APlacableActor* NewUnit);
+	virtual void OccupiedSlot_Implementation(APlacableActor* NewUnit);
+
 public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void UnoccupiedSlot();
+	virtual void UnoccupiedSlot_Implementation();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Activable")
 	UActivableComponent* GetActivableComp();
 };
