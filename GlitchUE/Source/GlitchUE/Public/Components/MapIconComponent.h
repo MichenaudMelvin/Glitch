@@ -20,4 +20,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	UTexture2D* Icon;
+
+	void UpdateIconLocation();
 };
