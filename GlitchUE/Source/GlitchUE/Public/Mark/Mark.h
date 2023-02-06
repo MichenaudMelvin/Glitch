@@ -6,11 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Player/MainPlayer.h"
+#include "Components/InteractableComponent.h"
 #include "Mark.generated.h"
 
 UCLASS()
-class GLITCHUE_API AMark : public AActor
-{
+class GLITCHUE_API AMark : public AActor{
 	GENERATED_BODY()
 	
 public:	
@@ -25,6 +25,12 @@ protected:
 	AMainPlayer* Player;
 
 	FVector OriginalLocation;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
+	UInteractableComponent* InteractableComp;
+
+	UFUNCTION()
+	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 #pragma region Projectile
 

@@ -9,6 +9,7 @@
 #include "Components/TimelineComponent.h"
 #include "NavAreas/NavArea_Obstacle.h"
 #include "Kismet/KismetMaterialLibrary.h"
+#include "PlacableObject/ConstructionZone.h"
 
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -71,6 +72,7 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 
 void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 	MainPlayer->GiveGolds(CurrentData->Cost);
+	AffectedConstructionZone->UnoccupiedSlot();
 	Destroy();
 }
 
@@ -88,6 +90,10 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	CurrentData = NewData;
 	Name = CurrentData->Name;
 	SetMesh();
+}
+
+void APlacableActor::SetConstructionZone(AConstructionZone* NewConstructionZone) {
+	AffectedConstructionZone = NewConstructionZone;
 }
 
 void APlacableActor::Upgrade(){

@@ -7,6 +7,7 @@
 #include "AI/Waves/WaveManager.h"
 #include "GlitchUEGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 
 ASpawner::ASpawner(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -29,6 +30,17 @@ void ASpawner::BeginPlay(){
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaveManager::StaticClass(), WaveManagerTemp);
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
 	Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this));
+
+	ActivableComp->OnActivated.AddDynamic(this, &ASpawner::ActivateSpawner);
+	ActivableComp->OnDesactivated.AddDynamic(this, &ASpawner::DesactivateSpawner);
+}
+
+void ASpawner::ActivateSpawner(){
+	UUsefullFunctions::OutlineComponent(true, SpawnerMesh);
+}
+
+void ASpawner::DesactivateSpawner(){
+	UUsefullFunctions::OutlineComponent(false, SpawnerMesh);
 }
 
 void ASpawner::BeginSpawn(int NumberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn) {
@@ -65,6 +77,10 @@ UActivableComponent* ASpawner::GetActivableComp(){
 
 bool ASpawner::AnyAILeftToSpawn(){
 	return CurrentNumberOfAISpawned < NumberOfAISpawn;
+}
+
+FStateAtWave ASpawner::GetStateAtWave(){
+	return StateAtWave;
 }
 
 void ASpawner::ForceEndSpawn() {

@@ -99,6 +99,10 @@ protected:
 	
 	void DisableCatalyseurs();
 
+	void EnableSpawners();
+
+	void DisableSpawner();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FWave GetCurrentWaveData();
 
@@ -126,12 +130,9 @@ public:
 private:
 	void SpawnEnemies();
 
-	void RefreshActiveSpawners();
-
 	bool HaveTheSpawnerFinished();
 };
 
-//Wat
 //https://forums.unrealengine.com/t/get-all-actors-of-class-in-c/329740/2
 template<typename T>
 void FindAllActors(UWorld* World, TArray<T*>& Out) {

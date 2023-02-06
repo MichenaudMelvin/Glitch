@@ -58,6 +58,19 @@ bool APreviewPlacableActor::CanBePlaced() {
 	return CheckSpotSpace() && bInConstructionZone;
 }
 
+void APreviewPlacableActor::ChooseColor() {
+	if (CanBePlaced()) {
+		BaseMesh->SetVectorParameterValueOnMaterials("Color", FVector(0, 0.247059, 1));
+	} else {
+		BaseMesh->SetVectorParameterValueOnMaterials("Color", FVector(1, 0, 0));
+	}
+
+}
+
 void APreviewPlacableActor::ResetActor() {
 	SetActorLocation(OriginalLocation);
+}
+
+FVector APreviewPlacableActor::GetOriginalLocation(){
+	return OriginalLocation;
 }

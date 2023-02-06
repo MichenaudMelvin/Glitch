@@ -50,6 +50,7 @@ protected:
 
 	#pragma region Camera
 
+public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
 	void CameraAim();
 	virtual void CameraAim_Implementation();
@@ -58,6 +59,7 @@ protected:
 	void CameraAimReverse();
 	virtual void CameraAimReverse_Implementation();
 
+protected:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Camera")
 	void CameraStopAim();
 
