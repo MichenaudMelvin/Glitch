@@ -5,6 +5,7 @@
 #include "MainPlayer.h"
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Saves/WorldSave.h"
 #include "MainPlayerController.generated.h"
 
 #pragma region Delegates
@@ -49,6 +50,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchPressed);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchReleased);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastSave);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastLoad);
+
 #pragma endregion
 
 #pragma region UI
@@ -84,6 +89,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly)
 	AMainPlayer* MainPlayer;
 
 	FTimerDynamicDelegate InteractionTickDelegate;
@@ -92,6 +98,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
 	void SelectNewGameplayMode(EGameplayMode NewGameplayMode);
+
+	UPROPERTY(BlueprintReadWrite, Category = "Saves")
+	UWorldSave* WorldSave;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")
@@ -156,6 +165,12 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
 	FKOnUseGlitchReleased OnUseGlitchReleased;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
+	FKOnFastSave OnFastSave;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
+	FKOnFastLoad OnFastLoad;
 
 	#pragma endregion
 
