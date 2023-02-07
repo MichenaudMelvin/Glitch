@@ -16,6 +16,8 @@ AMark::AMark() {
 	MarkMesh->SetStaticMesh(Mesh.Object);
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+
+	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("MarkInteraction"));
 	
 	MarkMesh->OnComponentHit.AddDynamic(this, &AMark::OnCompHit);
 }
@@ -27,10 +29,18 @@ void AMark::BeginPlay() {
 
 	OriginalLocation = GetActorLocation();
 	
+	// Check pour le mode simulation
 	if (IsValid(UGameplayStatics::GetPlayerCharacter(this, 0))){
 		Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 		Player->SetMark(this);
 	}
+
+	InteractableComp->AddInteractable(MarkMesh);
+	InteractableComp->OnInteract.AddDynamic(this, &AMark::Interact);
+}
+
+void AMark::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
+	ResetMark();
 }
 
 void AMark::StartProjectile() {

@@ -60,9 +60,11 @@ AMainPlayer::AMainPlayer(){
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
+	GetMesh()->SetReceivesDecals(false);
+
 	#pragma region Timelines
 
-	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/ZeroToOneCurve"));
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;

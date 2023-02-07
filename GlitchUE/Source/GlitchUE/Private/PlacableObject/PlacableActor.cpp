@@ -7,7 +7,9 @@
 #include "Player/MainPlayer.h"
 #include "Player/MainPlayerController.h"
 #include "Components/TimelineComponent.h"
+#include "NavAreas/NavArea_Obstacle.h"
 #include "Kismet/KismetMaterialLibrary.h"
+#include "PlacableObject/ConstructionZone.h"
 
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -20,10 +22,14 @@ APlacableActor::APlacableActor(){
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 
-	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/ZeroToOneCurve"));
+	NavModifierComp = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavModifier"));
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
+
+	NavModifierComp->SetAreaClass(UNavArea_Obstacle::StaticClass());
 
 	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/ConstructionNumeric/MPC_Construction"));
 	//check(MPC.Succeeded());
@@ -66,6 +72,7 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 
 void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 	MainPlayer->GiveGolds(CurrentData->Cost);
+	AffectedConstructionZone->UnoccupiedSlot();
 	Destroy();
 }
 
@@ -83,6 +90,10 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	CurrentData = NewData;
 	Name = CurrentData->Name;
 	SetMesh();
+}
+
+void APlacableActor::SetConstructionZone(AConstructionZone* NewConstructionZone) {
+	AffectedConstructionZone = NewConstructionZone;
 }
 
 void APlacableActor::Upgrade(){

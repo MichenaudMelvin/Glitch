@@ -57,6 +57,15 @@ void AConstructionZone::DesactivateObjectif(){
 	ToggleActivation(false);
 }
 
+void AConstructionZone::OccupiedSlot_Implementation(APlacableActor* NewUnit){
+	UnitInZone = NewUnit;
+	UnitInZone->SetConstructionZone(this);
+}
+
+void AConstructionZone::UnoccupiedSlot_Implementation(){
+	UnitInZone = nullptr;
+}
+
 UActivableComponent* AConstructionZone::GetActivableComp(){
 	return ActivableComp;
 }

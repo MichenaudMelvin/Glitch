@@ -8,6 +8,7 @@
 #include "AI/MainAICharacter.h"
 #include "WaveManager.h"
 #include "GlitchUEGameMode.h"
+#include "Objectives/Catalyseur.h"
 #include "Spawner.generated.h"
 
 UCLASS()
@@ -43,12 +44,23 @@ protected:
 
 	TSubclassOf<AMainAICharacter> CurrentAITOSpawn;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
+	FStateAtWave StateAtWave;
+
+	UFUNCTION()
+	void ActivateSpawner();
+
+	UFUNCTION()
+	void DesactivateSpawner();
+
 public:
 	void BeginSpawn(int NumberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn);
 
 	UActivableComponent* GetActivableComp();
 
 	bool AnyAILeftToSpawn();
+
+	FStateAtWave GetStateAtWave();
 
 	//DEBUG ONLY
 	void ForceEndSpawn();

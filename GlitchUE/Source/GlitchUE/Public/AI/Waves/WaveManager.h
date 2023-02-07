@@ -85,7 +85,7 @@ protected:
 	AMainPlayer* Player;
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 0;
+	int CurrentWaveNumber = 1;
 
 	UPROPERTY(BlueprintReadOnly)
 	int NumberOfWaves;
@@ -99,12 +99,12 @@ protected:
 	
 	void DisableCatalyseurs();
 
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
-	// pourquoi j'ai pas le droit de la mettre en UFUNCTION
-	FWave* GetCurrentWaveData();
+	void EnableSpawners();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
-	void GetCurrentWaveDataBP(TArray<FAIToSpawn>& AIToSpawnList, bool& bStopAtEnd, FWaveGolds& GivenGolds, float& NextWaveTimer);
+	void DisableSpawner();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FWave GetCurrentWaveData();
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FKOnRefreshAIList OnRefreshAIList;
@@ -130,12 +130,9 @@ public:
 private:
 	void SpawnEnemies();
 
-	void RefreshActiveSpawners();
-
 	bool HaveTheSpawnerFinished();
 };
 
-//Wat
 //https://forums.unrealengine.com/t/get-all-actors-of-class-in-c/329740/2
 template<typename T>
 void FindAllActors(UWorld* World, TArray<T*>& Out) {

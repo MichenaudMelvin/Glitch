@@ -35,5 +35,11 @@ public:
 	bool CanBePlaced();
 
 	UFUNCTION(BlueprintCallable, Category = "PreviewPlacable")
+	void ChooseColor();
+
+	UFUNCTION(BlueprintCallable, Category = "PreviewPlacable")
 	void ResetActor();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
+	FVector GetOriginalLocation();
 };

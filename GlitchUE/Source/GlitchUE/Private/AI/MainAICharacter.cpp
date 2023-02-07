@@ -3,6 +3,7 @@
 
 #include "AI/MainAICharacter.h"
 #include "AI/Waves/WaveManager.h"
+#include "Kismet/GameplayStatics.h"
 
 AMainAICharacter::AMainAICharacter(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -28,6 +29,8 @@ void AMainAICharacter::StunAI() {
 }
 
 void AMainAICharacter::HealthNull() {
+	Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))->GiveGolds(10);
+
 	if (IsValid(WaveManager)) {
 		WaveManager->RemoveAIFromList(this);
 	}

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PlacableObject/PlacableActorData.h"
+#include "Turret.h"
 #include "TurretData.generated.h"
 
 UCLASS()
@@ -19,6 +20,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
 	float FireRate;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
+	bool CanSeeThroughWalls = false;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
+	FFocusMethod FocusMethod;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
 	float UpgradedGlitchDamages;

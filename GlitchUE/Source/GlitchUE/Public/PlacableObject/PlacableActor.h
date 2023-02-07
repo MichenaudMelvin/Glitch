@@ -10,11 +10,13 @@
 #include "Objectives/Nexus.h"
 #include "Components/AudioComponent.h"
 #include "Components/TimelineComponent.h"
+#include "NavModifierComponent.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
 class AMainPlayer;
 class UInteractableComponent;
+class AConstructionZone;
 
 USTRUCT(BlueprintType)
 struct FPlacableActorCreation{
@@ -51,6 +53,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Data")
 	UAudioComponent* AudioComp;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Navigation")
+	UNavModifierComponent* NavModifierComp;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
 	FName Name;
 
@@ -77,6 +82,8 @@ protected:
 
 	UMaterialParameterCollection* AppearenceMaterialCollection;
 
+	AConstructionZone* AffectedConstructionZone;
+
 	UFUNCTION(BlueprintCallable, Category = "Appearence")
 	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
 
@@ -87,6 +94,8 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 	virtual void SetData(UPlacableActorData* NewData);
+
+	void SetConstructionZone(AConstructionZone* NewConstructionZone);
 
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 	void Upgrade();

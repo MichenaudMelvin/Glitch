@@ -18,5 +18,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	//UTexture2D Icon;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UTexture2D* Icon;
+
+	void UpdateIconLocation();
 };

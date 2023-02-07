@@ -24,12 +24,12 @@ void AMainPlayerController::SelectNewGameplayMode(EGameplayMode NewGameplayMode)
 	switch (GameplayMode){
 		case EGameplayMode::CPF_Normal:
 			BindNormalMode();
-			//CameraAimRevrse
+			MainPlayer->CameraAimReverse();
 			break;
 		
 		case EGameplayMode::CPF_Construction:
 			BindConstructionMode();
-			//CamreaAim
+			MainPlayer->CameraAim();
 			break;
 	}
 }

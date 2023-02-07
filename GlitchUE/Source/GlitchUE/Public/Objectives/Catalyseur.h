@@ -8,8 +8,6 @@
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
 
-class ASpawner;
-
 USTRUCT(BlueprintType)
 struct FStateAtWave{
 	GENERATED_BODY()
@@ -26,6 +24,9 @@ UCLASS()
 class GLITCHUE_API ACatalyseur : public AAbstractObjectif{
 	GENERATED_BODY()
 
+public:
+	ACatalyseur();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -35,11 +36,11 @@ protected:
 
 	virtual void HealthNull() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
-	FStateAtWave StateAtWave;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
+	USkeletalMeshComponent* TECHMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
-	TArray<ASpawner*> SpawnerList;
+	FStateAtWave StateAtWave;
 
 	ANexus* Nexus;
 
