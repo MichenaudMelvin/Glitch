@@ -13,4 +13,7 @@ class GLITCHUE_API UAbstractSave : public USaveGame{
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
 	FString SlotName;
+
+public:
+	FString GetSlotName();
 };

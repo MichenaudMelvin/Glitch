@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "Kismet/KismetSystemLibrary.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 
 void UUsefullFunctions::OutlineComponent(bool SetOutline, UPrimitiveComponent* Component){
@@ -10,6 +10,21 @@ void UUsefullFunctions::OutlineComponent(bool SetOutline, UPrimitiveComponent* C
 
 	Component->SetRenderCustomDepth(SetOutline);
 	Component->SetCustomDepthStencilValue(SetOutline ? 2 : 0);
+}
+
+bool UUsefullFunctions::CanSee(AActor* SelfActor, FVector StartLocation, AActor* ActorToSee, ECollisionChannel CollisionChannel){
+	TArray<AActor*> ActorsToIgnore;
+	FHitResult Hit;
+
+	ActorsToIgnore.Add(SelfActor);
+
+	UKismetSystemLibrary::LineTraceSingle(ActorToSee->GetWorld(), StartLocation, ActorToSee->GetActorLocation(), UEngineTypes::ConvertToTraceType(CollisionChannel), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
+
+	if (Hit.GetActor() == ActorToSee){
+		return true;
+	} else{
+		return false;
+	}
 }
 
 TArray<AActor*> UUsefullFunctions::SortActorsByDistanceToActor(TArray<AActor*> Actors, AActor* Target){

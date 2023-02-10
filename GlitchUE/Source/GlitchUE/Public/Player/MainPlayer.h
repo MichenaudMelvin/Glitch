@@ -48,6 +48,10 @@ protected:
 	virtual void Tick(float deltaTime) override;
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void InitializePlayer(FTransform StartTransform, FRotator CameraRotation);
+	//virtual  void InitializePlayer_Implementation(FTransform StartTransform, FRotator CameraRotation);
+
 	#pragma region Camera
 
 public:

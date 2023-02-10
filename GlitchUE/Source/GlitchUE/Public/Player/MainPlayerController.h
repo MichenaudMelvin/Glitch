@@ -4,8 +4,8 @@
 
 #include "MainPlayer.h"
 #include "CoreMinimal.h"
+#include "GlitchUEGameMode.h"
 #include "GameFramework/PlayerController.h"
-#include "Saves/WorldSave.h"
 #include "MainPlayerController.generated.h"
 
 #pragma region Delegates
@@ -90,6 +90,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly)
+	AGlitchUEGameMode* GameMode;
+
+	UPROPERTY(BlueprintReadOnly)
 	AMainPlayer* MainPlayer;
 
 	FTimerDynamicDelegate InteractionTickDelegate;
@@ -98,9 +101,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
 	void SelectNewGameplayMode(EGameplayMode NewGameplayMode);
-
-	UPROPERTY(BlueprintReadWrite, Category = "Saves")
-	UWorldSave* WorldSave;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")

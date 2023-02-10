@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Saves/AbstractSave.h"
-#include "AI/MainAICharacter.h"
-#include "Player/MainPlayer.h"
+#include "BehaviorTree/BlackboardData.h"
 #include "WorldSave.generated.h"
 
 UCLASS()
@@ -17,8 +16,17 @@ public:
 	
 protected:
 	UPROPERTY(BlueprintReadWrite)
-	TArray<AMainAICharacter*> AIList;
+	TArray<FTransform> AITransformList;
 
 	UPROPERTY(BlueprintReadWrite)
-	AMainPlayer* Player;
+	TArray<UBlackboardData*> BlackboardList;
+
+	UPROPERTY(BlueprintReadWrite)
+	FTransform PlayerTransform;
+
+	UPROPERTY(BlueprintReadWrite)
+	FRotator PlayerCameraRotation;
+
+	//UPROPERTY(BlueprintReadWrite)
+	//ELevelState LevelState;
 };

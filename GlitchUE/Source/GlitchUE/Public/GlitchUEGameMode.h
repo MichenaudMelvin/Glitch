@@ -7,6 +7,8 @@
 #include "AI/Waves/WaveManager.h"
 #include "Player/MainPlayer.h"
 #include "Curves/CurveLinearColor.h"
+#include "Saves/AbstractSave.h"
+#include "Saves/WorldSave.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
@@ -14,21 +16,17 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
 UENUM(BlueprintType)
 enum class EPhases : uint8 {
 
-	Infiltration
-	UMETA(DisplayName = "Infiltration"),
+	Infiltration,
 
-	TowerDefense
-	UMETA(DisplayName = "TowerDefense"),
+	TowerDefense,
 };
 
 UENUM(BlueprintType)
 enum class ELevelState : uint8 {
 
-	Normal
-	UMETA(DisplayName = "Normal"),
+	Normal,
 
-	Alerted
-	UMETA(DisplayName = "Alerted"),
+	Alerted,
 };
 
 UENUM(BlueprintType)
@@ -40,6 +38,14 @@ namespace EGlitchEvent {
 		RandomFX,
 	};
 }
+
+UENUM(BlueprintType)
+enum class ELevelOptions : uint8{
+
+	WithoutSave,
+
+	FastLoad,
+};
 
 UCLASS(minimalapi)
 class AGlitchUEGameMode : public AGameModeBase{
@@ -61,6 +67,24 @@ protected:
 
 	AWaveManager* WaveManager;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Saves")
+	UWorldSave* WorldSave;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Save(UAbstractSave* SaveObject);
+	void Save_Implementation(UAbstractSave* SaveObject);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UAbstractSave* Load(TSubclassOf<UAbstractSave> SaveClass, int UserIndex);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void FastSave();
+	void FastSave_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void FastLoad();
+	void FastLoad_Implementation();
+	
 	float GlitchValue;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
@@ -80,7 +104,7 @@ public:
 	ELevelState GetLevelState();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "LevelState")
-	void SetLevelState(ELevelState newState);
+	void SetLevelState(ELevelState NewState);
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
 	void AddGlitch(float AddedValue);

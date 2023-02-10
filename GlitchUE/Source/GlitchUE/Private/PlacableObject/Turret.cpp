@@ -105,7 +105,7 @@ void ATurret::SetData(UPlacableActorData* NewData){
 	FocusMethod = Data->FocusMethod;
 
 	FTimerHandle TimerHandle;
-	// Micro delay pour éviter les problèmes de navigation
+	// Micro delay pour Ã©viter les problÃ¨mes de navigation
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
 		TurretVision->SetSphereRadius(Radius, true);
 	}, 0.2f, false);
