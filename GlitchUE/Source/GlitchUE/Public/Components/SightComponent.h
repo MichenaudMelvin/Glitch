@@ -23,6 +23,8 @@ protected:
 	
 	void Check();
 
+	void LooseSight();
+
 	UBlackboardComponent* OwnerBlackboard;
 	
 	float InvestigateTimeElapsed = 0;

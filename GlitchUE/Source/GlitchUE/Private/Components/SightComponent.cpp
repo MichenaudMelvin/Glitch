@@ -26,12 +26,13 @@ void USightComponent::BeginPlay(){
 
 void USightComponent::Check(){
 	// if player in sight
+	OwnerBlackboard->SetValueAsVector("InvestigationLocation", SightActor->GetActorLocation());
+
 	if(bPlayerInCollision){
 		if(IsValid(SightActor) && UUsefullFunctions::CanSee(GetOwner(), GetComponentLocation(), SightActor, ECC_EngineTraceChannel3) && bPlayerInCollision){
 			InvestigateTimeElapsed += 0.1f;
 			
 			OwnerBlackboard->SetValueAsBool("Investigate", true);
-			OwnerBlackboard->SetValueAsVector("InvestigationLocation", SightActor->GetActorLocation());
 			OnSightPlayer.Broadcast((InvestigateTimeElapsed * 100) / MaxInvestigateTime);
 			
 			if(InvestigateTimeElapsed >= MaxInvestigateTime){
@@ -52,17 +53,18 @@ void USightComponent::Check(){
 		
 			GetWorld()->GetTimerManager().ClearTimer(SightTimer);
 			InvestigateTimeElapsed = 0;
-
-
-			GetWorld()->GetTimerManager().SetTimer(LooseSightTimer, [&]() {
-				OwnerBlackboard->SetValueAsBool("Investigate", false);
-
-				GetWorld()->GetTimerManager().ClearTimer(LooseSightTimer);
-				bIsPlayerInSight = false;
-				SightActor = nullptr;
-			}, 2, false);
+			
+			LooseSight();
 		}
 	}
+}
+
+void USightComponent::LooseSight(){
+	OwnerBlackboard->SetValueAsBool("Investigate", false);
+
+	GetWorld()->GetTimerManager().ClearTimer(LooseSightTimer);
+	bIsPlayerInSight = false;
+	SightActor = nullptr;
 }
 
 void USightComponent::EnterSight(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
@@ -80,6 +82,10 @@ void USightComponent::EnterSight(UPrimitiveComponent* OverlappedComp, AActor* Ot
 void USightComponent::ExitSight(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
 		bPlayerInCollision = false;
+
+		if(bIsPlayerInSight){
+			LooseSight();
+		}
 	}
 }
 
