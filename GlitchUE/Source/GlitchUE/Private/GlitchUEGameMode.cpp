@@ -12,6 +12,7 @@
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "GameFramework/AsyncActionHandleSaveGame.h"
+#include "Helpers/Debug/DebugPawn.h"
 #include "Saves/AbstractSave.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -255,6 +256,21 @@ void AGlitchUEGameMode::GoToWave(int NewWave){
 
 void AGlitchUEGameMode::CrashGame(){
 	UE_LOG(LogTemp, Fatal, TEXT("CRASH"));
+}
+
+void AGlitchUEGameMode::ToggleSpectatorMode(){
+	TArray<AActor*> ActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADebugPawn::StaticClass(), ActorList);
+
+	if(ActorList.Num() == 0){
+		FActorSpawnParameters SpawnInfo;
+		ADebugPawn* SpawnedPawn = GetWorld()->SpawnActor<ADebugPawn>(MainPlayer->GetActorLocation(), MainPlayer->GetActorRotation(), SpawnInfo);
+		MainPlayer->Controller->Possess(SpawnedPawn);
+	} else{
+		Cast<APawn>(ActorList[0])->Controller->Possess(MainPlayer);
+		MainPlayer->GetMainPlayerController()->SelectNewGameplayMode(MainPlayer->GetMainPlayerController()->GetGameplayMode());
+		ActorList[0]->Destroy();
+	}
 }
 
 #pragma endregion

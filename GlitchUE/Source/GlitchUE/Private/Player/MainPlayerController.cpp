@@ -197,6 +197,7 @@ void AMainPlayerController::UnbindAll(){
 	UnbindGlitch();
 	UnbindConstruction();
 	UnbindOpenSelectionWheel();
+	OnMouseScroll.Clear();
 	// unbind rotate objects
 }
 

@@ -169,6 +169,9 @@ private:
 	
 	UFUNCTION(Exec)
 	void CrashGame();
+
+	UFUNCTION(Exec)
+	void ToggleSpectatorMode();
 		
 #pragma endregion
 

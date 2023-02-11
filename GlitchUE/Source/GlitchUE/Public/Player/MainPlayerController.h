@@ -38,6 +38,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnLookUp, float, AxisValue);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnLookUpRate, float, AxisValue);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnMouseScroll, float, AxisValue);
+
 #pragma endregion
 
 #pragma region SpecialAbilities
@@ -99,10 +101,10 @@ protected:
 
 	EGameplayMode GameplayMode;
 
+public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
 	void SelectNewGameplayMode(EGameplayMode NewGameplayMode);
 
-public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")
 	EGameplayMode GetGameplayMode();
 
@@ -147,6 +149,9 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Camera")
 	FKOnLookUpRate OnLookUpRate;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Camera")
+	FKOnMouseScroll OnMouseScroll;
 
 	#pragma endregion
 
