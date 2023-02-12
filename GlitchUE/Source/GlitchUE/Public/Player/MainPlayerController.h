@@ -4,6 +4,7 @@
 
 #include "MainPlayer.h"
 #include "CoreMinimal.h"
+#include "GlitchUEGameMode.h"
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
 
@@ -37,6 +38,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnLookUp, float, AxisValue);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnLookUpRate, float, AxisValue);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnMouseScroll, float, AxisValue);
+
 #pragma endregion
 
 #pragma region SpecialAbilities
@@ -48,6 +51,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPlaceObject);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchPressed);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchReleased);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastSave);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastLoad);
 
 #pragma endregion
 
@@ -84,16 +91,20 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly)
+	AGlitchUEGameMode* GameMode;
+
+	UPROPERTY(BlueprintReadOnly)
 	AMainPlayer* MainPlayer;
 
 	FTimerDynamicDelegate InteractionTickDelegate;
 
 	EGameplayMode GameplayMode;
 
+public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
 	void SelectNewGameplayMode(EGameplayMode NewGameplayMode);
 
-public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")
 	EGameplayMode GetGameplayMode();
 
@@ -139,6 +150,9 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Camera")
 	FKOnLookUpRate OnLookUpRate;
 
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Camera")
+	FKOnMouseScroll OnMouseScroll;
+
 	#pragma endregion
 
 	#pragma region SpecialAbilities
@@ -156,6 +170,12 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
 	FKOnUseGlitchReleased OnUseGlitchReleased;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
+	FKOnFastSave OnFastSave;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
+	FKOnFastLoad OnFastLoad;
 
 	#pragma endregion
 

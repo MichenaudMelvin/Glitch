@@ -7,6 +7,7 @@
 #include "MainAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/HealthComponent.h"
+#include "BehaviorTree/BlackboardAssetProvider.h"
 #include "MainAICharacter.generated.h"
 
 class AWaveManager;
@@ -20,6 +21,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	void InitializeAI(FTransform NewTransform, UBlackboardData* NewBlackBoard);
 
 	AMainAIController* AIController;
 

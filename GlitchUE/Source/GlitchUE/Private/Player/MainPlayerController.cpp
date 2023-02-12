@@ -11,6 +11,8 @@ void AMainPlayerController::BeginPlay() {
 	
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 
+	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
 	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
 	SelectNewGameplayMode(EGameplayMode::CPF_Normal);
 }
@@ -195,6 +197,7 @@ void AMainPlayerController::UnbindAll(){
 	UnbindGlitch();
 	UnbindConstruction();
 	UnbindOpenSelectionWheel();
+	OnMouseScroll.Clear();
 	// unbind rotate objects
 }
 

@@ -19,9 +19,12 @@ void AMainAICharacter::BeginPlay(){
 	Blackboard = AIController->GetBlackboardComponent();
 	Blackboard->SetValueAsVector(FName(TEXT("OriginalPosition")), GetActorLocation());
 
-	AIControllerClass;
-
 	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
+}
+
+void AMainAICharacter::InitializeAI(FTransform NewTransform, UBlackboardData* NewBlackBoard){
+	SetActorTransform(NewTransform);
+	AIController->UseBlackboard(NewBlackBoard, Blackboard);
 }
 
 void AMainAICharacter::StunAI() {
@@ -51,12 +54,12 @@ UHealthComponent* AMainAICharacter::GetHealthComp(){
 }
 
 void AMainAICharacter::GlitchUpgrade_Implementation(){
-	// Ici set les upgrades dans les fonctions qui vont hériter
+	// Ici set les upgrades dans les fonctions qui vont hÃ©riter
 
 	FTimerHandle TimerHandle;
 
 	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		//reset à l'upgrade actuelle
+		//reset Ã  l'upgrade actuelle
 		ResetGlitchUpgrade();
 	}, GlitchUpgradeDuration, false);
 }

@@ -106,6 +106,11 @@ void AMainPlayer::BeginPlay(){
 	CameraFOVTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 }
 
+void AMainPlayer::InitializePlayer(FTransform StartTransform, FRotator CameraRotation){
+	SetActorTransform(StartTransform);
+	Controller->SetControlRotation(CameraRotation);
+}
+
 #pragma region Camera
 
 void AMainPlayer::CameraAim_Implementation(){

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UsefullFunctions.generated.h"
 
@@ -13,6 +14,9 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 	public:
 		UFUNCTION(BlueprintCallable)
 		static void OutlineComponent(bool SetOutline, UPrimitiveComponent* Component);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure)
+		static bool CanSee(AActor* SelfActor, FVector StartLocation, AActor* ActorToSee, ECollisionChannel CollisionChannel);
 
 		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Sorting")
 		//https://dev.epicgames.com/community/snippets/xBY/unreal-engine-sort-actor-array-based-on-distance-from-target

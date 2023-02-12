@@ -17,6 +17,7 @@
 **/*[Pp]lugins/
 **/*[Pp]opcornFX/
 **/*[Ii]mportation/
+**/*.idea/
 
 # VSCode files
 .vscode/
