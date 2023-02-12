@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Assets/PopcornFXEffect.h"
 #include "Engine/DataAsset.h"
 #include "PlacableActorData.generated.h"
 
@@ -13,6 +14,9 @@ class GLITCHUE_API UPlacableActorData : public UPrimaryDataAsset{
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Name")
 	FName Name;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Stats")
+	float AttackRange;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Golds")
 	int Cost;
@@ -31,4 +35,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
 	float GlitchUpgradeDuration;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "FX")
+	UPopcornFXEffect* AttackFX;
 };

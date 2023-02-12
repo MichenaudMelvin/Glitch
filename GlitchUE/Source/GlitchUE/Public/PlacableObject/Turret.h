@@ -44,9 +44,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	float FireRate;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	float Radius;
-
 	UPROPERTY(BlueprintReadWrite)
 	AActor* CurrentTarget;
 

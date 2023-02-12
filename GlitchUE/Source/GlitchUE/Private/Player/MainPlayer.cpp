@@ -15,6 +15,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GlitchUEGameMode.h"
+#include "PopcornFXAttributeFunctions.h"
+#include "PopcornFXEmitterComponent.h"
+#include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
@@ -70,6 +73,11 @@ AMainPlayer::AMainPlayer(){
 	ZeroToOneCurve = Curve.Object;
 
 	#pragma endregion
+
+	static  ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
+	check(FX.Succeeded());
+
+	GlichDashFXReference = FX.Object;
 }
 
 
@@ -78,11 +86,11 @@ void AMainPlayer::BeginPlay(){
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 
-	FOnTimelineFloat UpdateEvent = FOnTimelineFloat();
-	FOnTimelineEvent FinishedEvent = FOnTimelineEvent();
+	FOnTimelineFloat UpdateEvent;
+	FOnTimelineEvent FinishedEvent;
 
-	UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
-	FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
+	UpdateEvent.BindDynamic(this, &AMainPlayer::LookAtMark);
+	FinishedEvent.BindDynamic(this, &AMainPlayer::EndTL);
 
 	CameraTransitionTL.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	CameraTransitionTL.SetTimelineFinishedFunc(FinishedEvent);
@@ -104,6 +112,27 @@ void AMainPlayer::BeginPlay(){
 	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraFOVUpdate);
 
 	CameraFOVTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+
+	TArray<AActor*> NexusArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
+	Nexus = Cast<ANexus>(NexusArray[0]);
+
+	TArray<AActor*> PreviewPlacableArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APreviewPlacableActor::StaticClass(), PreviewPlacableArray);
+	PreviewPlacableActor = Cast<APreviewPlacableActor>(PreviewPlacableArray[0]);
+
+
+	#pragma region FXCreation
+
+	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+	GlitchDashFXBackup = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(GlitchDashFX, "TeleportLifetime");
+
+	UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFX, TargetIndex, GlitchDashDuration + 1, true);
+	UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFXBackup, TargetIndex, GlitchDashDuration + 1, true);
+
+	#pragma endregion
 }
 
 void AMainPlayer::InitializePlayer(FTransform StartTransform, FRotator CameraRotation){
@@ -328,13 +357,14 @@ void AMainPlayer::TPToMark() {
 
 	StopJumping();
 	Mark->PlaceMark();
-	// camera aim reverse
+	CameraAimReverse();
+
 	HealthComp->SetCanTakeDamages(false);
 	GetCharacterMovement()->GravityScale = 0;
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
 	// Play sound start of the teleportation
-	UGameplayStatics::SpawnSound2D(this, TpStart);
+	UGameplayStatics::SpawnSound2D(this, TPStart);
 
 	FRotator CapsuleRotation = FRotator::ZeroRotator;
 	CapsuleRotation.Yaw = Mark->GetActorRotation().Yaw;
@@ -382,8 +412,18 @@ void AMainPlayer::LookAtMark(float Value){
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
 }
 
-void AMainPlayer::StartGlitchDashFX_Implementation(){
-	//class UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFX, );
+void AMainPlayer::StartGlitchDashFX(){
+	UPopcornFXEmitterComponent* FXToStart;
+	// choisi le FX de backup si le principal est déjà utilisé
+	GlitchDashFX->IsEmitterStarted() ? FXToStart = GlitchDashFXBackup : FXToStart = GlitchDashFX;
+
+	const int PositionAIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(FXToStart, "PositionA");
+	const int PositionBIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(FXToStart, "PositionB");
+
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(GlitchDashFX, PositionAIndex, GetActorLocation(), true);
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(GlitchDashFX, PositionBIndex, Mark->GetActorLocation(), true);
+
+	FXToStart->StartEmitter();
 }
 
 void AMainPlayer::GlitchCameraTrace(){
@@ -451,7 +491,7 @@ void AMainPlayer::ResetGlitchUpgrade_Implementation(){}
 void AMainPlayer::EndTL() {
 
 	// Play sound final of the teleportation
-	UGameplayStatics::SpawnSound2D(this, TpFinal);
+	UGameplayStatics::SpawnSound2D(this, TPFinal);
 
 	GlitchCameraTrace();
 

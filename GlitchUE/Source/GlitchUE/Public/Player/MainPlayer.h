@@ -167,6 +167,8 @@ public:
 protected:
 	#pragma endregion
 
+	ANexus* Nexus;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	APreviewPlacableActor* PreviewPlacableActor;
 
@@ -237,8 +239,10 @@ public:
 	void LaunchMark();
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
-	class USoundbasse* TpStart;
-	class USoundbasse* TpFinal;
+	USoundBase* TPStart;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundBase* TPFinal;
 
 	FQuat FindMarkLaunchRotation();
 
@@ -271,9 +275,17 @@ public:
 	UFUNCTION()
 	void LookAtMark(float Value);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Mark")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void StartGlitchDashFX();
-	void StartGlitchDashFX_Implementation();
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
+	float GlitchDashDuration = 0.15f;
+
+	UPopcornFXEffect* GlichDashFXReference;
+
+	UPopcornFXEmitterComponent* GlitchDashFX;
+
+	UPopcornFXEmitterComponent* GlitchDashFXBackup;
 
 	void GlitchCameraTrace();
 

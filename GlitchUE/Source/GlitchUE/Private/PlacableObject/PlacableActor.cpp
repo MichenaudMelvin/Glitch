@@ -3,6 +3,8 @@
 
 #include "PlacableObject/PlacableActor.h"
 #include "..\..\Public\PlacableObject\PlacableActor.h"
+
+#include "PopcornFXFunctions.h"
 #include "Components/InteractableComponent.h"
 #include "Player/MainPlayer.h"
 #include "Player/MainPlayerController.h"
@@ -89,7 +91,12 @@ void APlacableActor::EndAppearence_Implementation(){}
 void APlacableActor::SetData(UPlacableActorData* NewData){
 	CurrentData = NewData;
 	Name = CurrentData->Name;
+	AttackRange = CurrentData->AttackRange;
 	SetMesh();
+
+	if(AttackFX == nullptr){
+		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+	}
 }
 
 void APlacableActor::SetConstructionZone(AConstructionZone* NewConstructionZone) {
@@ -101,12 +108,12 @@ void APlacableActor::Upgrade(){
 }
 
 void APlacableActor::GlitchUpgrade(){
-	// Ici set les upgrades dans les fonctions qui vont hériter
+	// Ici set les upgrades dans les fonctions qui vont hÃ©riter
 
 	FTimerHandle TimerHandle;
 
 	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		//reset à l'upgrade actuelle
+		//reset Ã  l'upgrade actuelle
 		SetData(CurrentData);
 	}, CurrentData->GlitchUpgradeDuration, false);
 }

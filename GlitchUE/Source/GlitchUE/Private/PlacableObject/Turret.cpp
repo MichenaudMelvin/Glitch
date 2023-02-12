@@ -100,14 +100,13 @@ void ATurret::SetData(UPlacableActorData* NewData){
 	UTurretData* Data = Cast<UTurretData>(NewData);
 	Damages = Data->Damages;
 	FireRate = Data->FireRate;
-	Radius = Data->TurretRadius;
 	CanSeeThroughWalls = Data->CanSeeThroughWalls;
 	FocusMethod = Data->FocusMethod;
 
 	FTimerHandle TimerHandle;
 	// Micro delay pour éviter les problèmes de navigation
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		TurretVision->SetSphereRadius(Radius, true);
+		TurretVision->SetSphereRadius(AttackRange, true);
 	}, 0.2f, false);
 }
 

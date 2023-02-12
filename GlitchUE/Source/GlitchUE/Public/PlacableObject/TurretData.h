@@ -12,13 +12,10 @@ class GLITCHUE_API UTurretData : public UPlacableActorData{
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Stats")
 	float Damages;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
-	float TurretRadius;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Stats")
 	float FireRate;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")

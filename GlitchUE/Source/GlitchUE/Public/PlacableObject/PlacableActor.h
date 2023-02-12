@@ -11,6 +11,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/TimelineComponent.h"
 #include "NavModifierComponent.h"
+#include "PopcornFXEmitter.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
@@ -58,6 +59,12 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
 	FName Name;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
+	float AttackRange;
+
+	UPROPERTY(BlueprintReadOnly, Category = "FX")
+	UPopcornFXEmitterComponent* AttackFX;
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI")
 	TSet<AMainAICharacter*> AIList;
