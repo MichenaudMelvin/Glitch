@@ -25,5 +25,5 @@ protected:
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
-	void ActivateLinkedElements(bool bActivate);
+	void ActivateLinkedElements(const bool bActivate);
 };

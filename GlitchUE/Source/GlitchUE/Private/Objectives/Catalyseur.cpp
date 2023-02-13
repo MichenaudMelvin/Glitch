@@ -45,6 +45,6 @@ void ACatalyseur::HealthNull(){
 	ActivableComp->DesactivateObject();
 }
 
-FStateAtWave ACatalyseur::GetStateAtWave(){
+FStateAtWave ACatalyseur::GetStateAtWave() const{
 	return StateAtWave;
 }

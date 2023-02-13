@@ -73,14 +73,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPause);
 UENUM(BlueprintType)
 enum class EGameplayMode : uint8 {
 
-	CPF_Normal
-	UMETA(DisplayName = "Normal"),
+	Normal,
 
-	CPF_Construction
-	UMETA(DisplayName = "Construction"),
+	Construction,
 
-	CPF_Destruction
-	UMETA(DisplayName = "Destruction"),
+	Destruction,
 };
 
 UCLASS()
@@ -103,10 +100,10 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
-	void SelectNewGameplayMode(EGameplayMode NewGameplayMode);
+	void SelectNewGameplayMode(const EGameplayMode NewGameplayMode);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")
-	EGameplayMode GetGameplayMode();
+	EGameplayMode GetGameplayMode() const;
 
 #pragma region Deletages
 

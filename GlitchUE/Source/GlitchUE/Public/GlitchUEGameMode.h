@@ -95,13 +95,13 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Phases")
-	EPhases GetPhases();
+	EPhases GetPhases() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Phases")
 	void SetNewPhase(EPhases NewPhase);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelState")
-	ELevelState GetLevelState();
+	ELevelState GetLevelState() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "LevelState")
 	void SetLevelState(ELevelState NewState);
@@ -142,36 +142,36 @@ private:
 
 protected:
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradeAlliesUnits();
+	void GlitchUpgradeAlliesUnits() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradeEnemiesAI();
+	void GlitchUpgradeEnemiesAI() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradePlayer();
+	void GlitchUpgradePlayer() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchRandomFX();
+	void GlitchRandomFX() const;
 
-	void CheckAvailableGlitchEvents();
+	void CheckAvailableGlitchEvents() const;
 
 #pragma region ConsoleCommands
 
 private:
 	UFUNCTION(Exec)
-	void SetGlobalTimeDilation(float TimeDilation);
+	void SetGlobalTimeDilation(float TimeDilation) const;
 
 	UFUNCTION(Exec)
-	void NextWave();
+	void NextWave() const;
 
 	UFUNCTION(Exec)
-	void GoToWave(int NewWave);
+	void GoToWave(int NewWave) const;
 	
 	UFUNCTION(Exec)
-	void CrashGame();
+	void CrashGame() const;
 
 	UFUNCTION(Exec)
-	void ToggleSpectatorMode();
+	void ToggleSpectatorMode() const;
 		
 #pragma endregion
 

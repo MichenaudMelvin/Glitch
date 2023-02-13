@@ -33,7 +33,7 @@ void ATrap::GlitchUpgrade(){
 void ATrap::SetData(UPlacableActorData* NewData){
 	Super::SetData(NewData);
 
-	UTrapData* Data = Cast<UTrapData>(NewData);
+	const UTrapData* Data = Cast<UTrapData>(NewData);
 
 	Damages = Data->TrapDamages;
 	TrapDuration = Data->TrapDuration;

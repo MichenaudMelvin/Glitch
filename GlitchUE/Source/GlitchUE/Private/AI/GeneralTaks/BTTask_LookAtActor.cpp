@@ -16,7 +16,7 @@ UBTTask_LookAtActor::UBTTask_LookAtActor(){
 }
 
 EBTNodeResult::Type UBTTask_LookAtActor::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
-	AAIController* AIController = OwnerComp.GetAIOwner();
+	const AAIController* AIController = OwnerComp.GetAIOwner();
 	APawn* AIPawn = AIController->GetPawn();
 	const UBlackboardComponent* MyBlackboard = OwnerComp.GetBlackboardComponent();
 	

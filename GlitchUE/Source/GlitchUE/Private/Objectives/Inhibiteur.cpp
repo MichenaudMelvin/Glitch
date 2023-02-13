@@ -26,14 +26,14 @@ void AInhibiteur::DesactivateObjectif(){
 }
 
 void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	AGlitchUEGameMode* Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	const AGlitchUEGameMode* Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	if (Gamemode->GetLevelState() == ELevelState::Normal && Gamemode->GetPhases() == EPhases::Infiltration && ActivableComp->GetState() == EState::CPF_Desactivated){
 		ActivableComp->ActivateObject();
 	}
 }
 
-void AInhibiteur::ActivateLinkedElements(bool bActivate){
+void AInhibiteur::ActivateLinkedElements(const bool bActivate){
 	for (int i = 0; i < ConstructionZoneList.Num(); i++) {
 		if (bActivate) {
 			ConstructionZoneList[i]->GetActivableComp()->ActivateObject();

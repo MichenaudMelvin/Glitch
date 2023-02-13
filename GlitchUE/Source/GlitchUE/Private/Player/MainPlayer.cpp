@@ -135,7 +135,7 @@ void AMainPlayer::BeginPlay(){
 	#pragma endregion
 }
 
-void AMainPlayer::InitializePlayer(FTransform StartTransform, FRotator CameraRotation){
+void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation){
 	SetActorTransform(StartTransform);
 	Controller->SetControlRotation(CameraRotation);
 }
@@ -162,7 +162,7 @@ void AMainPlayer::CameraAimUpdate_Implementation(float Alpha){
 
 void AMainPlayer::CameraAimFinished_Implementation(){}
 
-ETimelineDirection::Type AMainPlayer::GetCameraAimDirection(){
+ETimelineDirection::Type AMainPlayer::GetCameraAimDirection() const{
 	return CameraAimTimelineDirection;
 }
 
@@ -194,10 +194,10 @@ void AMainPlayer::GiveGolds_Implementation(int Amount){
 
 #pragma region Interaction
 
-bool AMainPlayer::InteractionLineTrace(FHitResult& outHitResult){
-	FCollisionQueryParams QueryParams;
-	FCollisionResponseParams Responseparam;
-	return GetWorld()->LineTraceSingleByChannel(outHitResult, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, Responseparam);
+bool AMainPlayer::InteractionLineTrace(FHitResult& OutHit) const{
+	const FCollisionQueryParams QueryParams;
+	const FCollisionResponseParams ResponseParam;
+	return GetWorld()->LineTraceSingleByChannel(OutHit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam);
 }
 
 void AMainPlayer::InteractionTick(){
@@ -213,15 +213,15 @@ void AMainPlayer::InteractionTick(){
 		return;
 	}
 
-	UInteractableComponent* hittedInteractable = Cast<UInteractableComponent>(HitResult.Actor->GetComponentByClass(UInteractableComponent::StaticClass()));
+	UInteractableComponent* HittedInteractable = Cast<UInteractableComponent>(HitResult.Actor->GetComponentByClass(UInteractableComponent::StaticClass()));
 	
-	if (hittedInteractable == nullptr) {
+	if (HittedInteractable == nullptr) {
 		UnfeedbackCurrentCheckedObject();
 		return;
 	}
 
-	if ((hittedInteractable != CurrentCheckedObject) && (hittedInteractable->CheckComponent(HitResult.GetComponent()))){
-		CurrentCheckedObject = hittedInteractable;
+	if ((HittedInteractable != CurrentCheckedObject) && (HittedInteractable->CheckComponent(HitResult.GetComponent()))){
+		CurrentCheckedObject = HittedInteractable;
 		CurrentCheckedObject->Feedback();
 	}
 }
@@ -242,12 +242,12 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 #pragma endregion
 
-void AMainPlayer::TurnAtRate(float Rate){
+void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AMainPlayer::LookUpAtRate(float Rate){
+void AMainPlayer::LookUpAtRate(const float Rate){
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
@@ -267,15 +267,15 @@ void AMainPlayer::SprintToSneak_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
 
-EPlayerMovementMode AMainPlayer::GetMovementMode(){
+EPlayerMovementMode AMainPlayer::GetMovementMode() const{
 	return MovementMode;
 }
 
-void AMainPlayer::SetMovementMode(EPlayerMovementMode NewMovementMode){
+void AMainPlayer::SetMovementMode(const EPlayerMovementMode NewMovementMode){
 	MovementMode = NewMovementMode;
 }
 
-void AMainPlayer::MoveForward(float Value){
+void AMainPlayer::MoveForward(const float Value){
 	if ((Controller != nullptr) && (Value != 0.0f)){
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -287,7 +287,7 @@ void AMainPlayer::MoveForward(float Value){
 	}
 }
 
-void AMainPlayer::MoveRight(float Value){
+void AMainPlayer::MoveRight(const float Value){
 	if ( (Controller != nullptr) && (Value != 0.0f) ){
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -302,8 +302,8 @@ void AMainPlayer::MoveRight(float Value){
 
 void AMainPlayer::PreviewObject(){
 	FHitResult Hit;
-	FCollisionQueryParams QueryParams;
-	FCollisionResponseParams ResponseParam;
+	const FCollisionQueryParams QueryParams;
+	const FCollisionResponseParams ResponseParam;
 	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PreviewPlacableActor->CanBePlaced()){
 		PlacableActorLocation = Hit.Location;
 		PreviewPlacableActor->SetActorLocation(PlacableActorLocation.GridSnap(100));

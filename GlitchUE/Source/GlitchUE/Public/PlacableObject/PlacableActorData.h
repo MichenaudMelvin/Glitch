@@ -31,7 +31,7 @@ public:
 	UStaticMesh* FullMesh;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Golds")
-	bool HasEnoughGolds(int PlayerGolds);
+	bool HasEnoughGolds(const int PlayerGolds) const;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
 	float GlitchUpgradeDuration;

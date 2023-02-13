@@ -20,5 +20,4 @@ void UActivableComponent::ActivateObject(){
 void UActivableComponent::DesactivateObject(){
 	State = EState::CPF_Desactivated;
 	OnDesactivated.Broadcast();
-
 }

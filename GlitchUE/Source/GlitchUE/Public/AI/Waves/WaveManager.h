@@ -104,7 +104,7 @@ protected:
 	void DisableSpawner();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FWave GetCurrentWaveData();
+	FWave GetCurrentWaveData() const;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FKOnRefreshAIList OnRefreshAIList;
@@ -120,12 +120,12 @@ public:
 
 	void AddAIToList(AMainAICharacter* AIToAdd);
 
-	void RemoveAIFromList(AMainAICharacter* AIToRemove);
+	void RemoveAIFromList(const AMainAICharacter* AIToRemove);
 
 	// DEBUG ONLY
-	void SetWave(int NewWave);
+	void SetWave(const int NewWave);
 
-	int GetCurrentWaveNumber();
+	int GetCurrentWaveNumber() const;
 
 private:
 	void SpawnEnemies();

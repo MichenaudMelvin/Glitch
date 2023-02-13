@@ -97,7 +97,7 @@ void ATurret::SetMesh(){
 void ATurret::SetData(UPlacableActorData* NewData){
 	Super::SetData(NewData);
 	
-	UTurretData* Data = Cast<UTurretData>(NewData);
+	const UTurretData* Data = Cast<UTurretData>(NewData);
 	Damages = Data->Damages;
 	FireRate = Data->FireRate;
 	CanSeeThroughWalls = Data->CanSeeThroughWalls;
@@ -182,7 +182,7 @@ void ATurret::SelectTarget(){
 	}
 }
 
-TArray<AActor*> ATurret::GetSortedAIList(){
+TArray<AActor*> ATurret::GetSortedAIList() const{
 	TArray<AMainAICharacter*> AIArray = AIList.Array();
 	TArray<AActor*> ActorArray;
 
@@ -193,7 +193,7 @@ TArray<AActor*> ATurret::GetSortedAIList(){
 	return ActorArray;
 }
 
-bool ATurret::DoesAIListContainSomething(){
+bool ATurret::DoesAIListContainSomething() const{
 	return AIList.Num() > 0;
 }
 

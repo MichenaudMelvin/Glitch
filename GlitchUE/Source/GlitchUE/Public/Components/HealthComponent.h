@@ -34,7 +34,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Damages")
-	void TakeDamages(float DamagesAmount);
+	void TakeDamages(const float DamagesAmount);
 
 	UFUNCTION(BlueprintCallable, Category = "Damages")
 	void TakeMaxDamages();

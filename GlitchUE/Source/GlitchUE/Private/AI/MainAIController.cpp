@@ -33,7 +33,7 @@ void AMainAIController::BeginPlay() {
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
 }
 
-void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, FAIStimulus Stimulus) {
+void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus) {
 	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Sight::StaticClass()) {
 		if (Actor->IsA(AMainPlayer::StaticClass())) {
 			AActor* Player = Actor;

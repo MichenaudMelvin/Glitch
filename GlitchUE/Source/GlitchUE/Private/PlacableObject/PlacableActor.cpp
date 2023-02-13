@@ -67,7 +67,7 @@ void APlacableActor::SetMesh() {
 }
 
 void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	if (MainPlayerController->GetGameplayMode() == EGameplayMode::CPF_Destruction) {
+	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction) {
 		SellObject(MainPlayer);
 	}
 }

@@ -45,11 +45,11 @@ void AMainAICharacter::SetWaveManager(AWaveManager* NewWaveManager) {
 	WaveManager = NewWaveManager;
 }
 
-AMainAIController* AMainAICharacter::GetMainAIController(){
+AMainAIController* AMainAICharacter::GetMainAIController() const{
 	return AIController;
 }
 
-UHealthComponent* AMainAICharacter::GetHealthComp(){
+UHealthComponent* AMainAICharacter::GetHealthComp() const{
 	return HealthComp;
 }
 

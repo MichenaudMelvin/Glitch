@@ -36,8 +36,8 @@ protected:
 	UBlackboardData* BlackboardData;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "AIPerception")
-	void PerceptionUpdate(AActor* Actor, FAIStimulus Stimulus);
-	void PerceptionUpdate_Implementation(AActor* Actor, FAIStimulus Stimulus);
+	void PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus);
+	void PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus);
 
 private:
 	void SetPlayerValues(AActor* Player);

@@ -48,5 +48,5 @@ protected:
 	TArray<AConstructionZone*> ConstructionZoneList;
 
 public:
-	FStateAtWave GetStateAtWave();
+	FStateAtWave GetStateAtWave() const;
 };

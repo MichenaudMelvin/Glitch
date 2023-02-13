@@ -111,7 +111,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SelectTarget();
 
-	TArray<AActor*> GetSortedAIList();
+	TArray<AActor*> GetSortedAIList() const;
 
 	UPROPERTY(BlueprintReadOnly)
 	TSet<AActor*> HittedAIList;
@@ -119,7 +119,7 @@ protected:
 	FRotator AILookAtRotation;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool DoesAIListContainSomething();
+	bool DoesAIListContainSomething() const;
 
 	UFUNCTION()
 	void OnReachTurretVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -130,5 +130,5 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	FTimerHandle CanAttackTimer;
 
-	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
+	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial) override;
 };

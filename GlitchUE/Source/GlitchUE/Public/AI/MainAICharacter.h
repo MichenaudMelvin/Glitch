@@ -46,9 +46,9 @@ public:
 
 	void SetWaveManager(AWaveManager* NewWaveManager);
 
-	AMainAIController* GetMainAIController();
+	AMainAIController* GetMainAIController() const;
 
-	UHealthComponent* GetHealthComp();
+	UHealthComponent* GetHealthComp() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void GlitchUpgrade();

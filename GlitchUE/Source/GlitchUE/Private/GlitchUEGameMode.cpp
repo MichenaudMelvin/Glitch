@@ -88,7 +88,7 @@ void AGlitchUEGameMode::FastSave_Implementation(){}
 
 void AGlitchUEGameMode::FastLoad_Implementation(){}
 
-EPhases AGlitchUEGameMode::GetPhases(){
+EPhases AGlitchUEGameMode::GetPhases() const{
 	return CurrentPhase;
 }
 
@@ -103,7 +103,7 @@ void AGlitchUEGameMode::SetNewPhase(EPhases NewPhase){
 	}
 }
 
-ELevelState AGlitchUEGameMode::GetLevelState(){
+ELevelState AGlitchUEGameMode::GetLevelState() const{
 	return LevelState;
 }
 
@@ -121,7 +121,7 @@ void AGlitchUEGameMode::SetLevelState(ELevelState NewState){
 	}
 }
 
-void AGlitchUEGameMode::UpdateLevelColor(FLinearColor NewColor) {
+void AGlitchUEGameMode::UpdateLevelColor(FLinearColor NewColor){
 	UKismetMaterialLibrary::SetVectorParameterValue(GetWorld(), AlertedMaterial, FName(TEXT("Emissive")), NewColor);
 }
 
@@ -192,7 +192,7 @@ float AGlitchUEGameMode::GetCurrentGlitchValue(){
 	return GlitchValue;
 }
 
-void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
+void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradeAlliesUnits"));
 
 	TArray<AActor*> PlacableActorList;
@@ -206,7 +206,7 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
 	}
 }
 
-void AGlitchUEGameMode::GlitchUpgradeEnemiesAI(){
+void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
 	
 	TArray<AActor*> AIList;
@@ -221,17 +221,17 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI(){
 
 }
 
-void AGlitchUEGameMode::GlitchUpgradePlayer() {
+void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
 
 	MainPlayer->GlitchUpgrade();
 }
 
-void AGlitchUEGameMode::GlitchRandomFX() {
+void AGlitchUEGameMode::GlitchRandomFX() const{
 	UE_LOG(LogTemp, Warning, TEXT("RandomFX"));
 }
 
-void AGlitchUEGameMode::CheckAvailableGlitchEvents(){
+void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
 
@@ -242,28 +242,28 @@ void AGlitchUEGameMode::CheckAvailableGlitchEvents(){
 
 #pragma region ConsoleCommands
 
-void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation){
+void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation) const{
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
 }
 
-void AGlitchUEGameMode::NextWave(){
+void AGlitchUEGameMode::NextWave() const{
 	WaveManager->SetWave(WaveManager->GetCurrentWaveNumber() + 1);
 }
 
-void AGlitchUEGameMode::GoToWave(int NewWave){
+void AGlitchUEGameMode::GoToWave(int NewWave) const{
 	WaveManager->SetWave(NewWave);
 }
 
-void AGlitchUEGameMode::CrashGame(){
+void AGlitchUEGameMode::CrashGame() const{
 	UE_LOG(LogTemp, Fatal, TEXT("CRASH"));
 }
 
-void AGlitchUEGameMode::ToggleSpectatorMode(){
+void AGlitchUEGameMode::ToggleSpectatorMode() const{
 	TArray<AActor*> ActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADebugPawn::StaticClass(), ActorList);
 
 	if(ActorList.Num() == 0){
-		FActorSpawnParameters SpawnInfo;
+		const FActorSpawnParameters SpawnInfo;
 		ADebugPawn* SpawnedPawn = GetWorld()->SpawnActor<ADebugPawn>(MainPlayer->GetActorLocation(), MainPlayer->GetActorRotation(), SpawnInfo);
 		MainPlayer->Controller->Possess(SpawnedPawn);
 	} else{

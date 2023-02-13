@@ -58,9 +58,9 @@ public:
 
 	UActivableComponent* GetActivableComp();
 
-	bool AnyAILeftToSpawn();
+	bool AnyAILeftToSpawn() const;
 
-	FStateAtWave GetStateAtWave();
+	FStateAtWave GetStateAtWave() const;
 
 	//DEBUG ONLY
 	void ForceEndSpawn();
