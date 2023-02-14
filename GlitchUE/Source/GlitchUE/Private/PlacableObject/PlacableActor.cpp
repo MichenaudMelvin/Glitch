@@ -2,8 +2,7 @@
 
 
 #include "PlacableObject/PlacableActor.h"
-#include "..\..\Public\PlacableObject\PlacableActor.h"
-
+#include "AI/MainAICharacter.h"
 #include "PopcornFXFunctions.h"
 #include "Components/InteractableComponent.h"
 #include "Player/MainPlayer.h"
@@ -88,6 +87,20 @@ void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){
 
 void APlacableActor::EndAppearence_Implementation(){}
 
+void APlacableActor::Attack_Implementation(){}
+
+void APlacableActor::OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
+	if (OtherActor->IsA(AMainAICharacter::StaticClass())){
+		AIList.Add(Cast<AMainAICharacter>(OtherActor));
+	}
+}
+
+void APlacableActor::OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
+	if (OtherActor->IsA(AMainAICharacter::StaticClass())){
+		AIList.Remove(Cast<AMainAICharacter>(OtherActor));
+	}
+}
+
 void APlacableActor::SetData(UPlacableActorData* NewData){
 	CurrentData = NewData;
 	Name = CurrentData->Name;
@@ -95,7 +108,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	SetMesh();
 
 	if(AttackFX == nullptr){
-		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, false, false);
 	}
 }
 

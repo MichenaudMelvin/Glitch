@@ -44,8 +44,8 @@ void ATurret::BeginPlay(){
 	RotateTimeline.SetTimelineFinishedFunc(FinishEvent);
 
 	TurretVision = Cast<USphereComponent>(AddComponentByClass(USphereComponent::StaticClass(), false, FTransform(), false));
-	TurretVision->OnComponentBeginOverlap.AddDynamic(this, &ATurret::OnReachTurretVision);
-	TurretVision->OnComponentEndOverlap.AddDynamic(this, &ATurret::OnLeaveTurretVision);
+	TurretVision->OnComponentBeginOverlap.AddDynamic(this, &ATurret::OnReachVision);
+	TurretVision->OnComponentEndOverlap.AddDynamic(this, &ATurret::OnLeaveVision);
 }
 
 void ATurret::Tick(float deltaTime){
@@ -127,6 +127,7 @@ void ATurret::CanAttack(){
 
 void ATurret::Attack_Implementation(){
 	SelectTarget();
+	Super::Attack_Implementation();
 }
 
 void ATurret::EndAttack() {
@@ -197,32 +198,29 @@ bool ATurret::DoesAIListContainSomething() const{
 	return AIList.Num() > 0;
 }
 
-void ATurret::OnReachTurretVision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
-	if (OtherActor->IsA(AMainAICharacter::StaticClass())) {
-		AIList.Add(Cast<AMainAICharacter>(OtherActor));
+void ATurret::OnReachVision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+	Super::OnReachVision(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	
+	if (AIList.Num() == 1) {
 		
-		if (AIList.Num() == 1) {
-			
-			if (!CanSeeThroughWalls) {
-				GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, [&]() {
-					CanAttack();
-				}, 0.1f, true);
-			} else {
-				Attack();
-			}
+		if (!CanSeeThroughWalls) {
+			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, [&]() {
+				CanAttack();
+			}, 0.1f, true);
+		} else {
+			Attack();
 		}
 	}
 }
 
-void ATurret::OnLeaveTurretVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
-	if (OtherActor->IsA(AMainAICharacter::StaticClass())) {
-		AIList.Remove(Cast<AMainAICharacter>(OtherActor));
-		if (AIList.Num() == 0) {
-			
-			if (!CanSeeThroughWalls) {
-				GetWorld()->GetTimerManager().ClearTimer(CanAttackTimer);
-			} 
-		}
+void ATurret::OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
+	Super::OnLeaveVision(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
+
+	if (AIList.Num() == 0) {
+		
+		if (!CanSeeThroughWalls) {
+			GetWorld()->GetTimerManager().ClearTimer(CanAttackTimer);
+		} 
 	}
 }
 

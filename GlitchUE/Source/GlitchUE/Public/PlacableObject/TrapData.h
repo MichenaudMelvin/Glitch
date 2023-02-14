@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PlacableObject/PlacableActorData.h"
+#include "Trap.h"
 #include "TrapData.generated.h"
 
 UCLASS()
@@ -21,6 +22,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Damages")
 	float TrapAttackRate;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
+	ETrapEffect TrapEffect;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
+	float TrapEffectDuration;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
 	float UpgradedGlitchAttackRate;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "FX")
+	UPopcornFXEffect* IdleFX;
 };

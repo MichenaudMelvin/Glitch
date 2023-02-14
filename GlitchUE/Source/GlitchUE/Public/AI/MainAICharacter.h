@@ -8,6 +8,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/HealthComponent.h"
 #include "BehaviorTree/BlackboardAssetProvider.h"
+#include "PlacableObject/Trap.h"
 #include "MainAICharacter.generated.h"
 
 class AWaveManager;
@@ -40,6 +41,8 @@ protected:
 
 	AWaveManager* WaveManager;
 
+	ETrapEffect CurrentTrapEffect = ETrapEffect::None;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void StunAI();
@@ -57,4 +60,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ResetGlitchUpgrade();
 	virtual void ResetGlitchUpgrade_Implementation();
+
+	UFUNCTION(BlueprintCallable)
+	void ReceiveTrapEffect(const ETrapEffect NewEffect, float EffectDuration);
+
+private:
+	FTimerHandle EffectTimer;
+
+	FTimerHandle TrapTimer;
 };

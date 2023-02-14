@@ -167,6 +167,7 @@ public:
 protected:
 	#pragma endregion
 
+	UPROPERTY(BlueprintReadOnly)
 	ANexus* Nexus;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")

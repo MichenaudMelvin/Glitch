@@ -14,17 +14,17 @@ AConstructionZone::AConstructionZone() {
 
 	BoxComp->SetMobility(EComponentMobility::Static);
 
-	InitialState = EState::CPF_Desactivated;
+	InitialState = EState::Desactivated;
 }
 
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
 
 	switch (InitialState){
-	case EState::CPF_Activated:
+	case EState::Activated:
 		ActivableComp->ActivateObject();
 		break;
-	case EState::CPF_Desactivated:
+	case EState::Desactivated:
 		ActivableComp->DesactivateObject();
 		break;
 	}

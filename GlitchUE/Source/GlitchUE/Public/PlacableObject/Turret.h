@@ -75,9 +75,7 @@ protected:
 
 	FFocusMethod FocusMethod;
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void Attack();
-	virtual void Attack_Implementation();
+	virtual void Attack_Implementation() override;
 
 	UFUNCTION(BlueprintCallable)
 	void CanAttack();
@@ -120,12 +118,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool DoesAIListContainSomething() const;
-
-	UFUNCTION()
-	void OnReachTurretVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnLeaveTurretVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	
+	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	
+	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 	
 	UPROPERTY(BlueprintReadWrite)
 	FTimerHandle CanAttackTimer;

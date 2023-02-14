@@ -121,6 +121,7 @@ void AMainPlayer::BeginPlay(){
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APreviewPlacableActor::StaticClass(), PreviewPlacableArray);
 	PreviewPlacableActor = Cast<APreviewPlacableActor>(PreviewPlacableArray[0]);
 
+	PreviewPlacableActor->GetPreviewMesh()->SetVectorParameterValueOnMaterials("Color", FVector(1, 0, 0));
 
 	#pragma region FXCreation
 

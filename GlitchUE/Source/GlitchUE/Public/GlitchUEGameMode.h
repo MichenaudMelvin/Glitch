@@ -7,11 +7,11 @@
 #include "AI/Waves/WaveManager.h"
 #include "Player/MainPlayer.h"
 #include "Curves/CurveLinearColor.h"
-#include "Saves/AbstractSave.h"
-#include "Saves/WorldSave.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
+
+class UWorldSave;
 
 UENUM(BlueprintType)
 enum class EPhases : uint8 {

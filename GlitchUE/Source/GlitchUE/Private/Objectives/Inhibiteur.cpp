@@ -28,7 +28,7 @@ void AInhibiteur::DesactivateObjectif(){
 void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	const AGlitchUEGameMode* Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
-	if (Gamemode->GetLevelState() == ELevelState::Normal && Gamemode->GetPhases() == EPhases::Infiltration && ActivableComp->GetState() == EState::CPF_Desactivated){
+	if (Gamemode->GetLevelState() == ELevelState::Normal && Gamemode->GetPhases() == EPhases::Infiltration && !ActivableComp->IsActivated()){
 		ActivableComp->ActivateObject();
 	}
 }

@@ -74,3 +74,7 @@ void APreviewPlacableActor::ResetActor() {
 FVector APreviewPlacableActor::GetOriginalLocation(){
 	return OriginalLocation;
 }
+
+UStaticMeshComponent* APreviewPlacableActor::GetPreviewMesh() const{
+	return BaseMesh;
+}

@@ -3,6 +3,7 @@
 
 #include "AI/MainAICharacter.h"
 #include "AI/Waves/WaveManager.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AMainAICharacter::AMainAICharacter(){
@@ -65,3 +66,42 @@ void AMainAICharacter::GlitchUpgrade_Implementation(){
 }
 
 void AMainAICharacter::ResetGlitchUpgrade_Implementation(){}
+
+void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration){
+	if(CurrentTrapEffect != ETrapEffect::None){
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("The float value is: %f"), EffectDuration);
+	
+	CurrentTrapEffect = NewEffect;
+
+	// hard codé
+	// à voir comment mieux faire
+	
+	switch (CurrentTrapEffect) {
+	case ETrapEffect::Burned: 
+		GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
+			HealthComp->TakeDamages(1);
+			UE_LOG(LogTemp, Warning, TEXT("Take burn damages"));
+		}, 0.2f, true);
+		break;
+	case ETrapEffect::Frozen: 
+		Blackboard->SetValueAsBool("DoingExternalActions", true);
+		break;
+	case ETrapEffect::Poisoned:
+		UE_LOG(LogTemp, Warning, TEXT("poison"));
+		break;
+	case ETrapEffect::SlowedDown: 
+		GetCharacterMovement()->MaxWalkSpeed = 50;
+		break;
+	}
+	
+	GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
+		UE_LOG(LogTemp, Warning, TEXT("stop trap effect"));
+		CurrentTrapEffect = ETrapEffect::None;
+		GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
+		Blackboard->SetValueAsBool("DoingExternalActions", false);
+		GetCharacterMovement()->MaxWalkSpeed = 200;
+	}, EffectDuration, false);
+}
