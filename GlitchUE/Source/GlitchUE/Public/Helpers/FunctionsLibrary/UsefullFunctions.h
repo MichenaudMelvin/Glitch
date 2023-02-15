@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UsefullFunctions.generated.h"
 

@@ -4,7 +4,6 @@
 #include "Objectives/Nexus.h"
 #include "Kismet/GameplayStatics.h"
 #include "GlitchUEGameMode.h"
-#include "AI/Waves/WaveManager.h"
 
 ANexus::ANexus() {
 

@@ -4,6 +4,7 @@
 #include "PlacableObject/PlacableActor.h"
 #include "AI/MainAICharacter.h"
 #include "PopcornFXFunctions.h"
+#include "Components/AudioComponent.h"
 #include "Components/InteractableComponent.h"
 #include "Player/MainPlayer.h"
 #include "Player/MainPlayerController.h"

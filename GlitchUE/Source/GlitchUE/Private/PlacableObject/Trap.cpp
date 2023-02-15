@@ -74,8 +74,10 @@ void ATrap::Attack_Implementation(){
 	GEngine->AddOnScreenDebugMessage(-1, TrapAttackRate, FColor::Yellow, TEXT("TrapAttack"));	
 
 	TArray<AMainAICharacter*>AIArray = AIList.Array();
+	const UTrapData* Data = Cast<UTrapData>(CurrentData);
+	
 	for(int i = 0; i < AIArray.Num(); i++){
-		AIArray[i]->ReceiveTrapEffect(TrapEffect, TrapEffectDuration);
+		AIArray[i]->ReceiveTrapEffect(TrapEffect, TrapEffectDuration, Data->EffectTickRate, Data->EffectDamages);
 	}
 
 	AttackFX->StartEmitter();

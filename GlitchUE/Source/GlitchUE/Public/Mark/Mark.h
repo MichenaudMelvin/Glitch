@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Player/MainPlayer.h"
 #include "Components/InteractableComponent.h"
 #include "Mark.generated.h"
 

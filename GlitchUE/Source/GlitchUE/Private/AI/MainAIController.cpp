@@ -6,10 +6,8 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "Perception/AIPerceptionSystem.h"
 #include "Perception/AISenseConfig_Sight.h"
-#include "BehaviorTree/BehaviorTree.h"
 #include "Perception/AISense_Sight.h"
 #include "Player/MainPlayer.h"
-
 
 AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))) {

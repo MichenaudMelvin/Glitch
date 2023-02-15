@@ -5,9 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MainAIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/HealthComponent.h"
-#include "BehaviorTree/BlackboardAssetProvider.h"
 #include "PlacableObject/Trap.h"
 #include "MainAICharacter.generated.h"
 
@@ -60,9 +58,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ResetGlitchUpgrade();
 	virtual void ResetGlitchUpgrade_Implementation();
-
+	
 	UFUNCTION(BlueprintCallable)
-	void ReceiveTrapEffect(const ETrapEffect NewEffect, float EffectDuration);
+	void ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages);
 
 private:
 	FTimerHandle EffectTimer;

@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Components/ActivableComponent.h"
 #include "AI/MainAICharacter.h"
-#include "WaveManager.h"
 #include "GlitchUEGameMode.h"
 #include "Objectives/Catalyseur.h"
 #include "Spawner.generated.h"

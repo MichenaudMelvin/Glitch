@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "AI/Waves/WaveManager.h"
 #include "Player/MainPlayer.h"
-#include "Curves/CurveLinearColor.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);

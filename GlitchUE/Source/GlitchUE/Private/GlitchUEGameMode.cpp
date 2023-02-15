@@ -11,10 +11,9 @@
 #include "AI/MainAICharacter.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
-#include "GameFramework/AsyncActionHandleSaveGame.h"
 #include "Helpers/Debug/DebugPawn.h"
+#include "Curves/CurveLinearColor.h"
 #include "Saves/AbstractSave.h"
-#include "Kismet/KismetMathLibrary.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	// set default pawn class to our Blueprinted character

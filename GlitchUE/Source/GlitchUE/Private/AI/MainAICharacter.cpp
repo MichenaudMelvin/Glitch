@@ -4,6 +4,7 @@
 #include "AI/MainAICharacter.h"
 #include "AI/Waves/WaveManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AMainAICharacter::AMainAICharacter(){
@@ -67,13 +68,11 @@ void AMainAICharacter::GlitchUpgrade_Implementation(){
 
 void AMainAICharacter::ResetGlitchUpgrade_Implementation(){}
 
-void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration){
+void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages){
 	if(CurrentTrapEffect != ETrapEffect::None){
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("The float value is: %f"), EffectDuration);
-	
 	CurrentTrapEffect = NewEffect;
 
 	// hard codé
@@ -84,24 +83,35 @@ void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const floa
 		GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
 			HealthComp->TakeDamages(1);
 			UE_LOG(LogTemp, Warning, TEXT("Take burn damages"));
-		}, 0.2f, true);
+		}, EffectTickRate, true);
+
+		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
+			CurrentTrapEffect = ETrapEffect::None;
+			GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
+		}, EffectDuration, false);
+		
 		break;
 	case ETrapEffect::Frozen: 
 		Blackboard->SetValueAsBool("DoingExternalActions", true);
+
+		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
+			CurrentTrapEffect = ETrapEffect::None;
+			Blackboard->SetValueAsBool("DoingExternalActions", false);
+		}, EffectDuration, false);
+		
 		break;
 	case ETrapEffect::Poisoned:
 		UE_LOG(LogTemp, Warning, TEXT("poison"));
+
 		break;
 	case ETrapEffect::SlowedDown: 
 		GetCharacterMovement()->MaxWalkSpeed = 50;
+
+		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
+			CurrentTrapEffect = ETrapEffect::None;
+			GetCharacterMovement()->MaxWalkSpeed = 200;
+		}, EffectDuration, false);
+
 		break;
 	}
-	
-	GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
-		UE_LOG(LogTemp, Warning, TEXT("stop trap effect"));
-		CurrentTrapEffect = ETrapEffect::None;
-		GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
-		Blackboard->SetValueAsBool("DoingExternalActions", false);
-		GetCharacterMovement()->MaxWalkSpeed = 200;
-	}, EffectDuration, false);
 }
