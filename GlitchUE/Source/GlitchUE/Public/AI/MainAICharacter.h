@@ -5,9 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MainAIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/HealthComponent.h"
-#include "BehaviorTree/BlackboardAssetProvider.h"
+#include "PlacableObject/Trap.h"
 #include "MainAICharacter.generated.h"
 
 class AWaveManager;
@@ -40,15 +39,17 @@ protected:
 
 	AWaveManager* WaveManager;
 
+	ETrapEffect CurrentTrapEffect = ETrapEffect::None;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void StunAI();
 
 	void SetWaveManager(AWaveManager* NewWaveManager);
 
-	AMainAIController* GetMainAIController();
+	AMainAIController* GetMainAIController() const;
 
-	UHealthComponent* GetHealthComp();
+	UHealthComponent* GetHealthComp() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void GlitchUpgrade();
@@ -57,4 +58,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ResetGlitchUpgrade();
 	virtual void ResetGlitchUpgrade_Implementation();
+	
+	UFUNCTION(BlueprintCallable)
+	void ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages);
+
+private:
+	FTimerHandle EffectTimer;
+
+	FTimerHandle TrapTimer;
 };

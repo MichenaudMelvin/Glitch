@@ -49,7 +49,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void InitializePlayer(FTransform StartTransform, FRotator CameraRotation);
+	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation);
 	//virtual  void InitializePlayer_Implementation(FTransform StartTransform, FRotator CameraRotation);
 
 	#pragma region Camera
@@ -83,7 +83,7 @@ protected:
 	ETimelineDirection::Type CameraAimTimelineDirection;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Camera")
-	ETimelineDirection::Type GetCameraAimDirection();
+	ETimelineDirection::Type GetCameraAimDirection() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void CameraZoom(float TargetZoom);
@@ -119,32 +119,32 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	EPlayerMovementMode GetMovementMode();
+	EPlayerMovementMode GetMovementMode() const;
 
 	UFUNCTION(BlueprintCallable)
-	void SetMovementMode(EPlayerMovementMode NewMovementMode);
+	void SetMovementMode(const EPlayerMovementMode NewMovementMode);
 
 	/** Called for forwards/backward input */
 	UFUNCTION(BlueprintCallable)
-	void MoveForward(float Value);
+	void MoveForward(const float Value);
 
 	UFUNCTION(BlueprintCallable)
 	/** Called for side to side input */
-	void MoveRight(float Value);
+	void MoveRight(const float Value);
 
 	/** 
 	 * Called via input to turn at a given rate. 
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	UFUNCTION(BlueprintCallable)
-	void TurnAtRate(float Rate);
+	void TurnAtRate(const float Rate);
 
 	/**
 	 * Called via input to turn look up/down at a given rate. 
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	UFUNCTION(BlueprintCallable)
-	void LookUpAtRate(float Rate);
+	void LookUpAtRate(const float Rate);
 
 	virtual void AddControllerPitchInput(float Rate) override;
 	
@@ -166,6 +166,9 @@ public:
 
 protected:
 	#pragma endregion
+
+	UPROPERTY(BlueprintReadOnly)
+	ANexus* Nexus;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	APreviewPlacableActor* PreviewPlacableActor;
@@ -208,7 +211,7 @@ protected:
 	UInteractableComponent* CurrentCheckedObject;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Interaction")
-	bool InteractionLineTrace(FHitResult& outHit);
+	bool InteractionLineTrace(FHitResult& OutHit) const;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
@@ -237,8 +240,10 @@ public:
 	void LaunchMark();
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
-	class USoundbasse* TpStart;
-	class USoundbasse* TpFinal;
+	USoundBase* TPStart;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundBase* TPFinal;
 
 	FQuat FindMarkLaunchRotation();
 
@@ -271,9 +276,17 @@ public:
 	UFUNCTION()
 	void LookAtMark(float Value);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Mark")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void StartGlitchDashFX();
-	void StartGlitchDashFX_Implementation();
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
+	float GlitchDashDuration = 0.15f;
+
+	UPopcornFXEffect* GlichDashFXReference;
+
+	UPopcornFXEmitterComponent* GlitchDashFX;
+
+	UPopcornFXEmitterComponent* GlitchDashFXBackup;
 
 	void GlitchCameraTrace();
 

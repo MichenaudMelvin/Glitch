@@ -5,8 +5,19 @@
 #include "CoreMinimal.h"
 #include "PlacableObject/PlacableActor.h"
 #include "Components/ActivableComponent.h"
-#include "PlacableObject/TrapData.h"
+#include "Components/BoxComponent.h"
 #include "Trap.generated.h"
+
+class UTrapData;
+
+UENUM(BlueprintType)
+enum class ETrapEffect : uint8{
+	None,
+	Burned,
+	Frozen,
+	Poisoned,
+	SlowedDown,
+};
 
 UCLASS()
 class GLITCHUE_API ATrap : public APlacableActor{
@@ -18,22 +29,37 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Activable")
 	UActivableComponent* ActivableComp;
+
+	UBoxComponent* TrapDistance;
+
+	UPopcornFXEmitterComponent* IdleFX;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Stats")
 	float Damages;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Stats")
+	
 	float TrapDuration;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Stats")
+	
 	float TrapAttackRate;
+	
+	ETrapEffect TrapEffect;
+
+	float TrapEffectDuration;
+
+	UFUNCTION()
+	void OnActivateTrap();
+
+	UFUNCTION()
+	void OnDesactivateTrap();
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
-
+	
 	virtual void GlitchUpgrade() override;
-
+	
 	virtual void SetData(UPlacableActorData* NewData) override;
-
+	
+	virtual void Attack_Implementation() override;
+	
+	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	
+	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 };

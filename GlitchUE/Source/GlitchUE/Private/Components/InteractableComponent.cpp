@@ -58,12 +58,11 @@ void UInteractableComponent::Unfeedback(){
 	OutlineFeedback(false);
 }
 
-void UInteractableComponent::OutlineFeedback(bool bOutline){
-	TArray<UPrimitiveComponent*> interactableList = InteractableComponentSet.Array();
-	
+void UInteractableComponent::OutlineFeedback(const bool bOutline) const{
+	TArray<UPrimitiveComponent*> InteractableList = InteractableComponentSet.Array();
 
-	for (int i = 0; i < interactableList.Num(); i++) {
-		UUsefullFunctions::OutlineComponent(bOutline, interactableList[i]);
+	for (int i = 0; i < InteractableList.Num(); i++) {
+		UUsefullFunctions::OutlineComponent(bOutline, InteractableList[i]);
 	}
 }
 

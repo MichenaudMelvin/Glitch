@@ -27,10 +27,10 @@ struct FWaveGolds{
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int Golds;
+	int Golds = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	EWaveEvent WaveEvent;
+	EWaveEvent WaveEvent = EWaveEvent::ExecuteAtStart;
 };
 
 USTRUCT(BlueprintType)
@@ -42,7 +42,7 @@ public:
 	TSubclassOf<AMainAICharacter> AIToSpawn;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int NumberToSpawn;
+	int NumberToSpawn = 0;
 };
 
 USTRUCT(BlueprintType)
@@ -51,13 +51,13 @@ struct FWave : public FTableRowBase{
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	float NextWaveTimer;
+	float NextWaveTimer = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FWaveGolds GivenGolds;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	bool bStopAtEnd;
+	bool bStopAtEnd = false;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<FAIToSpawn> AIToSpawnList;
@@ -104,7 +104,7 @@ protected:
 	void DisableSpawner();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FWave GetCurrentWaveData();
+	FWave GetCurrentWaveData() const;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FKOnRefreshAIList OnRefreshAIList;
@@ -120,12 +120,12 @@ public:
 
 	void AddAIToList(AMainAICharacter* AIToAdd);
 
-	void RemoveAIFromList(AMainAICharacter* AIToRemove);
+	void RemoveAIFromList(const AMainAICharacter* AIToRemove);
 
 	// DEBUG ONLY
-	void SetWave(int NewWave);
+	void SetWave(const int NewWave);
 
-	int GetCurrentWaveNumber();
+	int GetCurrentWaveNumber() const;
 
 private:
 	void SpawnEnemies();

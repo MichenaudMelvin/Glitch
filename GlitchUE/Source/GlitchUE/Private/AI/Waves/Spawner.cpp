@@ -75,11 +75,11 @@ UActivableComponent* ASpawner::GetActivableComp(){
 	return ActivableComp;
 }
 
-bool ASpawner::AnyAILeftToSpawn(){
+bool ASpawner::AnyAILeftToSpawn() const{
 	return CurrentNumberOfAISpawned < NumberOfAISpawn;
 }
 
-FStateAtWave ASpawner::GetStateAtWave(){
+FStateAtWave ASpawner::GetStateAtWave() const{
 	return StateAtWave;
 }
 

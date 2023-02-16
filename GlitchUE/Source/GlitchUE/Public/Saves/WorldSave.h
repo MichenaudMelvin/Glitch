@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Saves/AbstractSave.h"
 #include "BehaviorTree/BlackboardData.h"
+#include "GlitchUEGameMode.h"
 #include "WorldSave.generated.h"
 
 UCLASS()
@@ -27,6 +28,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	FRotator PlayerCameraRotation;
 
-	//UPROPERTY(BlueprintReadWrite)
-	//ELevelState LevelState;
+	UPROPERTY(BlueprintReadWrite)
+	ELevelState LevelState;
 };

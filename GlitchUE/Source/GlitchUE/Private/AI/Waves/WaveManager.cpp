@@ -99,7 +99,7 @@ void AWaveManager::DisableSpawner(){
 
 void AWaveManager::StartWave_Implementation() {
 
-	FWave CurrentWave = GetCurrentWaveData();
+	const FWave CurrentWave = GetCurrentWaveData();
 	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
 		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
@@ -115,7 +115,7 @@ void AWaveManager::EndWave_Implementation() {
 	DisableCatalyseurs();
 	DisableSpawner();
 
-	FWave CurrentWave = GetCurrentWaveData();
+	const FWave CurrentWave = GetCurrentWaveData();
 
 	if (CurrentWaveNumber == NumberOfWaves) {
 		return;
@@ -145,14 +145,14 @@ void AWaveManager::SpawnEnemies(){
 	}
 
 	for (int i = 0; i < ListOfAIToSpawn.Num(); i++) {
-		int NumberToSpawnForEachSpawners = ListOfAIToSpawn[i].NumberToSpawn / ActiveSpawnerList.Num();
+		const int NumberToSpawnForEachSpawners = ListOfAIToSpawn[i].NumberToSpawn / ActiveSpawnerList.Num();
 		for (int j = 0; j < ActiveSpawnerList.Num(); j++) {
 			ActiveSpawnerList[j]->BeginSpawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn);
 		}
 	}
 }
 
-FWave AWaveManager::GetCurrentWaveData() {
+FWave AWaveManager::GetCurrentWaveData() const{
 	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber-1], "");
 }
 
@@ -161,7 +161,7 @@ void AWaveManager::AddAIToList(AMainAICharacter* AIToAdd) {
 	OnRefreshAIList.Broadcast();
 }
 
-void AWaveManager::RemoveAIFromList(AMainAICharacter* AIToRemove){
+void AWaveManager::RemoveAIFromList(const AMainAICharacter* AIToRemove){
 	WaveAIList.Remove(AIToRemove);
 
 	OnRefreshAIList.Broadcast();
@@ -173,7 +173,7 @@ void AWaveManager::RemoveAIFromList(AMainAICharacter* AIToRemove){
 	}
 }
 
-void AWaveManager::SetWave(int NewWave){
+void AWaveManager::SetWave(const int NewWave){
 	CurrentWaveNumber = NewWave - 1;
 
 	for (int i = 0; i < ActiveSpawnerList.Num(); i++) {
@@ -187,7 +187,7 @@ void AWaveManager::SetWave(int NewWave){
 	}
 }
 
-int AWaveManager::GetCurrentWaveNumber(){
+int AWaveManager::GetCurrentWaveNumber() const{
 	return CurrentWaveNumber;
 }
 

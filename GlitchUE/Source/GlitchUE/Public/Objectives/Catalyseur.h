@@ -14,10 +14,10 @@ struct FStateAtWave{
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int EnableAtWave;
+	int EnableAtWave = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int DisableAtWave;
+	int DisableAtWave = 999;
 };
 
 UCLASS()
@@ -48,5 +48,5 @@ protected:
 	TArray<AConstructionZone*> ConstructionZoneList;
 
 public:
-	FStateAtWave GetStateAtWave();
+	FStateAtWave GetStateAtWave() const;
 };

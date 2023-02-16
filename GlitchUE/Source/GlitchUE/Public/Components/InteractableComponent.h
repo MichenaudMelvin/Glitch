@@ -53,7 +53,7 @@ protected:
 	bool bOutlineFeedback = true;
 
 	UFUNCTION(Category = "Feedback")
-	void OutlineFeedback(bool bOutline);
+	void OutlineFeedback(const bool bOutline) const;
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Interaction")

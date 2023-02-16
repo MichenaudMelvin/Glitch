@@ -14,29 +14,29 @@ void AMainPlayerController::BeginPlay() {
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
-	SelectNewGameplayMode(EGameplayMode::CPF_Normal);
+	SelectNewGameplayMode(EGameplayMode::Normal);
 }
 
 #pragma region Bind
 
 #pragma region Movement
 
-void AMainPlayerController::SelectNewGameplayMode(EGameplayMode NewGameplayMode){
+void AMainPlayerController::SelectNewGameplayMode(const EGameplayMode NewGameplayMode){
 	GameplayMode = NewGameplayMode;
 	switch (GameplayMode){
-		case EGameplayMode::CPF_Normal:
+		case EGameplayMode::Normal:
 			BindNormalMode();
 			MainPlayer->CameraAimReverse();
 			break;
 		
-		case EGameplayMode::CPF_Construction:
+		case EGameplayMode::Construction:
 			BindConstructionMode();
 			MainPlayer->CameraAim();
 			break;
 	}
 }
 
-EGameplayMode AMainPlayerController::GetGameplayMode(){
+EGameplayMode AMainPlayerController::GetGameplayMode() const{
 	return GameplayMode;
 }
 

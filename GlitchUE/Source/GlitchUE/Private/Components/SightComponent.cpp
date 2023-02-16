@@ -10,6 +10,7 @@ USightComponent::USightComponent(){
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshs/CustomCollisions/SM_SightCollision"));
 
 	SetStaticMesh(Mesh.Object);
+	bCanEverAffectNavigation = false;
 }
 
 void USightComponent::BeginPlay(){

@@ -42,4 +42,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
 	FVector GetOriginalLocation();
+
+	UStaticMeshComponent* GetPreviewMesh() const;
 };

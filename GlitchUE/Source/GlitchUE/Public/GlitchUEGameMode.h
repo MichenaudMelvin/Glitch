@@ -4,14 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "AI/Waves/WaveManager.h"
 #include "Player/MainPlayer.h"
-#include "Curves/CurveLinearColor.h"
-#include "Saves/AbstractSave.h"
-#include "Saves/WorldSave.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
+
+class UWorldSave;
 
 UENUM(BlueprintType)
 enum class EPhases : uint8 {
@@ -95,13 +93,13 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Phases")
-	EPhases GetPhases();
+	EPhases GetPhases() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Phases")
 	void SetNewPhase(EPhases NewPhase);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelState")
-	ELevelState GetLevelState();
+	ELevelState GetLevelState() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "LevelState")
 	void SetLevelState(ELevelState NewState);
@@ -142,36 +140,36 @@ private:
 
 protected:
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradeAlliesUnits();
+	void GlitchUpgradeAlliesUnits() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradeEnemiesAI();
+	void GlitchUpgradeEnemiesAI() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradePlayer();
+	void GlitchUpgradePlayer() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchRandomFX();
+	void GlitchRandomFX() const;
 
-	void CheckAvailableGlitchEvents();
+	void CheckAvailableGlitchEvents() const;
 
 #pragma region ConsoleCommands
 
 private:
 	UFUNCTION(Exec)
-	void SetGlobalTimeDilation(float TimeDilation);
+	void SetGlobalTimeDilation(float TimeDilation) const;
 
 	UFUNCTION(Exec)
-	void NextWave();
+	void NextWave() const;
 
 	UFUNCTION(Exec)
-	void GoToWave(int NewWave);
+	void GoToWave(int NewWave) const;
 	
 	UFUNCTION(Exec)
-	void CrashGame();
+	void CrashGame() const;
 
 	UFUNCTION(Exec)
-	void ToggleSpectatorMode();
+	void ToggleSpectatorMode() const;
 		
 #pragma endregion
 

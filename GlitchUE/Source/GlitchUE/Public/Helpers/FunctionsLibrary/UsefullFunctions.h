@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UsefullFunctions.generated.h"
 
@@ -24,5 +23,5 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 
 		UFUNCTION()
 		//https://dev.epicgames.com/community/snippets/xBY/unreal-engine-sort-actor-array-based-on-distance-from-target
-		static void QuickSortByDistance(TArray<AActor*>& InArray, int low, int high, const AActor* Actor);
+		static void QuickSortByDistance(TArray<AActor*>& InArray, const int Low, const int High, const AActor* Actor);
 };
