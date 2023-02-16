@@ -164,6 +164,7 @@ void AMainPlayerController::BindNormalMode() {
 	BindInteraction();
 	BindGlitch();
 	BindOpenSelectionWheel();
+	BindMouseScroll();
 }
 
 void AMainPlayerController::BindConstructionMode() {
@@ -172,6 +173,7 @@ void AMainPlayerController::BindConstructionMode() {
 	BindCamera();
 	BindConstruction();
 	BindOpenSelectionWheel();
+	BindMouseScroll();
 }
 
 
@@ -186,6 +188,12 @@ void AMainPlayerController::UnbindPause() {
 	OnPause.Clear();
 }
 
+void AMainPlayerController::BindMouseScroll_Implementation(){}
+
+void AMainPlayerController::UnbindMouseScroll(){
+	OnMouseScroll.Clear();
+}
+
 void AMainPlayerController::BindOpenSelectionWheel_Implementation(){}
 
 void AMainPlayerController::UnbindOpenSelectionWheel_Implementation(){}
@@ -197,8 +205,7 @@ void AMainPlayerController::UnbindAll(){
 	UnbindGlitch();
 	UnbindConstruction();
 	UnbindOpenSelectionWheel();
-	OnMouseScroll.Clear();
-	// unbind rotate objects
+	UnbindMouseScroll();
 }
 
 void AMainPlayerController::PauseGame_Implementation(){
