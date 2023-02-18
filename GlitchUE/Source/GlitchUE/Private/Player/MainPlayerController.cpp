@@ -33,6 +33,11 @@ void AMainPlayerController::SelectNewGameplayMode(const EGameplayMode NewGamepla
 			BindConstructionMode();
 			MainPlayer->CameraAim();
 			break;
+
+		case EGameplayMode::Destruction:
+			BindNormalMode();
+			MainPlayer->CameraAimReverse();
+			break;
 	}
 }
 
