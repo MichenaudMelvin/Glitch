@@ -75,7 +75,7 @@ protected:
 	void CameraAimFinished();
 	virtual void CameraAimFinished_Implementation();
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FVector AimOffset = FVector(75, 75, 60);
 
 	FTimeline CameraAimTransition;
@@ -173,7 +173,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	APreviewPlacableActor* PreviewPlacableActor;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Health")
 	UHealthComponent* HealthComp;
 
 	FVector PlacableActorLocation;
@@ -193,8 +193,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Construction")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	int Golds = 0;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
+	UPlacableActorData* CurrentPlacableActorData;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
@@ -204,7 +207,7 @@ public:
 protected:
 	#pragma region Interaction
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Interaction")
 	float InteractionLength = 1000.0f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
@@ -239,10 +242,10 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void LaunchMark();
 
-	UPROPERTY(EditAnywhere, Category = "Sound")
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundBase* TPStart;
 
-	UPROPERTY(EditAnywhere, Category = "Sound")
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundBase* TPFinal;
 
 	FQuat FindMarkLaunchRotation();
@@ -262,7 +265,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
 	AMark* GetMark() const { return Mark; }
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Mark")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
 	float GlitchDashValue;
 
 	void SetMark(AMark* NewMark);

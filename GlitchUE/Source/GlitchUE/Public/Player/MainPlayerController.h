@@ -259,6 +259,13 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindPause();
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Delegates")
+	void BindMouseScroll();
+	virtual void BindMouseScroll_Implementation();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
+	void UnbindMouseScroll();
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
 	void BindOpenSelectionWheel();
 	void BindOpenSelectionWheel_Implementation();

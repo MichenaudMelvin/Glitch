@@ -50,6 +50,11 @@ void APreviewPlacableActor::SetMesh() {
 	}
 }
 
+void APreviewPlacableActor::SetData(UPlacableActorData* NewData){
+	CurrentData = NewData;
+	SetMesh();
+}
+
 void APreviewPlacableActor::SetInConstructionZone(bool bNewValue) {
 	bInConstructionZone = bNewValue;
 }
