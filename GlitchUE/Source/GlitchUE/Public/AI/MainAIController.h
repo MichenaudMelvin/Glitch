@@ -14,25 +14,28 @@ class GLITCHUE_API AMainAIController : public AAIController{
 public:
 	AMainAIController(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "AIPerception")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "AIPerception")
 	float AISpawnGlitchValue;
 
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UBehaviorTree* BehaviorTree;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float StunTime = 5.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float Damages = 100;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float InvestigatingTime = 0.2f;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UAIPerceptionComponent* AIPerception;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UBlackboardData* BlackboardData;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "AIPerception")

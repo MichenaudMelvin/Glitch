@@ -2,6 +2,8 @@
 
 
 #include "AI/MainAICharacter.h"
+
+#include "AI/UI/SightIndication.h"
 #include "AI/Waves/WaveManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -12,6 +14,21 @@ AMainAICharacter::AMainAICharacter(){
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("AIHealth"));
+
+	SightComp = CreateDefaultSubobject<USightComponent>(TEXT("SightComponent"));
+	SightComp->SetupAttachment(GetMesh());
+
+	SightComp->SetRelativeLocation(FVector(0, 0, 160));
+	SightComp->SetRelativeRotation(FRotator(0, 90, 0));
+	
+	SightWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("SightWidget"));
+	SightWidget->SetupAttachment(GetMesh());
+	
+	SightWidget->SetRelativeLocation(FVector(0, 0, 200));
+	SightWidget->SetRelativeRotation(FRotator(0, 90, 0));
+
+	SightWidget->SetWorldScale3D(FVector(0.25,0.05,0.05));
+	SightWidget->SetDrawSize(FVector2D(1920, 1080));
 }
 
 void AMainAICharacter::BeginPlay(){
@@ -22,6 +39,10 @@ void AMainAICharacter::BeginPlay(){
 	Blackboard->SetValueAsVector(FName(TEXT("OriginalPosition")), GetActorLocation());
 
 	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
+
+	USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
+	SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
+	SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
 }
 
 void AMainAICharacter::InitializeAI(FTransform NewTransform, UBlackboardData* NewBlackBoard){

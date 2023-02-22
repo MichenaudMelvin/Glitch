@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Services/BTService_BlackboardBase.h"
-#include "UUpdateValue.generated.h"
+#include "UpdateValue.generated.h"
 
 UENUM(BlueprintType)
 enum class EUpdateMethod : uint8{

@@ -72,7 +72,7 @@ AMainPlayer::AMainPlayer(){
 
 	#pragma endregion
 
-	static  ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
 	check(FX.Succeeded());
 
 	GlichDashFXReference = FX.Object;

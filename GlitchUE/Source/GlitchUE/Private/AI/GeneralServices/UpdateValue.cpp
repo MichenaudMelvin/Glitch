@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/GeneralServices/UUpdateValue.h"
+#include "AI/GeneralServices/UpdateValue.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Float.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Int.h"
@@ -28,8 +28,6 @@ void UUpdateValue::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 	if (ValueToUpdate.SelectedKeyType == UBlackboardKeyType_Int::StaticClass()){
 		int IntValue = CurrentBlackboard->GetValue<UBlackboardKeyType_Int>(ValueToUpdate.GetSelectedKeyID());
 
-		UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), IntValue);
-
 		switch (UpdateMethod){
 		case EUpdateMethod::Increment:
 			IntValue++;
@@ -46,8 +44,6 @@ void UUpdateValue::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 	else if(ValueToUpdate.SelectedKeyType == UBlackboardKeyType_Float::StaticClass()){
 		float FloatValue = CurrentBlackboard->GetValue<UBlackboardKeyType_Float>(ValueToUpdate.GetSelectedKeyID());
 		
-		UE_LOG(LogTemp, Warning, TEXT("The float value is: %f"), FloatValue);
-
 		switch (UpdateMethod){
 		case EUpdateMethod::Increment:
 			FloatValue++;
@@ -58,8 +54,5 @@ void UUpdateValue::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 		}
 
 		CurrentBlackboard->SetValue<UBlackboardKeyType_Float>(ValueToUpdate.GetSelectedKeyID(), FloatValue);
-	} else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("autre"));
 	}
 }
