@@ -17,6 +17,16 @@ USetNearestCatalyseur::USetNearestCatalyseur(){
 	NearestCatalyseurLocation.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(USetNearestCatalyseur, NearestCatalyseurLocation));
 }
 
+void USetNearestCatalyseur::InitializeFromAsset(UBehaviorTree& Asset){
+	Super::InitializeFromAsset(Asset);
+
+	const UBlackboardData* BBAsset = GetBlackboardAsset();
+	if (ensure(BBAsset)){
+		NexusLocation.ResolveSelectedKey(*BBAsset);
+		NearestCatalyseurLocation.ResolveSelectedKey(*BBAsset);
+	}
+}
+
 void USetNearestCatalyseur::OnSearchStart(FBehaviorTreeSearchData& SearchData){
 	Super::OnSearchStart(SearchData);
 	OwnerPawn = SearchData.OwnerComp.GetAIOwner()->GetCharacter();
@@ -26,11 +36,6 @@ void USetNearestCatalyseur::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-	
-	if(!NexusLocation.IsSet() || !NearestCatalyseurLocation.IsSet()){
-		NexusLocation.ResolveSelectedKey(*CurrentBlackboard->GetBlackboardAsset());
-		NearestCatalyseurLocation.ResolveSelectedKey(*CurrentBlackboard->GetBlackboardAsset());
-	}
 	
 	const TArray<ACatalyseur*> CatalyseurList; Cast<AFocusCatalyseurController>(OwnerPawn->GetController())->GetCatalyseurList();
 	const ACatalyseur* NearestCatalyseur = SetFirstCatalyseurToCheck(CatalyseurList);

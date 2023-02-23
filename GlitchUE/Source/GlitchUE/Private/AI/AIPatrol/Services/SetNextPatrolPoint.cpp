@@ -17,6 +17,16 @@ USetNextPatrolPoint::USetNextPatrolPoint(){
 	CurrentPatrolPointIndex.AddIntFilter(this, GET_MEMBER_NAME_CHECKED(USetNextPatrolPoint, PatrolPointKey));
 }
 
+void USetNextPatrolPoint::InitializeFromAsset(UBehaviorTree& Asset){
+	Super::InitializeFromAsset(Asset);
+
+	const UBlackboardData* BBAsset = GetBlackboardAsset();
+	if (ensure(BBAsset)){
+		PatrolPointKey.ResolveSelectedKey(*BBAsset);
+		CurrentPatrolPointIndex.ResolveSelectedKey(*BBAsset);
+	}
+}
+
 void USetNextPatrolPoint::OnSearchStart(FBehaviorTreeSearchData& SearchData){
 	Super::OnSearchStart(SearchData);
 	PatrolPointList = Cast<APatrolCharacter>(SearchData.OwnerComp.GetAIOwner()->GetCharacter())->GetPatrolPointList();
@@ -26,11 +36,6 @@ void USetNextPatrolPoint::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-	
-	if(!PatrolPointKey.IsSet() || !CurrentPatrolPointIndex.IsSet()){
-		PatrolPointKey.ResolveSelectedKey(*CurrentBlackboard->GetBlackboardAsset());
-		CurrentPatrolPointIndex.ResolveSelectedKey(*CurrentBlackboard->GetBlackboardAsset());
-	}
 
 	int Index = CurrentBlackboard->GetValue<UBlackboardKeyType_Int>(CurrentPatrolPointIndex.GetSelectedKeyID());
 

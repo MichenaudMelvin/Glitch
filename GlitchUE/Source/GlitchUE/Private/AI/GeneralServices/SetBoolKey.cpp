@@ -12,14 +12,19 @@ USetBoolKey::USetBoolKey(){
 	BoolKey.AddBoolFilter(this, GET_MEMBER_NAME_CHECKED(USetBoolKey, BoolKey));
 }
 
+void USetBoolKey::InitializeFromAsset(UBehaviorTree& Asset){
+	Super::InitializeFromAsset(Asset);
+
+	const UBlackboardData* BBAsset = GetBlackboardAsset();
+	if (ensure(BBAsset)){
+		BoolKey.ResolveSelectedKey(*BBAsset);
+	}
+}
+
 void USetBoolKey::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds){
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-	
-	if(!BoolKey.IsSet()){
-		BoolKey.ResolveSelectedKey(*CurrentBlackboard->GetBlackboardAsset());
-	}
 	
 	CurrentBlackboard->SetValue<UBlackboardKeyType_Bool>(BoolKey.GetSelectedKeyID(), bBoolValue);
 }

@@ -4,18 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "PrintTask.generated.h"
+#include "AttackTarget.generated.h"
 
 UCLASS()
-class GLITCHUE_API UPrintTask : public UBTTaskNode{
+class GLITCHUE_API UAttackTarget : public UBTTaskNode{
 	GENERATED_BODY()
 
 public:
-	UPrintTask();
+	UAttackTarget();
 
 private:
-	UPROPERTY(EditAnywhere, Category = "Print")
-	FBlackboardKeySelector VariableToPrint;
+	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	FBlackboardKeySelector TargetToAttack;
 };

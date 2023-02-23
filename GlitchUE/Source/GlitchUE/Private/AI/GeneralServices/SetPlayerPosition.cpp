@@ -13,16 +13,21 @@ USetPlayerPosition::USetPlayerPosition(){
 	PlayerPosition.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(USetPlayerPosition, PlayerPosition));
 }
 
+void USetPlayerPosition::InitializeFromAsset(UBehaviorTree& Asset){
+	Super::InitializeFromAsset(Asset);
+
+	const UBlackboardData* BBAsset = GetBlackboardAsset();
+	if (ensure(BBAsset)){
+		Player.ResolveSelectedKey(*BBAsset);
+		PlayerPosition.ResolveSelectedKey(*BBAsset);
+	}
+}
+
 void USetPlayerPosition::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds){
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
 
-	if(!Player.IsSet() || !PlayerPosition.IsSet()){
-		Player.ResolveSelectedKey(*CurrentBlackboard->GetBlackboardAsset());
-		PlayerPosition.ResolveSelectedKey(*CurrentBlackboard->GetBlackboardAsset());
-	}
-	
 	const AActor* PlayerReference = Cast<AActor>(CurrentBlackboard->GetValue<UBlackboardKeyType_Object>(Player.GetSelectedKeyID()));
 
 	CurrentBlackboard->SetValue<UBlackboardKeyType_Vector>(PlayerPosition.GetSelectedKeyID(), PlayerReference->GetActorLocation());

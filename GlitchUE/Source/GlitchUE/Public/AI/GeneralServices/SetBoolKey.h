@@ -14,6 +14,8 @@ public:
 	USetBoolKey();
 
 private:
+	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
+	
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere, Category = "Bool")

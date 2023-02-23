@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 	
-#include "AI/GeneralTaks/BTTask_LookAtActor.h"
+#include "AI/GeneralTasks/BTTask_LookAtActor.h"
 #include "AIController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"

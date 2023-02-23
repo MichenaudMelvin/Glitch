@@ -14,6 +14,15 @@ USetNexusLocation::USetNexusLocation(){
 	NexusLocation.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(USetNexusLocation, NexusLocation));
 }
 
+void USetNexusLocation::InitializeFromAsset(UBehaviorTree& Asset){
+	Super::InitializeFromAsset(Asset);
+
+	const UBlackboardData* BBAsset = GetBlackboardAsset();
+	if (ensure(BBAsset)){
+		NexusLocation.ResolveSelectedKey(*BBAsset);
+	}
+}
+
 void USetNexusLocation::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds){
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 

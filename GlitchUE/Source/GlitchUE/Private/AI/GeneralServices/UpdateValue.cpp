@@ -14,15 +14,19 @@ UUpdateValue::UUpdateValue(){
 	ValueToUpdate.AddFloatFilter(this, GET_MEMBER_NAME_CHECKED(UUpdateValue, ValueToUpdate));
 }
 
+void UUpdateValue::InitializeFromAsset(UBehaviorTree& Asset){
+	Super::InitializeFromAsset(Asset);
+
+	const UBlackboardData* BBAsset = GetBlackboardAsset();
+	if (ensure(BBAsset)){
+		ValueToUpdate.ResolveSelectedKey(*BBAsset);
+	}
+}
+
 void UUpdateValue::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds){
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 	
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-
-	// faut le faire chai pas pourquoi
-	if(!ValueToUpdate.IsSet()){
-		ValueToUpdate.ResolveSelectedKey(*CurrentBlackboard->GetBlackboardAsset());
-	}
 	
 	// si la blackboard key est un int
 	if (ValueToUpdate.SelectedKeyType == UBlackboardKeyType_Int::StaticClass()){

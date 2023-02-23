@@ -49,7 +49,7 @@ public:
 	FKOnHealthNull OnHealthNull;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Damages")
-	bool GetCanTakeDamages();
+	const bool GetCanTakeDamages();
 
 	UFUNCTION(BlueprintCallable, Category = "Damages")
 	void SetCanTakeDamages(bool bValue);

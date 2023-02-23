@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/GeneralTaks/PrintTask.h"
+#include "AI/GeneralTasks/PrintTask.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Class.h"
@@ -16,6 +16,15 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 
 UPrintTask::UPrintTask(){}
+
+void UPrintTask::InitializeFromAsset(UBehaviorTree& Asset){
+	Super::InitializeFromAsset(Asset);
+
+	const UBlackboardData* BBAsset = GetBlackboardAsset();
+	if (ensure(BBAsset)){
+		VariableToPrint.ResolveSelectedKey(*BBAsset);
+	}
+}
 
 EBTNodeResult::Type UPrintTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory){
 	const UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
@@ -57,7 +66,7 @@ EBTNodeResult::Type UPrintTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, u
 
 	else if(VariableToPrint.SelectedKeyType == UBlackboardKeyType_Object::StaticClass()){
 		const UObject* ObjectToPrint = CurrentBlackboard->GetValue<UBlackboardKeyType_Object>(VariableToPrint.GetSelectedKeyID());
-		UE_LOG(LogTemp, Warning, TEXT("The object value is %p"), ObjectToPrint);
+		UE_LOG(LogTemp, Warning, TEXT("The object value is %s"), *ObjectToPrint->GetName());
 	}
 
 	else if(VariableToPrint.SelectedKeyType == UBlackboardKeyType_Rotator::StaticClass()){

@@ -26,7 +26,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float StunTime = 5.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly)
 	float Damages = 100;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
@@ -44,4 +44,8 @@ protected:
 
 private:
 	void SetPlayerValues(AActor* Player);
+
+public:
+	UFUNCTION(BlueprintCallable)
+	const float GetDamages();
 };
