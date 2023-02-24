@@ -60,6 +60,7 @@ protected:
 	
 	bool bIsPlayerInSight = false;
 
+public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsPlayerInSight();
 };

@@ -25,7 +25,7 @@ EBTNodeResult::Type UStunAI::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 	const UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
 
 	RemainingWaitTime = CurrentBlackboard->GetValue<UBlackboardKeyType_Float>(StunTime.GetSelectedKeyID());
-	
+
 	return EBTNodeResult::InProgress;
 }
 
