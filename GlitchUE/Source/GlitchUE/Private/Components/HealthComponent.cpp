@@ -35,7 +35,7 @@ void UHealthComponent::AddHealth(float HealthAmount){
 	// à faire
 }
 
-bool UHealthComponent::GetCanTakeDamages(){
+const bool UHealthComponent::GetCanTakeDamages(){
 	return bCanTakeDamages;
 }
 

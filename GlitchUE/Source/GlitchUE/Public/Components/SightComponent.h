@@ -41,12 +41,14 @@ protected:
 
 	FTimerHandle LooseSightTimer;
 
+public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FOnSightPlayer OnSightPlayer;
 	
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FOnLooseSightPlayer OnLooseSightPlayer;
 
+protected:
 	UFUNCTION()
 	void EnterSight(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -58,6 +60,7 @@ protected:
 	
 	bool bIsPlayerInSight = false;
 
+public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsPlayerInSight();
 };

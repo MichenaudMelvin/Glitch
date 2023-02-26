@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "MainAIController.h"
 #include "Components/HealthComponent.h"
+#include "Components/SightComponent.h"
+#include "Components/WidgetComponent.h"
 #include "PlacableObject/Trap.h"
 #include "MainAICharacter.generated.h"
 
@@ -26,12 +28,19 @@ protected:
 
 	AMainAIController* AIController;
 
+	UPROPERTY(BlueprintReadWrite)
 	UBlackboardComponent* Blackboard;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UHealthComponent* HealthComp;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	USightComponent* SightComp;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	UWidgetComponent* SightWidget;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float GlitchUpgradeDuration;
 	
 	UFUNCTION()

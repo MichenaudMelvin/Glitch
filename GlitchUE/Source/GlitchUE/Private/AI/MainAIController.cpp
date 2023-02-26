@@ -57,3 +57,7 @@ void AMainAIController::SetPlayerValues(AActor* Player) {
 	//Blackboard->SetValueAsObject(FName(TEXT("Player")), Player);
 	//Blackboard->SetValueAsVector(FName(TEXT("PlayerLocation")), Player->GetActorLocation());
 }
+
+const float AMainAIController::GetDamages(){
+	return Damages;
+}
