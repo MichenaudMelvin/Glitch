@@ -5,12 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Player/MainPlayer.h"
+#include "Components/InteractableComponent.h"
 #include "Mark.generated.h"
 
 UCLASS()
-class GLITCHUE_API AMark : public AActor
-{
+class GLITCHUE_API AMark : public AActor{
 	GENERATED_BODY()
 	
 public:	
@@ -26,21 +25,27 @@ protected:
 
 	FVector OriginalLocation;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
+	UInteractableComponent* InteractableComp;
+
+	UFUNCTION()
+	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
 #pragma region Projectile
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
 	UProjectileMovementComponent* ProjectileMovement;	
 
-	void StartProjectile();
+	void StartProjectile() const;
 
-	void StopProjectile();
+	void StopProjectile() const;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Projectile")
 	FVector GetTPLocation();
 
 protected:
-	bool LocationTrace(float UpTraceValue, FVector& outImpactPoint);
+	bool LocationTrace(const float UpTraceValue, FVector& OutImpactPoint);
 
 	FVector LaunchLocation;
 
@@ -51,7 +56,7 @@ public:
 	bool bIsMarkPlaced = false;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Projectile")
-	bool GetIsMarkPlaced();
+	bool GetIsMarkPlaced() const;
 
 #pragma endregion
 
@@ -64,14 +69,14 @@ public:
 	void ResetMark();
 
 	UFUNCTION(BlueprintCallable, Category = "MarkMovement")
-	void Launch(FTransform StartTransform);
+	void Launch(const FTransform StartTransform);
 
 #pragma endregion
 
 #pragma region Distance
 
 protected:
-	float GetDistanceToLaunchPoint();
+	float GetDistanceToLaunchPoint() const;
 
 	void CheckDistance();
 

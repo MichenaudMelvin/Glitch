@@ -10,6 +10,13 @@
 
 class AMainAICharacter;
 
+UENUM()
+enum class FFocusMethod : uint8{
+	FirstTarget,
+	MidTarget,
+	LastTarget,
+};
+
 UCLASS(Abstract)
 class GLITCHUE_API ATurret : public APlacableActor{
 	GENERATED_BODY()
@@ -28,17 +35,14 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
 	USkeletalMeshComponent* TurretHead;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Vision")
-	USphereComponent* TurretRadius;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Vision")
+	USphereComponent* TurretVision;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	float Damages;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	float FireRate;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	float Radius;
 
 	UPROPERTY(BlueprintReadWrite)
 	AActor* CurrentTarget;
@@ -67,31 +71,60 @@ protected:
 
 	virtual void SetData(UPlacableActorData* NewData) override;
 
+	bool CanSeeThroughWalls = false;
+
+	FFocusMethod FocusMethod;
+
+	virtual void Attack_Implementation() override;
+
 	UFUNCTION(BlueprintCallable)
 	void CanAttack();
 
-	UPROPERTY(BlueprintReadWrite)
-	FTimerHandle CanAttackTimer;
+	/// <summary>
+	/// Execute when the turret finish the attack (can restart an attack or call FinishAttacking)
+	/// </summary>
+	UFUNCTION(BlueprintCallable)
+	void EndAttack();
+
+	/// <summary>
+	/// Execute if the turret cannot attack anymore (no ai in its range)
+	/// </summary>
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void FinishAttacking();
+	virtual void FinishAttacking_Implementation();
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void Attack();
-	virtual void Attack_Implementation();
+	void Shoot();
+	virtual void Shoot_Implementation();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	AActor* GetFirstAI();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AActor* GetMidAI();
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AActor* GetLastAI();
+
+	UFUNCTION(BlueprintCallable)
+	void SelectTarget();
+
+	TArray<AActor*> GetSortedAIList() const;
+
+	UPROPERTY(BlueprintReadOnly)
+	TSet<AActor*> HittedAIList;
+
 	FRotator AILookAtRotation;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool DoesAIListContainSomething();
+	bool DoesAIListContainSomething() const;
+	
+	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	
+	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FTimerHandle CanAttackTimer;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void BeginOverlap(AActor* OverlappedActor);
-	void BeginOverlap_Implementation(AActor* OverlappedActor);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void EndOverlap(AActor* OverlappedActor);
-	void EndOverlap_Implementation(AActor* OverlappedActor);
-
-	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
+	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial) override;
 };

@@ -16,6 +16,8 @@ AMark::AMark() {
 	MarkMesh->SetStaticMesh(Mesh.Object);
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+
+	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("MarkInteraction"));
 	
 	MarkMesh->OnComponentHit.AddDynamic(this, &AMark::OnCompHit);
 }
@@ -27,33 +29,41 @@ void AMark::BeginPlay() {
 
 	OriginalLocation = GetActorLocation();
 	
+	// Check pour le mode simulation
 	if (IsValid(UGameplayStatics::GetPlayerCharacter(this, 0))){
 		Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 		Player->SetMark(this);
 	}
+
+	InteractableComp->AddInteractable(MarkMesh);
+	InteractableComp->OnInteract.AddDynamic(this, &AMark::Interact);
 }
 
-void AMark::StartProjectile() {
-	FVector newVelocity = FVector::ZeroVector;
-	newVelocity.X = ProjectileMovement->MaxSpeed;
-	ProjectileMovement->SetVelocityInLocalSpace(newVelocity);
+void AMark::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
+	ResetMark();
 }
 
-void AMark::StopProjectile() {
+void AMark::StartProjectile() const{
+	FVector NewVelocity = FVector::ZeroVector;
+	NewVelocity.X = ProjectileMovement->MaxSpeed;
+	ProjectileMovement->SetVelocityInLocalSpace(NewVelocity);
+}
+
+void AMark::StopProjectile() const{
 	ProjectileMovement->SetVelocityInLocalSpace(FVector::ZeroVector);
 }
 
 FVector AMark::GetTPLocation() {
-	float PlayerHalffHeight = Player->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+	const float PlayerHalfHeight = Player->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	FVector ImpactPoint;
 
 	//line trace sur le sol
-	if (LocationTrace(-PlayerHalffHeight, ImpactPoint)) {
-		ImpactPoint.Z += PlayerHalffHeight;
+	if (LocationTrace(-PlayerHalfHeight, ImpactPoint)) {
+		ImpactPoint.Z += PlayerHalfHeight;
 	}
 	//line trace sur le plafond
-	else if (LocationTrace(PlayerHalffHeight, ImpactPoint)) {
-		ImpactPoint.Z -= PlayerHalffHeight;
+	else if (LocationTrace(PlayerHalfHeight, ImpactPoint)) {
+		ImpactPoint.Z -= PlayerHalfHeight;
 	}
 	else {
 		ImpactPoint = GetActorLocation();
@@ -63,8 +73,8 @@ FVector AMark::GetTPLocation() {
 	return ImpactPoint;
 }
 
-bool AMark::LocationTrace(float UpTraceValue, FVector& outImpactPoint) {
-	FHitResult hitResult;
+bool AMark::LocationTrace(const float UpTraceValue, FVector& OutImpactPoint) {
+	FHitResult HitResult;
 
 	FVector TraceEnd = GetActorLocation();
 	TraceEnd.Z += UpTraceValue;
@@ -72,8 +82,8 @@ bool AMark::LocationTrace(float UpTraceValue, FVector& outImpactPoint) {
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 
-	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), GetActorLocation(), TraceEnd, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, hitResult, true, FLinearColor::Red, FLinearColor::Green, 0);
-	outImpactPoint = hitResult.ImpactPoint;
+	const bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), GetActorLocation(), TraceEnd, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true, FLinearColor::Red, FLinearColor::Green, 0);
+	OutImpactPoint = HitResult.ImpactPoint;
 
 	return bHit;
 }
@@ -82,7 +92,7 @@ void AMark::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimiti
 	PlaceMark();
 }
 
-bool AMark::GetIsMarkPlaced(){
+bool AMark::GetIsMarkPlaced() const{
 	return bIsMarkPlaced;
 }
 
@@ -102,7 +112,7 @@ void AMark::ResetMark(){
 	// reset beam end
 }
 
-void AMark::Launch(FTransform StartTransform){
+void AMark::Launch(const FTransform StartTransform){
 	SetActorTransform(StartTransform);
 	LaunchLocation = StartTransform.GetLocation();
 	StartProjectile();
@@ -110,7 +120,7 @@ void AMark::Launch(FTransform StartTransform){
 	//ajouter beam timer
 }
 
-float AMark::GetDistanceToLaunchPoint() {
+float AMark::GetDistanceToLaunchPoint() const{
 	return FVector::Dist(LaunchLocation, GetActorLocation());
 }
 

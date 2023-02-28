@@ -14,31 +14,31 @@ AConstructionZone::AConstructionZone() {
 
 	BoxComp->SetMobility(EComponentMobility::Static);
 
-	InitialState = EState::CPF_Desactivated;
+	InitialState = EState::Desactivated;
 }
 
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
 
 	switch (InitialState){
-	case EState::CPF_Activated:
+	case EState::Activated:
 		ActivableComp->ActivateObject();
 		break;
-	case EState::CPF_Desactivated:
+	case EState::Desactivated:
 		ActivableComp->DesactivateObject();
 		break;
 	}
 }
 
 void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
-	UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
+	const UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
 
 	FVector BoxExtent = UKismetMathLibrary::Vector_SnappedToGrid(BoxComp->GetUnscaledBoxExtent(), 100);
 	BoxExtent.Z = 100;
 	Cast<UBoxComponent>(GetCollisionComponent())->SetBoxExtent(BoxExtent);
 }
 
-void AConstructionZone::ToggleActivation(bool bActivate){
+void AConstructionZone::ToggleActivation(const bool bActivate){
 	if (bActivate) {
 		ActivableComp->ActivateObject();
 	}
@@ -55,6 +55,15 @@ void AConstructionZone::ActiveObjectif(){
 
 void AConstructionZone::DesactivateObjectif(){
 	ToggleActivation(false);
+}
+
+void AConstructionZone::OccupiedSlot_Implementation(APlacableActor* NewUnit){
+	UnitInZone = NewUnit;
+	UnitInZone->SetConstructionZone(this);
+}
+
+void AConstructionZone::UnoccupiedSlot_Implementation(){
+	UnitInZone = nullptr;
 }
 
 UActivableComponent* AConstructionZone::GetActivableComp(){

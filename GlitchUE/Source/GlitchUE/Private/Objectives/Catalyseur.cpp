@@ -5,6 +5,11 @@
 #include "AI/Waves/Spawner.h"
 #include "Kismet/GameplayStatics.h"
 
+ACatalyseur::ACatalyseur() {
+	TECHMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TECHMesh"));
+	TECHMesh->SetCanEverAffectNavigation(false);
+}
+
 void ACatalyseur::BeginPlay() {
 	Super::BeginPlay();
 
@@ -12,15 +17,6 @@ void ACatalyseur::BeginPlay() {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusTemp);
 
 	Nexus = Cast<ANexus>(NexusTemp[0]);
-
-	if (SpawnerList.Num() == 0) {
-		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s N'AFFECTE AUCUN SPAWNER"), *this->GetName());
-	}
-
-	// je sais pas si c'est obligatoire pour un catalyseur
-	//if (ConstructionZoneList.Num() == 0) {
-		//UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
-	//}
 
 	if (StateAtWave.EnableAtWave == 0) {
 		UE_LOG(LogTemp, Fatal, TEXT("LE CATALYSEUR %s NE COMMENCE A AUCUNE VAGUE"), *this->GetName());
@@ -32,13 +28,9 @@ void ACatalyseur::BeginPlay() {
 }
 
 void ACatalyseur::ActiveObjectif(){
-	if (Nexus->GetActivableComp()->GetState() == EState::CPF_Activated) {
+	if (Nexus->GetActivableComp()->IsActivated()) {
 		for (int i = 0; i < ConstructionZoneList.Num(); i++) {
 			ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
-		}
-
-		for (int i = 0; i < SpawnerList.Num(); i++) {
-			SpawnerList[i]->GetActivableComp()->ActivateObject();
 		}
 	}
 }
@@ -47,16 +39,12 @@ void ACatalyseur::DesactivateObjectif() {
 	for (int i = 0; i < ConstructionZoneList.Num(); i++) {
 		ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
 	}
-
-	for (int i = 0; i < SpawnerList.Num(); i++){
-		SpawnerList[i]->GetActivableComp()->DesactivateObject();
-	}
 }
 
 void ACatalyseur::HealthNull(){
 	ActivableComp->DesactivateObject();
 }
 
-FStateAtWave ACatalyseur::GetStateAtWave(){
+FStateAtWave ACatalyseur::GetStateAtWave() const{
 	return StateAtWave;
 }

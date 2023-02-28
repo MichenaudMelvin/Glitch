@@ -18,11 +18,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnDesactivated);
 UENUM(BlueprintType)
 enum class EState : uint8 {
 
-	CPF_Activated
-	UMETA(DisplayName = "Activated"),
+	Activated,
 
-	CPF_Desactivated
-	UMETA(DisplayName = "Desactivated"),
+	Desactivated,
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -53,4 +51,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Activable")
 	void DesactivateObject();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsActivated() const;
 };

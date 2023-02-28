@@ -13,3 +13,7 @@ void UMapIconComponent::BeginPlay(){
 	
 }
 
+void UMapIconComponent::UpdateIconLocation() {
+	GetOwner()->GetActorLocation();
+}
+

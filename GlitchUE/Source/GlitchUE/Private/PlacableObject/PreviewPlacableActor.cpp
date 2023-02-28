@@ -20,15 +20,17 @@ void APreviewPlacableActor::BeginPlay(){
 	Super::BeginPlay();
 
 	OriginalLocation = GetActorLocation();
+
+	NavModifierComp->DestroyComponent();
 }
 
 bool APreviewPlacableActor::CheckSpotSpace() {
 	FVector TraceLocation = GetActorLocation();
 	TraceLocation.Z += 50;
 
-	FVector HalfSize = FVector(49, 49, 40);
+	const FVector HalfSize = FVector(49, 49, 40);
 
-	TArray<AActor*> ActorsToIgnore;
+	const TArray<AActor*> ActorsToIgnore;
 
 	FHitResult Hit;
 
@@ -48,6 +50,11 @@ void APreviewPlacableActor::SetMesh() {
 	}
 }
 
+void APreviewPlacableActor::SetData(UPlacableActorData* NewData){
+	CurrentData = NewData;
+	SetMesh();
+}
+
 void APreviewPlacableActor::SetInConstructionZone(bool bNewValue) {
 	bInConstructionZone = bNewValue;
 }
@@ -56,6 +63,23 @@ bool APreviewPlacableActor::CanBePlaced() {
 	return CheckSpotSpace() && bInConstructionZone;
 }
 
+void APreviewPlacableActor::ChooseColor() {
+	if (CanBePlaced()) {
+		BaseMesh->SetVectorParameterValueOnMaterials("Color", FVector(0, 0.247059, 1));
+	} else {
+		BaseMesh->SetVectorParameterValueOnMaterials("Color", FVector(1, 0, 0));
+	}
+
+}
+
 void APreviewPlacableActor::ResetActor() {
 	SetActorLocation(OriginalLocation);
+}
+
+FVector APreviewPlacableActor::GetOriginalLocation(){
+	return OriginalLocation;
+}
+
+UStaticMeshComponent* APreviewPlacableActor::GetPreviewMesh() const{
+	return BaseMesh;
 }

@@ -4,30 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "AI/Waves/WaveManager.h"
 #include "Player/MainPlayer.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
 
+class UWorldSave;
+
 UENUM(BlueprintType)
 enum class EPhases : uint8 {
 
-	Infiltration
-	UMETA(DisplayName = "Infiltration"),
+	Infiltration,
 
-	TowerDefense
-	UMETA(DisplayName = "TowerDefense"),
+	TowerDefense,
 };
 
 UENUM(BlueprintType)
 enum class ELevelState : uint8 {
 
-	Normal
-	UMETA(DisplayName = "Normal"),
+	Normal,
 
-	Alerted
-	UMETA(DisplayName = "Alerted"),
+	Alerted,
 };
 
 UENUM(BlueprintType)
@@ -40,6 +37,14 @@ namespace EGlitchEvent {
 	};
 }
 
+UENUM(BlueprintType)
+enum class ELevelOptions : uint8{
+
+	WithoutSave,
+
+	FastLoad,
+};
+
 UCLASS(minimalapi)
 class AGlitchUEGameMode : public AGameModeBase{
 	GENERATED_BODY()
@@ -49,6 +54,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTime) override;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
 	AMainPlayer* MainPlayer;
@@ -59,6 +65,24 @@ protected:
 
 	AWaveManager* WaveManager;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Saves")
+	UWorldSave* WorldSave;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Save(UAbstractSave* SaveObject);
+	void Save_Implementation(UAbstractSave* SaveObject);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UAbstractSave* Load(TSubclassOf<UAbstractSave> SaveClass, int UserIndex);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void FastSave();
+	void FastSave_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void FastLoad();
+	void FastLoad_Implementation();
+	
 	float GlitchValue;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
@@ -69,16 +93,16 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Phases")
-	EPhases GetPhases();
+	EPhases GetPhases() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Phases")
 	void SetNewPhase(EPhases NewPhase);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelState")
-	ELevelState GetLevelState();
+	ELevelState GetLevelState() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "LevelState")
-	void SetLevelState(ELevelState newState);
+	void SetLevelState(ELevelState NewState);
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
 	void AddGlitch(float AddedValue);
@@ -87,34 +111,65 @@ public:
 	float GetCurrentGlitchValue();
 
 protected:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UMaterialParameterCollection* AlertedMaterial;
+
+private:
+	FTimeline LevelStateTimeline;
+
+	UCurveLinearColor* ColorCurve;
+
+	bool RequestNormalState = false;
+
+	ETimelineDirection::Type LevelStateTimelineDirection;
+
+	ETimelineDirection::Type BlinkingTimelineDirection;
+
+	UFUNCTION()
+	void UpdateLevelColor(FLinearColor NewColor);
+
+	UFUNCTION()
+	void AlertLevelFinished();
+
+	FTimeline BlinkingTimeline;
+
+	UCurveLinearColor* BlinkingCurve;
+
+	UFUNCTION()
+	void BlinkingFinished();
+
+protected:
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradeAlliesUnits();
+	void GlitchUpgradeAlliesUnits() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradeEnemiesAI();
+	void GlitchUpgradeEnemiesAI() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchUpgradePlayer();
+	void GlitchUpgradePlayer() const;
 
 	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchRandomFX();
+	void GlitchRandomFX() const;
 
-	void CheckAvailableGlitchEvents();
+	void CheckAvailableGlitchEvents() const;
 
 #pragma region ConsoleCommands
 
 private:
 	UFUNCTION(Exec)
-	void SetGlobalTimeDilation(float TimeDilation);
+	void SetGlobalTimeDilation(float TimeDilation) const;
 
 	UFUNCTION(Exec)
-	void NextWave();
+	void NextWave() const;
 
 	UFUNCTION(Exec)
-	void GoToWave(int NewWave);
+	void GoToWave(int NewWave) const;
 	
 	UFUNCTION(Exec)
-	void CrashGame();
+	void CrashGame() const;
+
+	UFUNCTION(Exec)
+	void ToggleSpectatorMode() const;
 		
 #pragma endregion
 

@@ -11,7 +11,7 @@ void UHealthComponent::BeginPlay(){
 	CurrentHealth = MaxHealth;
 }
 
-void UHealthComponent::TakeDamages(float DamagesAmount){
+void UHealthComponent::TakeDamages(const float DamagesAmount){
 	if(!bCanTakeDamages){
 		return;
 	}
@@ -35,7 +35,7 @@ void UHealthComponent::AddHealth(float HealthAmount){
 	// à faire
 }
 
-bool UHealthComponent::GetCanTakeDamages(){
+const bool UHealthComponent::GetCanTakeDamages(){
 	return bCanTakeDamages;
 }
 

@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Player/MainPlayer.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -9,15 +8,18 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Engine/EngineTypes.h"
-#include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GlitchUEGameMode.h"
+#include "PopcornFXAttributeFunctions.h"
+#include "PopcornFXEmitterComponent.h"
+#include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
+#include "Sound/SoundBase.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -59,14 +61,21 @@ AMainPlayer::AMainPlayer(){
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
+	GetMesh()->SetReceivesDecals(false);
+
 	#pragma region Timelines
 
-	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/ZeroToOneCurve"));
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
 
 	#pragma endregion
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
+	check(FX.Succeeded());
+
+	GlichDashFXReference = FX.Object;
 }
 
 
@@ -75,11 +84,11 @@ void AMainPlayer::BeginPlay(){
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 
-	FOnTimelineFloat UpdateEvent = FOnTimelineFloat();
-	FOnTimelineEvent FinishedEvent = FOnTimelineEvent();
+	FOnTimelineFloat UpdateEvent;
+	FOnTimelineEvent FinishedEvent;
 
-	UpdateEvent.BindUFunction(this, FName{ TEXT("LookAtMark") });
-	FinishedEvent.BindUFunction(this, FName{ TEXT("EndTL") });
+	UpdateEvent.BindDynamic(this, &AMainPlayer::LookAtMark);
+	FinishedEvent.BindDynamic(this, &AMainPlayer::EndTL);
 
 	CameraTransitionTL.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	CameraTransitionTL.SetTimelineFinishedFunc(FinishedEvent);
@@ -101,6 +110,33 @@ void AMainPlayer::BeginPlay(){
 	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraFOVUpdate);
 
 	CameraFOVTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+
+	TArray<AActor*> NexusArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
+	Nexus = Cast<ANexus>(NexusArray[0]);
+
+	TArray<AActor*> PreviewPlacableArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APreviewPlacableActor::StaticClass(), PreviewPlacableArray);
+	PreviewPlacableActor = Cast<APreviewPlacableActor>(PreviewPlacableArray[0]);
+
+	PreviewPlacableActor->GetPreviewMesh()->SetVectorParameterValueOnMaterials("Color", FVector(1, 0, 0));
+
+	#pragma region FXCreation
+
+	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+	GlitchDashFXBackup = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(GlitchDashFX, "TeleportLifetime");
+
+	UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFX, TargetIndex, GlitchDashDuration + 1, true);
+	UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFXBackup, TargetIndex, GlitchDashDuration + 1, true);
+
+	#pragma endregion
+}
+
+void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation){
+	SetActorTransform(StartTransform);
+	Controller->SetControlRotation(CameraRotation);
 }
 
 #pragma region Camera
@@ -125,7 +161,7 @@ void AMainPlayer::CameraAimUpdate_Implementation(float Alpha){
 
 void AMainPlayer::CameraAimFinished_Implementation(){}
 
-ETimelineDirection::Type AMainPlayer::GetCameraAimDirection(){
+ETimelineDirection::Type AMainPlayer::GetCameraAimDirection() const{
 	return CameraAimTimelineDirection;
 }
 
@@ -157,10 +193,10 @@ void AMainPlayer::GiveGolds_Implementation(int Amount){
 
 #pragma region Interaction
 
-bool AMainPlayer::InteractionLineTrace(FHitResult& outHitResult){
-	FCollisionQueryParams QueryParams;
-	FCollisionResponseParams Responseparam;
-	return GetWorld()->LineTraceSingleByChannel(outHitResult, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, Responseparam);
+bool AMainPlayer::InteractionLineTrace(FHitResult& OutHit) const{
+	const FCollisionQueryParams QueryParams;
+	const FCollisionResponseParams ResponseParam;
+	return GetWorld()->LineTraceSingleByChannel(OutHit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam);
 }
 
 void AMainPlayer::InteractionTick(){
@@ -176,15 +212,15 @@ void AMainPlayer::InteractionTick(){
 		return;
 	}
 
-	UInteractableComponent* hittedInteractable = Cast<UInteractableComponent>(HitResult.Actor->GetComponentByClass(UInteractableComponent::StaticClass()));
+	UInteractableComponent* HittedInteractable = Cast<UInteractableComponent>(HitResult.Actor->GetComponentByClass(UInteractableComponent::StaticClass()));
 	
-	if (hittedInteractable == nullptr) {
+	if (HittedInteractable == nullptr) {
 		UnfeedbackCurrentCheckedObject();
 		return;
 	}
 
-	if ((hittedInteractable != CurrentCheckedObject) && (hittedInteractable->CheckComponent(HitResult.GetComponent()))){
-		CurrentCheckedObject = hittedInteractable;
+	if ((HittedInteractable != CurrentCheckedObject) && (HittedInteractable->CheckComponent(HitResult.GetComponent()))){
+		CurrentCheckedObject = HittedInteractable;
 		CurrentCheckedObject->Feedback();
 	}
 }
@@ -205,12 +241,12 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 #pragma endregion
 
-void AMainPlayer::TurnAtRate(float Rate){
+void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AMainPlayer::LookUpAtRate(float Rate){
+void AMainPlayer::LookUpAtRate(const float Rate){
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
@@ -230,15 +266,15 @@ void AMainPlayer::SprintToSneak_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
 
-EPlayerMovementMode AMainPlayer::GetMovementMode(){
+EPlayerMovementMode AMainPlayer::GetMovementMode() const{
 	return MovementMode;
 }
 
-void AMainPlayer::SetMovementMode(EPlayerMovementMode NewMovementMode){
+void AMainPlayer::SetMovementMode(const EPlayerMovementMode NewMovementMode){
 	MovementMode = NewMovementMode;
 }
 
-void AMainPlayer::MoveForward(float Value){
+void AMainPlayer::MoveForward(const float Value){
 	if ((Controller != nullptr) && (Value != 0.0f)){
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -250,7 +286,7 @@ void AMainPlayer::MoveForward(float Value){
 	}
 }
 
-void AMainPlayer::MoveRight(float Value){
+void AMainPlayer::MoveRight(const float Value){
 	if ( (Controller != nullptr) && (Value != 0.0f) ){
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -265,8 +301,8 @@ void AMainPlayer::MoveRight(float Value){
 
 void AMainPlayer::PreviewObject(){
 	FHitResult Hit;
-	FCollisionQueryParams QueryParams;
-	FCollisionResponseParams ResponseParam;
+	const FCollisionQueryParams QueryParams;
+	const FCollisionResponseParams ResponseParam;
 	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PreviewPlacableActor->CanBePlaced()){
 		PlacableActorLocation = Hit.Location;
 		PreviewPlacableActor->SetActorLocation(PlacableActorLocation.GridSnap(100));
@@ -320,10 +356,14 @@ void AMainPlayer::TPToMark() {
 
 	StopJumping();
 	Mark->PlaceMark();
-	// camera aim reverse
+	CameraAimReverse();
+
 	HealthComp->SetCanTakeDamages(false);
 	GetCharacterMovement()->GravityScale = 0;
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
+
+	// Play sound start of the teleportation
+	UGameplayStatics::SpawnSound2D(this, TPStart);
 
 	FRotator CapsuleRotation = FRotator::ZeroRotator;
 	CapsuleRotation.Yaw = Mark->GetActorRotation().Yaw;
@@ -371,8 +411,18 @@ void AMainPlayer::LookAtMark(float Value){
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
 }
 
-void AMainPlayer::StartGlitchDashFX_Implementation(){
-	//class UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFX, );
+void AMainPlayer::StartGlitchDashFX(){
+	UPopcornFXEmitterComponent* FXToStart;
+	// choisi le FX de backup si le principal est déjà utilisé
+	GlitchDashFX->IsEmitterStarted() ? FXToStart = GlitchDashFXBackup : FXToStart = GlitchDashFX;
+
+	const int PositionAIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(FXToStart, "PositionA");
+	const int PositionBIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(FXToStart, "PositionB");
+
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(GlitchDashFX, PositionAIndex, GetActorLocation(), true);
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(GlitchDashFX, PositionBIndex, Mark->GetActorLocation(), true);
+
+	FXToStart->StartEmitter();
 }
 
 void AMainPlayer::GlitchCameraTrace(){
@@ -438,6 +488,10 @@ void AMainPlayer::GlitchUpgrade_Implementation(){
 void AMainPlayer::ResetGlitchUpgrade_Implementation(){}
 
 void AMainPlayer::EndTL() {
+
+	// Play sound final of the teleportation
+	UGameplayStatics::SpawnSound2D(this, TPFinal);
+
 	GlitchCameraTrace();
 
 	GlitchTrace();

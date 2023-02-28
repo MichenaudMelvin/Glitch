@@ -27,6 +27,8 @@ protected:
 
 	void SetMesh() override;
 
+	virtual void SetData(UPlacableActorData* NewData) override;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetInConstructionZone(bool bNewValue);
@@ -35,5 +37,13 @@ public:
 	bool CanBePlaced();
 
 	UFUNCTION(BlueprintCallable, Category = "PreviewPlacable")
+	void ChooseColor();
+
+	UFUNCTION(BlueprintCallable, Category = "PreviewPlacable")
 	void ResetActor();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
+	FVector GetOriginalLocation();
+
+	UStaticMeshComponent* GetPreviewMesh() const;
 };

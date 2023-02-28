@@ -34,7 +34,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Damages")
-	void TakeDamages(float DamagesAmount);
+	void TakeDamages(const float DamagesAmount);
 
 	UFUNCTION(BlueprintCallable, Category = "Damages")
 	void TakeMaxDamages();
@@ -49,7 +49,7 @@ public:
 	FKOnHealthNull OnHealthNull;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Damages")
-	bool GetCanTakeDamages();
+	const bool GetCanTakeDamages();
 
 	UFUNCTION(BlueprintCallable, Category = "Damages")
 	void SetCanTakeDamages(bool bValue);

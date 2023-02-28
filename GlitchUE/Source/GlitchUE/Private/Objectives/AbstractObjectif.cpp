@@ -6,16 +6,12 @@
 AAbstractObjectif::AAbstractObjectif(){
 	PrimaryActorTick.bCanEverTick = false;
 
-	MeshObjectif = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshObjectif"));
+	MeshObjectif = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshObjectif"));
 
 	MeshObjectif->SetupAttachment(RootComponent);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/BasicShapes/Cube1"));
-	check(Mesh.Succeeded());
-
-	MeshObjectif->SetStaticMesh(Mesh.Object);
-
-	MeshObjectif->SetMobility(EComponentMobility::Static);
+	MeshObjectif->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	MeshObjectif->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	MeshObjectif->SetCanEverAffectNavigation(false);
 
@@ -26,7 +22,6 @@ AAbstractObjectif::AAbstractObjectif(){
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
-
 }
 
 void AAbstractObjectif::BeginPlay(){

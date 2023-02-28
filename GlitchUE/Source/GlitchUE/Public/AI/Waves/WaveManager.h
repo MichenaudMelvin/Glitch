@@ -27,10 +27,10 @@ struct FWaveGolds{
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int Golds;
+	int Golds = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	EWaveEvent WaveEvent;
+	EWaveEvent WaveEvent = EWaveEvent::ExecuteAtStart;
 };
 
 USTRUCT(BlueprintType)
@@ -42,7 +42,7 @@ public:
 	TSubclassOf<AMainAICharacter> AIToSpawn;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int NumberToSpawn;
+	int NumberToSpawn = 0;
 };
 
 USTRUCT(BlueprintType)
@@ -51,13 +51,13 @@ struct FWave : public FTableRowBase{
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	float NextWaveTimer;
+	float NextWaveTimer = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FWaveGolds GivenGolds;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	bool bStopAtEnd;
+	bool bStopAtEnd = false;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TArray<FAIToSpawn> AIToSpawnList;
@@ -85,7 +85,7 @@ protected:
 	AMainPlayer* Player;
 
 	UPROPERTY(BlueprintReadOnly)
-	int CurrentWaveNumber = 0;
+	int CurrentWaveNumber = 1;
 
 	UPROPERTY(BlueprintReadOnly)
 	int NumberOfWaves;
@@ -99,12 +99,12 @@ protected:
 	
 	void DisableCatalyseurs();
 
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
-	// pourquoi j'ai pas le droit de la mettre en UFUNCTION
-	FWave* GetCurrentWaveData();
+	void EnableSpawners();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
-	void GetCurrentWaveDataBP(TArray<FAIToSpawn>& AIToSpawnList, bool& bStopAtEnd, FWaveGolds& GivenGolds, float& NextWaveTimer);
+	void DisableSpawner();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FWave GetCurrentWaveData() const;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FKOnRefreshAIList OnRefreshAIList;
@@ -120,22 +120,19 @@ public:
 
 	void AddAIToList(AMainAICharacter* AIToAdd);
 
-	void RemoveAIFromList(AMainAICharacter* AIToRemove);
+	void RemoveAIFromList(const AMainAICharacter* AIToRemove);
 
 	// DEBUG ONLY
-	void SetWave(int NewWave);
+	void SetWave(const int NewWave);
 
-	int GetCurrentWaveNumber();
+	int GetCurrentWaveNumber() const;
 
 private:
 	void SpawnEnemies();
 
-	void RefreshActiveSpawners();
-
 	bool HaveTheSpawnerFinished();
 };
 
-//Wat
 //https://forums.unrealengine.com/t/get-all-actors-of-class-in-c/329740/2
 template<typename T>
 void FindAllActors(UWorld* World, TArray<T*>& Out) {
