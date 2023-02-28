@@ -17,6 +17,9 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 		UFUNCTION(BlueprintCallable, BlueprintPure)
 		static bool CanSee(AActor* SelfActor, FVector StartLocation, AActor* ActorToSee, ECollisionChannel CollisionChannel);
 
+		UFUNCTION(BlueprintCallable, BlueprintPure)
+		static int ClampIntToArrayLength(const int IntToClamp, const int ArrayLength);
+
 		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Sorting")
 		//https://dev.epicgames.com/community/snippets/xBY/unreal-engine-sort-actor-array-based-on-distance-from-target
 		static TArray<AActor*> SortActorsByDistanceToActor(TArray<AActor*> Actors, AActor* Target);

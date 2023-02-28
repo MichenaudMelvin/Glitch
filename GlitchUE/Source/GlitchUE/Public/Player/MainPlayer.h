@@ -200,6 +200,10 @@ protected:
 	UPlacableActorData* CurrentPlacableActorData;
 
 public:
+	void SetPlacableActorData(UPlacableActorData* Data);
+	
+	UPlacableActorData* GetCurrentPlacableActorData() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
 	void GiveGolds(int Amount);
 	virtual void GiveGolds_Implementation(int Amount);
