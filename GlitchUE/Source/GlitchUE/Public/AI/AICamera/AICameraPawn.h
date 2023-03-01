@@ -3,10 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "AI/MainAIPawn.h"
 #include "Components/SightComponent.h"
 #include "Components/WidgetComponent.h"
-#include "GameFramework/Pawn.h"
 #include "AICameraPawn.generated.h"
 
 UENUM(BlueprintType)
@@ -17,7 +16,7 @@ enum class ECameraBehavior : uint8{
 };
 
 UCLASS()
-class GLITCHUE_API AAICameraPawn : public APawn{
+class GLITCHUE_API AAICameraPawn : public AMainAIPawn{
 	GENERATED_BODY()
 
 public:
@@ -27,15 +26,10 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	UStaticMeshComponent* StaticMeshComp;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	USightComponent* SightComp;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UWidgetComponent* SightWidget;
-	
-	UBlackboardComponent* Blackboard;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
 	ECameraBehavior CameraBehavior;

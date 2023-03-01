@@ -38,7 +38,9 @@ EBTNodeResult::Type UMoveToPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 }
 
 void UMoveToPlayer::MoveToPlayer(){
-	CheckIfPlayerIsInSight();
+	if(bUseSight){
+		CheckIfPlayerIsInSight();
+	}
 	MoveTask();
 
 	GetWorld()->GetTimerManager().SetTimer(MoveToTimer, [&]() {
