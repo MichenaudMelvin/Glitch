@@ -27,9 +27,9 @@ protected:
 
 	void SetMesh() override;
 
+public:
 	virtual void SetData(UPlacableActorData* NewData) override;
 
-public:
 	UFUNCTION(BlueprintCallable)
 	void SetInConstructionZone(bool bNewValue);
 

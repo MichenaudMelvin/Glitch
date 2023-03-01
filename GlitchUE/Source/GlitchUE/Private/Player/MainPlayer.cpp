@@ -185,6 +185,15 @@ void AMainPlayer::CameraFOVUpdate(float Alpha){
 	FollowCamera->FieldOfView = FMath::Lerp(CurrentFOVValue, TargetFOVValue, Alpha);
 }
 
+void AMainPlayer::SetPlacableActorData(UPlacableActorData* Data){
+	CurrentPlacableActorData = Data;
+	PreviewPlacableActor->SetData(CurrentPlacableActorData);
+}
+
+UPlacableActorData* AMainPlayer::GetCurrentPlacableActorData() const{
+	return CurrentPlacableActorData;
+}
+
 void AMainPlayer::GiveGolds_Implementation(int Amount){
 	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
 }

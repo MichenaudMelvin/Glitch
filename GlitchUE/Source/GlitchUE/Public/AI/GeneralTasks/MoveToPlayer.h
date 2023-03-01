@@ -19,6 +19,9 @@ private:
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+	UPROPERTY(EditAnywhere, Category = "Behavior")
+	bool bUseSight = true;
+	
 	UPROPERTY(EditAnywhere, Category = "Player")
 	FBlackboardKeySelector Player;
 
