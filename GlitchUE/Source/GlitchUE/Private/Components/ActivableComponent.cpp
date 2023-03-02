@@ -5,7 +5,7 @@
 
 UActivableComponent::UActivableComponent(){
 	PrimaryComponentTick.bCanEverTick = false;
-	State = EState::CPF_Desactivated;
+	State = EState::Desactivated;
 }
 
 EState UActivableComponent::GetState(){
@@ -13,12 +13,15 @@ EState UActivableComponent::GetState(){
 }
 
 void UActivableComponent::ActivateObject(){
-	State = EState::CPF_Activated;
+	State = EState::Activated;
 	OnActivated.Broadcast();
 }
 
 void UActivableComponent::DesactivateObject(){
-	State = EState::CPF_Desactivated;
+	State = EState::Desactivated;
 	OnDesactivated.Broadcast();
+}
 
+bool UActivableComponent::IsActivated() const{
+	return State == EState::Activated;
 }

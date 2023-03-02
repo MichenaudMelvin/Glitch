@@ -4,6 +4,7 @@
 
 #include "MainPlayer.h"
 #include "CoreMinimal.h"
+#include "GlitchUEGameMode.h"
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
 
@@ -37,6 +38,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnLookUp, float, AxisValue);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnLookUpRate, float, AxisValue);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnMouseScroll, float, AxisValue);
+
 #pragma endregion
 
 #pragma region SpecialAbilities
@@ -48,6 +51,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPlaceObject);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchPressed);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchReleased);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastSave);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastLoad);
 
 #pragma endregion
 
@@ -66,14 +73,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPause);
 UENUM(BlueprintType)
 enum class EGameplayMode : uint8 {
 
-	CPF_Normal
-	UMETA(DisplayName = "Normal"),
+	Normal,
 
-	CPF_Construction
-	UMETA(DisplayName = "Construction"),
+	Construction,
 
-	CPF_Destruction
-	UMETA(DisplayName = "Destruction"),
+	Destruction,
 };
 
 UCLASS()
@@ -84,18 +88,22 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly)
+	AGlitchUEGameMode* GameMode;
+
+	UPROPERTY(BlueprintReadOnly)
 	AMainPlayer* MainPlayer;
 
 	FTimerDynamicDelegate InteractionTickDelegate;
 
 	EGameplayMode GameplayMode;
 
-	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
-	void SelectNewGameplayMode(EGameplayMode NewGameplayMode);
-
 public:
+	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
+	void SelectNewGameplayMode(const EGameplayMode NewGameplayMode);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")
-	EGameplayMode GetGameplayMode();
+	EGameplayMode GetGameplayMode() const;
 
 #pragma region Deletages
 
@@ -139,6 +147,9 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Camera")
 	FKOnLookUpRate OnLookUpRate;
 
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Camera")
+	FKOnMouseScroll OnMouseScroll;
+
 	#pragma endregion
 
 	#pragma region SpecialAbilities
@@ -156,6 +167,12 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
 	FKOnUseGlitchReleased OnUseGlitchReleased;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
+	FKOnFastSave OnFastSave;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
+	FKOnFastLoad OnFastLoad;
 
 	#pragma endregion
 
@@ -241,6 +258,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindPause();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Delegates")
+	void BindMouseScroll();
+	virtual void BindMouseScroll_Implementation();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
+	void UnbindMouseScroll();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
 	void BindOpenSelectionWheel();

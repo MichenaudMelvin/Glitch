@@ -28,6 +28,8 @@ protected:
 	void SetMesh() override;
 
 public:
+	virtual void SetData(UPlacableActorData* NewData) override;
+
 	UFUNCTION(BlueprintCallable)
 	void SetInConstructionZone(bool bNewValue);
 
@@ -42,4 +44,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
 	FVector GetOriginalLocation();
+
+	UStaticMeshComponent* GetPreviewMesh() const;
 };

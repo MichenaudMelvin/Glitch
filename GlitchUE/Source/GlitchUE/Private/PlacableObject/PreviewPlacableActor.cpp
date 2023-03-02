@@ -28,9 +28,9 @@ bool APreviewPlacableActor::CheckSpotSpace() {
 	FVector TraceLocation = GetActorLocation();
 	TraceLocation.Z += 50;
 
-	FVector HalfSize = FVector(49, 49, 40);
+	const FVector HalfSize = FVector(49, 49, 40);
 
-	TArray<AActor*> ActorsToIgnore;
+	const TArray<AActor*> ActorsToIgnore;
 
 	FHitResult Hit;
 
@@ -48,6 +48,11 @@ void APreviewPlacableActor::SetMesh() {
 	for (int i = 0; i < BaseMesh->GetMaterials().Num(); i++) {
 		BaseMesh->SetMaterial(i, HologramMaterial);
 	}
+}
+
+void APreviewPlacableActor::SetData(UPlacableActorData* NewData){
+	CurrentData = NewData;
+	SetMesh();
 }
 
 void APreviewPlacableActor::SetInConstructionZone(bool bNewValue) {
@@ -73,4 +78,8 @@ void APreviewPlacableActor::ResetActor() {
 
 FVector APreviewPlacableActor::GetOriginalLocation(){
 	return OriginalLocation;
+}
+
+UStaticMeshComponent* APreviewPlacableActor::GetPreviewMesh() const{
+	return BaseMesh;
 }

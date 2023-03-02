@@ -3,6 +3,6 @@
 
 #include "PlacableObject/PlacableActorData.h"
 
-bool UPlacableActorData::HasEnoughGolds(int PlayerGolds){
+bool UPlacableActorData::HasEnoughGolds(const int PlayerGolds) const{
     return PlayerGolds >= Cost;
 }

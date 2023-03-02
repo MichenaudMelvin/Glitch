@@ -44,9 +44,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	float FireRate;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	float Radius;
-
 	UPROPERTY(BlueprintReadWrite)
 	AActor* CurrentTarget;
 
@@ -78,9 +75,7 @@ protected:
 
 	FFocusMethod FocusMethod;
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void Attack();
-	virtual void Attack_Implementation();
+	virtual void Attack_Implementation() override;
 
 	UFUNCTION(BlueprintCallable)
 	void CanAttack();
@@ -114,7 +109,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SelectTarget();
 
-	TArray<AActor*> GetSortedAIList();
+	TArray<AActor*> GetSortedAIList() const;
 
 	UPROPERTY(BlueprintReadOnly)
 	TSet<AActor*> HittedAIList;
@@ -122,16 +117,14 @@ protected:
 	FRotator AILookAtRotation;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool DoesAIListContainSomething();
-
-	UFUNCTION()
-	void OnReachTurretVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnLeaveTurretVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	bool DoesAIListContainSomething() const;
+	
+	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	
+	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 	
 	UPROPERTY(BlueprintReadWrite)
 	FTimerHandle CanAttackTimer;
 
-	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
+	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial) override;
 };

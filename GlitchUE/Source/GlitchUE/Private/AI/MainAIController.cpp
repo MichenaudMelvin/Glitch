@@ -6,10 +6,8 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "Perception/AIPerceptionSystem.h"
 #include "Perception/AISenseConfig_Sight.h"
-#include "BehaviorTree/BehaviorTree.h"
 #include "Perception/AISense_Sight.h"
 #include "Player/MainPlayer.h"
-
 
 AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))) {
@@ -33,7 +31,7 @@ void AMainAIController::BeginPlay() {
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
 }
 
-void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, FAIStimulus Stimulus) {
+void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus) {
 	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Sight::StaticClass()) {
 		if (Actor->IsA(AMainPlayer::StaticClass())) {
 			AActor* Player = Actor;
@@ -58,4 +56,8 @@ void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, FAIStimul
 void AMainAIController::SetPlayerValues(AActor* Player) {
 	//Blackboard->SetValueAsObject(FName(TEXT("Player")), Player);
 	//Blackboard->SetValueAsVector(FName(TEXT("PlayerLocation")), Player->GetActorLocation());
+}
+
+const float AMainAIController::GetDamages(){
+	return Damages;
 }

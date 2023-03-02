@@ -3,3 +3,6 @@
 
 #include "Saves/AbstractSave.h"
 
+FString UAbstractSave::GetSlotName(){
+	return SlotName;
+}

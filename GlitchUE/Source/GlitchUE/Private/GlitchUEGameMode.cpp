@@ -11,7 +11,9 @@
 #include "AI/MainAICharacter.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "Helpers/Debug/DebugPawn.h"
+#include "Curves/CurveLinearColor.h"
+#include "Saves/AbstractSave.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	// set default pawn class to our Blueprinted character
@@ -40,6 +42,8 @@ AGlitchUEGameMode::AGlitchUEGameMode(){
 }
 
 void AGlitchUEGameMode::BeginPlay() {
+	Super::BeginPlay();
+
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	TArray<AWaveManager*> WaveManagerArray;
@@ -73,7 +77,17 @@ void AGlitchUEGameMode::Tick(float deltaTime){
 	BlinkingTimeline.TickTimeline(deltaTime);
 }
 
-EPhases AGlitchUEGameMode::GetPhases(){
+void AGlitchUEGameMode::Save_Implementation(UAbstractSave* SaveObject){}
+
+UAbstractSave* AGlitchUEGameMode::Load(TSubclassOf<UAbstractSave> SaveClass, int UserIndex){
+	return Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SaveClass.GetDefaultObject()->GetSlotName(), UserIndex));
+}
+
+void AGlitchUEGameMode::FastSave_Implementation(){}
+
+void AGlitchUEGameMode::FastLoad_Implementation(){}
+
+EPhases AGlitchUEGameMode::GetPhases() const{
 	return CurrentPhase;
 }
 
@@ -88,12 +102,12 @@ void AGlitchUEGameMode::SetNewPhase(EPhases NewPhase){
 	}
 }
 
-ELevelState AGlitchUEGameMode::GetLevelState(){
+ELevelState AGlitchUEGameMode::GetLevelState() const{
 	return LevelState;
 }
 
-void AGlitchUEGameMode::SetLevelState(ELevelState newState){
-	LevelState = newState;
+void AGlitchUEGameMode::SetLevelState(ELevelState NewState){
+	LevelState = NewState;
 	switch (LevelState){
 	case ELevelState::Normal:
 		RequestNormalState = true;
@@ -106,7 +120,7 @@ void AGlitchUEGameMode::SetLevelState(ELevelState newState){
 	}
 }
 
-void AGlitchUEGameMode::UpdateLevelColor(FLinearColor NewColor) {
+void AGlitchUEGameMode::UpdateLevelColor(FLinearColor NewColor){
 	UKismetMaterialLibrary::SetVectorParameterValue(GetWorld(), AlertedMaterial, FName(TEXT("Emissive")), NewColor);
 }
 
@@ -177,7 +191,7 @@ float AGlitchUEGameMode::GetCurrentGlitchValue(){
 	return GlitchValue;
 }
 
-void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
+void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradeAlliesUnits"));
 
 	TArray<AActor*> PlacableActorList;
@@ -191,7 +205,7 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits(){
 	}
 }
 
-void AGlitchUEGameMode::GlitchUpgradeEnemiesAI(){
+void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
 	
 	TArray<AActor*> AIList;
@@ -206,17 +220,17 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI(){
 
 }
 
-void AGlitchUEGameMode::GlitchUpgradePlayer() {
+void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
 
 	MainPlayer->GlitchUpgrade();
 }
 
-void AGlitchUEGameMode::GlitchRandomFX() {
+void AGlitchUEGameMode::GlitchRandomFX() const{
 	UE_LOG(LogTemp, Warning, TEXT("RandomFX"));
 }
 
-void AGlitchUEGameMode::CheckAvailableGlitchEvents(){
+void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
 
@@ -227,20 +241,35 @@ void AGlitchUEGameMode::CheckAvailableGlitchEvents(){
 
 #pragma region ConsoleCommands
 
-void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation){
+void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation) const{
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
 }
 
-void AGlitchUEGameMode::NextWave(){
+void AGlitchUEGameMode::NextWave() const{
 	WaveManager->SetWave(WaveManager->GetCurrentWaveNumber() + 1);
 }
 
-void AGlitchUEGameMode::GoToWave(int NewWave){
+void AGlitchUEGameMode::GoToWave(int NewWave) const{
 	WaveManager->SetWave(NewWave);
 }
 
-void AGlitchUEGameMode::CrashGame(){
+void AGlitchUEGameMode::CrashGame() const{
 	UE_LOG(LogTemp, Fatal, TEXT("CRASH"));
+}
+
+void AGlitchUEGameMode::ToggleSpectatorMode() const{
+	TArray<AActor*> ActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADebugPawn::StaticClass(), ActorList);
+
+	if(ActorList.Num() == 0){
+		const FActorSpawnParameters SpawnInfo;
+		ADebugPawn* SpawnedPawn = GetWorld()->SpawnActor<ADebugPawn>(MainPlayer->GetActorLocation(), MainPlayer->GetActorRotation(), SpawnInfo);
+		MainPlayer->Controller->Possess(SpawnedPawn);
+	} else{
+		Cast<APawn>(ActorList[0])->Controller->Possess(MainPlayer);
+		MainPlayer->GetMainPlayerController()->SelectNewGameplayMode(MainPlayer->GetMainPlayerController()->GetGameplayMode());
+		ActorList[0]->Destroy();
+	}
 }
 
 #pragma endregion

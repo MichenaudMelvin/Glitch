@@ -26,7 +26,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", meta = (ExposeOnSpawn = "true"))
 	EState InitialState;
 
-	void ToggleActivation(bool bActivate);
+	void ToggleActivation(const bool bActivate);
 
 	void ActiveObjectif();
 

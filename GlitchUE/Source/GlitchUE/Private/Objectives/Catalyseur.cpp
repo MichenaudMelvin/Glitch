@@ -28,7 +28,7 @@ void ACatalyseur::BeginPlay() {
 }
 
 void ACatalyseur::ActiveObjectif(){
-	if (Nexus->GetActivableComp()->GetState() == EState::CPF_Activated) {
+	if (Nexus->GetActivableComp()->IsActivated()) {
 		for (int i = 0; i < ConstructionZoneList.Num(); i++) {
 			ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
 		}
@@ -45,6 +45,6 @@ void ACatalyseur::HealthNull(){
 	ActivableComp->DesactivateObject();
 }
 
-FStateAtWave ACatalyseur::GetStateAtWave(){
+FStateAtWave ACatalyseur::GetStateAtWave() const{
 	return StateAtWave;
 }

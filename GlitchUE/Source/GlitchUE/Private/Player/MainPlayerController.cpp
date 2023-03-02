@@ -11,30 +11,37 @@ void AMainPlayerController::BeginPlay() {
 	
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 
+	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
 	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
-	SelectNewGameplayMode(EGameplayMode::CPF_Normal);
+	SelectNewGameplayMode(EGameplayMode::Normal);
 }
 
 #pragma region Bind
 
 #pragma region Movement
 
-void AMainPlayerController::SelectNewGameplayMode(EGameplayMode NewGameplayMode){
+void AMainPlayerController::SelectNewGameplayMode(const EGameplayMode NewGameplayMode){
 	GameplayMode = NewGameplayMode;
 	switch (GameplayMode){
-		case EGameplayMode::CPF_Normal:
+		case EGameplayMode::Normal:
 			BindNormalMode();
 			MainPlayer->CameraAimReverse();
 			break;
 		
-		case EGameplayMode::CPF_Construction:
+		case EGameplayMode::Construction:
 			BindConstructionMode();
 			MainPlayer->CameraAim();
+			break;
+
+		case EGameplayMode::Destruction:
+			BindNormalMode();
+			MainPlayer->CameraAimReverse();
 			break;
 	}
 }
 
-EGameplayMode AMainPlayerController::GetGameplayMode(){
+EGameplayMode AMainPlayerController::GetGameplayMode() const{
 	return GameplayMode;
 }
 
@@ -162,6 +169,7 @@ void AMainPlayerController::BindNormalMode() {
 	BindInteraction();
 	BindGlitch();
 	BindOpenSelectionWheel();
+	BindMouseScroll();
 }
 
 void AMainPlayerController::BindConstructionMode() {
@@ -170,6 +178,7 @@ void AMainPlayerController::BindConstructionMode() {
 	BindCamera();
 	BindConstruction();
 	BindOpenSelectionWheel();
+	BindMouseScroll();
 }
 
 
@@ -184,6 +193,12 @@ void AMainPlayerController::UnbindPause() {
 	OnPause.Clear();
 }
 
+void AMainPlayerController::BindMouseScroll_Implementation(){}
+
+void AMainPlayerController::UnbindMouseScroll(){
+	OnMouseScroll.Clear();
+}
+
 void AMainPlayerController::BindOpenSelectionWheel_Implementation(){}
 
 void AMainPlayerController::UnbindOpenSelectionWheel_Implementation(){}
@@ -195,7 +210,7 @@ void AMainPlayerController::UnbindAll(){
 	UnbindGlitch();
 	UnbindConstruction();
 	UnbindOpenSelectionWheel();
-	// unbind rotate objects
+	UnbindMouseScroll();
 }
 
 void AMainPlayerController::PauseGame_Implementation(){
