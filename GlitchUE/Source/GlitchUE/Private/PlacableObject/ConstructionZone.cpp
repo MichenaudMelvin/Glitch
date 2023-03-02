@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlacableObject/ConstructionZone.h"
+#include "PopcornFXEmitterComponent.h"
+#include "PopcornFXFunctions.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/BoxComponent.h"
 
@@ -15,10 +17,22 @@ AConstructionZone::AConstructionZone() {
 	BoxComp->SetMobility(EComponentMobility::Static);
 
 	InitialState = EState::Desactivated;
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_ConstructionZone"));
+	check(FX.Succeeded());
+
+	ConstructionEffect = FX.Object;
 }
 
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
+
+	ActivableComp->OnActivated.AddDynamic(this, &AConstructionZone::ActiveObjectif);
+	ActivableComp->OnDesactivated.AddDynamic(this, &AConstructionZone::DesactivateObjectif);
+
+	FVector FXLocation = GetActorLocation();
+	FXLocation.Z = (FXLocation.Z - Cast<UBoxComponent>(GetCollisionComponent())->GetUnscaledBoxExtent().Z) + 5;
+	ConstructionFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), ConstructionEffect, "PopcornFX_DefaultScene", FXLocation, FRotator::ZeroRotator, false, false);
 
 	switch (InitialState){
 	case EState::Activated:
@@ -26,7 +40,7 @@ void AConstructionZone::BeginPlay(){
 		break;
 	case EState::Desactivated:
 		ActivableComp->DesactivateObject();
-		break;
+		break; 
 	}
 }
 
@@ -38,32 +52,25 @@ void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 	Cast<UBoxComponent>(GetCollisionComponent())->SetBoxExtent(BoxExtent);
 }
 
-void AConstructionZone::ToggleActivation(const bool bActivate){
-	if (bActivate) {
-		ActivableComp->ActivateObject();
-	}
-	else {
-		ActivableComp->DesactivateObject();
-	}
-
-	SetActorHiddenInGame(bActivate);
-}
-
 void AConstructionZone::ActiveObjectif(){
-	ToggleActivation(true);
+	ConstructionFXEmitter->StartEmitter();
 }
 
 void AConstructionZone::DesactivateObjectif(){
-	ToggleActivation(false);
+	ConstructionFXEmitter->StopEmitter();
 }
 
-void AConstructionZone::OccupiedSlot_Implementation(APlacableActor* NewUnit){
+void AConstructionZone::OccupiedSlot(APlacableActor* NewUnit){
 	UnitInZone = NewUnit;
 	UnitInZone->SetConstructionZone(this);
+	ConstructionFXEmitter->StopEmitter();
 }
 
-void AConstructionZone::UnoccupiedSlot_Implementation(){
+void AConstructionZone::UnoccupiedSlot(){
 	UnitInZone = nullptr;
+	if(ActivableComp->IsActivated()){
+		ConstructionFXEmitter->StartEmitter();
+	}
 }
 
 UActivableComponent* AConstructionZone::GetActivableComp(){

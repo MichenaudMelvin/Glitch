@@ -21,27 +21,29 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UActivableComponent* ActivableComp;
 
+	UPopcornFXEmitterComponent* ConstructionFXEmitter;
+
+	UPopcornFXEffect* ConstructionEffect;
+
 	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", meta = (ExposeOnSpawn = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	EState InitialState;
-
-	void ToggleActivation(const bool bActivate);
-
+	
+	UFUNCTION()
 	void ActiveObjectif();
 
+	UFUNCTION()
 	void DesactivateObjectif();
 
 	APlacableActor* UnitInZone;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable)
 	void OccupiedSlot(APlacableActor* NewUnit);
-	virtual void OccupiedSlot_Implementation(APlacableActor* NewUnit);
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable)
 	void UnoccupiedSlot();
-	virtual void UnoccupiedSlot_Implementation();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Activable")
 	UActivableComponent* GetActivableComp();

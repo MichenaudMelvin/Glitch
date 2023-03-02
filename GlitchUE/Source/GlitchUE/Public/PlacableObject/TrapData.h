@@ -12,7 +12,6 @@ class GLITCHUE_API UTrapData : public UPlacableActorData{
 	GENERATED_BODY()
 
 public:
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Damages")
 	float TrapDamages;
 
@@ -36,7 +35,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float UpgradedGlitchAttackRate;
-
+	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* IdleFX;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
+	FLinearColor CrystalColor = FLinearColor(0, 0, 0, 1);
 };

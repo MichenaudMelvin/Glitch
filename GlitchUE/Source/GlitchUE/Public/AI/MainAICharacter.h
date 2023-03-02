@@ -31,6 +31,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	UBlackboardComponent* Blackboard;
 
+public:
+	UBlackboardComponent* GetBlackBoard();
+
+protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UHealthComponent* HealthComp;
 
