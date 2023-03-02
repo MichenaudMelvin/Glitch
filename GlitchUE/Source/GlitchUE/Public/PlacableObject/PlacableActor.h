@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GlitchInterface.h"
 #include "GameFramework/Actor.h"
 #include "PlacableActorData.h"
 #include "Objectives/Nexus.h"
@@ -30,7 +31,7 @@ public:
 };
 
 UCLASS()
-class GLITCHUE_API APlacableActor : public AActor{
+class GLITCHUE_API APlacableActor : public AActor, public IGlitchInterface{
 	GENERATED_BODY()
 	
 public:	
@@ -116,5 +117,7 @@ public:
 	void Upgrade();
 
 	UFUNCTION(BlueprintCallable, Category = "Glitch")
-	virtual void GlitchUpgrade();
+	virtual void ReciveGlitchUpgrade();
+
+	virtual void ResetGlitchUpgrade();
 };

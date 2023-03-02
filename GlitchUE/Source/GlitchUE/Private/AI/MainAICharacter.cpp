@@ -80,7 +80,8 @@ UHealthComponent* AMainAICharacter::GetHealthComp() const{
 	return HealthComp;
 }
 
-void AMainAICharacter::GlitchUpgrade_Implementation(){
+void AMainAICharacter::ReciveGlitchUpgrade(){
+	IGlitchInterface::ReciveGlitchUpgrade();
 	// Ici set les upgrades dans les fonctions qui vont hériter
 
 	FTimerHandle TimerHandle;
@@ -91,7 +92,12 @@ void AMainAICharacter::GlitchUpgrade_Implementation(){
 	}, GlitchUpgradeDuration, false);
 }
 
-void AMainAICharacter::ResetGlitchUpgrade_Implementation(){}
+
+void AMainAICharacter::ResetGlitchUpgrade(){
+	IGlitchInterface::ResetGlitchUpgrade();
+
+	
+}
 
 void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages){
 	if(CurrentTrapEffect != ETrapEffect::None){

@@ -498,11 +498,23 @@ void AMainPlayer::ResetOverlappedMeshes(){
 	OverlappedMeshesCollisionResponse.Empty();
 }
 
-void AMainPlayer::GlitchUpgrade_Implementation(){
+void AMainPlayer::ReciveGlitchUpgrade(){
+	IGlitchInterface::ReciveGlitchUpgrade();
 
+	GetCharacterMovement()->MaxWalkSpeed = 800;
+	
+	FTimerHandle TimerHandle;
+
+	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
+		ResetGlitchUpgrade();
+	}, GlitchUpgradeDuration, false);
 }
 
-void AMainPlayer::ResetGlitchUpgrade_Implementation(){}
+void AMainPlayer::ResetGlitchUpgrade(){
+	IGlitchInterface::ReciveGlitchUpgrade();
+	
+	GetCharacterMovement()->MaxWalkSpeed = 550;
+}
 
 void AMainPlayer::EndTL() {
 

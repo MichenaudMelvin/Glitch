@@ -14,7 +14,7 @@
 class AWaveManager;
 
 UCLASS()
-class GLITCHUE_API AMainAICharacter : public ACharacter{
+class GLITCHUE_API AMainAICharacter : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
 
 public:
@@ -64,13 +64,9 @@ public:
 
 	UHealthComponent* GetHealthComp() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void GlitchUpgrade();
-	virtual void GlitchUpgrade_Implementation();
+	virtual void ReciveGlitchUpgrade();
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void ResetGlitchUpgrade();
-	virtual void ResetGlitchUpgrade_Implementation();
+	virtual void ResetGlitchUpgrade();
 	
 	UFUNCTION(BlueprintCallable)
 	void ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages);

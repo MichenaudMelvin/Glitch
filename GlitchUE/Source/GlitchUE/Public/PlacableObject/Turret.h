@@ -65,7 +65,7 @@ protected:
 	void EndRotate();
 	virtual void EndRotate_Implementation();
 
-	virtual void GlitchUpgrade() override;
+	virtual void ReciveGlitchUpgrade();
 
 	virtual void SetMesh() override;
 

@@ -81,10 +81,10 @@ void ATurret::RotateToTarget(float Alpha){
 
 void ATurret::EndRotate_Implementation(){}
 
-void ATurret::GlitchUpgrade(){
+void ATurret::ReciveGlitchUpgrade(){
 	Damages = Cast<UTurretData>(CurrentData)->UpgradedGlitchDamages;
 	
-	Super::GlitchUpgrade();
+	Super::ReciveGlitchUpgrade();
 }
 
 void ATurret::SetMesh(){

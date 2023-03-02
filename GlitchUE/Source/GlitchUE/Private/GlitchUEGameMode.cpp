@@ -157,27 +157,32 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	GlitchValue = FMath::Clamp(AddedValue + GlitchValue, 0.0f, GlitchMaxValue);
 	if (GlitchValue == GlitchMaxValue) {
 
-		//OnGlitchMax.Broadcast();
+		switch (CurrentPhase){
+			case EPhases::Infiltration:
+				SetLevelState(ELevelState::Alerted);
+				break;
+			case EPhases::TowerDefense:
+				break;
+		}
+
 		CheckAvailableGlitchEvents();
 		EGlitchEvent::Type RandomGlitchType;
 
-		while (true){
-			RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
-		}
+		RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
 
 		switch (RandomGlitchType){
 		case EGlitchEvent::UpgradeAlliesUnits:
 			GlitchUpgradeAlliesUnits();
 			break;
-		
+
 		case EGlitchEvent::UpgradeEnemiesAI:
 			GlitchUpgradeEnemiesAI();
 			break;
-		
+
 		case EGlitchEvent::UpgradePlayer:
 			GlitchUpgradePlayer();
 			break;
-		
+
 		case EGlitchEvent::RandomFX:
 			GlitchRandomFX();
 			break;
@@ -196,12 +201,22 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
+	UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), PlacableActorList.Num());
 
+	if(PlacableActorList.Num() == 1 && PlacableActorList[0]){
+		
+	}
+	
 	if (PlacableActorList.Num() > 0) {
 		PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
-		Cast<APlacableActor>(PlacableActorList[0])->GlitchUpgrade();
-	} else {
-		UE_LOG(LogTemp, Warning, TEXT("Aucune tourlles dans le monde"));
+
+		for(int i = 0; i < PlacableActorList.Num(); i++){
+			if(!PlacableActorList[i]->IsA(APreviewPlacableActor::StaticClass())){
+				Cast<IGlitchInterface>(PlacableActorList[i])->ReciveGlitchUpgrade();
+				return;
+			}
+		}
+
 	}
 }
 
@@ -213,17 +228,16 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 
 	if (AIList.Num() > 0) {
 		AIList = UUsefullFunctions::SortActorsByDistanceToActor(AIList, MainPlayer);
-		Cast<AMainAICharacter>(AIList[0])->GlitchUpgrade();
+		Cast<IGlitchInterface>(AIList[0])->ReciveGlitchUpgrade();
 	} else{
 		UE_LOG(LogTemp, Warning, TEXT("Aucun ennemis dans le monde"));
 	}
-
 }
 
 void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
 
-	MainPlayer->GlitchUpgrade();
+	Cast<IGlitchInterface>(MainPlayer)->ReciveGlitchUpgrade();
 }
 
 void AGlitchUEGameMode::GlitchRandomFX() const{
