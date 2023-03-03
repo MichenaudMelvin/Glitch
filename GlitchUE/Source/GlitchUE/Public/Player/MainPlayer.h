@@ -118,6 +118,25 @@ protected:
 	EPlayerMovementMode MovementMode;
 
 public:
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float NormalSpeed = 550;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float SneakSpeed = 200;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float DashSpeed = 1250;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float SprintSpeed = 1000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float SlideSpeed = 1000;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Speed")
+	float GlitchSpeed = 1500;
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EPlayerMovementMode GetMovementMode() const;
 

@@ -44,8 +44,14 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UWidgetComponent* SightWidget;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float GlitchUpgradeDuration;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch" )
+	float GlitchUpgradeDuration = 10;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	float GlitchSpeed = 1000;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Speed")
+	float OriginalSpeed = 200;
 	
 	UFUNCTION()
 	void HealthNull();

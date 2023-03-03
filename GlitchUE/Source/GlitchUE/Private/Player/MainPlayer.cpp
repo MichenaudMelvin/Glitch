@@ -121,6 +121,8 @@ void AMainPlayer::BeginPlay(){
 
 	PreviewPlacableActor->GetPreviewMesh()->SetVectorParameterValueOnMaterials("Color", FVector(1, 0, 0));
 
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+
 	#pragma region FXCreation
 
 	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
@@ -501,7 +503,7 @@ void AMainPlayer::ResetOverlappedMeshes(){
 void AMainPlayer::ReciveGlitchUpgrade(){
 	IGlitchInterface::ReciveGlitchUpgrade();
 
-	GetCharacterMovement()->MaxWalkSpeed = 800;
+	GetCharacterMovement()->MaxWalkSpeed = GlitchSpeed;
 	
 	FTimerHandle TimerHandle;
 
@@ -512,8 +514,22 @@ void AMainPlayer::ReciveGlitchUpgrade(){
 
 void AMainPlayer::ResetGlitchUpgrade(){
 	IGlitchInterface::ReciveGlitchUpgrade();
+
+	float TargetSpeed = 0;
 	
-	GetCharacterMovement()->MaxWalkSpeed = 550;
+	switch (MovementMode) {
+		case EPlayerMovementMode::Normal:
+			TargetSpeed = NormalSpeed;
+			break;
+		case EPlayerMovementMode::Sneaking:
+			TargetSpeed = SneakSpeed;
+			break;
+		case EPlayerMovementMode::Sprinting:
+			TargetSpeed = SprintSpeed;
+			break;
+	}
+
+	GetCharacterMovement()->MaxWalkSpeed = TargetSpeed;
 }
 
 void AMainPlayer::EndTL() {

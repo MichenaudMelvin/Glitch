@@ -9,6 +9,7 @@
 #include "AI/Waves/WaveManager.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "AI/MainAICharacter.h"
+#include "AI/MainAIPawn.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Helpers/Debug/DebugPawn.h"
@@ -203,10 +204,6 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
 	UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), PlacableActorList.Num());
 
-	if(PlacableActorList.Num() == 1 && PlacableActorList[0]){
-		
-	}
-	
 	if (PlacableActorList.Num() > 0) {
 		PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
 
@@ -216,15 +213,19 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 				return;
 			}
 		}
-
 	}
 }
 
 void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
 	
+	TArray<AActor*> AIControllerList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIControllerList);
+
 	TArray<AActor*> AIList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAICharacter::StaticClass(), AIList);
+	for(int i = 0; i < AIControllerList.Num(); i++){
+		AIList.Add(Cast<AMainAIController>(AIControllerList[0])->GetPawn());
+	}
 
 	if (AIList.Num() > 0) {
 		AIList = UUsefullFunctions::SortActorsByDistanceToActor(AIList, MainPlayer);

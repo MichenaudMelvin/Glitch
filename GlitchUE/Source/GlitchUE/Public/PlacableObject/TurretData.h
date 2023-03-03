@@ -25,5 +25,5 @@ public:
 	FFocusMethod FocusMethod;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
-	float UpgradedGlitchDamages;
+	float GlitchFireRate;
 };

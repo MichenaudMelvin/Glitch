@@ -82,8 +82,9 @@ void ATurret::RotateToTarget(float Alpha){
 void ATurret::EndRotate_Implementation(){}
 
 void ATurret::ReciveGlitchUpgrade(){
-	Damages = Cast<UTurretData>(CurrentData)->UpgradedGlitchDamages;
-	
+	FireRate = Cast<UTurretData>(CurrentData)->GlitchFireRate;
+	RotateTimeline.SetPlayRate(1/FireRate);
+
 	Super::ReciveGlitchUpgrade();
 }
 
@@ -99,7 +100,9 @@ void ATurret::SetData(UPlacableActorData* NewData){
 	
 	const UTurretData* Data = Cast<UTurretData>(NewData);
 	Damages = Data->Damages;
-	FireRate = Data->FireRate;
+	FireRate = Data->FireRate/2;
+	RotateTimeline.SetPlayRate(1/FireRate);
+	
 	CanSeeThroughWalls = Data->CanSeeThroughWalls;
 	FocusMethod = Data->FocusMethod;
 
@@ -116,7 +119,7 @@ void ATurret::CanAttack(){
 
 	ActorsToIgnore.Add(this);
 
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TurretHead->GetComponentLocation(), GetFirstAI()->GetActorLocation(), UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TurretHead->GetComponentLocation(), GetFirstAI()->GetActorLocation(), UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
 
 	if (Hit.GetActor()->IsA(AMainAICharacter::StaticClass())){
 		GetWorldTimerManager().ClearTimer(CanAttackTimer);

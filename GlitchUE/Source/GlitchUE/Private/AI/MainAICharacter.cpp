@@ -43,6 +43,8 @@ void AMainAICharacter::BeginPlay(){
 	USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
 	SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
 	SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
+
+	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
 }
 
 void AMainAICharacter::InitializeAI(FTransform NewTransform, UBlackboardData* NewBlackBoard){
@@ -84,6 +86,8 @@ void AMainAICharacter::ReciveGlitchUpgrade(){
 	IGlitchInterface::ReciveGlitchUpgrade();
 	// Ici set les upgrades dans les fonctions qui vont hériter
 
+	GetCharacterMovement()->MaxWalkSpeed = GlitchSpeed;
+
 	FTimerHandle TimerHandle;
 
 	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
@@ -96,7 +100,7 @@ void AMainAICharacter::ReciveGlitchUpgrade(){
 void AMainAICharacter::ResetGlitchUpgrade(){
 	IGlitchInterface::ResetGlitchUpgrade();
 
-	
+	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
 }
 
 void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages){
