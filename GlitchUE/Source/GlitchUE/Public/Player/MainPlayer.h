@@ -173,8 +173,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	APreviewPlacableActor* PreviewPlacableActor;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Health")
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	UHealthComponent* HealthComp;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsInGlitchZone = false;
 
 	FVector PlacableActorLocation;
 
@@ -182,6 +185,11 @@ protected:
 
 public:
 	AMainPlayerController* GetMainPlayerController();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UHealthComponent* GetHealthComp();
+
+	void SetInGlitchZone(const bool bNewValue);
 
 protected:
 	UFUNCTION(BlueprintCallable)

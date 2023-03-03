@@ -50,6 +50,10 @@ void AMainAICharacter::InitializeAI(FTransform NewTransform, UBlackboardData* Ne
 	AIController->UseBlackboard(NewBlackBoard, Blackboard);
 }
 
+UBlackboardComponent* AMainAICharacter::GetBlackBoard(){
+	return Blackboard;
+}
+
 void AMainAICharacter::StunAI() {
 	Blackboard->SetValueAsBool(FName(TEXT("IsStun")), true);
 }

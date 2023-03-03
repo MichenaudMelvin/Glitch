@@ -6,6 +6,7 @@
 #include "PlacableObject/PlacableActor.h"
 #include "Components/ActivableComponent.h"
 #include "Components/BoxComponent.h"
+#include "Animation/AnimationAsset.h"
 #include "Trap.generated.h"
 
 class UTrapData;
@@ -29,6 +30,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USkeletalMeshComponent* CrystalMesh;
+
+	UAnimationAsset* CrystalAnimation;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UActivableComponent* ActivableComp;
 
 	UBoxComponent* TrapDistance;
