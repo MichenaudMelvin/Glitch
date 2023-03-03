@@ -8,14 +8,11 @@
 AAICameraPawn::AAICameraPawn(){
 	PrimaryActorTick.bCanEverTick = false;
 
-	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	SetRootComponent(StaticMeshComp);
-
 	SightComp = CreateDefaultSubobject<USightComponent>(TEXT("CameraDirection"));
-	SightComp->SetupAttachment(StaticMeshComp);
+	SightComp->SetupAttachment(RootComponent);
 
 	SightWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("SightIndication"));
-	SightWidget->SetupAttachment(StaticMeshComp);
+	SightWidget->SetupAttachment(RootComponent);
 
 	SightWidget->SetRelativeLocation(FVector(0, 0, 200));
 
@@ -26,9 +23,6 @@ AAICameraPawn::AAICameraPawn(){
 void AAICameraPawn::BeginPlay(){
 	Super::BeginPlay();
 
-	Blackboard = Cast<AMainAIController>(GetController())->GetBlackboardComponent();
-	
-	Blackboard->SetValueAsVector("OriginalPosition", GetActorLocation());
 	Blackboard->SetValueAsEnum("CameraBehavior", static_cast<uint8>(CameraBehavior));
 
 	switch (CameraBehavior){

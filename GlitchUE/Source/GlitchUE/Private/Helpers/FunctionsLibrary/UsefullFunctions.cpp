@@ -27,6 +27,18 @@ bool UUsefullFunctions::CanSee(AActor* SelfActor, FVector StartLocation, AActor*
 	}
 }
 
+int UUsefullFunctions::ClampIntToArrayLength(const int IntToClamp, const int ArrayLength){
+	if(IntToClamp < 0 ){
+		return ArrayLength - 1;
+	}
+
+	if(IntToClamp > (ArrayLength - 1)){
+		return 0;
+	}
+
+	return IntToClamp;
+}
+
 TArray<AActor*> UUsefullFunctions::SortActorsByDistanceToActor(TArray<AActor*> Actors, AActor* Target){
 	QuickSortByDistance(Actors, 0, Actors.Num() - 1, Target);
 	return Actors;

@@ -173,8 +173,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	APreviewPlacableActor* PreviewPlacableActor;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Health")
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	UHealthComponent* HealthComp;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsInGlitchZone = false;
 
 	FVector PlacableActorLocation;
 
@@ -182,6 +185,11 @@ protected:
 
 public:
 	AMainPlayerController* GetMainPlayerController();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UHealthComponent* GetHealthComp();
+
+	void SetInGlitchZone(const bool bNewValue);
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -200,6 +208,10 @@ protected:
 	UPlacableActorData* CurrentPlacableActorData;
 
 public:
+	void SetPlacableActorData(UPlacableActorData* Data);
+	
+	UPlacableActorData* GetCurrentPlacableActorData() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
 	void GiveGolds(int Amount);
 	virtual void GiveGolds_Implementation(int Amount);
