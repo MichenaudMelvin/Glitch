@@ -48,10 +48,10 @@ void ATrap::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* M
 	}
 }
 
-void ATrap::GlitchUpgrade(){
+void ATrap::ReciveGlitchUpgrade(){
 	TrapAttackRate = Cast<UTrapData>(CurrentData)->UpgradedGlitchAttackRate;
 
-	Super::GlitchUpgrade();
+	Super::ReciveGlitchUpgrade();
 }
 
 void ATrap::SetData(UPlacableActorData* NewData){

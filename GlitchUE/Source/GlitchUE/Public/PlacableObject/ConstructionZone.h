@@ -18,7 +18,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UActivableComponent* ActivableComp;
 
 	UPopcornFXEmitterComponent* ConstructionFXEmitter;
