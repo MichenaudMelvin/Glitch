@@ -318,8 +318,10 @@ public:
 
 	UPopcornFXEffect* GlichDashFXReference;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* GlitchDashFX;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* GlitchDashFXBackup;
 
 	void GlitchCameraTrace();

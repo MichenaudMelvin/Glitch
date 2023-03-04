@@ -21,6 +21,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UActivableComponent* ActivableComp;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* ConstructionFXEmitter;
 
 	UPopcornFXEffect* ConstructionEffect;

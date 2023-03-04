@@ -435,11 +435,11 @@ void AMainPlayer::StartGlitchDashFX(){
 	// choisi le FX de backup si le principal est déjà utilisé
 	GlitchDashFX->IsEmitterStarted() ? FXToStart = GlitchDashFXBackup : FXToStart = GlitchDashFX;
 
-	const int PositionAIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(FXToStart, "PositionA");
-	const int PositionBIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(FXToStart, "PositionB");
+	const int PositionAIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(GlitchDashFX, "PositionA");
+	const int PositionBIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(GlitchDashFX, "PositionB");
 
-	UPopcornFXAttributeFunctions::SetAttributeAsVector(GlitchDashFX, PositionAIndex, GetActorLocation(), true);
-	UPopcornFXAttributeFunctions::SetAttributeAsVector(GlitchDashFX, PositionBIndex, Mark->GetActorLocation(), true);
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(FXToStart, PositionAIndex, GetActorLocation(), true);
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(FXToStart, PositionBIndex, Mark->GetActorLocation(), true);
 
 	FXToStart->StartEmitter();
 }
@@ -448,7 +448,7 @@ void AMainPlayer::GlitchCameraTrace(){
 	FVector BoxHalfSize = FVector::OneVector;
 	BoxHalfSize *= 50;
 
-	TArray<AActor*> ActorsToIgnore;
+	const TArray<AActor*> ActorsToIgnore;
 	TArray<FHitResult> HitResultList;
 
 	UKismetSystemLibrary::BoxTraceMulti(this, FollowCamera->GetComponentLocation(), Mark->GetActorLocation(), BoxHalfSize, FRotator::ZeroRotator, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, ActorsToIgnore, EDrawDebugTrace::None, HitResultList, true, FColor::Red, FColor::Green, 0.5f);
