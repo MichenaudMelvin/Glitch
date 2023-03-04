@@ -19,13 +19,15 @@ EBTNodeResult::Type UAlertNearestAI::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		AIList.Add(Cast<APursuitDroneController>(MainAIControllerArray[i])->GetPawn());
 	}
 
-	UUsefullFunctions::SortActorsByDistanceToActor(AIList, OwnerComp.GetAIOwner()->GetPawn());
+	AIList = UUsefullFunctions::SortActorsByDistanceToActor(AIList, OwnerComp.GetAIOwner()->GetPawn());
 
 	for(int i = 0; i < NumberOfAIToCall; i++){
-		if(IsValid(AIList[i])){
-			UBlackboardComponent* CurrentBlackboardComp = Cast<APursuitDrone>(AIList[i])->GetBlackBoard();
-			CurrentBlackboardComp->SetValueAsBool("ReceiveAlert", true);
+		if(i > AIList.Num() - 1){
+			break;
 		}
+
+		UBlackboardComponent* CurrentBlackboardComp = Cast<APursuitDrone>(AIList[i])->GetBlackBoard();
+		CurrentBlackboardComp->SetValueAsBool("ReceiveAlert", true);
 	}
 
 	return EBTNodeResult::Succeeded;
