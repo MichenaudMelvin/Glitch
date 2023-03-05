@@ -51,5 +51,7 @@ protected:
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 public:
-	UActivableComponent* GetActivableComp();
+	UActivableComponent* GetActivableComp() const;
+
+	UHealthComponent* GetHealthComp() const;
 };

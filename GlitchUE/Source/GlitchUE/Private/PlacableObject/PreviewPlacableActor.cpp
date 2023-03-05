@@ -3,6 +3,7 @@
 
 #include "PlacableObject/PreviewPlacableActor.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Player/MainPlayer.h"
 
 APreviewPlacableActor::APreviewPlacableActor(){
 	BaseMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
@@ -22,6 +23,10 @@ void APreviewPlacableActor::BeginPlay(){
 	OriginalLocation = GetActorLocation();
 
 	NavModifierComp->DestroyComponent();
+}
+
+void APreviewPlacableActor::SetPlayer(AMainPlayer* NewPlayer){
+	MainPlayer = NewPlayer;
 }
 
 bool APreviewPlacableActor::CheckSpotSpace() {
@@ -60,7 +65,7 @@ void APreviewPlacableActor::SetInConstructionZone(bool bNewValue) {
 }
 
 bool APreviewPlacableActor::CanBePlaced() {
-	return CheckSpotSpace() && bInConstructionZone;
+	return CheckSpotSpace() && bInConstructionZone && CurrentData->HasEnoughGolds(MainPlayer->GetGolds());
 }
 
 void APreviewPlacableActor::ChooseColor() {

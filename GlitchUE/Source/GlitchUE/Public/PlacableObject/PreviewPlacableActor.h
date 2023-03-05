@@ -16,6 +16,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	AMainPlayer* MainPlayer;
+
 	UFUNCTION(BlueprintCallable)
 	bool CheckSpotSpace();
 
@@ -46,4 +48,6 @@ public:
 	FVector GetOriginalLocation();
 
 	UStaticMeshComponent* GetPreviewMesh() const;
+
+	void SetPlayer(AMainPlayer* NewPlayer);
 };
