@@ -260,6 +260,10 @@ void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation) const{
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
 }
 
+void AGlitchUEGameMode::SetSelfTimeDilation(float TimeDilation) const{
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn()->CustomTimeDilation = TimeDilation;
+}
+
 void AGlitchUEGameMode::NextWave() const{
 	WaveManager->SetWave(WaveManager->GetCurrentWaveNumber() + 1);
 }
@@ -272,7 +276,7 @@ void AGlitchUEGameMode::CrashGame() const{
 	UE_LOG(LogTemp, Fatal, TEXT("CRASH"));
 }
 
-void AGlitchUEGameMode::ToggleSpectatorMode() const{
+void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 	TArray<AActor*> ActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADebugPawn::StaticClass(), ActorList);
 
@@ -281,8 +285,14 @@ void AGlitchUEGameMode::ToggleSpectatorMode() const{
 		ADebugPawn* SpawnedPawn = GetWorld()->SpawnActor<ADebugPawn>(MainPlayer->GetActorLocation(), MainPlayer->GetActorRotation(), SpawnInfo);
 		MainPlayer->Controller->Possess(SpawnedPawn);
 	} else{
+		if(bToggleAtLocation){
+			MainPlayer->SetActorLocation(ActorList[0]->GetActorLocation());
+			MainPlayer->SetActorRotation(Cast<APawn>(ActorList[0])->Controller->GetControlRotation());
+		}
+
 		Cast<APawn>(ActorList[0])->Controller->Possess(MainPlayer);
 		MainPlayer->GetMainPlayerController()->SelectNewGameplayMode(MainPlayer->GetMainPlayerController()->GetGameplayMode());
+
 		ActorList[0]->Destroy();
 	}
 }
