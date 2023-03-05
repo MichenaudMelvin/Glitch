@@ -120,6 +120,7 @@ void AMainPlayer::BeginPlay(){
 	PreviewPlacableActor = Cast<APreviewPlacableActor>(PreviewPlacableArray[0]);
 
 	PreviewPlacableActor->GetPreviewMesh()->SetVectorParameterValueOnMaterials("Color", FVector(1, 0, 0));
+	PreviewPlacableActor->SetPlayer(this);
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 
@@ -194,6 +195,10 @@ void AMainPlayer::SetPlacableActorData(UPlacableActorData* Data){
 
 UPlacableActorData* AMainPlayer::GetCurrentPlacableActorData() const{
 	return CurrentPlacableActorData;
+}
+
+int AMainPlayer::GetGolds() const{
+	return Golds;
 }
 
 void AMainPlayer::GiveGolds_Implementation(int Amount){

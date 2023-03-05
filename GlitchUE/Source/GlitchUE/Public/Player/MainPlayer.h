@@ -228,8 +228,10 @@ protected:
 
 public:
 	void SetPlacableActorData(UPlacableActorData* Data);
-	
+
 	UPlacableActorData* GetCurrentPlacableActorData() const;
+
+	int GetGolds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
 	void GiveGolds(int Amount);
