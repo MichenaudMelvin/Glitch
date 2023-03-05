@@ -118,7 +118,6 @@ protected:
 	EPlayerMovementMode MovementMode;
 
 public:
-	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
 	float NormalSpeed = 550;
 
@@ -136,7 +135,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Speed")
 	float GlitchSpeed = 1500;
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Gravity")
+	float OriginalGravityScale = 2;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EPlayerMovementMode GetMovementMode() const;
 

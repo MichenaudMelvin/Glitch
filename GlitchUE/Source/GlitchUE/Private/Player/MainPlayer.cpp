@@ -123,6 +123,7 @@ void AMainPlayer::BeginPlay(){
 	PreviewPlacableActor->SetPlayer(this);
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+	GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 	#pragma region FXCreation
 
@@ -566,7 +567,7 @@ void AMainPlayer::EndTL() {
 
 		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
-		GetCharacterMovement()->GravityScale = 1;
+		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 		HealthComp->SetCanTakeDamages(true);
 	}, 0.2f, false);
