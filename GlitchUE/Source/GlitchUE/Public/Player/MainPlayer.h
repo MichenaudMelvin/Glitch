@@ -118,7 +118,6 @@ protected:
 	EPlayerMovementMode MovementMode;
 
 public:
-	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
 	float NormalSpeed = 550;
 
@@ -136,7 +135,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Speed")
 	float GlitchSpeed = 1500;
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Gravity")
+	float OriginalGravityScale = 2;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EPlayerMovementMode GetMovementMode() const;
 
@@ -228,8 +230,10 @@ protected:
 
 public:
 	void SetPlacableActorData(UPlacableActorData* Data);
-	
+
 	UPlacableActorData* GetCurrentPlacableActorData() const;
+
+	int GetGolds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
 	void GiveGolds(int Amount);
@@ -318,8 +322,10 @@ public:
 
 	UPopcornFXEffect* GlichDashFXReference;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* GlitchDashFX;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* GlitchDashFXBackup;
 
 	void GlitchCameraTrace();

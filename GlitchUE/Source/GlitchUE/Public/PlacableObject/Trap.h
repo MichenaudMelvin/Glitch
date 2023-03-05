@@ -40,8 +40,9 @@ protected:
 
 	UBoxComponent* TrapDistance;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* IdleFX;
-	
+
 	float Damages;
 	
 	float TrapDuration;

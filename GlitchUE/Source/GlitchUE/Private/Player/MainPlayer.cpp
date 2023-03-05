@@ -120,8 +120,10 @@ void AMainPlayer::BeginPlay(){
 	PreviewPlacableActor = Cast<APreviewPlacableActor>(PreviewPlacableArray[0]);
 
 	PreviewPlacableActor->GetPreviewMesh()->SetVectorParameterValueOnMaterials("Color", FVector(1, 0, 0));
+	PreviewPlacableActor->SetPlayer(this);
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+	GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 	#pragma region FXCreation
 
@@ -194,6 +196,10 @@ void AMainPlayer::SetPlacableActorData(UPlacableActorData* Data){
 
 UPlacableActorData* AMainPlayer::GetCurrentPlacableActorData() const{
 	return CurrentPlacableActorData;
+}
+
+int AMainPlayer::GetGolds() const{
+	return Golds;
 }
 
 void AMainPlayer::GiveGolds_Implementation(int Amount){
@@ -435,11 +441,11 @@ void AMainPlayer::StartGlitchDashFX(){
 	// choisi le FX de backup si le principal est déjà utilisé
 	GlitchDashFX->IsEmitterStarted() ? FXToStart = GlitchDashFXBackup : FXToStart = GlitchDashFX;
 
-	const int PositionAIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(FXToStart, "PositionA");
-	const int PositionBIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(FXToStart, "PositionB");
+	const int PositionAIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(GlitchDashFX, "PositionA");
+	const int PositionBIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(GlitchDashFX, "PositionB");
 
-	UPopcornFXAttributeFunctions::SetAttributeAsVector(GlitchDashFX, PositionAIndex, GetActorLocation(), true);
-	UPopcornFXAttributeFunctions::SetAttributeAsVector(GlitchDashFX, PositionBIndex, Mark->GetActorLocation(), true);
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(FXToStart, PositionAIndex, GetActorLocation(), true);
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(FXToStart, PositionBIndex, Mark->GetActorLocation(), true);
 
 	FXToStart->StartEmitter();
 }
@@ -448,7 +454,7 @@ void AMainPlayer::GlitchCameraTrace(){
 	FVector BoxHalfSize = FVector::OneVector;
 	BoxHalfSize *= 50;
 
-	TArray<AActor*> ActorsToIgnore;
+	const TArray<AActor*> ActorsToIgnore;
 	TArray<FHitResult> HitResultList;
 
 	UKismetSystemLibrary::BoxTraceMulti(this, FollowCamera->GetComponentLocation(), Mark->GetActorLocation(), BoxHalfSize, FRotator::ZeroRotator, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, ActorsToIgnore, EDrawDebugTrace::None, HitResultList, true, FColor::Red, FColor::Green, 0.5f);
@@ -561,7 +567,7 @@ void AMainPlayer::EndTL() {
 
 		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
-		GetCharacterMovement()->GravityScale = 1;
+		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 		HealthComp->SetCanTakeDamages(true);
 	}, 0.2f, false);
