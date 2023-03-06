@@ -10,6 +10,14 @@
 
 ATrap::ATrap(){
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
+
+	CrystalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Crystal"));
+	CrystalMesh->SetupAttachment(BaseMesh);
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Traps/Crystals/AS_Crystal"));
+	check(Anim.Succeeded());
+
+	CrystalAnimation = Anim.Object;
 }
 
 void ATrap::BeginPlay(){
@@ -56,6 +64,9 @@ void ATrap::SetData(UPlacableActorData* NewData){
 	TrapAttackRate = Data->TrapAttackRate;
 	TrapEffect = Data->TrapEffect;
 	TrapEffectDuration = Data->TrapEffectDuration;
+	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(Data->MeshList[1]));
+	CrystalMesh->PlayAnimation(CrystalAnimation, true);
+	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(Data->CrystalColor));
 
 	if(IdleFX == nullptr){
 		IdleFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), Data->IdleFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, true, false);

@@ -332,6 +332,14 @@ AMainPlayerController* AMainPlayer::GetMainPlayerController() {
 	return MainPlayerController;
 }
 
+UHealthComponent* AMainPlayer::GetHealthComp(){
+	return HealthComp;
+}
+
+void AMainPlayer::SetInGlitchZone(const bool bNewValue){
+	bIsInGlitchZone = bNewValue;
+}
+
 #pragma region Mark
 
 void AMainPlayer::LaunchMark(){
