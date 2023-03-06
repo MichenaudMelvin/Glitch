@@ -10,18 +10,8 @@ UCLASS()
 class GLITCHUE_API UAlertNearestAI : public UBTTaskNode{
 	GENERATED_BODY()
 
-
-public:
-	UAlertNearestAI();
-
 private:
-
-	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
- 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-	UPROPERTY(EditAnywhere, Category = "Player")
-	FBlackboardKeySelector Player;
 
 	TArray<AActor*> AIList;
 

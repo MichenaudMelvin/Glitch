@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GlitchInterface.h"
 #include "GameFramework/Actor.h"
 #include "PlacableActorData.h"
 #include "Objectives/Nexus.h"
@@ -22,15 +23,15 @@ struct FPlacableActorCreation{
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TSubclassOf<APlacableActor> Class;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UPlacableActorData* Data = NewObject<UPlacableActorData>();
 };
 
 UCLASS()
-class GLITCHUE_API APlacableActor : public AActor{
+class GLITCHUE_API APlacableActor : public AActor, public IGlitchInterface{
 	GENERATED_BODY()
 	
 public:	
@@ -40,22 +41,22 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	UStaticMeshComponent* BaseMesh;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UPlacableActorData* CurrentData;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Data")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UInteractableComponent* InteractableComp;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Data")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Data")
 	UAudioComponent* AudioComp;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Navigation")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Navigation")
 	UNavModifierComponent* NavModifierComp;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Name")
 	FName Name;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
@@ -116,5 +117,7 @@ public:
 	void Upgrade();
 
 	UFUNCTION(BlueprintCallable, Category = "Glitch")
-	virtual void GlitchUpgrade();
+	virtual void ReciveGlitchUpgrade();
+
+	virtual void ResetGlitchUpgrade();
 };

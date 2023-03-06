@@ -2,7 +2,6 @@
 
 
 #include "AI/FocusAIController.h"
-
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -14,6 +13,7 @@ void AFocusAIController::BeginPlay(){
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 	Nexus = Cast<ANexus>(NexusArray[0]);
-	
+
 	Blackboard->SetValueAsObject("Nexus", Nexus);
+	Blackboard->SetValueAsVector("NexusLocation", Nexus->GetActorLocation());
 }

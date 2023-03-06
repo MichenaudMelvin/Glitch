@@ -2,12 +2,13 @@
 
 
 #include "AI/GeneralTasks/SelfDestroy.h"
+#include "AIController.h"
 
 USelfDestroy::USelfDestroy(){}
 
 EBTNodeResult::Type USelfDestroy::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory){
 
-	OwnerComp.GetOwner()->Destroy();
+	OwnerComp.GetAIOwner()->GetPawn()->Destroy();
 	
 	return EBTNodeResult::Succeeded;
 }

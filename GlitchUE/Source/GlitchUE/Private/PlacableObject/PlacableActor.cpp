@@ -121,13 +121,20 @@ void APlacableActor::Upgrade(){
 	SetData(CurrentData->NextUpgrade);
 }
 
-void APlacableActor::GlitchUpgrade(){
+void APlacableActor::ReciveGlitchUpgrade(){
+	IGlitchInterface::ReciveGlitchUpgrade();
 	// Ici set les upgrades dans les fonctions qui vont hériter
 
 	FTimerHandle TimerHandle;
 
 	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		//reset à l'upgrade actuelle
-		SetData(CurrentData);
+		ResetGlitchUpgrade();
 	}, CurrentData->GlitchUpgradeDuration, false);
+}
+
+void APlacableActor::ResetGlitchUpgrade(){
+	IGlitchInterface::ResetGlitchUpgrade();
+
+	//reset à l'upgrade actuelle
+	SetData(CurrentData);
 }

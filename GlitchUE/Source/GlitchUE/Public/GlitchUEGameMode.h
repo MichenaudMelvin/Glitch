@@ -160,17 +160,20 @@ private:
 	void SetGlobalTimeDilation(float TimeDilation) const;
 
 	UFUNCTION(Exec)
+	void SetSelfTimeDilation(float TimeDilation) const;
+
+	UFUNCTION(Exec)
 	void NextWave() const;
 
 	UFUNCTION(Exec)
 	void GoToWave(int NewWave) const;
-	
+
 	UFUNCTION(Exec)
 	void CrashGame() const;
 
 	UFUNCTION(Exec)
-	void ToggleSpectatorMode() const;
-		
+	void ToggleSpectatorMode(const bool bToggleAtLocation = false) const;
+
 #pragma endregion
 
 };

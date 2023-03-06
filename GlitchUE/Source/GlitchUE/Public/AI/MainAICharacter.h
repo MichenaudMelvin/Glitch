@@ -14,7 +14,7 @@
 class AWaveManager;
 
 UCLASS()
-class GLITCHUE_API AMainAICharacter : public ACharacter{
+class GLITCHUE_API AMainAICharacter : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
 
 public:
@@ -31,6 +31,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	UBlackboardComponent* Blackboard;
 
+public:
+	UBlackboardComponent* GetBlackBoard();
+
+protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UHealthComponent* HealthComp;
 
@@ -40,8 +44,14 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UWidgetComponent* SightWidget;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float GlitchUpgradeDuration;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch" )
+	float GlitchUpgradeDuration = 10;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	float GlitchSpeed = 1000;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Speed")
+	float OriginalSpeed = 200;
 	
 	UFUNCTION()
 	void HealthNull();
@@ -60,13 +70,9 @@ public:
 
 	UHealthComponent* GetHealthComp() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void GlitchUpgrade();
-	virtual void GlitchUpgrade_Implementation();
+	virtual void ReciveGlitchUpgrade();
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void ResetGlitchUpgrade();
-	virtual void ResetGlitchUpgrade_Implementation();
+	virtual void ResetGlitchUpgrade();
 	
 	UFUNCTION(BlueprintCallable)
 	void ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages);

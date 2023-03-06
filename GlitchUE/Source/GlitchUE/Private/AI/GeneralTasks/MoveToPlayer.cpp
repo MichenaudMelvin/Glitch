@@ -38,7 +38,9 @@ EBTNodeResult::Type UMoveToPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 }
 
 void UMoveToPlayer::MoveToPlayer(){
-	CheckIfPlayerIsInSight();
+	if(bUseSight){
+		CheckIfPlayerIsInSight();
+	}
 	MoveTask();
 
 	GetWorld()->GetTimerManager().SetTimer(MoveToTimer, [&]() {
@@ -64,6 +66,7 @@ void UMoveToPlayer::MoveTask(){
 		TargetLocation = StartLocation;
 	}
 
+	
 	const EPathFollowingRequestResult::Type Result = CurrentController->MoveToLocation(TargetLocation, 5, false, true, false, false, UNavAreaCostAsOne::StaticClass(), true);
 
 	switch (Result) {

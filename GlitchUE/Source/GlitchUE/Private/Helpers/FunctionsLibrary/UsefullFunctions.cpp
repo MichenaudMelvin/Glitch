@@ -18,13 +18,25 @@ bool UUsefullFunctions::CanSee(AActor* SelfActor, FVector StartLocation, AActor*
 
 	ActorsToIgnore.Add(SelfActor);
 
-	UKismetSystemLibrary::LineTraceSingle(ActorToSee->GetWorld(), StartLocation, ActorToSee->GetActorLocation(), UEngineTypes::ConvertToTraceType(CollisionChannel), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
+	UKismetSystemLibrary::LineTraceSingle(ActorToSee->GetWorld(), StartLocation, ActorToSee->GetActorLocation(), UEngineTypes::ConvertToTraceType(CollisionChannel), false, ActorsToIgnore, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
 
 	if (Hit.GetActor() == ActorToSee){
 		return true;
 	} else{
 		return false;
 	}
+}
+
+int UUsefullFunctions::ClampIntToArrayLength(const int IntToClamp, const int ArrayLength){
+	if(IntToClamp < 0 ){
+		return ArrayLength - 1;
+	}
+
+	if(IntToClamp > (ArrayLength - 1)){
+		return 0;
+	}
+
+	return IntToClamp;
 }
 
 TArray<AActor*> UUsefullFunctions::SortActorsByDistanceToActor(TArray<AActor*> Actors, AActor* Target){

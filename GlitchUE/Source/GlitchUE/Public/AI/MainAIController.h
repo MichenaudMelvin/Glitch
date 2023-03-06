@@ -27,7 +27,7 @@ protected:
 	float StunTime = 5.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float Damages = 100;
+	float Damages = 10;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float InvestigatingTime = 0.2f;
