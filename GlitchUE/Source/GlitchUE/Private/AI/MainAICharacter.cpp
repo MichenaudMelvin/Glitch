@@ -33,7 +33,7 @@ AMainAICharacter::AMainAICharacter(){
 
 void AMainAICharacter::BeginPlay(){
 	Super::BeginPlay();
-	
+
 	AIController = Cast<AMainAIController>(GetController());
 	Blackboard = AIController->GetBlackboardComponent();
 	Blackboard->SetValueAsVector(FName(TEXT("OriginalPosition")), GetActorLocation());
@@ -112,19 +112,21 @@ void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const floa
 
 	// hard codé
 	// à voir comment mieux faire
-	
+
 	switch (CurrentTrapEffect) {
 	case ETrapEffect::Burned: 
 		GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
-			HealthComp->TakeDamages(1);
-			UE_LOG(LogTemp, Warning, TEXT("Take burn damages"));
+			if(IsValid(this)){
+				HealthComp->TakeDamages(1);
+				UE_LOG(LogTemp, Warning, TEXT("Take burn damages"));
+			}
 		}, EffectTickRate, true);
 
 		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
 			CurrentTrapEffect = ETrapEffect::None;
 			GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
 		}, EffectDuration, false);
-		
+
 		break;
 	case ETrapEffect::Frozen: 
 		Blackboard->SetValueAsBool("DoingExternalActions", true);
@@ -133,7 +135,7 @@ void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const floa
 			CurrentTrapEffect = ETrapEffect::None;
 			Blackboard->SetValueAsBool("DoingExternalActions", false);
 		}, EffectDuration, false);
-		
+
 		break;
 	case ETrapEffect::Poisoned:
 		UE_LOG(LogTemp, Warning, TEXT("poison"));
