@@ -12,7 +12,7 @@ AConstructionZone::AConstructionZone() {
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
 
 	UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
-	BoxComp->SetBoxExtent(FVector::OneVector * 100);
+	BoxComp->SetBoxExtent(FVector(100, 100, 100));
 
 	BoxComp->SetMobility(EComponentMobility::Static);
 
@@ -46,7 +46,7 @@ void AConstructionZone::BeginPlay(){
 
 void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
 	const UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
-
+	
 	FVector BoxExtent = UKismetMathLibrary::Vector_SnappedToGrid(BoxComp->GetUnscaledBoxExtent(), 100);
 	BoxExtent.Z = 100;
 	Cast<UBoxComponent>(GetCollisionComponent())->SetBoxExtent(BoxExtent);

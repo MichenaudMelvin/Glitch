@@ -22,7 +22,7 @@ enum class EPlayerMovementMode : uint8{
 };
 
 UCLASS(config=Game)
-class AMainPlayer : public ACharacter{
+class AMainPlayer : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
 
 	/** Camera boom positioning the camera behind the character */
@@ -118,6 +118,27 @@ protected:
 	EPlayerMovementMode MovementMode;
 
 public:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float NormalSpeed = 550;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float SneakSpeed = 200;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float DashSpeed = 1250;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float SprintSpeed = 1000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
+	float SlideSpeed = 1000;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Speed")
+	float GlitchSpeed = 1500;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Gravity")
+	float OriginalGravityScale = 2;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EPlayerMovementMode GetMovementMode() const;
 
@@ -189,6 +210,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UHealthComponent* GetHealthComp();
 
+	bool IsInGlitchZone() const;
+	
 	void SetInGlitchZone(const bool bNewValue);
 
 protected:
@@ -209,8 +232,10 @@ protected:
 
 public:
 	void SetPlacableActorData(UPlacableActorData* Data);
-	
+
 	UPlacableActorData* GetCurrentPlacableActorData() const;
+
+	int GetGolds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
 	void GiveGolds(int Amount);
@@ -299,8 +324,10 @@ public:
 
 	UPopcornFXEffect* GlichDashFXReference;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* GlitchDashFX;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* GlitchDashFXBackup;
 
 	void GlitchCameraTrace();
@@ -315,14 +342,12 @@ public:
 
 	void ResetOverlappedMeshes();
 
-	public:
-		UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-		void GlitchUpgrade();
-		virtual void GlitchUpgrade_Implementation();
+	UPROPERTY(EditDefaultsOnly)
+	float GlitchUpgradeDuration = 5;
 
-		UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-		void ResetGlitchUpgrade();
-		virtual void ResetGlitchUpgrade_Implementation();
+	virtual void ReciveGlitchUpgrade();
+
+	virtual void ResetGlitchUpgrade();
 
 #pragma endregion
 
@@ -332,11 +357,9 @@ public:
 
 #pragma endregion
 
-public:
 	UFUNCTION(Exec)
 	void TestFunction();
 
-public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/

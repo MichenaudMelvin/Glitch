@@ -20,19 +20,19 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* MeshObjectif;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Health")
 	UHealthComponent* HealthComp;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Actiable")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Actiable")
 	UActivableComponent* ActivableComp;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Interaction")
 	UInteractableComponent* InteractableComp;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Perception")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Perception")
 	UAIPerceptionStimuliSourceComponent* AIPerceptionTarget;
 
 	UFUNCTION()
@@ -51,5 +51,7 @@ protected:
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 public:
-	UActivableComponent* GetActivableComp();
+	UActivableComponent* GetActivableComp() const;
+
+	UHealthComponent* GetHealthComp() const;
 };

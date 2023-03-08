@@ -36,9 +36,15 @@ void USetNearestCatalyseur::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-	
-	const TArray<ACatalyseur*> CatalyseurList; Cast<AFocusCatalyseurController>(OwnerPawn->GetController())->GetCatalyseurList();
-	const ACatalyseur* NearestCatalyseur = SetFirstCatalyseurToCheck(CatalyseurList);
+
+	AController* CurrentController = OwnerPawn->GetController();
+
+	if(!IsValid(CurrentController)){
+		return;
+	}
+
+	const TArray<ACatalyseur*> CatalyseurList = Cast<AFocusCatalyseurController>(CurrentController)->GetCatalyseurList();
+	ACatalyseur* NearestCatalyseur = SetFirstCatalyseurToCheck(CatalyseurList);
 
 	for (int i = 0; i < CatalyseurList.Num(); i++){
 		if(CatalyseurList[i]->GetActivableComp()->IsActivated() && i != 0){
@@ -50,7 +56,9 @@ void USetNearestCatalyseur::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 		}
 	}
 
-	CurrentBlackboard->SetValue<UBlackboardKeyType_Vector>(NearestCatalyseurLocation.GetSelectedKeyID(), NearestCatalyseur->GetActorLocation());
+	if(IsValid(NearestCatalyseur)){
+		CurrentBlackboard->SetValue<UBlackboardKeyType_Vector>(NearestCatalyseurLocation.GetSelectedKeyID(), NearestCatalyseur->GetActorLocation());
+	}
 }
 
 ACatalyseur* USetNearestCatalyseur::SetFirstCatalyseurToCheck(const TArray<ACatalyseur*> CatalyseurList){

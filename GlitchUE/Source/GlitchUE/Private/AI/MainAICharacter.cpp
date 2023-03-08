@@ -33,7 +33,7 @@ AMainAICharacter::AMainAICharacter(){
 
 void AMainAICharacter::BeginPlay(){
 	Super::BeginPlay();
-	
+
 	AIController = Cast<AMainAIController>(GetController());
 	Blackboard = AIController->GetBlackboardComponent();
 	Blackboard->SetValueAsVector(FName(TEXT("OriginalPosition")), GetActorLocation());
@@ -43,6 +43,8 @@ void AMainAICharacter::BeginPlay(){
 	USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
 	SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
 	SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
+
+	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
 }
 
 void AMainAICharacter::InitializeAI(FTransform NewTransform, UBlackboardData* NewBlackBoard){
@@ -59,7 +61,13 @@ void AMainAICharacter::StunAI() {
 }
 
 void AMainAICharacter::HealthNull() {
-	Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))->GiveGolds(10);
+
+	AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+
+	// uniquement pour le mode spectateur
+	if(IsValid(Player)){
+		Cast<AMainPlayer>(Player)->GiveGolds(10);
+	}
 
 	if (IsValid(WaveManager)) {
 		WaveManager->RemoveAIFromList(this);
@@ -80,8 +88,11 @@ UHealthComponent* AMainAICharacter::GetHealthComp() const{
 	return HealthComp;
 }
 
-void AMainAICharacter::GlitchUpgrade_Implementation(){
+void AMainAICharacter::ReciveGlitchUpgrade(){
+	IGlitchInterface::ReciveGlitchUpgrade();
 	// Ici set les upgrades dans les fonctions qui vont hériter
+
+	GetCharacterMovement()->MaxWalkSpeed = GlitchSpeed;
 
 	FTimerHandle TimerHandle;
 
@@ -91,7 +102,12 @@ void AMainAICharacter::GlitchUpgrade_Implementation(){
 	}, GlitchUpgradeDuration, false);
 }
 
-void AMainAICharacter::ResetGlitchUpgrade_Implementation(){}
+
+void AMainAICharacter::ResetGlitchUpgrade(){
+	IGlitchInterface::ResetGlitchUpgrade();
+
+	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
+}
 
 void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages){
 	if(CurrentTrapEffect != ETrapEffect::None){
@@ -102,37 +118,53 @@ void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const floa
 
 	// hard codé
 	// à voir comment mieux faire
-	
+
 	switch (CurrentTrapEffect) {
 	case ETrapEffect::Burned: 
 		GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
+			if(!IsValid(this)){
+				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
+				return;
+			}
+
 			HealthComp->TakeDamages(1);
 			UE_LOG(LogTemp, Warning, TEXT("Take burn damages"));
+
 		}, EffectTickRate, true);
 
 		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
 			CurrentTrapEffect = ETrapEffect::None;
 			GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
 		}, EffectDuration, false);
-		
+
 		break;
-	case ETrapEffect::Frozen: 
+	case ETrapEffect::Frozen:
 		Blackboard->SetValueAsBool("DoingExternalActions", true);
 
 		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
+			if(!IsValid(this)){
+				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
+				return;
+			}
+
 			CurrentTrapEffect = ETrapEffect::None;
 			Blackboard->SetValueAsBool("DoingExternalActions", false);
 		}, EffectDuration, false);
-		
+
 		break;
 	case ETrapEffect::Poisoned:
 		UE_LOG(LogTemp, Warning, TEXT("poison"));
 
 		break;
-	case ETrapEffect::SlowedDown: 
+	case ETrapEffect::SlowedDown:
 		GetCharacterMovement()->MaxWalkSpeed = 50;
 
 		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
+			if(!IsValid(this)){
+				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
+				return;
+			}
+
 			CurrentTrapEffect = ETrapEffect::None;
 			GetCharacterMovement()->MaxWalkSpeed = 200;
 		}, EffectDuration, false);

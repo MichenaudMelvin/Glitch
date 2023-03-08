@@ -21,4 +21,12 @@ void AMainAIPawn::BeginPlay(){
 	Blackboard->SetValueAsVector("OriginalPosition", GetActorLocation());
 }
 
+void AMainAIPawn::ReciveGlitchUpgrade(){
+	IGlitchInterface::ReciveGlitchUpgrade();
+}
+
+void AMainAIPawn::ResetGlitchUpgrade(){
+	IGlitchInterface::ResetGlitchUpgrade();
+}
+
 

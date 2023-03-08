@@ -18,14 +18,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
 	UStaticMeshComponent* MarkMesh;
 
 	AMainPlayer* Player;
 
 	FVector OriginalLocation;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Interaction")
 	UInteractableComponent* InteractableComp;
 
 	UFUNCTION()
@@ -33,7 +33,7 @@ protected:
 
 #pragma region Projectile
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
 	UProjectileMovementComponent* ProjectileMovement;	
 
 	void StartProjectile() const;
@@ -82,7 +82,7 @@ protected:
 
 	FTimerHandle DistanceTimer;
 
-	UPROPERTY(EditAnywhere, Category = "Distance")
+	UPROPERTY(EditDefaultsOnly, Category = "Distance")
 	float MaxDistance;
 
 public:

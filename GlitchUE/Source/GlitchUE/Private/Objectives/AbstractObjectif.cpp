@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Objectives/AbstractObjectif.h"
+
+#include "Kismet/KismetSystemLibrary.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 
 AAbstractObjectif::AAbstractObjectif(){
@@ -8,7 +10,7 @@ AAbstractObjectif::AAbstractObjectif(){
 
 	MeshObjectif = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshObjectif"));
 
-	MeshObjectif->SetupAttachment(RootComponent);
+	SetRootComponent(MeshObjectif);
 
 	MeshObjectif->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	MeshObjectif->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -47,6 +49,10 @@ void AAbstractObjectif::HealthNull(){}
 
 void AAbstractObjectif::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){}
 
-UActivableComponent* AAbstractObjectif::GetActivableComp() {
+UActivableComponent* AAbstractObjectif::GetActivableComp()  const{
 	return ActivableComp;
+}
+
+UHealthComponent* AAbstractObjectif::GetHealthComp() const{
+	return HealthComp;
 }

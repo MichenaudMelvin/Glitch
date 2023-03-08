@@ -40,8 +40,9 @@ protected:
 
 	UBoxComponent* TrapDistance;
 
+	UPROPERTY()
 	UPopcornFXEmitterComponent* IdleFX;
-	
+
 	float Damages;
 	
 	float TrapDuration;
@@ -60,7 +61,7 @@ protected:
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 	
-	virtual void GlitchUpgrade() override;
+	virtual void ReciveGlitchUpgrade() override;
 	
 	virtual void SetData(UPlacableActorData* NewData) override;
 	

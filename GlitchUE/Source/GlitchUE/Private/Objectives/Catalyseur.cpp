@@ -8,6 +8,7 @@
 ACatalyseur::ACatalyseur() {
 	TECHMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TECHMesh"));
 	TECHMesh->SetCanEverAffectNavigation(false);
+	TECHMesh->SetupAttachment(RootComponent);
 }
 
 void ACatalyseur::BeginPlay() {
