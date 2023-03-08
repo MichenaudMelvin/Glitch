@@ -6,7 +6,7 @@
 #include "Player/MainPlayer.h"
 
 AGlitchZone::AGlitchZone(){
-	
+	GetSpriteComponent()->bHiddenInGame = true;
 }
 
 void AGlitchZone::BeginPlay(){
