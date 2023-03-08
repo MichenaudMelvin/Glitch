@@ -210,6 +210,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UHealthComponent* GetHealthComp();
 
+	bool IsInGlitchZone() const;
+	
 	void SetInGlitchZone(const bool bNewValue);
 
 protected:

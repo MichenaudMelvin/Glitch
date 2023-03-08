@@ -61,7 +61,13 @@ void AMainAICharacter::StunAI() {
 }
 
 void AMainAICharacter::HealthNull() {
-	Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))->GiveGolds(10);
+
+	AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+
+	// uniquement pour le mode spectateur
+	if(IsValid(Player)){
+		Cast<AMainPlayer>(Player)->GiveGolds(10);
+	}
 
 	if (IsValid(WaveManager)) {
 		WaveManager->RemoveAIFromList(this);
@@ -116,10 +122,14 @@ void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const floa
 	switch (CurrentTrapEffect) {
 	case ETrapEffect::Burned: 
 		GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
-			if(IsValid(this)){
-				HealthComp->TakeDamages(1);
-				UE_LOG(LogTemp, Warning, TEXT("Take burn damages"));
+			if(!IsValid(this)){
+				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
+				return;
 			}
+
+			HealthComp->TakeDamages(1);
+			UE_LOG(LogTemp, Warning, TEXT("Take burn damages"));
+
 		}, EffectTickRate, true);
 
 		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
@@ -128,10 +138,15 @@ void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const floa
 		}, EffectDuration, false);
 
 		break;
-	case ETrapEffect::Frozen: 
+	case ETrapEffect::Frozen:
 		Blackboard->SetValueAsBool("DoingExternalActions", true);
 
 		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
+			if(!IsValid(this)){
+				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
+				return;
+			}
+
 			CurrentTrapEffect = ETrapEffect::None;
 			Blackboard->SetValueAsBool("DoingExternalActions", false);
 		}, EffectDuration, false);
@@ -141,10 +156,15 @@ void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const floa
 		UE_LOG(LogTemp, Warning, TEXT("poison"));
 
 		break;
-	case ETrapEffect::SlowedDown: 
+	case ETrapEffect::SlowedDown:
 		GetCharacterMovement()->MaxWalkSpeed = 50;
 
 		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
+			if(!IsValid(this)){
+				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
+				return;
+			}
+
 			CurrentTrapEffect = ETrapEffect::None;
 			GetCharacterMovement()->MaxWalkSpeed = 200;
 		}, EffectDuration, false);
