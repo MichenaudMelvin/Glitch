@@ -16,11 +16,8 @@
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = false;
 
-	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
-	SetRootComponent(BaseMesh);
-
 	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
-	AudioComp->SetupAttachment(BaseMesh);
+	AudioComp->SetupAttachment(RootComponent);
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 
@@ -44,7 +41,6 @@ void APlacableActor::BeginPlay(){
 	Super::BeginPlay();
 
 	InteractableComp->OnInteract.AddDynamic(this, &APlacableActor::Interact);
-	InteractableComp->AddInteractable(BaseMesh);
 
 	FOnTimelineFloat UpdateEvent;
 	FOnTimelineEvent FinishedEvent;
@@ -62,9 +58,7 @@ void APlacableActor::Tick(float DeltaTime){
 	FadeInAppearence.TickTimeline(DeltaTime);
 }
 
-void APlacableActor::SetMesh() {
-	BaseMesh->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[0]));
-}
+void APlacableActor::SetMesh() {}
 
 void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction) {
@@ -82,9 +76,7 @@ void APlacableActor::FadeIn(float Alpha){
 	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), AppearenceMaterialCollection, FName("Appearence"), Alpha);
 }
 
-void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){
-	BaseMesh->SetMaterial(0, NewMaterial);
-}
+void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){}
 
 void APlacableActor::EndAppearence_Implementation(){}
 
@@ -106,6 +98,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	CurrentData = NewData;
 	Name = CurrentData->Name;
 	AttackRange = CurrentData->AttackRange;
+	AttackAnimation = CurrentData->AttackAnimation;
 	SetMesh();
 
 	if(AttackFX == nullptr){

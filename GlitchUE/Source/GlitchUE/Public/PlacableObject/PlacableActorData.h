@@ -19,16 +19,16 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
 	float AttackRange;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Golds")
 	int Cost;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Golds")
 	UPlacableActorData* NextUpgrade;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
 	TArray<UStreamableRenderAsset*> MeshList;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
 	UStaticMesh* FullMesh;
 
@@ -40,6 +40,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* AttackFX;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
+	UAnimSequenceBase* AttackAnimation;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Class")
 	TSubclassOf<APlacableActor> ClassToSpawn;

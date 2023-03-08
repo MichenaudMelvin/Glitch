@@ -12,16 +12,19 @@
 ATurret::ATurret() {
 	PrimaryActorTick.bCanEverTick = true;
 
+	TurretBase = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretBase"));
+	SetRootComponent(TurretBase);
+
 	TurretPillar = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pillar"));
-	TurretPillar->SetupAttachment(BaseMesh);
-	
+	TurretPillar->SetupAttachment(TurretBase);
+
 	TurretHead = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Head"));
 	TurretHead->SetupAttachment(TurretPillar);
 	TurretHead->SetRelativeLocation(FVector(0, 0, 100));
 
-	BaseMesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	TurretPillar->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	TurretHead->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
+	TurretBase->CanCharacterStepUpOn = ECB_No;
+	TurretPillar->CanCharacterStepUpOn = ECB_No;
+	TurretHead->CanCharacterStepUpOn = ECB_No;
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
@@ -32,6 +35,7 @@ ATurret::ATurret() {
 void ATurret::BeginPlay(){
 	Super::BeginPlay();
 
+	InteractableComp->AddInteractable(TurretBase);
 	InteractableComp->AddInteractable(TurretPillar);
 	InteractableComp->AddInteractable(TurretHead);
 
@@ -91,8 +95,9 @@ void ATurret::ReciveGlitchUpgrade(){
 void ATurret::SetMesh(){
 	Super::SetMesh();
 
+	TurretBase->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[0]));
 	TurretPillar->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[1]));
-	TurretHead->SetSkeletalMesh((Cast<USkeletalMesh>(CurrentData->MeshList[2])), true);
+	TurretHead->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[2]), true);
 }
 
 void ATurret::SetData(UPlacableActorData* NewData){
