@@ -29,16 +29,16 @@ void USightComponent::Check(){
 	// if player in sight
 	OwnerBlackboard->SetValueAsVector("InvestigationLocation", SightActor->GetActorLocation());
 
-	if(bPlayerInCollision){
-		if(IsValid(SightActor) && UUsefullFunctions::CanSee(GetOwner(), GetComponentLocation(), SightActor, ECC_EngineTraceChannel3) && bPlayerInCollision){
+	if(bPlayerInCollision && !Cast<AMainPlayer>(SightActor)->IsInGlitchZone()){
+		if(UUsefullFunctions::CanSee(GetOwner(), GetComponentLocation(), SightActor, ECC_EngineTraceChannel3)){
 			InvestigateTimeElapsed += 0.1f;
-			
+
 			OwnerBlackboard->SetValueAsBool("Investigate", true);
 			OnSightPlayer.Broadcast((InvestigateTimeElapsed * 100) / MaxInvestigateTime);
-			
+
 			if(InvestigateTimeElapsed >= MaxInvestigateTime){
 				bIsPlayerInSight = true;
-				
+
 				OwnerBlackboard->SetValueAsObject("Player", SightActor);
 				OwnerBlackboard->SetValueAsVector("PlayerLocation", SightActor->GetActorLocation());
 				OwnerBlackboard->SetValueAsBool("Investigate", false);
@@ -49,12 +49,12 @@ void USightComponent::Check(){
 	} else{
 		InvestigateTimeElapsed -= 0.1f;
 		OnLooseSightPlayer.Broadcast((InvestigateTimeElapsed * 100) / MaxInvestigateTime);
-		
+
 		if(InvestigateTimeElapsed <= 0){
-		
+
 			GetWorld()->GetTimerManager().ClearTimer(SightTimer);
 			InvestigateTimeElapsed = 0;
-			
+
 			LooseSight();
 		}
 	}
@@ -71,13 +71,16 @@ void USightComponent::LooseSight(){
 void USightComponent::EnterSight(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
 		SightActor = OtherActor;
-		bPlayerInCollision = true;
-		GetWorld()->GetTimerManager().ClearTimer(SightTimer);
 
-		GetWorld()->GetTimerManager().SetTimer(SightTimer, [&]() {
-			Check();
-		}, 0.1f, true);
-	}	
+		if(!Cast<AMainPlayer>(SightActor)->IsInGlitchZone()){
+			bPlayerInCollision = true;
+			GetWorld()->GetTimerManager().ClearTimer(SightTimer);
+
+			GetWorld()->GetTimerManager().SetTimer(SightTimer, [&]() {
+				Check();
+			}, 0.1f, true);
+		}
+	}
 }
 
 void USightComponent::ExitSight(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){

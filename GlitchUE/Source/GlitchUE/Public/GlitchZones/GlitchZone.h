@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GlitchUEGameMode.h"
 #include "Engine/TriggerBox.h"
 #include "GlitchZone.generated.h"
 
@@ -15,6 +16,13 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ResetLevelStateDuration = 5;
+
+	AGlitchUEGameMode* GameMode;
+
+	FTimerHandle GlitchTimer;
 
 	UFUNCTION()
 	void EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

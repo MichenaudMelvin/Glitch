@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 
 AInhibiteur::AInhibiteur(){
-
+	MeshObjectif->SetCanEverAffectNavigation(true);
 }
 
 void AInhibiteur::BeginPlay(){
