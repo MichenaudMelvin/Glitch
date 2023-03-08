@@ -9,12 +9,21 @@
 #include "Components/InteractableComponent.h"
 
 ATrap::ATrap(){
+	TrapMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TrapMesh"));
+	SetRootComponent(TrapMesh);
+
+	TrapMesh->CanCharacterStepUpOn = ECB_No;
+
+	TrapMesh->SetCollisionResponseToAllChannels(ECR_Block);
+
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
 
 	CrystalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Crystal"));
-	CrystalMesh->SetupAttachment(BaseMesh);
+	CrystalMesh->SetupAttachment(TrapMesh);
 
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Traps/Crystals/AS_Crystal"));
+	CrystalMesh->CanCharacterStepUpOn = ECB_No;
+
+	static ConstructorHelpers::FObjectFinder<UAnimSequenceBase> Anim(TEXT("/Game/Meshs/Traps/Crystals/AS_Crystal"));
 	check(Anim.Succeeded());
 
 	CrystalAnimation = Anim.Object;
@@ -22,6 +31,8 @@ ATrap::ATrap(){
 
 void ATrap::BeginPlay(){
 	Super::BeginPlay();
+
+	InteractableComp->AddInteractable(TrapMesh);
 
 	TrapDistance = Cast<UBoxComponent>(AddComponentByClass(UBoxComponent::StaticClass(), false, FTransform(), false));
 	TrapDistance->OnComponentBeginOverlap.AddDynamic(this, &ATrap::OnReachVision);
@@ -40,7 +51,11 @@ void ATrap::OnActivateTrap(){
 	}, TrapDuration, false);
 }
 
-void ATrap::OnDesactivateTrap(){}
+void ATrap::OnDesactivateTrap(){
+	if(IsValid(IdleAnimation)){
+		TrapMesh->PlayAnimation(IdleAnimation, true);
+	}
+}
 
 void ATrap::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	if (!ActivableComp->IsActivated()) {
@@ -54,24 +69,43 @@ void ATrap::ReciveGlitchUpgrade(){
 	Super::ReciveGlitchUpgrade();
 }
 
-void ATrap::SetData(UPlacableActorData* NewData){
-	Super::SetData(NewData);
+void ATrap::SetMesh(){
+	Super::SetMesh();
 
+	const UTrapData* Data = Cast<UTrapData>(CurrentData);
+
+	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(Data->MeshList[0]), true);
+
+	if(IsValid(IdleAnimation)){
+		TrapMesh->PlayAnimation(IdleAnimation, true);
+		UE_LOG(LogTemp, Warning, TEXT("Play idle"));
+	} else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("pas valid"));
+	}
+
+	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(Data->MeshList[1]));
+	CrystalMesh->PlayAnimation(CrystalAnimation, true);
+	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(Data->CrystalColor));
+}
+
+void ATrap::SetData(UPlacableActorData* NewData){
 	const UTrapData* Data = Cast<UTrapData>(NewData);
 
+	IdleAnimation = Data->IdleAnimation;
+
+	Super::SetData(NewData);
+	
 	Damages = Data->TrapDamages;
 	TrapDuration = Data->TrapDuration;
 	TrapAttackRate = Data->TrapAttackRate;
 	TrapEffect = Data->TrapEffect;
 	TrapEffectDuration = Data->TrapEffectDuration;
-	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(Data->MeshList[1]));
-	CrystalMesh->PlayAnimation(CrystalAnimation, true);
-	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(Data->CrystalColor));
 
 	if(IdleFX == nullptr){
 		IdleFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), Data->IdleFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, true, false);
 	}
-	
+
 	FTimerHandle TimerHandle;
 	// Micro delay pour éviter les problèmes de navigation
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
@@ -82,11 +116,15 @@ void ATrap::SetData(UPlacableActorData* NewData){
 void ATrap::Attack_Implementation(){
 	Super::Attack_Implementation();
 
-	GEngine->AddOnScreenDebugMessage(-1, TrapAttackRate, FColor::Yellow, TEXT("TrapAttack"));	
+	GEngine->AddOnScreenDebugMessage(-1, TrapAttackRate, FColor::Yellow, TEXT("TrapAttack"));
 
 	TArray<AMainAICharacter*>AIArray = AIList.Array();
 	const UTrapData* Data = Cast<UTrapData>(CurrentData);
-	
+
+	if(IsValid(AttackAnimation)){
+		TrapMesh->PlayAnimation(AttackAnimation, false);
+	}
+
 	for(int i = 0; i < AIArray.Num(); i++){
 		AIArray[i]->ReceiveTrapEffect(TrapEffect, TrapEffectDuration, Data->EffectTickRate, Data->EffectDamages);
 	}

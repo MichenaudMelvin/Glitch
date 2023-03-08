@@ -33,16 +33,13 @@ public:
 UCLASS()
 class GLITCHUE_API APlacableActor : public AActor, public IGlitchInterface{
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	APlacableActor();
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
-	UStaticMeshComponent* BaseMesh;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UPlacableActorData* CurrentData;
@@ -64,6 +61,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "FX")
 	UPopcornFXEmitterComponent* AttackFX;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+	UAnimSequenceBase* AttackAnimation;
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI")
 	TSet<AMainAICharacter*> AIList;
