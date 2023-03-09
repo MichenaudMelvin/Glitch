@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Player/MainPlayer.h"
+#include "Player/MainPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -124,6 +125,44 @@ void AMainPlayer::BeginPlay(){
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCharacterMovement()->GravityScale = OriginalGravityScale;
+
+	// pas mal mais a faire ailleurs (dans une fonction) et demander à louis pour tous les com
+
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
+
+	const FAttachmentTransformRules AttachmentTransformRules = FAttachmentTransformRules::KeepWorldTransform;
+
+	const FVector ActorOffset = FVector(0, 0, 80);
+	
+	const FTransform SpriteTransform = FTransform(FRotator(0, 90, 0), FVector(CompassRadius, 0, 0), FVector::OneVector);
+
+	for(int i = 0; i < Actors.Num(); i++){
+		UCompassIcon* CurrentIcon = Cast<UCompassIcon>(Actors[i]->GetComponentByClass(UCompassIcon::StaticClass()));
+
+		if(!IsValid(CurrentIcon)){
+			continue;
+		}
+
+		CompassIconArray.Add(CurrentIcon);
+
+		USceneComponent* CurrentSceneComp = Cast<USceneComponent>(AddComponentByClass(USceneComponent::StaticClass(), false, FTransform::Identity, false));
+
+		CurrentSceneComp->AttachToComponent(GetMesh(), AttachmentTransformRules);
+
+		CurrentSceneComp->SetRelativeLocation(ActorOffset);
+
+		UPaperSpriteComponent* CurrentIconComp = Cast<UPaperSpriteComponent>(AddComponentByClass(UPaperSpriteComponent::StaticClass(), false, FTransform::Identity, false));
+
+		CurrentIconComp->AttachToComponent(CurrentSceneComp, AttachmentTransformRules);
+
+		CurrentIconComp->SetSprite(CurrentIcon->GetOwnerSprite());
+		CurrentIconComp->SetRelativeTransform(SpriteTransform);
+		CurrentIconComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+		SceneComponentsArray.Add(CurrentSceneComp);
+		PaperSpriteArray.Add(CurrentIconComp);
+	}
 
 	#pragma region FXCreation
 
@@ -332,7 +371,7 @@ void AMainPlayer::PreviewObject(){
 void AMainPlayer::PlaceObject(){
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(PlacableActorLocation);
-	FActorSpawnParameters ActorsSpawnParameters;
+	const FActorSpawnParameters ActorsSpawnParameters;
 	GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), SpawnTransform, ActorsSpawnParameters);
 }
 
@@ -426,11 +465,15 @@ void AMainPlayer::UseGlitchReleassed() {
 
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
-	
+
 	CameraTransitionTL.TickTimeline(deltaTime);
 	CameraAimTransition.TickTimeline(deltaTime);
 	CameraZoomTransition.TickTimeline(deltaTime);
 	CameraFOVTransition.TickTimeline(deltaTime);
+
+	for(int i = 0; i < PaperSpriteArray.Num(); i++){
+		SceneComponentsArray[i]->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(SceneComponentsArray[i]->GetComponentLocation(), CompassIconArray[i]->GetOwnerLocation()));
+	}
 }
 
 void AMainPlayer::SetMark(AMark* NewMark) {

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/CompassIcon.h"
 #include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
 #include "Components/HealthComponent.h"
@@ -42,6 +43,19 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
+
+	#pragma region Compass
+
+	TArray<UCompassIcon*> CompassIconArray;
+
+	TArray<USceneComponent*> SceneComponentsArray;
+
+	TArray<UPaperSpriteComponent*> PaperSpriteArray;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	float CompassRadius = 90;
+
+	#pragma endregion
 
 protected:
 
