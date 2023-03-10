@@ -27,4 +27,10 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 		UFUNCTION()
 		//https://dev.epicgames.com/community/snippets/xBY/unreal-engine-sort-actor-array-based-on-distance-from-target
 		static void QuickSortByDistance(TArray<AActor*>& InArray, const int Low, const int High, const AActor* Actor);
+
+		UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType=""))
+		static UAbstractSave* SaveToSlot(UAbstractSave* SaveObject, int UserIndex);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, meta = (DeterminesOutputType="SaveClass"))
+		static UAbstractSave* LoadSave(TSubclassOf<UAbstractSave> SaveClass, int UserIndex);
 };

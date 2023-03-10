@@ -9,6 +9,7 @@
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
+#include "Saves/SettingsSave.h"
 #include "MainPlayer.generated.h"
 
 class AMainPlayerController;
@@ -365,11 +366,18 @@ public:
 
 #pragma endregion
 
-#pragma region Others
+	#pragma region Others
 
 	UCurveFloat* ZeroToOneCurve;
 
-#pragma endregion
+	#pragma endregion
+
+	#pragma region Saves
+
+	UPROPERTY(BlueprintReadWrite)
+	USettingsSave* SettingsSave;
+
+	#pragma endregion
 
 	UFUNCTION(Exec)
 	void TestFunction();

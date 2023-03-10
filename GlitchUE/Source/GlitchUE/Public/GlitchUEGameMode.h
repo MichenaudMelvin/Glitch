@@ -72,9 +72,6 @@ protected:
 	void Save(UAbstractSave* SaveObject);
 	void Save_Implementation(UAbstractSave* SaveObject);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UAbstractSave* Load(TSubclassOf<UAbstractSave> SaveClass, int UserIndex);
-
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void FastSave();
 	void FastSave_Implementation();

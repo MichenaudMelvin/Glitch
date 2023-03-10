@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Saves/AbstractSave.h"
 
 void UUsefullFunctions::OutlineComponent(bool SetOutline, UPrimitiveComponent* Component){
 	if (!IsValid(Component)){
@@ -77,4 +79,19 @@ void UUsefullFunctions::QuickSortByDistance(TArray<AActor*>& InArray, const int 
 	if (I < High){
 		QuickSortByDistance(InArray, I, High, Actor);
 	}
+}
+
+UAbstractSave* UUsefullFunctions::SaveToSlot(UAbstractSave* SaveObject, int UserIndex){
+	UGameplayStatics::SaveGameToSlot(SaveObject, SaveObject->GetSlotName(), UserIndex);
+	return SaveObject;
+}
+
+
+UAbstractSave* UUsefullFunctions::LoadSave(TSubclassOf<UAbstractSave> SaveClass, int UserIndex){
+	UAbstractSave* LoadedSave = Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SaveClass.GetDefaultObject()->GetSlotName(), UserIndex));
+	if(IsValid(LoadedSave)){
+		return LoadedSave; 
+	}
+
+	return Cast<UAbstractSave>(UGameplayStatics::CreateSaveGameObject(SaveClass));
 }

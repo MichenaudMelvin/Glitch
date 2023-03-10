@@ -18,6 +18,7 @@
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
 #include "Sound/SoundBase.h"
@@ -82,6 +83,10 @@ AMainPlayer::AMainPlayer(){
 
 void AMainPlayer::BeginPlay(){
 	Super::BeginPlay();
+
+	SettingsSave = Cast<USettingsSave>(UUsefullFunctions::LoadSave(USettingsSave::StaticClass(), 0));
+	FollowCamera->FieldOfView = SettingsSave->CamreaFOV;
+	bInvertYAxis = SettingsSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 

@@ -80,10 +80,6 @@ void AGlitchUEGameMode::Tick(float deltaTime){
 
 void AGlitchUEGameMode::Save_Implementation(UAbstractSave* SaveObject){}
 
-UAbstractSave* AGlitchUEGameMode::Load(TSubclassOf<UAbstractSave> SaveClass, int UserIndex){
-	return Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SaveClass.GetDefaultObject()->GetSlotName(), UserIndex));
-}
-
 void AGlitchUEGameMode::FastSave_Implementation(){}
 
 void AGlitchUEGameMode::FastLoad_Implementation(){}
