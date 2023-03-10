@@ -15,4 +15,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData) override;
+
+	TArray<ACatalyseur*> CatalyseurList;
+
+	virtual TArray<ACatalyseur*> GetCatalyseurList() const override;
 };

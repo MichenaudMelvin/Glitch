@@ -16,9 +16,15 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	// UBoxComponent* BoxComp;
-	//
-	// UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	// UFloatingPawnMovement* MovementComponent;
+	UPROPERTY(EditDefaultsOnly)
+	UInteractableComponent* InteractableComp;
+
+	UFUNCTION()
+	void OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+public:
+	UFUNCTION()
+	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
+	UInteractableComponent* GetInteractableComp() const;
 };
