@@ -3,7 +3,6 @@
 
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayer.h"
 
 APursuitDrone::APursuitDrone(){

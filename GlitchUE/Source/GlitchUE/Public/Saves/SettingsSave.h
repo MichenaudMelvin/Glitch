@@ -13,8 +13,15 @@ class GLITCHUE_API USettingsSave : public UAbstractSave{
 public:
 	USettingsSave();
 
+#pragma region Boolean
+
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertCamYAxis = false;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool VSyncEnable = false;
+
+#pragma endregion
 
 	UPROPERTY(BlueprintReadWrite)
 	float CamreaFOV = 90;

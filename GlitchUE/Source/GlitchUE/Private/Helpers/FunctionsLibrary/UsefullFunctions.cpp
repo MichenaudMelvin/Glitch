@@ -41,6 +41,30 @@ int UUsefullFunctions::ClampIntToArrayLength(const int IntToClamp, const int Arr
 	return IntToClamp;
 }
 
+int UUsefullFunctions::ClampZeroOne(const int IntToClamp){
+	return FMath::Clamp(IntToClamp, 0, 1);
+}
+
+float UUsefullFunctions::ClampZeroOneFloat(const float FloatToClamp){
+	return FMath::Clamp(FloatToClamp, 0.0f, 1.0f);
+}
+
+FVector UUsefullFunctions::AddToVector(FVector Vector, const float X, const float Y, const float Z){
+	Vector.X += X;
+	Vector.Y += Y;
+	Vector.Z += Z;
+
+	return Vector;
+}
+
+FRotator UUsefullFunctions::AddToRotator(FRotator Rotator, const float X, const float Y, const float Z){
+	Rotator.Roll += X;
+	Rotator.Pitch += Y;
+	Rotator.Yaw += Z;
+
+	return Rotator;
+}
+
 TArray<AActor*> UUsefullFunctions::SortActorsByDistanceToActor(TArray<AActor*> Actors, AActor* Target){
 	QuickSortByDistance(Actors, 0, Actors.Num() - 1, Target);
 	return Actors;
@@ -81,17 +105,22 @@ void UUsefullFunctions::QuickSortByDistance(TArray<AActor*>& InArray, const int 
 	}
 }
 
-UAbstractSave* UUsefullFunctions::SaveToSlot(UAbstractSave* SaveObject, int UserIndex){
+UAbstractSave* UUsefullFunctions::CreateSave(const TSubclassOf<UAbstractSave> SaveClass){
+	return NewObject<UAbstractSave>(GetTransientPackage(), SaveClass);
+}
+
+UAbstractSave* UUsefullFunctions::SaveToSlot(UAbstractSave* SaveObject, const int UserIndex){
 	UGameplayStatics::SaveGameToSlot(SaveObject, SaveObject->GetSlotName(), UserIndex);
 	return SaveObject;
 }
 
-
-UAbstractSave* UUsefullFunctions::LoadSave(TSubclassOf<UAbstractSave> SaveClass, int UserIndex){
+UAbstractSave* UUsefullFunctions::LoadSave(const TSubclassOf<UAbstractSave> SaveClass, const int UserIndex){
 	UAbstractSave* LoadedSave = Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SaveClass.GetDefaultObject()->GetSlotName(), UserIndex));
 	if(IsValid(LoadedSave)){
-		return LoadedSave; 
+		return LoadedSave;
 	}
 
-	return Cast<UAbstractSave>(UGameplayStatics::CreateSaveGameObject(SaveClass));
+	LoadedSave = Cast<UAbstractSave>(UGameplayStatics::CreateSaveGameObject(SaveClass));
+	LoadedSave = SaveToSlot(LoadedSave, 0);
+	return LoadedSave;
 }

@@ -2,7 +2,6 @@
 
 
 #include "AI/GeneralTasks/SwitchBehavior.h"
-#include "AIController.h"
 #include "AI/MainAIController.h"
 
 USwitchBehavior::USwitchBehavior(){}

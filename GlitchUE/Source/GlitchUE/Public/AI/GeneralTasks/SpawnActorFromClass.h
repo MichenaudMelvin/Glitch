@@ -4,21 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "SwitchBehavior.generated.h"
+#include "SpawnActorFromClass.generated.h"
 
 UCLASS()
-class GLITCHUE_API USwitchBehavior : public UBTTaskNode{
+class GLITCHUE_API USpawnActorFromClass : public UBTTaskNode{
 	GENERATED_BODY()
 
 public:
-	USwitchBehavior();
+	USpawnActorFromClass();
 
 private:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	UPROPERTY(EditAnywhere, Category = "Behavior")
-	UBehaviorTree* NewBehaviorTree;
-
-	UPROPERTY(EditAnywhere, Category = "Behavior")
-	UBlackboardData* NewBlackboardData;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> Class;
 };
