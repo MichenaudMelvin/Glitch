@@ -16,10 +16,33 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaSeconds) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	USceneComponent* PivotPoint;
+
 	UPROPERTY(EditDefaultsOnly)
 	USkeletalMeshComponent* DroneMesh;
+
+	float SpinOffset;
+
+	float SpinSpeed;
+
+	float InteriorRotationOffset;
+
+	virtual void SetData(UPlacableActorData* NewData) override;
 
 	virtual void SetMesh() override;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Boost")
+	void BoostPlacable(APlacableActor* PlacableToBoost);
+
+	FTimeline SpinTimeline;
+
+	UCurveFloat* ZeroToOneCurve;
+
+	UFUNCTION()
+	void Spin(float Value);
 };
