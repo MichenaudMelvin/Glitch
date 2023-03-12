@@ -14,8 +14,10 @@ class GLITCHUE_API UWorldSave : public UAbstractSave{
 
 public:
 	UWorldSave();
-	
-protected:
+
+	UPROPERTY(BlueprintReadWrite)
+	UMaterial* SaveImage;
+
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FTransform> AITransformList;
 
@@ -30,4 +32,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	ELevelState LevelState;
+
+	UPROPERTY(BlueprintReadWrite)
+	int LoadedTime = 0;
 };

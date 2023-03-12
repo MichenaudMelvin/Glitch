@@ -47,5 +47,8 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 		static UAbstractSave* SaveToSlot(UAbstractSave* SaveObject, const int UserIndex);
 
 		UFUNCTION(BlueprintCallable, BlueprintPure, meta = (DeterminesOutputType = "SaveClass"), Category = "Saves")
-		static UAbstractSave* LoadSave(const TSubclassOf<UAbstractSave> SaveClass, const int UserIndex);
+		static UAbstractSave* LoadSave(const TSubclassOf<UAbstractSave> SaveClass, const int UserIndex, const bool bCreateNewSaveIfDoesntExist = true);
+
+		UFUNCTION(BlueprintCallable, Category = "Saves")
+		static bool DeleteSaveSlot(UAbstractSave* SaveObject, const int UserIndex);
 };

@@ -56,6 +56,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
 
+	void InitializeWorld();
+
 	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
 	AMainPlayer* MainPlayer;
 
@@ -65,21 +67,19 @@ protected:
 
 	AWaveManager* WaveManager;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Saves")
-	UWorldSave* WorldSave;
+public:
+	UFUNCTION(BlueprintCallable)
+	void GlobalWorldSave(const int Index);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Save(UAbstractSave* SaveObject);
-	void Save_Implementation(UAbstractSave* SaveObject);
+	UFUNCTION(BlueprintCallable)
+	void GlobalWorldLoad(const int Index);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void FastSave();
-	void FastSave_Implementation();
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UMaterial*> SaveMaterials;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void FastLoad();
-	void FastLoad_Implementation();
-	
+	UPROPERTY(EditDefaultsOnly)
+	int MaxLoadSaveTime = 3;
+
 	float GlitchValue;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")

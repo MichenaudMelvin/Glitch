@@ -63,13 +63,13 @@ protected:
 	virtual void Tick(float deltaTime) override;
 	virtual void BeginPlay() override;
 
+public:
 	UFUNCTION(BlueprintCallable)
 	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation);
 	//virtual  void InitializePlayer_Implementation(FTransform StartTransform, FRotator CameraRotation);
 
 	#pragma region Camera
 
-public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
 	void CameraAim();
 	virtual void CameraAim_Implementation();
