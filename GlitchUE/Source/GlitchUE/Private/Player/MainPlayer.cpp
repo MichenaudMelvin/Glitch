@@ -344,6 +344,10 @@ UHealthComponent* AMainPlayer::GetHealthComp(){
 	return HealthComp;
 }
 
+bool AMainPlayer::IsInGlitchZone() const{
+	return bIsInGlitchZone;
+}
+
 void AMainPlayer::SetInGlitchZone(const bool bNewValue){
 	bIsInGlitchZone = bNewValue;
 }
@@ -352,7 +356,8 @@ void AMainPlayer::SetInGlitchZone(const bool bNewValue){
 
 void AMainPlayer::LaunchMark(){
 	FTransform MarkTransform;
-	MarkTransform.SetLocation(GetActorLocation());
+	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Bone012"));
+
 	MarkTransform.SetRotation(FindMarkLaunchRotation());
 	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
 	Mark->Launch(MarkTransform);
@@ -370,7 +375,7 @@ FQuat AMainPlayer::FindMarkLaunchRotation(){
 	FCollisionResponseParams ResponseParam;
 
 	FVector TargetRotation = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) ? HitResult.ImpactPoint : EndLocation;
-	return UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetRotation).Quaternion();
+	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Bone012"), TargetRotation).Quaternion();
 }
 
 void AMainPlayer::TPToMark() {

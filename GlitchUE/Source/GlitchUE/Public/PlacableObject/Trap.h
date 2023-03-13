@@ -6,7 +6,6 @@
 #include "PlacableObject/PlacableActor.h"
 #include "Components/ActivableComponent.h"
 #include "Components/BoxComponent.h"
-#include "Animation/AnimationAsset.h"
 #include "Trap.generated.h"
 
 class UTrapData;
@@ -30,11 +29,16 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
+	USkeletalMeshComponent* TrapMesh;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* CrystalMesh;
 
-	UAnimationAsset* CrystalAnimation;
-	
+	UAnimSequenceBase* CrystalAnimation;
+
+	UAnimSequenceBase* IdleAnimation;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UActivableComponent* ActivableComp;
 
@@ -44,11 +48,11 @@ protected:
 	UPopcornFXEmitterComponent* IdleFX;
 
 	float Damages;
-	
+
 	float TrapDuration;
-	
+
 	float TrapAttackRate;
-	
+
 	ETrapEffect TrapEffect;
 
 	float TrapEffectDuration;
@@ -60,14 +64,16 @@ protected:
 	void OnDesactivateTrap();
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
-	
+
 	virtual void ReciveGlitchUpgrade() override;
-	
+
+	virtual void SetMesh() override;
+
 	virtual void SetData(UPlacableActorData* NewData) override;
-	
+
 	virtual void Attack_Implementation() override;
-	
+
 	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	
+
 	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 };

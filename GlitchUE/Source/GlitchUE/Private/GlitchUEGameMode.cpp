@@ -224,7 +224,7 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 
 	TArray<AActor*> AIList;
 	for(int i = 0; i < AIControllerList.Num(); i++){
-		AIList.Add(Cast<AMainAIController>(AIControllerList[0])->GetPawn());
+		AIList.Add(Cast<AMainAIController>(AIControllerList[i])->GetPawn());
 	}
 
 	if (AIList.Num() > 0) {
