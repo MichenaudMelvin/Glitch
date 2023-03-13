@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Player/MainPlayer.h"
+#include "Engine/SceneCapture2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
@@ -73,6 +75,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void GlobalWorldLoad(const int Index);
+
+protected:
+	ASceneCapture2D* SceneCapture;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UTextureRenderTarget2D*> SaveRenderTarget;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UMaterial*> SaveMaterials;

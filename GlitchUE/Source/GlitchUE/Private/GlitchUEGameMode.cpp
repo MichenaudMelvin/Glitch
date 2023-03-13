@@ -10,11 +10,12 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
-#include "Engine/TextureRenderTarget2D.h"
 #include "Saves/WorldSave.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
@@ -55,6 +56,15 @@ void AGlitchUEGameMode::BeginPlay() {
 	}
 
 	WaveManager = WaveManagerArray[0];
+
+	TArray<AActor*> SceneCaptureArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
+
+	if(SceneCaptureArray.Num() == 0){
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SCENE CAPTURE N'EST PLACE DANS LA SCENE"));
+	}
+
+	SceneCapture = Cast<ASceneCapture2D>(SceneCaptureArray[0]);
 
 	FOnTimelineLinearColor UpdateEvent;
 	FOnTimelineEvent FinishEvent;
@@ -114,6 +124,12 @@ void AGlitchUEGameMode::InitializeWorld(){
 
 void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index));
+
+	SceneCapture->SetActorLocation(MainPlayer->GetFollowCamera()->GetComponentLocation());
+	SceneCapture->SetActorRotation(MainPlayer->GetFollowCamera()->GetComponentRotation());
+	SceneCapture->GetCaptureComponent2D()->CaptureScene();
+
+	SceneCapture->GetCaptureComponent2D()->TextureTarget = SaveRenderTarget[0]; // use index
 
 	CurrentSave->SaveImage = SaveMaterials[0]; // use index
 

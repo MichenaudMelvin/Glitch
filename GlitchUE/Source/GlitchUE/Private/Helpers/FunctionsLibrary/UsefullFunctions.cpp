@@ -110,12 +110,18 @@ UAbstractSave* UUsefullFunctions::CreateSave(const TSubclassOf<UAbstractSave> Sa
 }
 
 UAbstractSave* UUsefullFunctions::SaveToSlot(UAbstractSave* SaveObject, const int UserIndex){
-	UGameplayStatics::SaveGameToSlot(SaveObject, SaveObject->GetSlotName(), UserIndex);
+	FString SlotName = SaveObject->GetSlotName();
+	SlotName += FString::FromInt(UserIndex);
+
+	UGameplayStatics::AsyncSaveGameToSlot(SaveObject, SlotName, 0);
 	return SaveObject;
 }
 
 UAbstractSave* UUsefullFunctions::LoadSave(const TSubclassOf<UAbstractSave> SaveClass, const int UserIndex, const bool bCreateNewSaveIfDoesntExist){
-	UAbstractSave* LoadedSave = Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SaveClass.GetDefaultObject()->GetSlotName(), UserIndex));
+	FString SlotName = SaveClass.GetDefaultObject()->GetSlotName();
+	SlotName += FString::FromInt(UserIndex);
+
+	UAbstractSave* LoadedSave = Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 	if(IsValid(LoadedSave)){
 		return LoadedSave;
 	}
@@ -130,5 +136,8 @@ UAbstractSave* UUsefullFunctions::LoadSave(const TSubclassOf<UAbstractSave> Save
 }
 
 bool UUsefullFunctions::DeleteSaveSlot(UAbstractSave* SaveObject, const int UserIndex){
-	return UGameplayStatics::DeleteGameInSlot(SaveObject->GetSlotName(), UserIndex);
+	FString SlotName = SaveObject->GetSlotName();
+	SlotName += FString::FromInt(UserIndex);
+
+	return UGameplayStatics::DeleteGameInSlot(SlotName, 0);
 }
