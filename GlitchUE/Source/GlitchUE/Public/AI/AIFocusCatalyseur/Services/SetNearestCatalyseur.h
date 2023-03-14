@@ -16,9 +16,9 @@ public:
 
 private:
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
-	
+
 	virtual void OnSearchStart(FBehaviorTreeSearchData& SearchData) override;
-	
+
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	ACatalyseur* SetFirstCatalyseurToCheck(const TArray<ACatalyseur*> CatalyseurList);

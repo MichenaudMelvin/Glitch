@@ -2,11 +2,15 @@
 
 
 #include "AI/AIPursuitDrone/PursuitDroneController.h"
+
+#include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "BehaviorTree/BlackboardComponent.h" 	
 #include "GameFramework/Character.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
+#include "Objectives/Nexus.h"
 
 APursuitDroneController::APursuitDroneController(const FObjectInitializer& ObjectInitializer) : AMainAIController(ObjectInitializer){
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BehaviorTreeAsset(TEXT("/Game/Blueprint/AI/AIPursuitDrone/BT_PursuitDrone"));
@@ -29,4 +33,32 @@ void APursuitDroneController::BeginPlay(){
 		Blackboard->SetValueAsObject(FName(TEXT("Player")), Player);
 		Blackboard->SetValueAsVector(FName(TEXT("PlayerLocation")), Player->GetActorLocation());
 	}
+}
+
+void APursuitDroneController::SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData){
+	Super::SwitchBehavior(NewBehaviorTree, NewBlackboardData);
+
+	APursuitDrone* CurrentDrone = Cast<APursuitDrone>(GetPawn());
+
+	GetCharacter()->GetCapsuleComponent()->OnComponentBeginOverlap.Clear();
+	CurrentDrone->GetInteractableComp()->OnInteract.AddDynamic(CurrentDrone, &APursuitDrone::Interact);
+	CurrentDrone->GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	CurrentDrone->GetInteractableComp()->AddInteractable(CurrentDrone->GetCapsuleComponent());
+
+	TArray<AActor*> NexusArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
+	ANexus* Nexus = Cast<ANexus>(NexusArray[0]);
+
+	TArray<AActor*> CatalyseurArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACatalyseur::StaticClass(), CatalyseurArray);
+	for(int i = 0; i < CatalyseurArray.Num(); i++){
+		CatalyseurList.Add(Cast<ACatalyseur>(CatalyseurArray[i]));
+	}
+
+	Blackboard->SetValueAsObject("Nexus", Nexus);
+	Blackboard->SetValueAsVector("NexusLocation", Nexus->GetActorLocation());
+}
+
+TArray<ACatalyseur*> APursuitDroneController::GetCatalyseurList() const{
+	return CatalyseurList;
 }

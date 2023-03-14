@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AI/MainAIController.h"
+#include "BrainComponent.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionTypes.h"
@@ -58,6 +59,21 @@ void AMainAIController::SetPlayerValues(AActor* Player) {
 	//Blackboard->SetValueAsVector(FName(TEXT("PlayerLocation")), Player->GetActorLocation());
 }
 
-const float AMainAIController::GetDamages(){
+float AMainAIController::GetDamages() const{
 	return Damages;
+}
+
+void AMainAIController::SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData){
+	GetBrainComponent()->StopLogic("Switch Behavior");
+
+	BehaviorTree = NewBehaviorTree;
+	BlackboardData = NewBlackboardData;
+
+	RunBehaviorTree(BehaviorTree);
+	UseBlackboard(BlackboardData, Blackboard);
+}
+
+TArray<ACatalyseur*> AMainAIController::GetCatalyseurList() const{
+	TArray<ACatalyseur*> EmptyList;
+	return EmptyList;
 }

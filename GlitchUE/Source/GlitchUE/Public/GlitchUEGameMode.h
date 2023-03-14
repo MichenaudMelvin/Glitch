@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Player/MainPlayer.h"
+#include "Engine/SceneCapture2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
@@ -56,6 +58,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
 
+	void InitializeWorld();
+
 	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
 	AMainPlayer* MainPlayer;
 
@@ -65,24 +69,25 @@ protected:
 
 	AWaveManager* WaveManager;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Saves")
-	UWorldSave* WorldSave;
+public:
+	UFUNCTION(BlueprintCallable)
+	void GlobalWorldSave(const int Index);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Save(UAbstractSave* SaveObject);
-	void Save_Implementation(UAbstractSave* SaveObject);
+	UFUNCTION(BlueprintCallable)
+	void GlobalWorldLoad(const int Index);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UAbstractSave* Load(TSubclassOf<UAbstractSave> SaveClass, int UserIndex);
+protected:
+	ASceneCapture2D* SceneCapture;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void FastSave();
-	void FastSave_Implementation();
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UTextureRenderTarget2D*> SaveRenderTarget;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void FastLoad();
-	void FastLoad_Implementation();
-	
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UMaterial*> SaveMaterials;
+
+	UPROPERTY(EditDefaultsOnly)
+	int MaxLoadSaveTime = 3;
+
 	float GlitchValue;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")

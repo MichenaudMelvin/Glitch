@@ -3,23 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PaperSpriteComponent.h"
 #include "Components/ActorComponent.h"
-#include "Engine/Texture2D.h"
-#include "MapIconComponent.generated.h"
-
+#include "CompassIcon.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class GLITCHUE_API UMapIconComponent : public UActorComponent{
+class GLITCHUE_API UCompassIcon : public UActorComponent{
 	GENERATED_BODY()
 
 public:	
-	UMapIconComponent();
+	UCompassIcon();
 
 protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UTexture2D* Icon;
+	UPaperSprite* OwnerSprite;
 
-	void UpdateIconLocation();
+	FVector OwnerLocation;
+
+public:
+	UPaperSprite* GetOwnerSprite();
+
+	FVector GetOwnerLocation();
+
 };

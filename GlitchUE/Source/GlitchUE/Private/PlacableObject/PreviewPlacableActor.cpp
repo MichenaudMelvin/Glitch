@@ -68,7 +68,7 @@ void APreviewPlacableActor::SetInConstructionZone(bool bNewValue) {
 }
 
 bool APreviewPlacableActor::CanBePlaced() {
-	return CheckSpotSpace() && bInConstructionZone && CurrentData->HasEnoughGolds(MainPlayer->GetGolds());
+	return bInConstructionZone && CurrentData->HasEnoughGolds(MainPlayer->GetGolds());
 }
 
 void APreviewPlacableActor::ChooseColor() {

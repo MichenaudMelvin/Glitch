@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AI/FocusAIController.h"
-#include "Objectives/Catalyseur.h"
 #include "FocusCatalyseurController.generated.h"
 
 UCLASS()
@@ -21,5 +20,5 @@ protected:
 	TArray<ACatalyseur*> CatalyseurList;
 
 public:
-	const TArray<ACatalyseur*> GetCatalyseurList();
+	virtual TArray<ACatalyseur*> GetCatalyseurList() const override;
 };

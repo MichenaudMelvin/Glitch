@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/CompassIcon.h"
 #include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
+#include "Saves/SettingsSave.h"
 #include "MainPlayer.generated.h"
 
 class AMainPlayerController;
@@ -43,18 +45,31 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
+	#pragma region Compass
+
+	TArray<UCompassIcon*> CompassIconArray;
+
+	TArray<USceneComponent*> SceneComponentsArray;
+
+	TArray<UPaperSpriteComponent*> PaperSpriteArray;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	float CompassRadius = 90;
+
+	#pragma endregion
+
 protected:
 
 	virtual void Tick(float deltaTime) override;
 	virtual void BeginPlay() override;
 
+public:
 	UFUNCTION(BlueprintCallable)
 	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation);
 	//virtual  void InitializePlayer_Implementation(FTransform StartTransform, FRotator CameraRotation);
 
 	#pragma region Camera
 
-public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
 	void CameraAim();
 	virtual void CameraAim_Implementation();
@@ -351,11 +366,18 @@ public:
 
 #pragma endregion
 
-#pragma region Others
+	#pragma region Others
 
 	UCurveFloat* ZeroToOneCurve;
 
-#pragma endregion
+	#pragma endregion
+
+	#pragma region Saves
+
+	UPROPERTY(BlueprintReadWrite)
+	USettingsSave* SettingsSave;
+
+	#pragma endregion
 
 	UFUNCTION(Exec)
 	void TestFunction();

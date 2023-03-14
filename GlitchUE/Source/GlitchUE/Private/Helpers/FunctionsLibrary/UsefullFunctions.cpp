@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Saves/AbstractSave.h"
 
 void UUsefullFunctions::OutlineComponent(bool SetOutline, UPrimitiveComponent* Component){
 	if (!IsValid(Component)){
@@ -37,6 +39,30 @@ int UUsefullFunctions::ClampIntToArrayLength(const int IntToClamp, const int Arr
 	}
 
 	return IntToClamp;
+}
+
+int UUsefullFunctions::ClampZeroOne(const int IntToClamp){
+	return FMath::Clamp(IntToClamp, 0, 1);
+}
+
+float UUsefullFunctions::ClampZeroOneFloat(const float FloatToClamp){
+	return FMath::Clamp(FloatToClamp, 0.0f, 1.0f);
+}
+
+FVector UUsefullFunctions::AddToVector(FVector Vector, const float X, const float Y, const float Z){
+	Vector.X += X;
+	Vector.Y += Y;
+	Vector.Z += Z;
+
+	return Vector;
+}
+
+FRotator UUsefullFunctions::AddToRotator(FRotator Rotator, const float X, const float Y, const float Z){
+	Rotator.Roll += X;
+	Rotator.Pitch += Y;
+	Rotator.Yaw += Z;
+
+	return Rotator;
 }
 
 TArray<AActor*> UUsefullFunctions::SortActorsByDistanceToActor(TArray<AActor*> Actors, AActor* Target){
@@ -77,4 +103,44 @@ void UUsefullFunctions::QuickSortByDistance(TArray<AActor*>& InArray, const int 
 	if (I < High){
 		QuickSortByDistance(InArray, I, High, Actor);
 	}
+}
+
+UAbstractSave* UUsefullFunctions::CreateSave(const TSubclassOf<UAbstractSave> SaveClass){
+	return NewObject<UAbstractSave>(GetTransientPackage(), SaveClass);
+}
+
+UAbstractSave* UUsefullFunctions::SaveToSlot(UAbstractSave* SaveObject, const int UserIndex){
+	FString SlotName = SaveObject->GetSlotName();
+	SlotName += FString::FromInt(UserIndex);
+
+	UGameplayStatics::AsyncSaveGameToSlot(SaveObject, SlotName, 0);
+	return SaveObject;
+}
+
+UAbstractSave* UUsefullFunctions::LoadSave(const TSubclassOf<UAbstractSave> SaveClass, const int UserIndex, const bool bCreateNewSaveIfDoesntExist){
+	FString SlotName = SaveClass.GetDefaultObject()->GetSlotName();
+	SlotName += FString::FromInt(UserIndex);
+
+	UAbstractSave* LoadedSave = Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+
+	if(IsValid(LoadedSave)){
+		LoadedSave->Index = UserIndex;
+		return LoadedSave;
+	}
+
+	if(bCreateNewSaveIfDoesntExist){
+		LoadedSave = Cast<UAbstractSave>(UGameplayStatics::CreateSaveGameObject(SaveClass));
+		LoadedSave = SaveToSlot(LoadedSave, UserIndex);
+		LoadedSave->Index = UserIndex;
+		return LoadedSave;
+	}
+
+	return nullptr;
+}
+
+bool UUsefullFunctions::DeleteSaveSlot(UAbstractSave* SaveObject, const int UserIndex){
+	FString SlotName = SaveObject->GetSlotName();
+	SlotName += FString::FromInt(UserIndex);
+
+	return UGameplayStatics::DeleteGameInSlot(SlotName, 0);
 }

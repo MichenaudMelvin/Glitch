@@ -34,6 +34,6 @@ void AFocusCatalyseurController::BeginPlay(){
 	Blackboard->SetValueAsVector("NexusLocation", Nexus->GetActorLocation());
 }
 
-const TArray<ACatalyseur*> AFocusCatalyseurController::GetCatalyseurList(){
+TArray<ACatalyseur*> AFocusCatalyseurController::GetCatalyseurList() const{
 	return CatalyseurList;
 }
