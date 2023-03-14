@@ -6,6 +6,9 @@
 #include "Player/MainPlayer.h"
 
 APreviewPlacableActor::APreviewPlacableActor(){
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	SetRootComponent(BaseMesh);
+
 	BaseMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	BaseMesh->CastShadow = false;
 
@@ -48,7 +51,7 @@ void APreviewPlacableActor::SetMesh() {
 		return;
 	}
 
-	BaseMesh->SetStaticMesh(CurrentData->FullMesh);
+	Cast<UStaticMeshComponent>(BaseMesh)->SetStaticMesh(CurrentData->FullMesh);
 
 	for (int i = 0; i < BaseMesh->GetMaterials().Num(); i++) {
 		BaseMesh->SetMaterial(i, HologramMaterial);
@@ -65,7 +68,7 @@ void APreviewPlacableActor::SetInConstructionZone(bool bNewValue) {
 }
 
 bool APreviewPlacableActor::CanBePlaced() {
-	return CheckSpotSpace() && bInConstructionZone && CurrentData->HasEnoughGolds(MainPlayer->GetGolds());
+	return bInConstructionZone && CurrentData->HasEnoughGolds(MainPlayer->GetGolds());
 }
 
 void APreviewPlacableActor::ChooseColor() {

@@ -29,6 +29,9 @@ protected:
 
 	virtual void Tick(float deltaTime) override;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
+	UStaticMeshComponent* TurretBase;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
 	UStaticMeshComponent* TurretPillar;
 
@@ -118,11 +121,11 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool DoesAIListContainSomething() const;
-	
+
 	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	
+
 	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
-	
+
 	UPROPERTY(BlueprintReadWrite)
 	FTimerHandle CanAttackTimer;
 

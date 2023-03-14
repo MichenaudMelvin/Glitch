@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "Objectives/Catalyseur.h"
 #include "MainAIController.generated.h"
 
 UCLASS()
@@ -47,5 +48,10 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	const float GetDamages();
+	float GetDamages() const;
+
+	virtual void SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData);
+
+	// empty function only for two classes
+	virtual TArray<ACatalyseur*> GetCatalyseurList() const;
 };

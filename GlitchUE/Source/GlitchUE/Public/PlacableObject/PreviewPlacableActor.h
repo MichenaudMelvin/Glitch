@@ -16,6 +16,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
+	UStaticMeshComponent* BaseMesh;
+
 	AMainPlayer* MainPlayer;
 
 	UFUNCTION(BlueprintCallable)

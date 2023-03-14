@@ -36,14 +36,20 @@ void USetNearestCatalyseur::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-	
-	const TArray<ACatalyseur*> CatalyseurList = Cast<AFocusCatalyseurController>(OwnerPawn->GetController())->GetCatalyseurList();
+
+	const AMainAIController* CurrentController = Cast<AMainAIController>(OwnerComp.GetAIOwner());
+
+	if(!IsValid(CurrentController)){
+		return;
+	}
+
+	const TArray<ACatalyseur*> CatalyseurList = CurrentController->GetCatalyseurList();
 	ACatalyseur* NearestCatalyseur = SetFirstCatalyseurToCheck(CatalyseurList);
 
 	for (int i = 0; i < CatalyseurList.Num(); i++){
 		if(CatalyseurList[i]->GetActivableComp()->IsActivated() && i != 0){
-			const float CurrentDistance = CatalyseurList[i]->GetDistanceTo(Cast<AActor>(OwnerPawn));
-			const float NearestDistance = NearestCatalyseur->GetDistanceTo(Cast<AActor>(OwnerPawn));
+			const float CurrentDistance = CatalyseurList[i]->GetDistanceTo(CurrentController->GetPawn());
+			const float NearestDistance = NearestCatalyseur->GetDistanceTo(CurrentController->GetPawn());
 			if(CurrentDistance < NearestDistance){
 				NearestCatalyseur = CatalyseurList[i];
 			}

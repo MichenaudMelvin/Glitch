@@ -3,7 +3,6 @@
 
 #include "AI/AIPatrol/PatrolController.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BlackboardData.h"
 
 APatrolController::APatrolController(const FObjectInitializer& ObjectInitializer) : AMainAIController(ObjectInitializer){
@@ -14,6 +13,6 @@ APatrolController::APatrolController(const FObjectInitializer& ObjectInitializer
 
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BlackboardAsset(TEXT("/Game/Blueprint/AI/AIPatrol/BB_Patrol"));
 	check(BlackboardAsset.Succeeded());
-	
+
 	BlackboardData = BlackboardAsset.Object;
 }

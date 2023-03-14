@@ -17,6 +17,7 @@
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
 #include "Sound/SoundBase.h"
@@ -82,6 +83,10 @@ AMainPlayer::AMainPlayer(){
 void AMainPlayer::BeginPlay(){
 	Super::BeginPlay();
 
+	SettingsSave = Cast<USettingsSave>(UUsefullFunctions::LoadSave(USettingsSave::StaticClass(), 0));
+	FollowCamera->FieldOfView = SettingsSave->CamreaFOV;
+	bInvertYAxis = SettingsSave->bInvertCamYAxis;
+
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 
 	FOnTimelineFloat UpdateEvent;
@@ -124,6 +129,44 @@ void AMainPlayer::BeginPlay(){
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCharacterMovement()->GravityScale = OriginalGravityScale;
+
+	// pas mal mais a faire ailleurs (dans une fonction) et demander à louis pour tous les com
+
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
+
+	const FAttachmentTransformRules AttachmentTransformRules = FAttachmentTransformRules::KeepWorldTransform;
+
+	const FVector ActorOffset = FVector(0, 0, 80);
+	
+	const FTransform SpriteTransform = FTransform(FRotator(0, 90, 0), FVector(CompassRadius, 0, 0), FVector::OneVector);
+
+	for(int i = 0; i < Actors.Num(); i++){
+		UCompassIcon* CurrentIcon = Cast<UCompassIcon>(Actors[i]->GetComponentByClass(UCompassIcon::StaticClass()));
+
+		if(!IsValid(CurrentIcon)){
+			continue;
+		}
+
+		CompassIconArray.Add(CurrentIcon);
+
+		USceneComponent* CurrentSceneComp = Cast<USceneComponent>(AddComponentByClass(USceneComponent::StaticClass(), false, FTransform::Identity, false));
+
+		CurrentSceneComp->AttachToComponent(GetMesh(), AttachmentTransformRules);
+
+		CurrentSceneComp->SetRelativeLocation(ActorOffset);
+
+		UPaperSpriteComponent* CurrentIconComp = Cast<UPaperSpriteComponent>(AddComponentByClass(UPaperSpriteComponent::StaticClass(), false, FTransform::Identity, false));
+
+		CurrentIconComp->AttachToComponent(CurrentSceneComp, AttachmentTransformRules);
+
+		CurrentIconComp->SetSprite(CurrentIcon->GetOwnerSprite());
+		CurrentIconComp->SetRelativeTransform(SpriteTransform);
+		CurrentIconComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+		SceneComponentsArray.Add(CurrentSceneComp);
+		PaperSpriteArray.Add(CurrentIconComp);
+	}
 
 	#pragma region FXCreation
 
@@ -332,7 +375,7 @@ void AMainPlayer::PreviewObject(){
 void AMainPlayer::PlaceObject(){
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(PlacableActorLocation);
-	FActorSpawnParameters ActorsSpawnParameters;
+	const FActorSpawnParameters ActorsSpawnParameters;
 	GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), SpawnTransform, ActorsSpawnParameters);
 }
 
@@ -344,6 +387,10 @@ UHealthComponent* AMainPlayer::GetHealthComp(){
 	return HealthComp;
 }
 
+bool AMainPlayer::IsInGlitchZone() const{
+	return bIsInGlitchZone;
+}
+
 void AMainPlayer::SetInGlitchZone(const bool bNewValue){
 	bIsInGlitchZone = bNewValue;
 }
@@ -352,7 +399,8 @@ void AMainPlayer::SetInGlitchZone(const bool bNewValue){
 
 void AMainPlayer::LaunchMark(){
 	FTransform MarkTransform;
-	MarkTransform.SetLocation(GetActorLocation());
+	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Bone012"));
+
 	MarkTransform.SetRotation(FindMarkLaunchRotation());
 	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
 	Mark->Launch(MarkTransform);
@@ -370,7 +418,7 @@ FQuat AMainPlayer::FindMarkLaunchRotation(){
 	FCollisionResponseParams ResponseParam;
 
 	FVector TargetRotation = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) ? HitResult.ImpactPoint : EndLocation;
-	return UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TargetRotation).Quaternion();
+	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Bone012"), TargetRotation).Quaternion();
 }
 
 void AMainPlayer::TPToMark() {
@@ -421,11 +469,15 @@ void AMainPlayer::UseGlitchReleassed() {
 
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
-	
+
 	CameraTransitionTL.TickTimeline(deltaTime);
 	CameraAimTransition.TickTimeline(deltaTime);
 	CameraZoomTransition.TickTimeline(deltaTime);
 	CameraFOVTransition.TickTimeline(deltaTime);
+
+	for(int i = 0; i < PaperSpriteArray.Num(); i++){
+		SceneComponentsArray[i]->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(SceneComponentsArray[i]->GetComponentLocation(), CompassIconArray[i]->GetOwnerLocation()));
+	}
 }
 
 void AMainPlayer::SetMark(AMark* NewMark) {

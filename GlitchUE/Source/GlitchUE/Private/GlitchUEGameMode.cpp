@@ -10,11 +10,13 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
-#include "Saves/AbstractSave.h"
+#include "Saves/WorldSave.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	// set default pawn class to our Blueprinted character
@@ -30,12 +32,12 @@ AGlitchUEGameMode::AGlitchUEGameMode(){
 	check(Color.Succeeded());
 
 	ColorCurve = Color.Object;
-	
+
 	static ConstructorHelpers::FObjectFinder<UCurveLinearColor> Blinking(TEXT("/Game/Blueprint/Curves/CC_BlinkingAlertCurve"));
 	check(Blinking.Succeeded());
 
 	BlinkingCurve = Blinking.Object;
-	
+
 	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/Dissolver/MPC_Dissolver"));
 	//check(MPC.Succeeded());
 
@@ -49,11 +51,25 @@ void AGlitchUEGameMode::BeginPlay() {
 
 	TArray<AWaveManager*> WaveManagerArray;
 	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
+
+	TArray<AActor*> SceneCaptureArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
+
+#if !UE_BUILD_SHIPPING
+
 	if (WaveManagerArray.Num() == 0) {
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
 	}
 
+	if(SceneCaptureArray.Num() == 0){
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SCENE CAPTURE N'EST PLACE DANS LA SCENE"));
+	}
+
+#endif
+
 	WaveManager = WaveManagerArray[0];
+
+	SceneCapture = Cast<ASceneCapture2D>(SceneCaptureArray[0]);
 
 	FOnTimelineLinearColor UpdateEvent;
 	FOnTimelineEvent FinishEvent;
@@ -66,27 +82,81 @@ void AGlitchUEGameMode::BeginPlay() {
 
 	FinishEvent.Unbind();
 	FinishEvent.BindDynamic(this, &AGlitchUEGameMode::BlinkingFinished);
-	
+
 	BlinkingTimeline.AddInterpLinearColor(BlinkingCurve, UpdateEvent);
 	BlinkingTimeline.SetTimelineFinishedFunc(FinishEvent);
+
+	InitializeWorld();
 }
 
 void AGlitchUEGameMode::Tick(float deltaTime){
 	Super::Tick(deltaTime);
-	
+
 	LevelStateTimeline.TickTimeline(deltaTime);
 	BlinkingTimeline.TickTimeline(deltaTime);
 }
 
-void AGlitchUEGameMode::Save_Implementation(UAbstractSave* SaveObject){}
+void AGlitchUEGameMode::InitializeWorld(){
+	if(OptionsString == ""){
+		return;
+	}
 
-UAbstractSave* AGlitchUEGameMode::Load(TSubclassOf<UAbstractSave> SaveClass, int UserIndex){
-	return Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SaveClass.GetDefaultObject()->GetSlotName(), UserIndex));
+	TArray<FString> LevelSettings;
+	const int SettingsNbr = OptionsString.ParseIntoArray(LevelSettings, TEXT("|"), true);
+
+	if(SettingsNbr < 2){
+		return;
+	}
+
+	if(LevelSettings[0] == "?WorldSaveLoad"){
+		const int SlotIndex = FCString::Atoi(*LevelSettings[1]);
+
+		UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
+
+		MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation);
+
+		CurrentSave->LoadedTime++;
+		UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), CurrentSave->LoadedTime);
+
+		if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
+			UUsefullFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
+			return;
+		}
+
+		UUsefullFunctions::SaveToSlot(CurrentSave, SlotIndex);
+	}
 }
 
-void AGlitchUEGameMode::FastSave_Implementation(){}
+void AGlitchUEGameMode::GlobalWorldSave(const int Index){
+	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index));
 
-void AGlitchUEGameMode::FastLoad_Implementation(){}
+	SceneCapture->SetActorLocation(MainPlayer->GetFollowCamera()->GetComponentLocation());
+	SceneCapture->SetActorRotation(MainPlayer->GetFollowCamera()->GetComponentRotation());
+	SceneCapture->GetCaptureComponent2D()->CaptureScene();
+
+	SceneCapture->GetCaptureComponent2D()->TextureTarget = SaveRenderTarget[0]; // use index
+
+	CurrentSave->SaveImage = SaveMaterials[0]; // use index
+
+	CurrentSave->PlayerTransform = MainPlayer->GetActorTransform();
+	CurrentSave->PlayerCameraRotation = MainPlayer->GetController()->GetControlRotation();
+
+	Cast<UWorldSave>(UUsefullFunctions::SaveToSlot(CurrentSave, Index));
+}
+
+void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
+	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
+
+	if(CurrentSave == nullptr){
+		return;
+	}
+
+	FString LoadOptions = "WorldSaveLoad|";
+
+	LoadOptions += FString::FromInt(Index);
+
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), true, LoadOptions);
+}
 
 EPhases AGlitchUEGameMode::GetPhases() const{
 	return CurrentPhase;
@@ -224,7 +294,7 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 
 	TArray<AActor*> AIList;
 	for(int i = 0; i < AIControllerList.Num(); i++){
-		AIList.Add(Cast<AMainAIController>(AIControllerList[0])->GetPawn());
+		AIList.Add(Cast<AMainAIController>(AIControllerList[i])->GetPawn());
 	}
 
 	if (AIList.Num() > 0) {
