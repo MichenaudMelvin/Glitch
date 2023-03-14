@@ -3,7 +3,6 @@
 
 #include "Player/UI/Saves/SaveButton.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/TextureRenderTarget2D.h"
 
 void USaveButton::NativeConstruct(){
 	Super::NativeConstruct();

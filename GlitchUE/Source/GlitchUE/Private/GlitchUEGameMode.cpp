@@ -51,18 +51,23 @@ void AGlitchUEGameMode::BeginPlay() {
 
 	TArray<AWaveManager*> WaveManagerArray;
 	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
-	if (WaveManagerArray.Num() == 0) {
-		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
-	}
-
-	WaveManager = WaveManagerArray[0];
 
 	TArray<AActor*> SceneCaptureArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
 
+#if !UE_BUILD_SHIPPING
+
+	if (WaveManagerArray.Num() == 0) {
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
+	}
+
 	if(SceneCaptureArray.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SCENE CAPTURE N'EST PLACE DANS LA SCENE"));
 	}
+
+#endif
+
+	WaveManager = WaveManagerArray[0];
 
 	SceneCapture = Cast<ASceneCapture2D>(SceneCaptureArray[0]);
 

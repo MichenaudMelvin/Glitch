@@ -16,16 +16,6 @@ void USaveSelection::NativeConstruct(){
 
 		SaveListView->AddItem(CurrentSave);
 	}
-
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		for(int i = 0; i < WorldSaveSlot; i++){
-			USaveButton* CurrentSaveButton = Cast<USaveButton>(SaveListView->GetDisplayedEntryWidgets()[i]);
-			CurrentSaveButton->SetIndex(i);
-			CurrentSaveButton->SetOwner(this);
-		}
-	}, 0.2f, false);
 }
 
 void USaveSelection::SetupSaveActions(USaveButton* SaveButton) const{
@@ -37,4 +27,22 @@ void USaveSelection::SetupSaveActions(USaveButton* SaveButton) const{
 	SaveAction->SetVisibility(ESlateVisibility::Visible);
 
 	// SaveActionPanelSlot->SetPosition(SaveButtonPanelSlot->GetPosition());
+}
+
+void USaveSelection::CreateEntry(UObject* Item, UUserWidget* Widget){
+
+	const UWorldSave* CurrentSave = Cast<UWorldSave>(Item);
+	USaveButton* CurrentSaveButton = Cast<USaveButton>(Widget);
+
+	#if WITH_EDITOR
+
+	// call la fonction dans l'éditeur donc sécurité
+	if(!IsValid(CurrentSave) || !IsValid(CurrentSaveButton)){
+		return;
+	}
+
+	#endif
+
+	CurrentSaveButton->SetIndex(CurrentSave->Index);
+	CurrentSaveButton->SetOwner(this);
 }

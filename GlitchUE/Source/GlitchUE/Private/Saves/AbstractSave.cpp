@@ -3,6 +3,10 @@
 
 #include "Saves/AbstractSave.h"
 
-FString UAbstractSave::GetSlotName(){
+FString UAbstractSave::GetSlotName() const{
 	return SlotName;
+}
+
+int UAbstractSave::GetIndex() const{
+	return Index;
 }

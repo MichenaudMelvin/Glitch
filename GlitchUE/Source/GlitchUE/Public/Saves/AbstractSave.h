@@ -15,5 +15,10 @@ protected:
 	FString SlotName;
 
 public:
-	FString GetSlotName();
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
+	int Index;
+
+	FString GetSlotName() const;
+
+	int GetIndex() const;
 };

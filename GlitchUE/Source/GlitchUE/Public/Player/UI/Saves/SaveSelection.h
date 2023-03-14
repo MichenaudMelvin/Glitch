@@ -28,4 +28,7 @@ protected:
 
 public:
 	void SetupSaveActions(USaveButton* SaveButton) const;
+
+	UFUNCTION(BlueprintCallable)
+	void CreateEntry(UObject* Item, UUserWidget* Widget);
 };

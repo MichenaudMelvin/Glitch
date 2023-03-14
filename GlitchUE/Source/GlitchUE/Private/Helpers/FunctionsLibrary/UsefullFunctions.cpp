@@ -122,13 +122,16 @@ UAbstractSave* UUsefullFunctions::LoadSave(const TSubclassOf<UAbstractSave> Save
 	SlotName += FString::FromInt(UserIndex);
 
 	UAbstractSave* LoadedSave = Cast<UAbstractSave>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+
 	if(IsValid(LoadedSave)){
+		LoadedSave->Index = UserIndex;
 		return LoadedSave;
 	}
 
 	if(bCreateNewSaveIfDoesntExist){
 		LoadedSave = Cast<UAbstractSave>(UGameplayStatics::CreateSaveGameObject(SaveClass));
 		LoadedSave = SaveToSlot(LoadedSave, UserIndex);
+		LoadedSave->Index = UserIndex;
 		return LoadedSave;
 	}
 
