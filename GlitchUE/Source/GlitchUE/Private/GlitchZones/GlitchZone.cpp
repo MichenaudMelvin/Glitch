@@ -66,8 +66,12 @@ void AGlitchZone::EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* O
 
 		EnableGlitchEffect(true);
 
+		GetWorld()->GetTimerManager().SetTimer(GlitchGaugeTimer, [&]() {
+			GameMode->AddGlitch(GlitchGaugeValueToAddEveryTick);
+		}, GlitchGaugeTick, true);
+
 		if(GameMode->GetLevelState() == ELevelState::Alerted){
-			GetWorld()->GetTimerManager().SetTimer(GlitchTimer, [&]() {
+			GetWorld()->GetTimerManager().SetTimer(GlitchZoneTimer, [&]() {
 				GameMode->SetLevelState(ELevelState::Normal);
 			}, ResetLevelStateDuration, false);
 		}
@@ -81,7 +85,8 @@ void AGlitchZone::ExitGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* Ot
 
 		EnableGlitchEffect(false);
 
-		GetWorld()->GetTimerManager().ClearTimer(GlitchTimer);
+		GetWorld()->GetTimerManager().ClearTimer(GlitchGaugeTimer);
+		GetWorld()->GetTimerManager().ClearTimer(GlitchZoneTimer);
 	}
 }
 

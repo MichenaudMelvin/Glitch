@@ -21,14 +21,22 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditDefaultsOnly)
-	float ResetLevelStateDuration = 5;
-
-	UPROPERTY(EditDefaultsOnly)
 	UBoxComponent* TriggerBox;
 
 	AGlitchUEGameMode* GameMode;
 
-	FTimerHandle GlitchTimer;
+	FTimerHandle GlitchZoneTimer;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GlitchZone")
+	float ResetLevelStateDuration = 5;
+
+	FTimerHandle GlitchGaugeTimer;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	float GlitchGaugeTick = 0.2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	float GlitchGaugeValueToAddEveryTick = 100;
 
 	UFUNCTION()
 	void EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -36,19 +44,19 @@ protected:
 	UFUNCTION()
 	void ExitGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
 	UMaterialParameterCollection* GlitchMPC;
 
 	AMainPlayer* MainPlayer;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
 	FWeightedBlendable PostProcessMaterialUI;
 
 	FTimeline FadeInGlitchEffectTimeline;
 
 	UCurveFloat* ZeroToOneCurve;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
 	float GlitchFadeTime = 0.5;
 
 	void EnableGlitchEffect(const bool bEnable);

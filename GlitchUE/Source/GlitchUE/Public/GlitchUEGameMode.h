@@ -113,7 +113,7 @@ public:
 	void AddGlitch(float AddedValue);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Glitch")
-	float GetCurrentGlitchValue();
+	float GetCurrentGlitchValue() const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)

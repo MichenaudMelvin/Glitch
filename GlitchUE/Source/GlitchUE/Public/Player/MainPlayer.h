@@ -220,10 +220,10 @@ protected:
 	AMainPlayerController* MainPlayerController;
 
 public:
-	AMainPlayerController* GetMainPlayerController();
+	AMainPlayerController* GetMainPlayerController() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UHealthComponent* GetHealthComp();
+	UHealthComponent* GetHealthComp() const;
 
 	bool IsInGlitchZone() const;
 	
@@ -363,6 +363,13 @@ public:
 	virtual void ReciveGlitchUpgrade();
 
 	virtual void ResetGlitchUpgrade();
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UMaterialInterface*> GlitchedMaterialList;
+
+	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue);
+
+	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value);
 
 #pragma endregion
 

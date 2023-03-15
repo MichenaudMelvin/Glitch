@@ -15,24 +15,27 @@ class GLITCHUE_API UWorldSave : public UAbstractSave{
 public:
 	UWorldSave();
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Category = "Save")
 	UMaterial* SaveImage;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Category = "Save")
+	int LoadedTime = 0; 
+
+	UPROPERTY(BlueprintReadWrite, Category = "AI")
 	TArray<FTransform> AITransformList;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Category = "AI")
 	TArray<UBlackboardData*> BlackboardList;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Category = "Player")
 	FTransform PlayerTransform;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Category = "Player")
 	FRotator PlayerCameraRotation;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Category = "World")
 	ELevelState LevelState;
 
-	UPROPERTY(BlueprintReadWrite)
-	int LoadedTime = 0;
+	UPROPERTY(BlueprintReadWrite, Category = "World")
+	float GlitchValue;
 };

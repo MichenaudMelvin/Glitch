@@ -11,11 +11,11 @@ class GLITCHUE_API UAbstractSave : public USaveGame{
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Save")
 	FString SlotName;
 
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Name")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Save")
 	int Index;
 
 	FString GetSlotName() const;
