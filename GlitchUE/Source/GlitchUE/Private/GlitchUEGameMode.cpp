@@ -115,8 +115,11 @@ void AGlitchUEGameMode::InitializeWorld(){
 
 		MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation);
 
+		SetLevelState(CurrentSave->LevelState);
+		AddGlitch(CurrentSave->GlitchValue);
+
 		CurrentSave->LoadedTime++;
-		UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), CurrentSave->LoadedTime);
+		UE_LOG(LogTemp, Warning, TEXT("Loaded number of this save : %d"), CurrentSave->LoadedTime);
 
 		if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
 			UUsefullFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
@@ -138,8 +141,13 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 
 	CurrentSave->SaveImage = SaveMaterials[0]; // use index
 
+	//Player
 	CurrentSave->PlayerTransform = MainPlayer->GetActorTransform();
 	CurrentSave->PlayerCameraRotation = MainPlayer->GetController()->GetControlRotation();
+
+	//World
+	CurrentSave->GlitchValue = GlitchValue;
+	CurrentSave->LevelState = LevelState;
 
 	Cast<UWorldSave>(UUsefullFunctions::SaveToSlot(CurrentSave, Index));
 }
@@ -226,7 +234,12 @@ void AGlitchUEGameMode::BlinkingFinished(){
 
 void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	GlitchValue = FMath::Clamp(AddedValue + GlitchValue, 0.0f, GlitchMaxValue);
+
+	MainPlayer->UpdateGlitchGaugeFeedback(GlitchValue, GlitchMaxValue);
+
 	if (GlitchValue == GlitchMaxValue) {
+
+		MainPlayer->GetMesh()->SetScalarParameterValueOnMaterials("Apparition", 0);
 
 		switch (CurrentPhase){
 			case EPhases::Infiltration:
@@ -237,9 +250,7 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 		}
 
 		CheckAvailableGlitchEvents();
-		EGlitchEvent::Type RandomGlitchType;
-
-		RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
+		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
 
 		switch (RandomGlitchType){
 		case EGlitchEvent::UpgradeAlliesUnits:
@@ -263,7 +274,7 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 	}
 }
 
-float AGlitchUEGameMode::GetCurrentGlitchValue(){
+float AGlitchUEGameMode::GetCurrentGlitchValue() const{
 	return GlitchValue;
 }
 

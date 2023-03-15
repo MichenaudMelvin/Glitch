@@ -379,11 +379,11 @@ void AMainPlayer::PlaceObject(){
 	GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), SpawnTransform, ActorsSpawnParameters);
 }
 
-AMainPlayerController* AMainPlayer::GetMainPlayerController() {
+AMainPlayerController* AMainPlayer::GetMainPlayerController() const{
 	return MainPlayerController;
 }
 
-UHealthComponent* AMainPlayer::GetHealthComp(){
+UHealthComponent* AMainPlayer::GetHealthComp() const{
 	return HealthComp;
 }
 
@@ -480,11 +480,11 @@ void AMainPlayer::Tick(float deltaTime){
 	}
 }
 
-void AMainPlayer::SetMark(AMark* NewMark) {
+void AMainPlayer::SetMark(AMark* NewMark){
 	Mark = NewMark;
 }
 
-void AMainPlayer::LookAtMark(float Value){	
+void AMainPlayer::LookAtMark(float Value){
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
 }
 
@@ -514,7 +514,7 @@ void AMainPlayer::GlitchCameraTrace(){
 	for (int i = 0; i < HitResultList.Num(); i++) {
 		if (HitResultList[i].GetComponent()->IsA(UStaticMeshComponent::StaticClass())) {
 			UStaticMeshComponent* CurrentStaticMeshComp = Cast<UStaticMeshComponent>(HitResultList[i].GetComponent());
-			
+
 			if (!OverlappedMeshes.Contains(CurrentStaticMeshComp)){
 				OverlappedMeshes.Add(CurrentStaticMeshComp);
 				OverlappedMeshesCollisionResponse.Add(CurrentStaticMeshComp->GetCollisionResponseToChannel(ECollisionChannel::ECC_Camera));
@@ -529,11 +529,11 @@ void AMainPlayer::GlitchTrace(){
 
 	TArray<AActor*> ActorToIgnore;
 	ActorToIgnore.Add(Mark);
-	
+
 	TArray<FHitResult> HitResultList;
 
 	UKismetSystemLibrary::BoxTraceMulti(GetWorld(), GetActorLocation(), Mark->GetActorLocation(), FVector(25, 25, 25), FRotator::ZeroRotator, UEngineTypes::ConvertToTraceType(ECC_Camera), false, ActorToIgnore, EDrawDebugTrace::None, HitResultList, true, FLinearColor::Red, FLinearColor::Green, 1);
-	
+
 	for (int i = 0; i < HitResultList.Num(); i++) {
 		if (HitResultList[i].GetActor()->IsA(AMainAICharacter::StaticClass())) {
 			AMainAICharacter* CurrentAICharacter = Cast<AMainAICharacter>(HitResultList[i].GetActor());
@@ -562,7 +562,7 @@ void AMainPlayer::ReciveGlitchUpgrade(){
 	IGlitchInterface::ReciveGlitchUpgrade();
 
 	GetCharacterMovement()->MaxWalkSpeed = GlitchSpeed;
-	
+
 	FTimerHandle TimerHandle;
 
 	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
@@ -574,7 +574,7 @@ void AMainPlayer::ResetGlitchUpgrade(){
 	IGlitchInterface::ReciveGlitchUpgrade();
 
 	float TargetSpeed = 0;
-	
+
 	switch (MovementMode) {
 		case EPlayerMovementMode::Normal:
 			TargetSpeed = NormalSpeed;
@@ -589,6 +589,52 @@ void AMainPlayer::ResetGlitchUpgrade(){
 
 	GetCharacterMovement()->MaxWalkSpeed = TargetSpeed;
 }
+
+void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue){
+	const float PercentValue = (GlitchValue * 100) / GlitchMaxValue;
+	constexpr float TierOne = 100/3;
+	constexpr float TierTwo = 200/3;
+	constexpr float TierThree = 300/3;
+	
+	if(PercentValue <= TierOne){
+		const float GlitchParam = PercentValue/TierOne;
+
+		SetGlitchMaterialParameter(3, GlitchParam);
+		SetGlitchMaterialParameter(5, GlitchParam);
+	}
+
+	else if(PercentValue <= TierTwo){
+		const float GlitchParam = (PercentValue - TierOne)/TierOne;
+
+		SetGlitchMaterialParameter(3, 1);
+		SetGlitchMaterialParameter(5, 1);
+
+		SetGlitchMaterialParameter(2, GlitchParam);
+		SetGlitchMaterialParameter(4, GlitchParam);
+	}
+
+	else if(PercentValue <= TierThree){
+		const float GlitchParam = (PercentValue - TierTwo)/TierOne;
+
+		SetGlitchMaterialParameter(2, 1);
+		SetGlitchMaterialParameter(4, 1);
+
+		SetGlitchMaterialParameter(1, GlitchParam);
+		SetGlitchMaterialParameter(0, GlitchParam);
+	}
+}
+
+
+void AMainPlayer::SetGlitchMaterialParameter(const int MaterialIndex, const float Value){
+	UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(GetMesh()->GetMaterial(MaterialIndex));
+
+	if (!DynamicMaterial){
+		DynamicMaterial = GetMesh()->CreateAndSetMaterialInstanceDynamic(MaterialIndex);
+	}
+
+	DynamicMaterial->SetScalarParameterValue("Apparition", Value);
+}
+
 
 void AMainPlayer::EndTL() {
 
