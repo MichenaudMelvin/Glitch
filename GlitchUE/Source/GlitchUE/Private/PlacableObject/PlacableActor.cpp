@@ -9,6 +9,7 @@
 #include "Player/MainPlayer.h"
 #include "Player/MainPlayerController.h"
 #include "Components/TimelineComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "NavAreas/NavArea_Obstacle.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "PlacableObject/ConstructionZone.h"
@@ -58,7 +59,7 @@ void APlacableActor::Tick(float DeltaTime){
 	FadeInAppearence.TickTimeline(DeltaTime);
 }
 
-void APlacableActor::SetMesh() {}
+void APlacableActor::SetMesh(){}
 
 void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction) {
@@ -69,6 +70,9 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 	MainPlayer->GiveGolds(CurrentData->Cost);
 	AffectedConstructionZone->UnoccupiedSlot();
+
+	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
+
 	Destroy();
 }
 
@@ -99,6 +103,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	Name = CurrentData->Name;
 	AttackRange = CurrentData->AttackRange;
 	AttackAnimation = CurrentData->AttackAnimation;
+	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
 	SetMesh();
 
 	if(AttackFX == nullptr){

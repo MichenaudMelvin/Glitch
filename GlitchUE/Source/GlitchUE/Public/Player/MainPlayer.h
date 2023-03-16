@@ -362,15 +362,53 @@ public:
 	void ResetOverlappedMeshes();
 
 	UPROPERTY(EditDefaultsOnly)
-	float GlitchUpgradeDuration = 5;
+	float GlitchUpgradeDuration = 0.5;
 
 	virtual void ReciveGlitchUpgrade();
 
 	virtual void ResetGlitchUpgrade();
 
+	TArray<FTransform> GlitchRewindTransformList;
+
+	FTimerHandle RewindTimer;
+
+	void StartRecord();
+
+	void StopRecord();
+
+	void SelectRandomLocation();
+
+	void RecordRandomLocation();
+
+	UPROPERTY(EditDefaultsOnly)
+	float RewindSpacesSave = 1;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MaxRewindList = 50;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
+	UMaterialParameterCollection* GlitchMPC;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
+	FWeightedBlendable PostProcessMaterialUI;
+
+	void EnableGlitchEffect(const bool bEnable, const float EffectDuration, const float GlitchValue = 1);
+
+	float TargetGlitchUIValue;
+
+protected:
+	FTimeline FadeInGlitchEffectTimeline;
+
+	UFUNCTION()
+	void FadeInGlitchEffect(float Value);
+
+	UFUNCTION()
+	void EndFadeIn();
+
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UMaterialInterface*> GlitchedMaterialList;
 
+public:
 	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue);
 
 	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value);

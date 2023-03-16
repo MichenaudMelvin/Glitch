@@ -13,11 +13,14 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GlitchUEGameMode.h"
+#include "NavigationSystem.h"
 #include "PopcornFXAttributeFunctions.h"
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
+#include "AI/Navigation/NavAreaCostAsOne.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
 #include "Sound/SoundBase.h"
@@ -116,6 +119,15 @@ void AMainPlayer::BeginPlay(){
 
 	CameraFOVTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 
+	UpdateEvent.Unbind();
+	FinishedEvent.Unbind();
+
+	UpdateEvent.BindDynamic(this, &AMainPlayer::FadeInGlitchEffect);
+	FinishedEvent.BindDynamic(this, &AMainPlayer::EndFadeIn);
+
+	FadeInGlitchEffectTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	FadeInGlitchEffectTimeline.SetTimelineFinishedFunc(FinishedEvent);
+
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 	Nexus = Cast<ANexus>(NexusArray[0]);
@@ -129,6 +141,8 @@ void AMainPlayer::BeginPlay(){
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCharacterMovement()->GravityScale = OriginalGravityScale;
+
+	StartRecord();
 
 	// pas mal mais a faire ailleurs (dans une fonction) et demander à louis pour tous les com
 
@@ -478,6 +492,7 @@ void AMainPlayer::Tick(float deltaTime){
 	CameraAimTransition.TickTimeline(deltaTime);
 	CameraZoomTransition.TickTimeline(deltaTime);
 	CameraFOVTransition.TickTimeline(deltaTime);
+	FadeInGlitchEffectTimeline.TickTimeline(deltaTime);
 
 	for(int i = 0; i < PaperSpriteArray.Num(); i++){
 		SceneComponentsArray[i]->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(SceneComponentsArray[i]->GetComponentLocation(), CompassIconArray[i]->GetOwnerLocation()));
@@ -565,7 +580,7 @@ void AMainPlayer::ResetOverlappedMeshes(){
 void AMainPlayer::ReciveGlitchUpgrade(){
 	IGlitchInterface::ReciveGlitchUpgrade();
 
-	GetCharacterMovement()->MaxWalkSpeed = GlitchSpeed;
+	SelectRandomLocation();
 
 	FTimerHandle TimerHandle;
 
@@ -577,21 +592,72 @@ void AMainPlayer::ReciveGlitchUpgrade(){
 void AMainPlayer::ResetGlitchUpgrade(){
 	IGlitchInterface::ReciveGlitchUpgrade();
 
-	float TargetSpeed = 0;
+	StartRecord();
+	EnableGlitchEffect(false, GlitchUpgradeDuration, 500);
+}
 
-	switch (MovementMode) {
-		case EPlayerMovementMode::Normal:
-			TargetSpeed = NormalSpeed;
-			break;
-		case EPlayerMovementMode::Sneaking:
-			TargetSpeed = SneakSpeed;
-			break;
-		case EPlayerMovementMode::Sprinting:
-			TargetSpeed = SprintSpeed;
-			break;
+void AMainPlayer::StartRecord(){
+	GlitchRewindTransformList.Empty();
+
+	GetWorld()->GetTimerManager().SetTimer(RewindTimer, [&](){
+		RecordRandomLocation();
+	}, RewindSpacesSave, true);
+}
+
+void AMainPlayer::StopRecord(){
+	GetWorld()->GetTimerManager().ClearTimer(RewindTimer);
+}
+
+void AMainPlayer::SelectRandomLocation(){
+	EnableGlitchEffect(true, GlitchUpgradeDuration, 500);
+	StopRecord();
+
+	const int Index = FMath::RandRange(0, GlitchRewindTransformList.Num() - 1);
+
+	const FTransform RandomTransform = GlitchRewindTransformList[Index];
+
+	SetActorLocation(RandomTransform.GetLocation());
+	Controller->SetControlRotation(RandomTransform.GetRotation().Rotator());
+}
+
+void AMainPlayer::RecordRandomLocation(){
+	if(GlitchRewindTransformList.Num() == MaxRewindList){
+		GlitchRewindTransformList.RemoveAt(0);
 	}
 
-	GetCharacterMovement()->MaxWalkSpeed = TargetSpeed;
+	FTransform TransformToAdd;
+	TransformToAdd.SetLocation(GetActorLocation());
+	TransformToAdd.SetRotation(Controller->GetControlRotation().Quaternion());
+
+	GlitchRewindTransformList.Add(TransformToAdd);
+}
+
+void AMainPlayer::EnableGlitchEffect(const bool bEnable, const float EffectDuration, const float GlitchValue){
+	if(bEnable){
+		FPostProcessSettings NewSettings;
+		NewSettings.WeightedBlendables.Array.Add(PostProcessMaterialUI);
+		GetFollowCamera()->PostProcessSettings = NewSettings;
+	}
+
+	TargetGlitchUIValue = GlitchValue;
+
+	FadeInGlitchEffectTimeline.SetPlayRate(1/EffectDuration);
+
+	bEnable ? FadeInGlitchEffectTimeline.Play() : FadeInGlitchEffectTimeline.Reverse();
+}
+
+void AMainPlayer::FadeInGlitchEffect(float Value){
+	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess", FMath::Lerp(0.0f, TargetGlitchUIValue, Value));
+}
+
+void AMainPlayer::EndFadeIn(){
+	const float GlitchEffectValue = UKismetMaterialLibrary::GetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess");
+
+	if (GlitchEffectValue == 0){
+		FPostProcessSettings NewSettings;
+		NewSettings.WeightedBlendables.Array.Empty();
+		GetFollowCamera()->PostProcessSettings = NewSettings;
+	}
 }
 
 void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue){
@@ -599,7 +665,7 @@ void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float
 	constexpr float TierOne = 100/3;
 	constexpr float TierTwo = 200/3;
 	constexpr float TierThree = 300/3;
-	
+
 	if(PercentValue <= TierOne){
 		const float GlitchParam = PercentValue/TierOne;
 

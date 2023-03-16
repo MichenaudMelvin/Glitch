@@ -6,7 +6,6 @@
 #include "GlitchUEGameMode.h"
 #include "Components/BoxComponent.h"
 #include "Engine/StaticMeshActor.h"
-#include "Components/TimelineComponent.h"
 #include "GlitchZone.generated.h"
 
 UCLASS()
@@ -18,7 +17,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditDefaultsOnly)
 	UBoxComponent* TriggerBox;
@@ -44,26 +42,8 @@ protected:
 	UFUNCTION()
 	void ExitGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
-	UMaterialParameterCollection* GlitchMPC;
-
 	AMainPlayer* MainPlayer;
 
 	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
-	FWeightedBlendable PostProcessMaterialUI;
-
-	FTimeline FadeInGlitchEffectTimeline;
-
-	UCurveFloat* ZeroToOneCurve;
-
-	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
 	float GlitchFadeTime = 0.5;
-
-	void EnableGlitchEffect(const bool bEnable);
-
-	UFUNCTION()
-	void FadeInGlitchEffect(float Value);
-
-	UFUNCTION()
-	void EndFadeIn();
 };

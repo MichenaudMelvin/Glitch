@@ -5,12 +5,9 @@
 #include "Camera/CameraComponent.h"
 #include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayer.h"
 
 AGlitchZone::AGlitchZone(){
-	PrimaryActorTick.bCanEverTick = true;
-	
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/BasicShapes/Cube1"));
 	check(Mesh.Succeeded());
 
@@ -24,13 +21,6 @@ AGlitchZone::AGlitchZone(){
 	TriggerBox->SetupAttachment(RootComponent);
 
 	TriggerBox->SetBoxExtent(FVector(50, 50,50));
-
-	PostProcessMaterialUI.Weight = 1;
-
-	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
-	check(Curve.Succeeded());
-
-	ZeroToOneCurve = Curve.Object;
 }
 
 void AGlitchZone::BeginPlay(){
@@ -40,23 +30,6 @@ void AGlitchZone::BeginPlay(){
 	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AGlitchZone::ExitGlitchZone);
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-
-	FOnTimelineFloat UpdateEvent;
-	FOnTimelineEvent FinishEvent;
-
-	UpdateEvent.BindDynamic(this, &AGlitchZone::FadeInGlitchEffect);
-	FinishEvent.BindDynamic(this, &AGlitchZone::EndFadeIn);
-
-	FadeInGlitchEffectTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
-	FadeInGlitchEffectTimeline.SetTimelineFinishedFunc(FinishEvent);
-
-	FadeInGlitchEffectTimeline.SetPlayRate(1/GlitchFadeTime);
-}
-
-void AGlitchZone::Tick(float DeltaSeconds){
-	Super::Tick(DeltaSeconds);
-
-	FadeInGlitchEffectTimeline.TickTimeline(DeltaSeconds);
 }
 
 void AGlitchZone::EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
@@ -64,7 +37,7 @@ void AGlitchZone::EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* O
 		MainPlayer = Cast<AMainPlayer>(OtherActor);
 		MainPlayer->SetInGlitchZone(true);
 
-		EnableGlitchEffect(true);
+		MainPlayer->EnableGlitchEffect(true, GlitchFadeTime);
 
 		GetWorld()->GetTimerManager().SetTimer(GlitchGaugeTimer, [&]() {
 			GameMode->AddGlitch(GlitchGaugeValueToAddEveryTick);
@@ -83,33 +56,9 @@ void AGlitchZone::ExitGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		MainPlayer = Cast<AMainPlayer>(OtherActor);
 		MainPlayer->SetInGlitchZone(false);
 
-		EnableGlitchEffect(false);
+		MainPlayer->EnableGlitchEffect(false, GlitchFadeTime);
 
 		GetWorld()->GetTimerManager().ClearTimer(GlitchGaugeTimer);
 		GetWorld()->GetTimerManager().ClearTimer(GlitchZoneTimer);
-	}
-}
-
-void AGlitchZone::EnableGlitchEffect(const bool bEnable){
-	if(bEnable){
-		FPostProcessSettings NewSettings;
-		NewSettings.WeightedBlendables.Array.Add(PostProcessMaterialUI);
-		MainPlayer->GetFollowCamera()->PostProcessSettings = NewSettings;
-	}
-
-	bEnable ? FadeInGlitchEffectTimeline.Play() : FadeInGlitchEffectTimeline.Reverse();
-}
-
-void AGlitchZone::FadeInGlitchEffect(float Value){
-	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess", Value);
-}
-
-void AGlitchZone::EndFadeIn(){
-	const float GlitchEffectValue = UKismetMaterialLibrary::GetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess");
-
-	if (GlitchEffectValue == 0){
-		FPostProcessSettings NewSettings;
-		NewSettings.WeightedBlendables.Array.Empty();
-		MainPlayer->GetFollowCamera()->PostProcessSettings = NewSettings;
 	}
 }

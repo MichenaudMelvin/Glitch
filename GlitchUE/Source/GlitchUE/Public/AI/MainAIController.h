@@ -15,8 +15,8 @@ class GLITCHUE_API AMainAIController : public AAIController{
 public:
 	AMainAIController(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "AIPerception")
-	float AISpawnGlitchValue;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float AISpawnGlitchValue = 25;
 
 protected:
 	virtual void BeginPlay() override;

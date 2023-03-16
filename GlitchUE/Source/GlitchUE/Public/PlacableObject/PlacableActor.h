@@ -79,6 +79,8 @@ protected:
 
 	void SellObject(AMainPlayer* MainPlayer);
 
+	float GlitchGaugeValueOnDestruct;
+
 	FTimeline FadeInAppearence;
 
 	UFUNCTION()

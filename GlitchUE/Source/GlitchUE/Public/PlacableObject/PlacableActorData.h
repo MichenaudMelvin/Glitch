@@ -38,6 +38,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float GlitchUpgradeDuration;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float GlitchGaugeValueOnDestruct;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* AttackFX;
 
