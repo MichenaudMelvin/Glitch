@@ -371,6 +371,10 @@ void AMainPlayer::PreviewObject(){
 	}
 }
 
+void AMainPlayer::SetInvertAxis(const bool bNewValue){
+	bInvertYAxis = bNewValue;
+}
+
 
 void AMainPlayer::PlaceObject(){
 	FTransform SpawnTransform;

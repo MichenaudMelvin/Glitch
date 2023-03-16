@@ -239,6 +239,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
+public:
+	void SetInvertAxis(const bool bNewValue);
+
+protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	int Golds = 0;
 

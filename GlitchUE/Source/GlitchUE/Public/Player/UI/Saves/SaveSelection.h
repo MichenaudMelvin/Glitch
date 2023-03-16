@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
 #include "Components/ListView.h"
+#include "Player/UI/SubWidget.h"
 #include "SaveSelection.generated.h"
 
 class USaveAction;
 class USaveButton;
 
 UCLASS()
-class GLITCHUE_API USaveSelection : public UUserWidget{
+class GLITCHUE_API USaveSelection : public USubWidget{
 	GENERATED_BODY()
 
 protected:
