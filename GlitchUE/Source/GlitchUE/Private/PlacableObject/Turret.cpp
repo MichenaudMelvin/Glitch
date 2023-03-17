@@ -30,6 +30,12 @@ ATurret::ATurret() {
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
+
+	TurretVision = CreateDefaultSubobject<USphereComponent>(TEXT("TurretVision"));
+	TurretVision->SetupAttachment(RootComponent);
+	TurretVision->SetRelativeLocation(FVector(0, 0, 100));
+
+	TurretVision->SetSphereRadius(0);
 }
 
 void ATurret::BeginPlay(){
@@ -47,7 +53,6 @@ void ATurret::BeginPlay(){
 	RotateTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	RotateTimeline.SetTimelineFinishedFunc(FinishEvent);
 
-	TurretVision = Cast<USphereComponent>(AddComponentByClass(USphereComponent::StaticClass(), false, FTransform(), false));
 	TurretVision->OnComponentBeginOverlap.AddDynamic(this, &ATurret::OnReachVision);
 	TurretVision->OnComponentEndOverlap.AddDynamic(this, &ATurret::OnLeaveVision);
 }
@@ -85,11 +90,15 @@ void ATurret::RotateToTarget(float Alpha){
 
 void ATurret::EndRotate_Implementation(){}
 
-void ATurret::ReciveGlitchUpgrade(){
-	FireRate = Cast<UTurretData>(CurrentData)->GlitchFireRate;
-	RotateTimeline.SetPlayRate(1/FireRate);
+void ATurret::ReceiveGlitchUpgrade(){
+	AttackRate = CurrentData->GlitchAttackRate;
+	Damages = CurrentData->GlitchDamages;
+	AttackRange = CurrentData->GlitchAttackRange;
 
-	Super::ReciveGlitchUpgrade();
+	RotateTimeline.SetPlayRate(1/AttackRate);
+	TurretVision->SetSphereRadius(AttackRange, true);
+
+	Super::ReceiveGlitchUpgrade();
 }
 
 void ATurret::SetMesh(){
@@ -102,11 +111,11 @@ void ATurret::SetMesh(){
 
 void ATurret::SetData(UPlacableActorData* NewData){
 	Super::SetData(NewData);
-	
+
 	const UTurretData* Data = Cast<UTurretData>(NewData);
 	Damages = Data->Damages;
-	FireRate = Data->FireRate/2;
-	RotateTimeline.SetPlayRate(1/FireRate);
+	AttackRate = Data->AttackRate/2;
+	RotateTimeline.SetPlayRate(1/AttackRate);
 	
 	CanSeeThroughWalls = Data->CanSeeThroughWalls;
 	FocusMethod = Data->FocusMethod;
@@ -225,7 +234,7 @@ void ATurret::OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 	Super::OnLeaveVision(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
 
 	if (AIList.Num() == 0) {
-		
+
 		if (!CanSeeThroughWalls) {
 			GetWorld()->GetTimerManager().ClearTimer(CanAttackTimer);
 		} 

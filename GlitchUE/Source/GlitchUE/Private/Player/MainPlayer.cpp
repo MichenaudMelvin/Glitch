@@ -66,6 +66,8 @@ AMainPlayer::AMainPlayer(){
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	GetMesh()->SetReceivesDecals(false);
+	GetMesh()->SetEnableGravity(false);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 
 	#pragma region Timelines
 
@@ -577,8 +579,8 @@ void AMainPlayer::ResetOverlappedMeshes(){
 	OverlappedMeshesCollisionResponse.Empty();
 }
 
-void AMainPlayer::ReciveGlitchUpgrade(){
-	IGlitchInterface::ReciveGlitchUpgrade();
+void AMainPlayer::ReceiveGlitchUpgrade(){
+	IGlitchInterface::ReceiveGlitchUpgrade();
 
 	SelectRandomLocation();
 
@@ -590,7 +592,7 @@ void AMainPlayer::ReciveGlitchUpgrade(){
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){
-	IGlitchInterface::ReciveGlitchUpgrade();
+	IGlitchInterface::ResetGlitchUpgrade();
 
 	StartRecord();
 	EnableGlitchEffect(false, GlitchUpgradeDuration, 500);

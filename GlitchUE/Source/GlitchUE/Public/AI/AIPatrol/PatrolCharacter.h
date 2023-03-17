@@ -12,11 +12,15 @@ class GLITCHUE_API APatrolCharacter : public AMainAICharacter{
 	GENERATED_BODY()
 
 protected:
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
 	TArray<APatrolPoint*> PatrolPointsList;
 
+	virtual void ReceiveGlitchUpgrade() override;
+
+	virtual void ResetGlitchUpgrade() override;
+
+	FVector GlitchScaleDetection = FVector(3, 3, 3);
+
 public:
-	const TArray<APatrolPoint*> GetPatrolPointList();
-	
+	TArray<APatrolPoint*> GetPatrolPointList() const;
 };

@@ -35,7 +35,6 @@ namespace EGlitchEvent {
 		UpgradeAlliesUnits,
 		UpgradeEnemiesAI,
 		UpgradePlayer,
-		RandomFX,
 	};
 }
 
@@ -110,7 +109,7 @@ public:
 	void SetLevelState(ELevelState NewState);
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
-	void AddGlitch(float AddedValue);
+	void AddGlitch(const float AddedValue);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Glitch")
 	float GetCurrentGlitchValue() const;
@@ -153,10 +152,13 @@ protected:
 	UFUNCTION(Exec, Category = "Glitch")
 	void GlitchUpgradePlayer() const;
 
-	UFUNCTION(Exec, Category = "Glitch")
-	void GlitchRandomFX() const;
-
 	void CheckAvailableGlitchEvents() const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	int NumberOfEnemiesToAffect = 10;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	int NumberOfAlliesUnitsToAffect = 5;
 
 #pragma region ConsoleCommands
 

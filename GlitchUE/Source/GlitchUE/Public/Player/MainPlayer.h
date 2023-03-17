@@ -364,9 +364,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float GlitchUpgradeDuration = 0.5;
 
-	virtual void ReciveGlitchUpgrade();
+	virtual void ReceiveGlitchUpgrade() override;
 
-	virtual void ResetGlitchUpgrade();
+	virtual void ResetGlitchUpgrade() override;
 
 	TArray<FTransform> GlitchRewindTransformList;
 

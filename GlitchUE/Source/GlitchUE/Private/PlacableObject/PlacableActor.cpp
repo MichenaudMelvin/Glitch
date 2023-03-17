@@ -102,6 +102,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	CurrentData = NewData;
 	Name = CurrentData->Name;
 	AttackRange = CurrentData->AttackRange;
+	Damages = CurrentData->Damages;
 	AttackAnimation = CurrentData->AttackAnimation;
 	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
 	SetMesh();
@@ -119,9 +120,11 @@ void APlacableActor::Upgrade(){
 	SetData(CurrentData->NextUpgrade);
 }
 
-void APlacableActor::ReciveGlitchUpgrade(){
-	IGlitchInterface::ReciveGlitchUpgrade();
+void APlacableActor::ReceiveGlitchUpgrade(){
+	IGlitchInterface::ReceiveGlitchUpgrade();
 	// Ici set les upgrades dans les fonctions qui vont hériter
+
+	UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *this->GetName());
 
 	FTimerHandle TimerHandle;
 

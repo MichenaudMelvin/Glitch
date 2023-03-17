@@ -9,6 +9,10 @@ UHealthComponent::UHealthComponent(){
 void UHealthComponent::BeginPlay(){
 	Super::BeginPlay();
 	CurrentHealth = MaxHealth;
+
+	OriginalMaxHealth = MaxHealth;
+
+	OnHealthChange.Broadcast();
 }
 
 void UHealthComponent::TakeDamages(const float DamagesAmount){
@@ -17,7 +21,8 @@ void UHealthComponent::TakeDamages(const float DamagesAmount){
 	}
 
 	CurrentHealth = FMath::Clamp((CurrentHealth - DamagesAmount), 0.0f, MaxHealth);
-	
+
+	OnHealthChange.Broadcast();
 	OnReciveDamages.Broadcast();
 
 	if(CurrentHealth != 0){
@@ -32,15 +37,28 @@ void UHealthComponent::TakeMaxDamages(){
 }
 
 void UHealthComponent::AddHealth(float HealthAmount){
-	// à faire
+	// Ã  faire
 }
 
-const bool UHealthComponent::GetCanTakeDamages(){
+bool UHealthComponent::GetCanTakeDamages() const{
 	return bCanTakeDamages;
 }
 
 void UHealthComponent::SetCanTakeDamages(bool bValue){
 	bCanTakeDamages = bValue;
+}
+
+void UHealthComponent::SetMaxHealth(const float NewMaxHealth){
+	const float OldMaxHealth = MaxHealth;
+	MaxHealth = NewMaxHealth;
+
+	CurrentHealth += NewMaxHealth - OldMaxHealth;
+
+	OnHealthChange.Broadcast();
+}
+
+float UHealthComponent::GetOriginalMaxHealth() const{
+	return OriginalMaxHealth;
 }
 
 

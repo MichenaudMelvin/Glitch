@@ -42,16 +42,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UActivableComponent* ActivableComp;
 
+	UPROPERTY(VisibleDefaultsOnly)
 	UBoxComponent* TrapDistance;
 
 	UPROPERTY()
 	UPopcornFXEmitterComponent* IdleFX;
 
-	float Damages;
-
 	float TrapDuration;
-
-	float TrapAttackRate;
 
 	ETrapEffect TrapEffect;
 
@@ -65,7 +62,7 @@ protected:
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
-	virtual void ReciveGlitchUpgrade() override;
+	virtual void ReceiveGlitchUpgrade() override;;
 
 	virtual void SetMesh() override;
 

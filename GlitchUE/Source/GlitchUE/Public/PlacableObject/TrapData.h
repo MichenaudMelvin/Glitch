@@ -12,14 +12,8 @@ class GLITCHUE_API UTrapData : public UPlacableActorData{
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Damages")
-	float TrapDamages;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Damages")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
 	float TrapDuration;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Damages")
-	float TrapAttackRate;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Behavior")
 	ETrapEffect TrapEffect = ETrapEffect::Burned;
@@ -29,13 +23,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Behavior", meta = (EditCondition = "TrapEffect == ETrapEffect::Burned"))
 	float EffectTickRate;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Behavior", meta = (EditCondition = "TrapEffect == ETrapEffect::Burned"))
 	float EffectDamages;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
-	float UpgradedGlitchAttackRate;
-	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* IdleFX;
 

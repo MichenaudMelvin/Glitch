@@ -20,6 +20,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
 	float AttackRange;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
+	float AttackRate;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
+	float Damages;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Golds")
 	int Cost;
 
@@ -40,6 +46,15 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float GlitchGaugeValueOnDestruct;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float GlitchDamages;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float GlitchAttackRate;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float GlitchAttackRange;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* AttackFX;

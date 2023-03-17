@@ -38,11 +38,17 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UHealthComponent* HealthComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	float GlitchHealth = 200;
+
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	USightComponent* SightComp;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Sight")
 	UWidgetComponent* SightWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sight")
+	FVector ScaleDetection = FVector(1, 1, 1);
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch" )
 	float GlitchUpgradeDuration = 10;
@@ -52,7 +58,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Speed")
 	float OriginalSpeed = 200;
-	
+
 	UFUNCTION()
 	void HealthNull();
 
@@ -70,10 +76,10 @@ public:
 
 	UHealthComponent* GetHealthComp() const;
 
-	virtual void ReciveGlitchUpgrade();
+	virtual void ReceiveGlitchUpgrade() override;
 
-	virtual void ResetGlitchUpgrade();
-	
+	virtual void ResetGlitchUpgrade() override;
+
 	UFUNCTION(BlueprintCallable)
 	void ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages);
 

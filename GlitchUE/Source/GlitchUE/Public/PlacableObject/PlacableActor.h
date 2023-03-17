@@ -59,6 +59,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	float AttackRange;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
+	float AttackRate;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
+	float Damages;
+
 	UPROPERTY(BlueprintReadOnly, Category = "FX")
 	UPopcornFXEmitterComponent* AttackFX;
 
@@ -119,7 +125,7 @@ public:
 	void Upgrade();
 
 	UFUNCTION(BlueprintCallable, Category = "Glitch")
-	virtual void ReciveGlitchUpgrade();
+	virtual void ReceiveGlitchUpgrade() override;
 
-	virtual void ResetGlitchUpgrade();
+	virtual void ResetGlitchUpgrade() override;
 };
