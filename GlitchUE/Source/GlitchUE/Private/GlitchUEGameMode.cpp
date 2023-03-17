@@ -251,7 +251,7 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 		}
 
 		CheckAvailableGlitchEvents();
-		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
+		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 2));
 
 		switch (RandomGlitchType){
 		case EGlitchEvent::UpgradeAlliesUnits:

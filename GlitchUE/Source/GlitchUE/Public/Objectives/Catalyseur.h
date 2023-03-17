@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Inhibiteur.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
+#include "Components/CompassIcon.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
 
@@ -44,8 +46,25 @@ protected:
 
 	ANexus* Nexus;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
+	TArray<AInhibiteur*> NearInhibiteur;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
+	UPaperSprite* InhibiteurSprite;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
+	float CompassRadius = 90;
+
+	void GenerateCompass();
+
+	void DeleteCompass();
+
+	TArray<USceneComponent*> SceneComponents;
+
+	TArray<UPaperSpriteComponent*> PaperSpriteComponents;
 
 public:
 	FStateAtWave GetStateAtWave() const;
