@@ -386,4 +386,11 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 	}
 }
 
+void AGlitchUEGameMode::Dissolve(const float Value){
+	TArray<AActor*> DissolverArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
+
+	Cast<ADissolver>(DissolverArray[0])->DissolveTo(Value);
+}
+
 #pragma endregion

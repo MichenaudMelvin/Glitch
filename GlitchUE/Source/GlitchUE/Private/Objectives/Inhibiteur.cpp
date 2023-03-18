@@ -7,18 +7,31 @@
 
 AInhibiteur::AInhibiteur(){
 	MeshObjectif->SetCanEverAffectNavigation(true);
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Inhibiteur/AS_Inhibiteur"));
+	check(ActivAnim.Succeeded());
+
+	ActivationAnim = ActivAnim.Object;
 }
 
 void AInhibiteur::BeginPlay(){
 	Super::BeginPlay();
 
-	if (ConstructionZoneList.Num() == 0){
+#if !UE_BUILD_SHIPPING
+
+	if(ConstructionZoneList.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
 	}
+
+#endif
 }
 
 void AInhibiteur::ActiveObjectif(){
 	ActivateLinkedElements(true);
+
+	MeshObjectif->PlayAnimation(ActivationAnim, false);
+
+	SpriteReference.DestroyComponents();
 }
 
 void AInhibiteur::DesactivateObjectif(){
@@ -42,4 +55,8 @@ void AInhibiteur::ActivateLinkedElements(const bool bActivate){
 			ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
 		}
 	}
+}
+
+void AInhibiteur::SetSpriteReference(const FCompassSprite NewSprite){
+	SpriteReference = NewSprite;
 }

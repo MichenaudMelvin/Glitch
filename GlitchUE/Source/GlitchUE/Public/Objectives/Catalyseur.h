@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Inhibiteur.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
 #include "Components/CompassIcon.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
+
+class AInhibiteur;
 
 USTRUCT(BlueprintType)
 struct FStateAtWave{
@@ -20,6 +21,24 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int DisableAtWave = 999;
+};
+
+USTRUCT()
+struct FCompassSprite{
+	GENERATED_BODY()
+
+	/**
+	 * @brief Do not use this constructor
+	 */
+	FCompassSprite();
+
+	FCompassSprite(USceneComponent* SceneComp, UPaperSpriteComponent* PaperSpriteComp);
+
+	USceneComponent* SceneComponent;
+
+	UPaperSpriteComponent* PaperSpriteComponent;
+
+	void DestroyComponents();
 };
 
 UCLASS()
@@ -35,6 +54,10 @@ protected:
 	virtual void ActiveObjectif() override;
 
 	virtual void DesactivateObjectif() override;
+
+	UAnimationAsset* ActivationAnim;
+
+	UAnimationAsset* DesactivationAnim;
 
 	virtual void HealthNull() override;
 
@@ -56,15 +79,13 @@ protected:
 	UPaperSprite* InhibiteurSprite;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
-	float CompassRadius = 90;
+	float CompassRadius = 100;
 
 	void GenerateCompass();
 
 	void DeleteCompass();
 
-	TArray<USceneComponent*> SceneComponents;
-
-	TArray<UPaperSpriteComponent*> PaperSpriteComponents;
+	TArray<FCompassSprite> CompassSpriteList;
 
 public:
 	FStateAtWave GetStateAtWave() const;

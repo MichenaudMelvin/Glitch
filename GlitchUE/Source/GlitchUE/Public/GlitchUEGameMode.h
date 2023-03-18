@@ -181,6 +181,9 @@ private:
 	UFUNCTION(Exec)
 	void ToggleSpectatorMode(const bool bToggleAtLocation = false) const;
 
+	UFUNCTION(Exec)
+	void Dissolve(const float Value);
+
 #pragma endregion
 
 };

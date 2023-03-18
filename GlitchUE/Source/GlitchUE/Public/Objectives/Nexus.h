@@ -3,10 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FX/Dissolver.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.generated.h"
 
 class AWaveManager;
+class ACatalyseur;
 
 UCLASS()
 class GLITCHUE_API ANexus : public AAbstractObjectif{
@@ -18,9 +21,32 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	ADissolver* Dissolver;
+
+	TArray<ACatalyseur*> CatalyseursList;
+
+	virtual void TakeDamages() override;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateDissolver();
+
+	AActor* GetFarestActivatedCatalyseur();
+
 	virtual void HealthNull() override;
 
 	virtual void ActiveObjectif() override;
-	
+
+	UPROPERTY()
+	UPopcornFXEmitterComponent* TechFXEmitter;
+
+	UPopcornFXEffect* TechFX;
+
+	UPROPERTY()
+	UPopcornFXEmitterComponent* MedFXEmitter;
+
+	UPopcornFXEffect* MedFX;
+
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 };

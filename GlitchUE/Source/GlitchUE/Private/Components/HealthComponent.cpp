@@ -44,6 +44,14 @@ bool UHealthComponent::GetCanTakeDamages() const{
 	return bCanTakeDamages;
 }
 
+float UHealthComponent::GetCurrentHealth() const{
+	return CurrentHealth;
+}
+
+float UHealthComponent::GetMaxHealth() const{
+	return MaxHealth;
+}
+
 void UHealthComponent::SetCanTakeDamages(bool bValue){
 	bCanTakeDamages = bValue;
 }

@@ -58,6 +58,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Damages")
 	bool GetCanTakeDamages() const;
 
+	float GetCurrentHealth() const;
+
+	float GetMaxHealth() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Damages")
 	void SetCanTakeDamages(bool bValue);
 
