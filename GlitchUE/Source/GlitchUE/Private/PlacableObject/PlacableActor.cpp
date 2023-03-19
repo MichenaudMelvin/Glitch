@@ -87,6 +87,8 @@ void APlacableActor::EndAppearence_Implementation(){}
 void APlacableActor::Attack_Implementation(){}
 
 void APlacableActor::OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
+	UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *OtherActor->GetName());
+
 	if (OtherActor->IsA(AMainAICharacter::StaticClass())){
 		AIList.Add(Cast<AMainAICharacter>(OtherActor));
 	}
@@ -108,7 +110,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	SetMesh();
 
 	if(AttackFX == nullptr){
-		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, false, false);
+		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation() + CurrentData->AttackFXOffset, FRotator::ZeroRotator, false, false);
 	}
 }
 

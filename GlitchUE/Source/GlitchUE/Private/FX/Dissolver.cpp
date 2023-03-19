@@ -42,7 +42,7 @@ void ADissolver::Tick(float DeltaTime){
 
 void ADissolver::UpdateRadius(){
 	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), MPCDissolver, "RadiusDissolve", Radius);
-	DissolveCollider->SetSphereRadius(Radius, false);
+	DissolveCollider->SetSphereRadius(Radius, true);
 }
 
 void ADissolver::UpdateShaderFX(){

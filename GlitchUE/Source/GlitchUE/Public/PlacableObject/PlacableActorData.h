@@ -59,6 +59,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* AttackFX;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
+	FVector AttackFXOffset = FVector::ZeroVector;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;
 
