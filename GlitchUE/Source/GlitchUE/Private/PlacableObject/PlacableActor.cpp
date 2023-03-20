@@ -87,15 +87,21 @@ void APlacableActor::EndAppearence_Implementation(){}
 void APlacableActor::Attack_Implementation(){}
 
 void APlacableActor::OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
-	UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *OtherActor->GetName());
+	if(OtherComp->IsA(USightComponent::StaticClass())){
+		return;
+	}
 
-	if (OtherActor->IsA(AMainAICharacter::StaticClass())){
+	if(OtherActor->IsA(AMainAICharacter::StaticClass())){
 		AIList.Add(Cast<AMainAICharacter>(OtherActor));
 	}
 }
 
 void APlacableActor::OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
-	if (OtherActor->IsA(AMainAICharacter::StaticClass())){
+	if(OtherComp->IsA(USightComponent::StaticClass())){
+		return;
+	}
+
+	if(OtherActor->IsA(AMainAICharacter::StaticClass())){
 		AIList.Remove(Cast<AMainAICharacter>(OtherActor));
 	}
 }

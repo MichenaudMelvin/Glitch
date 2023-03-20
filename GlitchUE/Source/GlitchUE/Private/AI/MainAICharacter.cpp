@@ -29,6 +29,8 @@ AMainAICharacter::AMainAICharacter(){
 
 	SightWidget->SetWorldScale3D(FVector(0.25,0.05,0.05));
 	SightWidget->SetDrawSize(FVector2D(1920, 1080));
+
+	SightWidget->SetGenerateOverlapEvents(false);
 }
 
 void AMainAICharacter::BeginPlay(){
