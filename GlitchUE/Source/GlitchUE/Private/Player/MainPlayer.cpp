@@ -13,11 +13,14 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GlitchUEGameMode.h"
+#include "NavigationSystem.h"
 #include "PopcornFXAttributeFunctions.h"
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
+#include "AI/Navigation/NavAreaCostAsOne.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
 #include "Sound/SoundBase.h"
@@ -63,6 +66,8 @@ AMainPlayer::AMainPlayer(){
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	GetMesh()->SetReceivesDecals(false);
+	GetMesh()->SetEnableGravity(false);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 
 	#pragma region Timelines
 
@@ -116,6 +121,15 @@ void AMainPlayer::BeginPlay(){
 
 	CameraFOVTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 
+	UpdateEvent.Unbind();
+	FinishedEvent.Unbind();
+
+	UpdateEvent.BindDynamic(this, &AMainPlayer::FadeInGlitchEffect);
+	FinishedEvent.BindDynamic(this, &AMainPlayer::EndFadeIn);
+
+	FadeInGlitchEffectTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	FadeInGlitchEffectTimeline.SetTimelineFinishedFunc(FinishedEvent);
+
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 	Nexus = Cast<ANexus>(NexusArray[0]);
@@ -130,43 +144,7 @@ void AMainPlayer::BeginPlay(){
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
-	// pas mal mais a faire ailleurs (dans une fonction) et demander à louis pour tous les com
-
-	TArray<AActor*> Actors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
-
-	const FAttachmentTransformRules AttachmentTransformRules = FAttachmentTransformRules::KeepWorldTransform;
-
-	const FVector ActorOffset = FVector(0, 0, 80);
-	
-	const FTransform SpriteTransform = FTransform(FRotator(0, 90, 0), FVector(CompassRadius, 0, 0), FVector::OneVector);
-
-	for(int i = 0; i < Actors.Num(); i++){
-		UCompassIcon* CurrentIcon = Cast<UCompassIcon>(Actors[i]->GetComponentByClass(UCompassIcon::StaticClass()));
-
-		if(!IsValid(CurrentIcon)){
-			continue;
-		}
-
-		CompassIconArray.Add(CurrentIcon);
-
-		USceneComponent* CurrentSceneComp = Cast<USceneComponent>(AddComponentByClass(USceneComponent::StaticClass(), false, FTransform::Identity, false));
-
-		CurrentSceneComp->AttachToComponent(GetMesh(), AttachmentTransformRules);
-
-		CurrentSceneComp->SetRelativeLocation(ActorOffset);
-
-		UPaperSpriteComponent* CurrentIconComp = Cast<UPaperSpriteComponent>(AddComponentByClass(UPaperSpriteComponent::StaticClass(), false, FTransform::Identity, false));
-
-		CurrentIconComp->AttachToComponent(CurrentSceneComp, AttachmentTransformRules);
-
-		CurrentIconComp->SetSprite(CurrentIcon->GetOwnerSprite());
-		CurrentIconComp->SetRelativeTransform(SpriteTransform);
-		CurrentIconComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-		SceneComponentsArray.Add(CurrentSceneComp);
-		PaperSpriteArray.Add(CurrentIconComp);
-	}
+	StartRecord();
 
 	#pragma region FXCreation
 
@@ -371,6 +349,10 @@ void AMainPlayer::PreviewObject(){
 	}
 }
 
+void AMainPlayer::SetInvertAxis(const bool bNewValue){
+	bInvertYAxis = bNewValue;
+}
+
 
 void AMainPlayer::PlaceObject(){
 	FTransform SpawnTransform;
@@ -474,10 +456,7 @@ void AMainPlayer::Tick(float deltaTime){
 	CameraAimTransition.TickTimeline(deltaTime);
 	CameraZoomTransition.TickTimeline(deltaTime);
 	CameraFOVTransition.TickTimeline(deltaTime);
-
-	for(int i = 0; i < PaperSpriteArray.Num(); i++){
-		SceneComponentsArray[i]->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(SceneComponentsArray[i]->GetComponentLocation(), CompassIconArray[i]->GetOwnerLocation()));
-	}
+	FadeInGlitchEffectTimeline.TickTimeline(deltaTime);
 }
 
 void AMainPlayer::SetMark(AMark* NewMark){
@@ -558,10 +537,10 @@ void AMainPlayer::ResetOverlappedMeshes(){
 	OverlappedMeshesCollisionResponse.Empty();
 }
 
-void AMainPlayer::ReciveGlitchUpgrade(){
-	IGlitchInterface::ReciveGlitchUpgrade();
+void AMainPlayer::ReceiveGlitchUpgrade(){
+	IGlitchInterface::ReceiveGlitchUpgrade();
 
-	GetCharacterMovement()->MaxWalkSpeed = GlitchSpeed;
+	SelectRandomLocation();
 
 	FTimerHandle TimerHandle;
 
@@ -571,23 +550,74 @@ void AMainPlayer::ReciveGlitchUpgrade(){
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){
-	IGlitchInterface::ReciveGlitchUpgrade();
+	IGlitchInterface::ResetGlitchUpgrade();
 
-	float TargetSpeed = 0;
+	StartRecord();
+	EnableGlitchEffect(false, GlitchUpgradeDuration, 500);
+}
 
-	switch (MovementMode) {
-		case EPlayerMovementMode::Normal:
-			TargetSpeed = NormalSpeed;
-			break;
-		case EPlayerMovementMode::Sneaking:
-			TargetSpeed = SneakSpeed;
-			break;
-		case EPlayerMovementMode::Sprinting:
-			TargetSpeed = SprintSpeed;
-			break;
+void AMainPlayer::StartRecord(){
+	GlitchRewindTransformList.Empty();
+
+	GetWorld()->GetTimerManager().SetTimer(RewindTimer, [&](){
+		RecordRandomLocation();
+	}, RewindSpacesSave, true);
+}
+
+void AMainPlayer::StopRecord(){
+	GetWorld()->GetTimerManager().ClearTimer(RewindTimer);
+}
+
+void AMainPlayer::SelectRandomLocation(){
+	EnableGlitchEffect(true, GlitchUpgradeDuration, 500);
+	StopRecord();
+
+	const int Index = FMath::RandRange(0, GlitchRewindTransformList.Num() - 1);
+
+	const FTransform RandomTransform = GlitchRewindTransformList[Index];
+
+	SetActorLocation(RandomTransform.GetLocation());
+	Controller->SetControlRotation(RandomTransform.GetRotation().Rotator());
+}
+
+void AMainPlayer::RecordRandomLocation(){
+	if(GlitchRewindTransformList.Num() == MaxRewindList){
+		GlitchRewindTransformList.RemoveAt(0);
 	}
 
-	GetCharacterMovement()->MaxWalkSpeed = TargetSpeed;
+	FTransform TransformToAdd;
+	TransformToAdd.SetLocation(GetActorLocation());
+	TransformToAdd.SetRotation(Controller->GetControlRotation().Quaternion());
+
+	GlitchRewindTransformList.Add(TransformToAdd);
+}
+
+void AMainPlayer::EnableGlitchEffect(const bool bEnable, const float EffectDuration, const float GlitchValue){
+	if(bEnable){
+		FPostProcessSettings NewSettings;
+		NewSettings.WeightedBlendables.Array.Add(PostProcessMaterialUI);
+		GetFollowCamera()->PostProcessSettings = NewSettings;
+	}
+
+	TargetGlitchUIValue = GlitchValue;
+
+	FadeInGlitchEffectTimeline.SetPlayRate(1/EffectDuration);
+
+	bEnable ? FadeInGlitchEffectTimeline.Play() : FadeInGlitchEffectTimeline.Reverse();
+}
+
+void AMainPlayer::FadeInGlitchEffect(float Value){
+	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess", FMath::Lerp(0.0f, TargetGlitchUIValue, Value));
+}
+
+void AMainPlayer::EndFadeIn(){
+	const float GlitchEffectValue = UKismetMaterialLibrary::GetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess");
+
+	if (GlitchEffectValue == 0){
+		FPostProcessSettings NewSettings;
+		NewSettings.WeightedBlendables.Array.Empty();
+		GetFollowCamera()->PostProcessSettings = NewSettings;
+	}
 }
 
 void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue){
@@ -595,7 +625,7 @@ void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float
 	constexpr float TierOne = 100/3;
 	constexpr float TierTwo = 200/3;
 	constexpr float TierThree = 300/3;
-	
+
 	if(PercentValue <= TierOne){
 		const float GlitchParam = PercentValue/TierOne;
 

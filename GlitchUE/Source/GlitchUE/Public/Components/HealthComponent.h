@@ -8,6 +8,8 @@
 
 #pragma region Delegates
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnHealthChange);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnReciveDamages);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnHealthNull);
@@ -26,6 +28,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Health")
 	float MaxHealth = 100.0f;
+
+	float OriginalMaxHealth;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 	float CurrentHealth;
@@ -48,9 +52,22 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Damages")
 	FKOnHealthNull OnHealthNull;
 
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FKOnHealthNull OnHealthChange;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Damages")
-	const bool GetCanTakeDamages();
+	bool GetCanTakeDamages() const;
+
+	float GetCurrentHealth() const;
+
+	float GetMaxHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Damages")
 	void SetCanTakeDamages(bool bValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Glitch")
+	void SetMaxHealth(float NewMaxHealth);
+
+	UFUNCTION(BlueprintCallable, Category = "Glitch")
+	float GetOriginalMaxHealth() const;
 };

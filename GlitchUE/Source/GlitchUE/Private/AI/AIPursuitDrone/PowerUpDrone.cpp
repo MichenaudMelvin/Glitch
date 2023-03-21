@@ -71,7 +71,7 @@ void APowerUpDrone::Interact(AMainPlayerController* MainPlayerController, AMainP
 }
 
 void APowerUpDrone::BoostPlacable(APlacableActor* PlacableToBoost){
-	Cast<IGlitchInterface>(PlacableToBoost)->ReciveGlitchUpgrade();
+	Cast<IGlitchInterface>(PlacableToBoost)->ReceiveGlitchUpgrade();
 
 	DroneMesh->SetRelativeLocation(FVector(0, SpinOffset, 0));
 	DroneMesh->SetRelativeRotation(FRotator(0, -180, InteriorRotationOffset));

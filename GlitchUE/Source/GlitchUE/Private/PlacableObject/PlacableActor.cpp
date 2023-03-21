@@ -9,6 +9,7 @@
 #include "Player/MainPlayer.h"
 #include "Player/MainPlayerController.h"
 #include "Components/TimelineComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "NavAreas/NavArea_Obstacle.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "PlacableObject/ConstructionZone.h"
@@ -58,7 +59,7 @@ void APlacableActor::Tick(float DeltaTime){
 	FadeInAppearence.TickTimeline(DeltaTime);
 }
 
-void APlacableActor::SetMesh() {}
+void APlacableActor::SetMesh(){}
 
 void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction) {
@@ -69,6 +70,9 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 	MainPlayer->GiveGolds(CurrentData->Cost);
 	AffectedConstructionZone->UnoccupiedSlot();
+
+	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
+
 	Destroy();
 }
 
@@ -83,13 +87,21 @@ void APlacableActor::EndAppearence_Implementation(){}
 void APlacableActor::Attack_Implementation(){}
 
 void APlacableActor::OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
-	if (OtherActor->IsA(AMainAICharacter::StaticClass())){
+	if(OtherComp->IsA(USightComponent::StaticClass())){
+		return;
+	}
+
+	if(OtherActor->IsA(AMainAICharacter::StaticClass())){
 		AIList.Add(Cast<AMainAICharacter>(OtherActor));
 	}
 }
 
 void APlacableActor::OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
-	if (OtherActor->IsA(AMainAICharacter::StaticClass())){
+	if(OtherComp->IsA(USightComponent::StaticClass())){
+		return;
+	}
+
+	if(OtherActor->IsA(AMainAICharacter::StaticClass())){
 		AIList.Remove(Cast<AMainAICharacter>(OtherActor));
 	}
 }
@@ -98,11 +110,15 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	CurrentData = NewData;
 	Name = CurrentData->Name;
 	AttackRange = CurrentData->AttackRange;
+	Damages = CurrentData->Damages;
 	AttackAnimation = CurrentData->AttackAnimation;
+	IdleAnimation = CurrentData->IdleAnimation;
+	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
+
 	SetMesh();
 
 	if(AttackFX == nullptr){
-		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, false, false);
+		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation() + CurrentData->AttackFXOffset, FRotator::ZeroRotator, false, false);
 	}
 }
 
@@ -114,9 +130,11 @@ void APlacableActor::Upgrade(){
 	SetData(CurrentData->NextUpgrade);
 }
 
-void APlacableActor::ReciveGlitchUpgrade(){
-	IGlitchInterface::ReciveGlitchUpgrade();
+void APlacableActor::ReceiveGlitchUpgrade(){
+	IGlitchInterface::ReceiveGlitchUpgrade();
 	// Ici set les upgrades dans les fonctions qui vont hériter
+
+	UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *this->GetName());
 
 	FTimerHandle TimerHandle;
 

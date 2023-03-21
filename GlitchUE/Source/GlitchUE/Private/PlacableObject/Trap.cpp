@@ -27,6 +27,12 @@ ATrap::ATrap(){
 	check(Anim.Succeeded());
 
 	CrystalAnimation = Anim.Object;
+
+	TrapDistance = CreateDefaultSubobject<UBoxComponent>(TEXT("TrapDistance"));
+	TrapDistance->SetupAttachment(RootComponent);
+	TrapDistance->SetRelativeLocation(FVector(0, 0, 50));
+
+	TrapDistance->SetBoxExtent(FVector::ZeroVector);
 }
 
 void ATrap::BeginPlay(){
@@ -34,7 +40,6 @@ void ATrap::BeginPlay(){
 
 	InteractableComp->AddInteractable(TrapMesh);
 
-	TrapDistance = Cast<UBoxComponent>(AddComponentByClass(UBoxComponent::StaticClass(), false, FTransform(), false));
 	TrapDistance->OnComponentBeginOverlap.AddDynamic(this, &ATrap::OnReachVision);
 	TrapDistance->OnComponentEndOverlap.AddDynamic(this, &ATrap::OnLeaveVision);
 
@@ -63,42 +68,33 @@ void ATrap::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* M
 	}
 }
 
-void ATrap::ReciveGlitchUpgrade(){
-	TrapAttackRate = Cast<UTrapData>(CurrentData)->UpgradedGlitchAttackRate;
+void ATrap::ReceiveGlitchUpgrade(){
+	AttackRate = CurrentData->GlitchAttackRate;
+	Damages = CurrentData->GlitchDamages;
+	AttackRange = CurrentData->GlitchAttackRange;
 
-	Super::ReciveGlitchUpgrade();
+	TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
+
+	Super::ReceiveGlitchUpgrade();
 }
 
 void ATrap::SetMesh(){
 	Super::SetMesh();
 
-	const UTrapData* Data = Cast<UTrapData>(CurrentData);
+	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[0]), true);
 
-	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(Data->MeshList[0]), true);
-
-	if(IsValid(IdleAnimation)){
-		TrapMesh->PlayAnimation(IdleAnimation, true);
-		UE_LOG(LogTemp, Warning, TEXT("Play idle"));
-	} else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("pas valid"));
-	}
-
-	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(Data->MeshList[1]));
+	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[1]));
 	CrystalMesh->PlayAnimation(CrystalAnimation, true);
-	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(Data->CrystalColor));
+	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
 }
 
 void ATrap::SetData(UPlacableActorData* NewData){
+	Super::SetData(NewData);
+
 	const UTrapData* Data = Cast<UTrapData>(NewData);
 
-	IdleAnimation = Data->IdleAnimation;
-
-	Super::SetData(NewData);
-	
-	Damages = Data->TrapDamages;
 	TrapDuration = Data->TrapDuration;
-	TrapAttackRate = Data->TrapAttackRate;
+	AttackRate = Data->AttackRate;
 	TrapEffect = Data->TrapEffect;
 	TrapEffectDuration = Data->TrapEffectDuration;
 
@@ -106,17 +102,19 @@ void ATrap::SetData(UPlacableActorData* NewData){
 		IdleFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), Data->IdleFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, true, false);
 	}
 
+	TrapMesh->PlayAnimation(IdleAnimation, true);
+
 	FTimerHandle TimerHandle;
 	// Micro delay pour éviter les problèmes de navigation
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 100), true);
+		TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
 	}, 0.2f, false);
 }
 
 void ATrap::Attack_Implementation(){
 	Super::Attack_Implementation();
 
-	GEngine->AddOnScreenDebugMessage(-1, TrapAttackRate, FColor::Yellow, TEXT("TrapAttack"));
+	GEngine->AddOnScreenDebugMessage(-1, AttackRate, FColor::Yellow, TEXT("TrapAttack"));
 
 	TArray<AMainAICharacter*>AIArray = AIList.Array();
 	const UTrapData* Data = Cast<UTrapData>(CurrentData);
@@ -136,7 +134,7 @@ void ATrap::Attack_Implementation(){
 		if(ActivableComp->IsActivated()){
 			Attack_Implementation();
 		}
-	}, TrapAttackRate, false);
+	}, AttackRate, false);
 }
 
 void ATrap::OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){

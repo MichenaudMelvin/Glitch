@@ -59,11 +59,20 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Stats")
 	float AttackRange;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
+	float AttackRate;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stats")
+	float Damages;
+
 	UPROPERTY(BlueprintReadOnly, Category = "FX")
 	UPopcornFXEmitterComponent* AttackFX;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+	UAnimSequenceBase* IdleAnimation;
 
 	UPROPERTY(BlueprintReadOnly, Category = "AI")
 	TSet<AMainAICharacter*> AIList;
@@ -78,6 +87,8 @@ protected:
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 	void SellObject(AMainPlayer* MainPlayer);
+
+	float GlitchGaugeValueOnDestruct;
 
 	FTimeline FadeInAppearence;
 
@@ -117,7 +128,7 @@ public:
 	void Upgrade();
 
 	UFUNCTION(BlueprintCallable, Category = "Glitch")
-	virtual void ReciveGlitchUpgrade();
+	virtual void ReceiveGlitchUpgrade() override;
 
-	virtual void ResetGlitchUpgrade();
+	virtual void ResetGlitchUpgrade() override;
 };

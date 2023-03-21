@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Objectives/AbstractObjectif.h"
 #include "PlacableObject/ConstructionZone.h"
+#include "Catalyseur.h"
 #include "Inhibiteur.generated.h"
 
 UCLASS()
@@ -21,9 +22,16 @@ protected:
 
 	virtual void ActiveObjectif() override;
 
-	virtual void DesactivateObjectif()override;
+	UAnimationAsset* ActivationAnim;
+
+	FCompassSprite SpriteReference;
+
+	virtual void DesactivateObjectif() override;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
 	void ActivateLinkedElements(const bool bActivate);
+
+public:
+	void SetSpriteReference(const FCompassSprite NewSprite);
 };

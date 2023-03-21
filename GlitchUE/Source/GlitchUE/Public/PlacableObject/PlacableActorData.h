@@ -20,6 +20,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
 	float AttackRange;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
+	float AttackRate;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
+	float Damages;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Golds")
 	int Cost;
 
@@ -32,17 +38,38 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
 	UStaticMesh* FullMesh;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
+	FLinearColor CrystalColor = FLinearColor(0, 0, 0, 1);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Golds")
 	bool HasEnoughGolds(const int PlayerGolds) const;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float GlitchUpgradeDuration;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float GlitchGaugeValueOnDestruct;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float GlitchDamages;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float GlitchAttackRate;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float GlitchAttackRange;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* AttackFX;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
+	FVector AttackFXOffset = FVector::ZeroVector;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
+	UAnimSequenceBase* IdleAnimation;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Class")
 	TSubclassOf<APlacableActor> ClassToSpawn;

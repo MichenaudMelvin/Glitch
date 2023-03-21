@@ -12,7 +12,7 @@
 
 AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))) {
-	
+
 	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 
 	Blackboard = CreateDefaultSubobject<UBlackboardComponent>(TEXT("Blackboard"));
@@ -30,6 +30,8 @@ void AMainAIController::BeginPlay() {
 	Blackboard->SetValueAsFloat(FName(TEXT("InvestigatingTime")), InvestigatingTime);
 
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
+
+	OriginalDamages = Damages;
 }
 
 void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus) {
@@ -45,7 +47,7 @@ void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, const FAI
 				Blackboard->SetValueAsVector(FName(TEXT("InvestigationLocation")), Player->GetActorLocation());
 
 				FTimerHandle TimerHandle;
-				
+
 				GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
 					SetPlayerValues(Player);
 				}, Blackboard->GetValueAsFloat(FName(TEXT("InvestigatingTime"))), false);
@@ -57,6 +59,10 @@ void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, const FAI
 void AMainAIController::SetPlayerValues(AActor* Player) {
 	//Blackboard->SetValueAsObject(FName(TEXT("Player")), Player);
 	//Blackboard->SetValueAsVector(FName(TEXT("PlayerLocation")), Player->GetActorLocation());
+}
+
+void AMainAIController::ToggleGlitchDamages(const bool bEnable){
+	Damages = bEnable ? GlitchDamages : OriginalDamages; 
 }
 
 float AMainAIController::GetDamages() const{

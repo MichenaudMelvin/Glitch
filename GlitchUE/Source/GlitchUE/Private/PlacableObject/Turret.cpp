@@ -30,6 +30,12 @@ ATurret::ATurret() {
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
+
+	TurretVision = CreateDefaultSubobject<USphereComponent>(TEXT("TurretVision"));
+	TurretVision->SetupAttachment(RootComponent);
+	TurretVision->SetRelativeLocation(FVector(0, 0, 100));
+
+	TurretVision->SetSphereRadius(0);
 }
 
 void ATurret::BeginPlay(){
@@ -47,7 +53,6 @@ void ATurret::BeginPlay(){
 	RotateTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	RotateTimeline.SetTimelineFinishedFunc(FinishEvent);
 
-	TurretVision = Cast<USphereComponent>(AddComponentByClass(USphereComponent::StaticClass(), false, FTransform(), false));
 	TurretVision->OnComponentBeginOverlap.AddDynamic(this, &ATurret::OnReachVision);
 	TurretVision->OnComponentEndOverlap.AddDynamic(this, &ATurret::OnLeaveVision);
 }
@@ -71,7 +76,7 @@ void ATurret::RotateToTarget(float Alpha){
 		EndRotate();
 		return;
 	}
-	
+
 	AILookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
 	FRotator PillarRotator = FRotator::ZeroRotator;
 	//FRotator HeadRotator = FRotator::ZeroRotator;
@@ -85,11 +90,15 @@ void ATurret::RotateToTarget(float Alpha){
 
 void ATurret::EndRotate_Implementation(){}
 
-void ATurret::ReciveGlitchUpgrade(){
-	FireRate = Cast<UTurretData>(CurrentData)->GlitchFireRate;
-	RotateTimeline.SetPlayRate(1/FireRate);
+void ATurret::ReceiveGlitchUpgrade(){
+	AttackRate = CurrentData->GlitchAttackRate;
+	Damages = CurrentData->GlitchDamages;
+	AttackRange = CurrentData->GlitchAttackRange;
 
-	Super::ReciveGlitchUpgrade();
+	RotateTimeline.SetPlayRate(1/AttackRate);
+	TurretVision->SetSphereRadius(AttackRange, true);
+
+	Super::ReceiveGlitchUpgrade();
 }
 
 void ATurret::SetMesh(){
@@ -98,18 +107,24 @@ void ATurret::SetMesh(){
 	TurretBase->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[0]));
 	TurretPillar->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[1]));
 	TurretHead->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[2]), true);
+
+	TurretBase->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
+	TurretPillar->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
+	TurretHead->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
 }
 
 void ATurret::SetData(UPlacableActorData* NewData){
 	Super::SetData(NewData);
-	
+
 	const UTurretData* Data = Cast<UTurretData>(NewData);
 	Damages = Data->Damages;
-	FireRate = Data->FireRate/2;
-	RotateTimeline.SetPlayRate(1/FireRate);
-	
+	AttackRate = Data->AttackRate/2;
+	RotateTimeline.SetPlayRate(1/AttackRate);
+
 	CanSeeThroughWalls = Data->CanSeeThroughWalls;
 	FocusMethod = Data->FocusMethod;
+
+	TurretHead->PlayAnimation(IdleAnimation, true);
 
 	FTimerHandle TimerHandle;
 	// Micro delay pour éviter les problèmes de navigation
@@ -208,9 +223,9 @@ bool ATurret::DoesAIListContainSomething() const{
 
 void ATurret::OnReachVision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 	Super::OnReachVision(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-	
+
 	if (AIList.Num() == 1) {
-		
+
 		if (!CanSeeThroughWalls) {
 			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, [&]() {
 				CanAttack();
@@ -225,7 +240,7 @@ void ATurret::OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 	Super::OnLeaveVision(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
 
 	if (AIList.Num() == 0) {
-		
+
 		if (!CanSeeThroughWalls) {
 			GetWorld()->GetTimerManager().ClearTimer(CanAttackTimer);
 		} 

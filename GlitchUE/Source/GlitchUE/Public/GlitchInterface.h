@@ -18,7 +18,7 @@ class GLITCHUE_API IGlitchInterface{
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void ReciveGlitchUpgrade();
+	virtual void ReceiveGlitchUpgrade();
 
 	virtual void ResetGlitchUpgrade();
 };

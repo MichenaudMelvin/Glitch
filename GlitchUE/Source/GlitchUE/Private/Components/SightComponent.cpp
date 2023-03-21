@@ -7,9 +7,7 @@
 #include "Player/MainPlayer.h"
 
 USightComponent::USightComponent(){
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Meshs/CustomCollisions/SM_SightCollision"));
-
-	SetStaticMesh(Mesh.Object);
+	UPrimitiveComponent::SetCollisionResponseToAllChannels(ECR_Overlap);
 	bCanEverAffectNavigation = false;
 }
 

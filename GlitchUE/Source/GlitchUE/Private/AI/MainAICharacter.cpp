@@ -29,6 +29,8 @@ AMainAICharacter::AMainAICharacter(){
 
 	SightWidget->SetWorldScale3D(FVector(0.25,0.05,0.05));
 	SightWidget->SetDrawSize(FVector2D(1920, 1080));
+
+	SightWidget->SetGenerateOverlapEvents(false);
 }
 
 void AMainAICharacter::BeginPlay(){
@@ -43,6 +45,8 @@ void AMainAICharacter::BeginPlay(){
 	USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
 	SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
 	SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
+
+	SightComp->SetWorldScale3D(ScaleDetection);
 
 	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
 }
@@ -88,11 +92,14 @@ UHealthComponent* AMainAICharacter::GetHealthComp() const{
 	return HealthComp;
 }
 
-void AMainAICharacter::ReciveGlitchUpgrade(){
-	IGlitchInterface::ReciveGlitchUpgrade();
+void AMainAICharacter::ReceiveGlitchUpgrade(){
+	IGlitchInterface::ReceiveGlitchUpgrade();
 	// Ici set les upgrades dans les fonctions qui vont hériter
 
 	GetCharacterMovement()->MaxWalkSpeed = GlitchSpeed;
+
+	HealthComp->SetMaxHealth(GlitchHealth);
+	AIController->ToggleGlitchDamages(true);
 
 	FTimerHandle TimerHandle;
 
@@ -105,6 +112,9 @@ void AMainAICharacter::ReciveGlitchUpgrade(){
 
 void AMainAICharacter::ResetGlitchUpgrade(){
 	IGlitchInterface::ResetGlitchUpgrade();
+
+	HealthComp->SetMaxHealth(HealthComp->GetOriginalMaxHealth());
+	AIController->ToggleGlitchDamages(false);
 
 	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
 }

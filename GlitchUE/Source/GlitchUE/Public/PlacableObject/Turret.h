@@ -32,20 +32,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
 	UStaticMeshComponent* TurretBase;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	UStaticMeshComponent* TurretPillar;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TurretHead;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Vision")
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Vision")
 	USphereComponent* TurretVision;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	float Damages;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Stats")
-	float FireRate;
 
 	UPROPERTY(BlueprintReadWrite)
 	AActor* CurrentTarget;
@@ -68,7 +62,7 @@ protected:
 	void EndRotate();
 	virtual void EndRotate_Implementation();
 
-	virtual void ReciveGlitchUpgrade();
+	virtual void ReceiveGlitchUpgrade() override;;
 
 	virtual void SetMesh() override;
 

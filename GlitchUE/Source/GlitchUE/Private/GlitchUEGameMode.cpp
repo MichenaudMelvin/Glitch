@@ -10,6 +10,7 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
+#include "AI/AIPursuitDrone/PowerUpDrone.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
@@ -232,7 +233,7 @@ void AGlitchUEGameMode::BlinkingFinished(){
 	}
 }
 
-void AGlitchUEGameMode::AddGlitch(float AddedValue){
+void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 	GlitchValue = FMath::Clamp(AddedValue + GlitchValue, 0.0f, GlitchMaxValue);
 
 	MainPlayer->UpdateGlitchGaugeFeedback(GlitchValue, GlitchMaxValue);
@@ -250,7 +251,7 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 		}
 
 		CheckAvailableGlitchEvents();
-		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 3));
+		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 2));
 
 		switch (RandomGlitchType){
 		case EGlitchEvent::UpgradeAlliesUnits:
@@ -263,10 +264,6 @@ void AGlitchUEGameMode::AddGlitch(float AddedValue){
 
 		case EGlitchEvent::UpgradePlayer:
 			GlitchUpgradePlayer();
-			break;
-
-		case EGlitchEvent::RandomFX:
-			GlitchRandomFX();
 			break;
 		}
 
@@ -283,23 +280,32 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
-	UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), PlacableActorList.Num());
 
-	if (PlacableActorList.Num() > 0) {
-		PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
+	PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
 
-		for(int i = 0; i < PlacableActorList.Num(); i++){
-			if(!PlacableActorList[i]->IsA(APreviewPlacableActor::StaticClass())){
-				Cast<IGlitchInterface>(PlacableActorList[i])->ReciveGlitchUpgrade();
-				return;
-			}
+	int Count = 0;
+
+	for(int i = 0; i < PlacableActorList.Num(); i++){
+		if(PlacableActorList[i]->IsA(APreviewPlacableActor::StaticClass())){
+			continue;
+		}
+
+		if(PlacableActorList[i]->IsA(APowerUpDrone::StaticClass())){
+			continue;
+		}
+
+		Count++;
+		Cast<IGlitchInterface>(PlacableActorList[i])->ReceiveGlitchUpgrade();
+
+		if(Count == NumberOfAlliesUnitsToAffect){
+			return;
 		}
 	}
 }
 
 void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
-	
+
 	TArray<AActor*> AIControllerList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIControllerList);
 
@@ -310,7 +316,13 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 
 	if (AIList.Num() > 0) {
 		AIList = UUsefullFunctions::SortActorsByDistanceToActor(AIList, MainPlayer);
-		Cast<IGlitchInterface>(AIList[0])->ReciveGlitchUpgrade();
+
+		const int LoopNumber = AIList.Num() < NumberOfEnemiesToAffect ? AIList.Num() : NumberOfEnemiesToAffect;
+
+		for(int i = 0; i < LoopNumber; i++){
+			Cast<IGlitchInterface>(AIList[i])->ReceiveGlitchUpgrade();
+		}
+
 	} else{
 		UE_LOG(LogTemp, Warning, TEXT("Aucun ennemis dans le monde"));
 	}
@@ -319,11 +331,7 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 	UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
 
-	Cast<IGlitchInterface>(MainPlayer)->ReciveGlitchUpgrade();
-}
-
-void AGlitchUEGameMode::GlitchRandomFX() const{
-	UE_LOG(LogTemp, Warning, TEXT("RandomFX"));
+	Cast<IGlitchInterface>(MainPlayer)->ReceiveGlitchUpgrade();
 }
 
 void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
@@ -376,6 +384,13 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 
 		ActorList[0]->Destroy();
 	}
+}
+
+void AGlitchUEGameMode::Dissolve(const float Value){
+	TArray<AActor*> DissolverArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
+
+	Cast<ADissolver>(DissolverArray[0])->DissolveTo(Value);
 }
 
 #pragma endregion

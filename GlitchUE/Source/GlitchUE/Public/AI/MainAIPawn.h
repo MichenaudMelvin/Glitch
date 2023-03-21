@@ -23,7 +23,7 @@ protected:
 
 	UBlackboardComponent* Blackboard;
 
-	virtual void ReciveGlitchUpgrade();
+	virtual void ReceiveGlitchUpgrade() override;
 
-	virtual void ResetGlitchUpgrade();
+	virtual void ResetGlitchUpgrade() override;
 };

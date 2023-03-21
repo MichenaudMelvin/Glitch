@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
+#include "Components/CompassIcon.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
+
+class AInhibiteur;
 
 USTRUCT(BlueprintType)
 struct FStateAtWave{
@@ -18,6 +21,24 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int DisableAtWave = 999;
+};
+
+USTRUCT()
+struct FCompassSprite{
+	GENERATED_BODY()
+
+	/**
+	 * @brief Do not use this constructor
+	 */
+	FCompassSprite();
+
+	FCompassSprite(USceneComponent* SceneComp, UPaperSpriteComponent* PaperSpriteComp);
+
+	USceneComponent* SceneComponent;
+
+	UPaperSpriteComponent* PaperSpriteComponent;
+
+	void DestroyComponents();
 };
 
 UCLASS()
@@ -34,6 +55,10 @@ protected:
 
 	virtual void DesactivateObjectif() override;
 
+	UAnimationAsset* ActivationAnim;
+
+	UAnimationAsset* DesactivationAnim;
+
 	virtual void HealthNull() override;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
@@ -44,8 +69,23 @@ protected:
 
 	ANexus* Nexus;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
+	TArray<AInhibiteur*> NearInhibiteur;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
+	UPaperSprite* InhibiteurSprite;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
+	float CompassRadius = 100;
+
+	void GenerateCompass();
+
+	void DeleteCompass();
+
+	TArray<FCompassSprite> CompassSpriteList;
 
 public:
 	FStateAtWave GetStateAtWave() const;

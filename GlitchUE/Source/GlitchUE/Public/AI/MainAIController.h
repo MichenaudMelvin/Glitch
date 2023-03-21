@@ -15,8 +15,8 @@ class GLITCHUE_API AMainAIController : public AAIController{
 public:
 	AMainAIController(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "AIPerception")
-	float AISpawnGlitchValue;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
+	float AISpawnGlitchValue = 25;
 
 protected:
 	virtual void BeginPlay() override;
@@ -27,9 +27,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float StunTime = 5.0f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Damages")
 	float Damages = 10;
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	float GlitchDamages = 25;
+
+	float OriginalDamages;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float InvestigatingTime = 0.2f;
 
@@ -47,6 +52,8 @@ private:
 	void SetPlayerValues(AActor* Player);
 
 public:
+	void ToggleGlitchDamages(const bool bEnable);
+
 	UFUNCTION(BlueprintCallable)
 	float GetDamages() const;
 

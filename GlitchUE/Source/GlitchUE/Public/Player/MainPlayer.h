@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/CompassIcon.h"
 #include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
 #include "Components/HealthComponent.h"
@@ -44,19 +43,6 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
-
-	#pragma region Compass
-
-	TArray<UCompassIcon*> CompassIconArray;
-
-	TArray<USceneComponent*> SceneComponentsArray;
-
-	TArray<UPaperSpriteComponent*> PaperSpriteArray;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Compass")
-	float CompassRadius = 90;
-
-	#pragma endregion
 
 protected:
 
@@ -239,6 +225,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
+public:
+	void SetInvertAxis(const bool bNewValue);
+
+protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	int Golds = 0;
 
@@ -358,15 +348,53 @@ public:
 	void ResetOverlappedMeshes();
 
 	UPROPERTY(EditDefaultsOnly)
-	float GlitchUpgradeDuration = 5;
+	float GlitchUpgradeDuration = 0.5;
 
-	virtual void ReciveGlitchUpgrade();
+	virtual void ReceiveGlitchUpgrade() override;
 
-	virtual void ResetGlitchUpgrade();
+	virtual void ResetGlitchUpgrade() override;
+
+	TArray<FTransform> GlitchRewindTransformList;
+
+	FTimerHandle RewindTimer;
+
+	void StartRecord();
+
+	void StopRecord();
+
+	void SelectRandomLocation();
+
+	void RecordRandomLocation();
+
+	UPROPERTY(EditDefaultsOnly)
+	float RewindSpacesSave = 1;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MaxRewindList = 50;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
+	UMaterialParameterCollection* GlitchMPC;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
+	FWeightedBlendable PostProcessMaterialUI;
+
+	void EnableGlitchEffect(const bool bEnable, const float EffectDuration, const float GlitchValue = 1);
+
+	float TargetGlitchUIValue;
+
+protected:
+	FTimeline FadeInGlitchEffectTimeline;
+
+	UFUNCTION()
+	void FadeInGlitchEffect(float Value);
+
+	UFUNCTION()
+	void EndFadeIn();
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UMaterialInterface*> GlitchedMaterialList;
 
+public:
 	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue);
 
 	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value);
