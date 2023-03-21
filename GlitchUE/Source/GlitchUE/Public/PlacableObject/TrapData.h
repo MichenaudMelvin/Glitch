@@ -29,10 +29,4 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* IdleFX;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
-	UAnimSequenceBase* IdleAnimation;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
-	FLinearColor CrystalColor = FLinearColor(0, 0, 0, 1);
 };

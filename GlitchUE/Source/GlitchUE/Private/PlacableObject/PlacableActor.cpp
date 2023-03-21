@@ -112,7 +112,9 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	AttackRange = CurrentData->AttackRange;
 	Damages = CurrentData->Damages;
 	AttackAnimation = CurrentData->AttackAnimation;
+	IdleAnimation = CurrentData->IdleAnimation;
 	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
+
 	SetMesh();
 
 	if(AttackFX == nullptr){

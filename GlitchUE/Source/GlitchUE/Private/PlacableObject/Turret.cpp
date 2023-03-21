@@ -76,7 +76,7 @@ void ATurret::RotateToTarget(float Alpha){
 		EndRotate();
 		return;
 	}
-	
+
 	AILookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
 	FRotator PillarRotator = FRotator::ZeroRotator;
 	//FRotator HeadRotator = FRotator::ZeroRotator;
@@ -107,6 +107,10 @@ void ATurret::SetMesh(){
 	TurretBase->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[0]));
 	TurretPillar->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[1]));
 	TurretHead->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[2]), true);
+
+	TurretBase->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
+	TurretPillar->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
+	TurretHead->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
 }
 
 void ATurret::SetData(UPlacableActorData* NewData){
@@ -116,9 +120,11 @@ void ATurret::SetData(UPlacableActorData* NewData){
 	Damages = Data->Damages;
 	AttackRate = Data->AttackRate/2;
 	RotateTimeline.SetPlayRate(1/AttackRate);
-	
+
 	CanSeeThroughWalls = Data->CanSeeThroughWalls;
 	FocusMethod = Data->FocusMethod;
+
+	TurretHead->PlayAnimation(IdleAnimation, true);
 
 	FTimerHandle TimerHandle;
 	// Micro delay pour éviter les problèmes de navigation
@@ -217,9 +223,9 @@ bool ATurret::DoesAIListContainSomething() const{
 
 void ATurret::OnReachVision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 	Super::OnReachVision(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-	
+
 	if (AIList.Num() == 1) {
-		
+
 		if (!CanSeeThroughWalls) {
 			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, [&]() {
 				CanAttack();

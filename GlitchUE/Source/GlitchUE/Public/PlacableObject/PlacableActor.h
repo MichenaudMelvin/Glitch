@@ -71,6 +71,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+	UAnimSequenceBase* IdleAnimation;
+
 	UPROPERTY(BlueprintReadOnly, Category = "AI")
 	TSet<AMainAICharacter*> AIList;
 

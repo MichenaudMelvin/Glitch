@@ -81,28 +81,17 @@ void ATrap::ReceiveGlitchUpgrade(){
 void ATrap::SetMesh(){
 	Super::SetMesh();
 
-	const UTrapData* Data = Cast<UTrapData>(CurrentData);
+	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[0]), true);
 
-	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(Data->MeshList[0]), true);
-
-	if(IsValid(IdleAnimation)){
-		TrapMesh->PlayAnimation(IdleAnimation, true);
-		UE_LOG(LogTemp, Warning, TEXT("Play idle"));
-	} else{
-		UE_LOG(LogTemp, Warning, TEXT("pas valid"));
-	}
-
-	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(Data->MeshList[1]));
+	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[1]));
 	CrystalMesh->PlayAnimation(CrystalAnimation, true);
-	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(Data->CrystalColor));
+	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
 }
 
 void ATrap::SetData(UPlacableActorData* NewData){
-	const UTrapData* Data = Cast<UTrapData>(NewData);
-
-	IdleAnimation = Data->IdleAnimation;
-
 	Super::SetData(NewData);
+
+	const UTrapData* Data = Cast<UTrapData>(NewData);
 
 	TrapDuration = Data->TrapDuration;
 	AttackRate = Data->AttackRate;
@@ -112,6 +101,8 @@ void ATrap::SetData(UPlacableActorData* NewData){
 	if(IdleFX == nullptr){
 		IdleFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), Data->IdleFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, true, false);
 	}
+
+	TrapMesh->PlayAnimation(IdleAnimation, true);
 
 	FTimerHandle TimerHandle;
 	// Micro delay pour éviter les problèmes de navigation

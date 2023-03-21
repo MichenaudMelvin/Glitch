@@ -37,8 +37,6 @@ protected:
 
 	UAnimSequenceBase* CrystalAnimation;
 
-	UAnimSequenceBase* IdleAnimation;
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UActivableComponent* ActivableComp;
 

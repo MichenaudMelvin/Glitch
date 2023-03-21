@@ -38,6 +38,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
 	UStaticMesh* FullMesh;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
+	FLinearColor CrystalColor = FLinearColor(0, 0, 0, 1);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Golds")
 	bool HasEnoughGolds(const int PlayerGolds) const;
 
@@ -64,6 +67,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
+	UAnimSequenceBase* IdleAnimation;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Class")
 	TSubclassOf<APlacableActor> ClassToSpawn;
