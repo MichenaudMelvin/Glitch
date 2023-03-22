@@ -243,8 +243,11 @@ public:
 	int GetGolds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
-	void GiveGolds(int Amount);
-	virtual void GiveGolds_Implementation(int Amount);
+	void GiveGolds(const int Amount);
+	virtual void GiveGolds_Implementation(const int Amount);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Loose")
+	void Loose();
 
 protected:
 	#pragma region Interaction

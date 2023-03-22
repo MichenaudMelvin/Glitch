@@ -14,20 +14,16 @@ AGlitchZone::AGlitchZone(){
 	GetStaticMeshComponent()->SetStaticMesh(Mesh.Object);
 	GetStaticMeshComponent()->SetWorldScale3D(FVector(2, 2, 2));
 
-	GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
-
-	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
-	TriggerBox->SetupAttachment(RootComponent);
-
-	TriggerBox->SetBoxExtent(FVector(50, 50,50));
+	GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
+	GetStaticMeshComponent()->SetGenerateOverlapEvents(true);
 }
 
 void AGlitchZone::BeginPlay(){
 	Super::BeginPlay();
 
-	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AGlitchZone::EnterGlitchZone);
-	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AGlitchZone::ExitGlitchZone);
+	GetStaticMeshComponent()->OnComponentBeginOverlap.AddDynamic(this, &AGlitchZone::EnterGlitchZone);
+	GetStaticMeshComponent()->OnComponentEndOverlap.AddDynamic(this, &AGlitchZone::ExitGlitchZone);
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }

@@ -223,8 +223,12 @@ int AMainPlayer::GetGolds() const{
 	return Golds;
 }
 
-void AMainPlayer::GiveGolds_Implementation(int Amount){
+void AMainPlayer::GiveGolds_Implementation(const int Amount){
 	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
+}
+
+void AMainPlayer::Loose_Implementation(){
+	GetWorld()->GetTimerManager().ClearTimer(RewindTimer);
 }
 
 #pragma endregion

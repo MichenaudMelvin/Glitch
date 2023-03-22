@@ -89,4 +89,8 @@ protected:
 
 public:
 	FStateAtWave GetStateAtWave() const;
+
+#if WITH_EDITORONLY_DATA
+	void OnObjectSelected(UObject* Object);
+#endif
 };

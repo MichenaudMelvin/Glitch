@@ -34,8 +34,6 @@ protected:
 
 	AActor* GetFarestActivatedCatalyseur();
 
-	virtual void HealthNull() override;
-
 	virtual void ActiveObjectif() override;
 
 	UPROPERTY()

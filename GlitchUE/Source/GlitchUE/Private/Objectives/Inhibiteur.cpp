@@ -3,6 +3,8 @@
 
 #include "Objectives/Inhibiteur.h"
 #include "GlitchUEGameMode.h"
+#include "Engine/Selection.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Kismet/GameplayStatics.h"
 
 AInhibiteur::AInhibiteur(){
@@ -12,6 +14,11 @@ AInhibiteur::AInhibiteur(){
 	check(ActivAnim.Succeeded());
 
 	ActivationAnim = ActivAnim.Object;
+
+	#if WITH_EDITORONLY_DATA
+		USelection::SelectObjectEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
+		
+	#endif
 }
 
 void AInhibiteur::BeginPlay(){
@@ -31,7 +38,11 @@ void AInhibiteur::ActiveObjectif(){
 
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
-	SpriteReference.DestroyComponents();
+	if(IsValid(SpriteReference.SceneComponent) && IsValid(SpriteReference.PaperSpriteComponent)){
+		SpriteReference.DestroyComponents();
+	} else{
+		UE_LOG(LogTemp, Warning, TEXT("pas valid"));
+	}
 }
 
 void AInhibiteur::DesactivateObjectif(){
@@ -41,7 +52,7 @@ void AInhibiteur::DesactivateObjectif(){
 void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	const AGlitchUEGameMode* Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
-	if (Gamemode->GetLevelState() == ELevelState::Normal && Gamemode->GetPhases() == EPhases::Infiltration && !ActivableComp->IsActivated()){
+	if (Gamemode->GetPhases() == EPhases::Infiltration && !ActivableComp->IsActivated()){
 		ActivableComp->ActivateObject();
 	}
 }
@@ -60,3 +71,20 @@ void AInhibiteur::ActivateLinkedElements(const bool bActivate){
 void AInhibiteur::SetSpriteReference(const FCompassSprite NewSprite){
 	SpriteReference = NewSprite;
 }
+
+#if WITH_EDITORONLY_DATA
+void AInhibiteur::OnObjectSelected(UObject* Object){
+	if (Object == this) {
+
+		for(int i = 0; i < ConstructionZoneList.Num(); i++){
+			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+		}
+
+	} else if (!IsSelected()){
+
+		for(int i = 0; i < ConstructionZoneList.Num(); i++){
+			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+		}
+	}
+}
+#endif
