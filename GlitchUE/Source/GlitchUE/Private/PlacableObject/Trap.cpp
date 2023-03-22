@@ -81,11 +81,18 @@ void ATrap::ReceiveGlitchUpgrade(){
 void ATrap::SetMesh(){
 	Super::SetMesh();
 
-	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[0]), true);
+	
 
 	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[1]));
 	CrystalMesh->PlayAnimation(CrystalAnimation, true);
 	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
+
+	FTimerHandle TimerHandle;
+	// Micro delay pour éviter les problèmes de navigation
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+		TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[0]), true);
+		TrapMesh->PlayAnimation(IdleAnimation, true);
+	}, 0.2f, false);
 }
 
 void ATrap::SetData(UPlacableActorData* NewData){
@@ -102,7 +109,7 @@ void ATrap::SetData(UPlacableActorData* NewData){
 		IdleFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), Data->IdleFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, true, false);
 	}
 
-	TrapMesh->PlayAnimation(IdleAnimation, true);
+	TrapDistance->SetBoxExtent(FVector(50, 50, 50), true);
 
 	FTimerHandle TimerHandle;
 	// Micro delay pour éviter les problèmes de navigation
