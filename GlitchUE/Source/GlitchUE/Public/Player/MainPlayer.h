@@ -48,6 +48,7 @@ protected:
 
 	virtual void Tick(float deltaTime) override;
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
 public:
 	UFUNCTION(BlueprintCallable)

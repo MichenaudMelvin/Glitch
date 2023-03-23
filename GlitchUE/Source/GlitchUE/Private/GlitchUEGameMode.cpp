@@ -154,6 +154,8 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 }
 
 void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
+	ISaveInterface::GlobalWorldLoad(Index);
+
 	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
 
 	if(CurrentSave == nullptr){
@@ -276,8 +278,6 @@ float AGlitchUEGameMode::GetCurrentGlitchValue() const{
 }
 
 void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
-	UE_LOG(LogTemp, Warning, TEXT("UpgradeAlliesUnits"));
-
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
 
@@ -304,8 +304,6 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 }
 
 void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
-	UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
-
 	TArray<AActor*> AIControllerList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIControllerList);
 
@@ -322,15 +320,10 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 		for(int i = 0; i < LoopNumber; i++){
 			Cast<IGlitchInterface>(AIList[i])->ReceiveGlitchUpgrade();
 		}
-
-	} else{
-		UE_LOG(LogTemp, Warning, TEXT("Aucun ennemis dans le monde"));
 	}
 }
 
 void AGlitchUEGameMode::GlitchUpgradePlayer() const{
-	UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
-
 	Cast<IGlitchInterface>(MainPlayer)->ReceiveGlitchUpgrade();
 }
 

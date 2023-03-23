@@ -3,12 +3,13 @@
 
 #include "Player/UI/Saves/SaveButton.h"
 #include "Kismet/GameplayStatics.h"
+#include "Saves/SaveInterface.h"
 
 void USaveButton::NativeConstruct(){
 	Super::NativeConstruct();
 
 	SaveButton->OnClicked.AddDynamic(this, &USaveButton::OnSelectSave);
-	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode = UGameplayStatics::GetGameMode(GetWorld());
 }
 
 void USaveButton::NativeOnListItemObjectSet(UObject* ListItemObject){
@@ -34,9 +35,9 @@ void USaveButton::SetOwner(USaveSelection* NewOwner){
 }
 
 void USaveButton::Save(){
-	GameMode->GlobalWorldSave(Index);
+	Cast<AGlitchUEGameMode>(GameMode)->GlobalWorldSave(Index);
 }
 
 void USaveButton::Load(){
-	GameMode->GlobalWorldLoad(Index);
+	Cast<ISaveInterface>(GameMode)->GlobalWorldLoad(Index);
 }

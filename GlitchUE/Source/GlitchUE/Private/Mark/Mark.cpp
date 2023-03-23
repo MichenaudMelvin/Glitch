@@ -14,11 +14,11 @@ AMark::AMark() {
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/EditorMeshes/ArcadeEditorSphere"));
 	MarkMesh->SetStaticMesh(Mesh.Object);
-	
+
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("MarkInteraction"));
-	
+
 	MarkMesh->OnComponentHit.AddDynamic(this, &AMark::OnCompHit);
 }
 
@@ -28,12 +28,16 @@ void AMark::BeginPlay() {
 	StopProjectile();
 
 	OriginalLocation = GetActorLocation();
-	
+
+#if WITH_EDITOR
 	// Check pour le mode simulation
-	if (IsValid(UGameplayStatics::GetPlayerCharacter(this, 0))){
-		Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
-		Player->SetMark(this);
+	if (!IsValid(UGameplayStatics::GetPlayerCharacter(this, 0))){
+		return;
 	}
+#endif
+
+	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	Player->SetMark(this);
 
 	InteractableComp->AddInteractable(MarkMesh);
 	InteractableComp->OnInteract.AddDynamic(this, &AMark::Interact);
@@ -68,7 +72,6 @@ FVector AMark::GetTPLocation() {
 	else {
 		ImpactPoint = GetActorLocation();
 	}
-
 
 	return ImpactPoint;
 }
@@ -106,10 +109,9 @@ void AMark::ResetMark(){
 	bIsMarkPlaced = false;
 	Player->GetMainPlayerController()->BindGlitch();
 	GetWorldTimerManager().ClearTimer(DistanceTimer);
-	// invalidate beam timer
+
 	SetActorLocation(OriginalLocation);
 	StopProjectile();
-	// reset beam end
 }
 
 void AMark::Launch(const FTransform StartTransform){
@@ -117,7 +119,6 @@ void AMark::Launch(const FTransform StartTransform){
 	LaunchLocation = StartTransform.GetLocation();
 	StartProjectile();
 	GetWorldTimerManager().SetTimer(DistanceTimer, this, &AMark::CheckDistance, 0.1f, true, 0.0f);
-	//ajouter beam timer
 }
 
 float AMark::GetDistanceToLaunchPoint() const{

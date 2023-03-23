@@ -51,6 +51,13 @@ void AMainAICharacter::BeginPlay(){
 	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
 }
 
+void AMainAICharacter::Destroyed(){
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(AIController);
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	Super::Destroyed();
+}
+
 void AMainAICharacter::InitializeAI(FTransform NewTransform, UBlackboardData* NewBlackBoard){
 	SetActorTransform(NewTransform);
 	AIController->UseBlackboard(NewBlackBoard, Blackboard);

@@ -23,4 +23,6 @@ public:
 	void ResetBinds() const;
 
 	void BindContextAction(USaveButton* SaveButtonReference) const;
+
+	void UseSaveButton(const bool bUseSaveButton);
 };

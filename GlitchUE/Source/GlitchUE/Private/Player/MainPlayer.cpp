@@ -159,6 +159,12 @@ void AMainPlayer::BeginPlay(){
 	#pragma endregion
 }
 
+void AMainPlayer::Destroyed(){
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	Super::Destroyed();
+}
+
 void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation){
 	SetActorTransform(StartTransform);
 	Controller->SetControlRotation(CameraRotation);
@@ -228,7 +234,7 @@ void AMainPlayer::GiveGolds_Implementation(const int Amount){
 }
 
 void AMainPlayer::Loose_Implementation(){
-	GetWorld()->GetTimerManager().ClearTimer(RewindTimer);
+	StopRecord();
 }
 
 #pragma endregion
@@ -563,9 +569,7 @@ void AMainPlayer::ResetGlitchUpgrade(){
 void AMainPlayer::StartRecord(){
 	GlitchRewindTransformList.Empty();
 
-	GetWorld()->GetTimerManager().SetTimer(RewindTimer, [&](){
-		RecordRandomLocation();
-	}, RewindSpacesSave, true);
+	GetWorld()->GetTimerManager().SetTimer(RewindTimer, this, &AMainPlayer::RecordRandomLocation, RewindSpacesSave, true);
 }
 
 void AMainPlayer::StopRecord(){

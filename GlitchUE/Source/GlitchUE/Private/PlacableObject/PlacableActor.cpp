@@ -73,6 +73,8 @@ void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
 
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
 	Destroy();
 }
 

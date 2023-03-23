@@ -11,8 +11,8 @@
 UCLASS()
 class GLITCHUE_API AMark : public AActor{
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AMark();
 
 protected:
