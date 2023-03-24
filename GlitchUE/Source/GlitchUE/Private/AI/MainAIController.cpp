@@ -22,20 +22,26 @@ AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer
 void AMainAIController::BeginPlay() {
 	Super::BeginPlay();
 
-	//AIPerception = NewObject<UAIPerceptionComponent>();
+	if(Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString != ""){
+		return;
+	}
 
-	Blackboard->SetValueAsFloat(FName(TEXT("StunTime")), StunTime);
-	Blackboard->SetValueAsFloat(FName(TEXT("InvestigatingTime")), InvestigatingTime);
+	RunBehaviorTree(BehaviorTree);
+	UseBlackboard(BlackboardData, Blackboard);
+
+	Blackboard->SetValueAsFloat("StunTime", StunTime);
+	Blackboard->SetValueAsFloat("InvestigatingTime", InvestigatingTime);
 
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
 
 	OriginalDamages = Damages;
 
-	if(Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString == ""){
-		RunBehaviorTree(BehaviorTree);
-		UseBlackboard(BlackboardData, Blackboard);
-		Blackboard->SetValueAsVector(FName(TEXT("OriginalPosition")), GetPawn()->GetActorLocation());
-	}
+	FTimerHandle TimerHandle;
+
+	// micro delay pour les AI qui spawnent
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		Blackboard->SetValueAsVector("OriginalPosition", GetPawn()->GetActorLocation());
+	}, 0.2f, false);
 }
 
 void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus) {

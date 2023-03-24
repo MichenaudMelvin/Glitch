@@ -13,6 +13,7 @@
 #include "NavAreas/NavArea_Obstacle.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "PlacableObject/ConstructionZone.h"
+#include "AI/AIPursuitDrone/PursuitDrone.h"
 
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -62,8 +63,18 @@ void APlacableActor::Tick(float DeltaTime){
 void APlacableActor::SetMesh(){}
 
 void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction) {
+	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction){
 		SellObject(MainPlayer);
+	}
+
+	if(IsValid(CurrentDrone)){
+		MainPlayer->SetCurrentDrone(CurrentDrone);
+		CurrentDrone = nullptr;
+		return;
+	}
+
+	if(IsValid(MainPlayer->GetCurrentDrone())){
+		AddDrone(MainPlayer);
 	}
 }
 
@@ -80,6 +91,20 @@ void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 
 void APlacableActor::FadeIn(float Alpha){
 	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), AppearenceMaterialCollection, FName("Appearence"), Alpha);
+}
+
+void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
+	CurrentDrone = MainPlayer->GetCurrentDrone();
+	MainPlayer->SetCurrentDrone(nullptr);
+
+	CurrentDrone->AttachDrone(this, "");
+
+	FVector TargetLocation = GetActorLocation();
+	TargetLocation.Z += 100;
+
+	CurrentDrone->SetActorLocation(TargetLocation);
+
+	CurrentDrone->BoostPlacable();
 }
 
 void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){}

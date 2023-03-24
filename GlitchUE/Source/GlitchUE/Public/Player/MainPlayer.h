@@ -14,6 +14,7 @@
 class AMainPlayerController;
 class AMark;
 class AMainAICharacter;
+class APursuitDrone;
 
 UENUM(BlueprintType)
 enum class EPlayerMovementMode : uint8{
@@ -260,12 +261,20 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Interaction")
 	bool InteractionLineTrace(FHitResult& OutHit) const;
 
+	APursuitDrone* CurrentDrone;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void InteractionTick();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Interaction")
 	void Interact();
+
+	void SetCurrentDrone(APursuitDrone* NewDrone);
+
+	APursuitDrone* GetCurrentDrone() const;
+
+	void DropDrone(APursuitDrone* NewDrone);
 
 protected:
 	UFUNCTION(Category = "Interaction")

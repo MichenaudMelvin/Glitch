@@ -11,7 +11,6 @@
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
 #include "AI/AIPatrol/PatrolCharacter.h"
-#include "AI/AIPursuitDrone/PowerUpDrone.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
@@ -335,7 +334,7 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 			continue;
 		}
 
-		if(PlacableActorList[i]->IsA(APowerUpDrone::StaticClass())){
+		if(PlacableActorList[i]->IsA(APursuitDrone::StaticClass()) && CurrentPhase == EPhases::TowerDefense){
 			continue;
 		}
 

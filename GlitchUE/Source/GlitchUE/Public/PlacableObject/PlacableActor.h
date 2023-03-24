@@ -17,6 +17,7 @@ class AMainPlayer;
 class UInteractableComponent;
 class AConstructionZone;
 class AMainAICharacter;
+class APursuitDrone;
 
 USTRUCT(BlueprintType)
 struct FPlacableActorCreation{
@@ -100,6 +101,10 @@ protected:
 	UMaterialParameterCollection* AppearenceMaterialCollection;
 
 	AConstructionZone* AffectedConstructionZone;
+
+	APursuitDrone* CurrentDrone;
+
+	void AddDrone(AMainPlayer* MainPlayer);
 
 	UFUNCTION(BlueprintCallable, Category = "Appearence")
 	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);

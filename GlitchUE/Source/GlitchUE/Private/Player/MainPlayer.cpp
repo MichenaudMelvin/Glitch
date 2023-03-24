@@ -24,6 +24,7 @@
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
 #include "Sound/SoundBase.h"
+#include "AI/AIPursuitDrone/PursuitDrone.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -284,6 +285,35 @@ void AMainPlayer::Interact() {
 	}
 }
 
+void AMainPlayer::SetCurrentDrone(APursuitDrone* NewDrone){
+	if(!IsValid(NewDrone)){
+		return;
+	}
+
+	if(IsValid(CurrentDrone)){
+		DropDrone(NewDrone);
+	}
+
+	CurrentDrone = NewDrone;
+
+	CurrentDrone->AttachDrone(this, "Bone012");
+}
+
+APursuitDrone* AMainPlayer::GetCurrentDrone() const{
+	return CurrentDrone;
+}
+
+void AMainPlayer::DropDrone(APursuitDrone* NewDrone){
+	const FDetachmentTransformRules DetachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
+	CurrentDrone->DetachFromActor(DetachmentRules);
+
+	CurrentDrone->DisableSpinBehavior();
+
+	CurrentDrone->SetActorLocation(NewDrone->GetActorLocation());
+
+	CurrentDrone = nullptr;
+}
+
 void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 	if (IsValid(CurrentCheckedObject)) {
 		CurrentCheckedObject->Unfeedback();
@@ -439,7 +469,10 @@ void AMainPlayer::TPToMark() {
 	CapsuleRotation.Yaw = Mark->GetActorRotation().Yaw;
 	GetCapsuleComponent()->SetRelativeRotation(CapsuleRotation);
 	GetMesh()->SetVisibility(false, true);
-	
+	if(IsValid(CurrentDrone)){
+		CurrentDrone->GetMesh()->SetVisibility(false, true);
+	}
+
 	CurrentControlRotation = MainPlayerController->GetControlRotation();
 	CurrentCameraPosition = FollowCamera->GetComponentLocation();
 	TargetControlRotation = UKismetMathLibrary::FindLookAtRotation(CurrentCameraPosition, Mark->GetActorLocation());
@@ -715,6 +748,10 @@ void AMainPlayer::EndTL() {
 
 		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
+		if(IsValid(CurrentDrone)){
+			CurrentDrone->GetMesh()->SetVisibility(true, true);
+		}
+
 		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 		HealthComp->SetCanTakeDamages(true);

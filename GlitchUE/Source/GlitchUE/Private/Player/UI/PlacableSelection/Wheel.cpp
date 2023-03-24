@@ -55,8 +55,6 @@ void UWheel::RadialSelection(){
 	FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
 	const FVector2D ViewportSize = UWidgetLayoutLibrary::GetViewportSize(GetWorld());
 
-	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow, FString::Printf(TEXT("Thing to print %s"), *ViewportSize.ToString()));
-
 	// à teseter avec un plus grand ecran le /2 mais ça a l'air bon
 	MousePosition -= ViewportSize.X >= 1920 || ViewportSize.Y >= 1080 ? ViewportSize/2 : ViewportSize;
 

@@ -9,12 +9,16 @@
 #include "Saves/WorldSave.h"
 #include "MainAIController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnStopBehavior);
+
 UCLASS()
 class GLITCHUE_API AMainAIController : public AAIController{
 	GENERATED_BODY()
 
 public:
 	AMainAIController(const FObjectInitializer& ObjectInitializer);
+
+	FKOnStopBehavior OnStopBehavior;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float AISpawnGlitchValue = 25;
