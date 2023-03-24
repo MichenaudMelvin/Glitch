@@ -24,16 +24,13 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 
-	UFUNCTION(BlueprintCallable)
-	void InitializeAI(FTransform NewTransform, UBlackboardData* NewBlackBoard);
-
 	AMainAIController* AIController;
 
 	UPROPERTY(BlueprintReadWrite)
 	UBlackboardComponent* Blackboard;
 
 public:
-	UBlackboardComponent* GetBlackBoard();
+	UBlackboardComponent* GetBlackBoard() const;
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)

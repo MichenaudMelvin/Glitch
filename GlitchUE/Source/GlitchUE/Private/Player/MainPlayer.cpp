@@ -165,9 +165,14 @@ void AMainPlayer::Destroyed(){
 	Super::Destroyed();
 }
 
-void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation){
+void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced){
 	SetActorTransform(StartTransform);
 	Controller->SetControlRotation(CameraRotation);
+
+	if(bIsMarkPlaced){
+		Mark->SetActorTransform(MarkTransform);
+		Mark->PlaceMark();
+	}
 }
 
 #pragma region Camera
@@ -595,6 +600,13 @@ void AMainPlayer::RecordRandomLocation(){
 
 	FTransform TransformToAdd;
 	TransformToAdd.SetLocation(GetActorLocation());
+
+#if !UE_BUILD_SHIPPING
+	if(!IsValid(Controller)){
+		return;
+	}
+#endif
+
 	TransformToAdd.SetRotation(Controller->GetControlRotation().Quaternion());
 
 	GlitchRewindTransformList.Add(TransformToAdd);

@@ -51,9 +51,7 @@ protected:
 	virtual void Destroyed() override;
 
 public:
-	UFUNCTION(BlueprintCallable)
-	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation);
-	//virtual  void InitializePlayer_Implementation(FTransform StartTransform, FRotator CameraRotation);
+	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced);
 
 	#pragma region Camera
 

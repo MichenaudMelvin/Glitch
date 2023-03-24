@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Objectives/Catalyseur.h"
+#include "Saves/WorldSave.h"
 #include "MainAIController.generated.h"
 
 UCLASS()
@@ -48,9 +49,6 @@ protected:
 	void PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus);
 	void PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus);
 
-private:
-	void SetPlayerValues(AActor* Player);
-
 public:
 	void ToggleGlitchDamages(const bool bEnable);
 
@@ -61,4 +59,9 @@ public:
 
 	// empty function only for two classes
 	virtual TArray<ACatalyseur*> GetCatalyseurList() const;
+
+	virtual FAIData SaveAI();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void InitializeAI(const FAIData NewData);
 };

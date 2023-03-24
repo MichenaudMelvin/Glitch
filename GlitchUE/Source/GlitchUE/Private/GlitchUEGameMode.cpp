@@ -10,13 +10,16 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
+#include "AI/AIPatrol/PatrolCharacter.h"
 #include "AI/AIPursuitDrone/PowerUpDrone.h"
+#include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
+#include "Mark/Mark.h"
 #include "Saves/WorldSave.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
@@ -114,10 +117,33 @@ void AGlitchUEGameMode::InitializeWorld(){
 
 		UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
 
-		MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation);
+		MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation, CurrentSave->MarkTransform, CurrentSave->bIsMarkPlaced);
 
 		SetLevelState(CurrentSave->LevelState);
 		AddGlitch(CurrentSave->GlitchValue);
+
+		//AI
+		TArray<AActor*> AIList;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIList);
+
+		TArray<FString> FStringArray;
+		CurrentSave->AIDataList.GetKeys(FStringArray);
+
+		for(int i = 0; i < AIList.Num(); i++){
+			bool bFindAI = false;
+
+			for(int j = 0; j < FStringArray.Num(); j++){
+				if(AIList[i]->GetName() == FStringArray[j]){
+					Cast<AMainAIController>(AIList[i])->InitializeAI(CurrentSave->AIDataList.FindRef(AIList[i]->GetName()));
+					bFindAI = true;
+					break;
+				}
+			}
+
+			if(!bFindAI){
+				Cast<AMainAIController>(AIList[i])->GetPawn()->Destroy();
+			}
+		}
 
 		CurrentSave->LoadedTime++;
 		UE_LOG(LogTemp, Warning, TEXT("Loaded number of this save : %d"), CurrentSave->LoadedTime);
@@ -126,6 +152,7 @@ void AGlitchUEGameMode::InitializeWorld(){
 			UUsefullFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
 			return;
 		}
+
 
 		UUsefullFunctions::SaveToSlot(CurrentSave, SlotIndex);
 	}
@@ -146,11 +173,29 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	CurrentSave->PlayerTransform = MainPlayer->GetActorTransform();
 	CurrentSave->PlayerCameraRotation = MainPlayer->GetController()->GetControlRotation();
 
-	//World
+	if(MainPlayer->GetMark()->GetIsMarkPlaced()){
+		CurrentSave->MarkTransform = MainPlayer->GetMark()->GetActorTransform();
+		CurrentSave->bIsMarkPlaced = true;
+	} else{
+		CurrentSave->bIsMarkPlaced = false;
+	}
+
+	//AI
+
+	TArray<AActor*> AIList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIList);
+
+	CurrentSave->AIDataList.Empty();
+	for(int i = 0; i < AIList.Num(); i++){
+		AMainAIController* CurrentCharacter = Cast<AMainAIController>(AIList[i]);
+
+		CurrentSave->AIDataList.Add(CurrentCharacter->GetName(), CurrentCharacter->SaveAI());
+	}
+
 	CurrentSave->GlitchValue = GlitchValue;
 	CurrentSave->LevelState = LevelState;
 
-	Cast<UWorldSave>(UUsefullFunctions::SaveToSlot(CurrentSave, Index));
+	UUsefullFunctions::SaveToSlot(CurrentSave, Index);
 }
 
 void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
@@ -369,7 +414,11 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 	} else{
 		if(bToggleAtLocation){
 			MainPlayer->SetActorLocation(ActorList[0]->GetActorLocation());
-			MainPlayer->SetActorRotation(Cast<APawn>(ActorList[0])->Controller->GetControlRotation());
+
+			FRotator PlayerRotation = Cast<APawn>(ActorList[0])->Controller->GetControlRotation();
+			PlayerRotation.Pitch = 0;
+
+			MainPlayer->SetActorRotation(PlayerRotation);
 		}
 
 		Cast<APawn>(ActorList[0])->Controller->Possess(MainPlayer);

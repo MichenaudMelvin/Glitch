@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
+#include "Player/AbstractPlayerController.h"
 #include "SubWidget.generated.h"
 
 UCLASS()
@@ -13,6 +14,10 @@ class GLITCHUE_API USubWidget : public UUserWidget{
 
 protected:
 	virtual void NativeOnInitialized() override;
+
+	virtual void NativeConstruct() override;
+
+	AAbstractPlayerController* CurrentController;
 
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn = "true"))
 	UUserWidget* OwnerWidget;
