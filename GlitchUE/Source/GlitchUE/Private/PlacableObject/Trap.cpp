@@ -63,7 +63,9 @@ void ATrap::OnDesactivateTrap(){
 }
 
 void ATrap::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	if (!ActivableComp->IsActivated()) {
+	Super::Interact(MainPlayerController, MainPlayer);
+
+	if (!ActivableComp->IsActivated()){
 		ActivableComp->ActivateObject();
 	}
 }
@@ -80,8 +82,6 @@ void ATrap::ReceiveGlitchUpgrade(){
 
 void ATrap::SetMesh(){
 	Super::SetMesh();
-
-	
 
 	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[1]));
 	CrystalMesh->PlayAnimation(CrystalAnimation, true);

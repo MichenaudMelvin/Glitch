@@ -26,6 +26,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void InitializeAIFromStart();
+
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UBehaviorTree* BehaviorTree;
 

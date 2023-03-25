@@ -287,6 +287,7 @@ void AMainPlayer::Interact() {
 
 void AMainPlayer::SetCurrentDrone(APursuitDrone* NewDrone){
 	if(!IsValid(NewDrone)){
+		CurrentDrone = nullptr;
 		return;
 	}
 

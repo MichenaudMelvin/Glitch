@@ -20,7 +20,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
+
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
+
 	void Check();
 
 	void LooseSight();
@@ -44,7 +46,7 @@ protected:
 public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FOnSightPlayer OnSightPlayer;
-	
+
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FOnLooseSightPlayer OnLooseSightPlayer;
 
@@ -56,11 +58,11 @@ protected:
 	void ExitSight(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool IsSomethingInSight();
-	
+	bool IsSomethingInSight() const;
+
 	bool bIsPlayerInSight = false;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool IsPlayerInSight();
+	bool IsPlayerInSight() const;
 };

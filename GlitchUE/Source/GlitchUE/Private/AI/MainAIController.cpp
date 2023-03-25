@@ -22,19 +22,31 @@ AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer
 void AMainAIController::BeginPlay() {
 	Super::BeginPlay();
 
-	if(Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString != ""){
-		return;
+	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
+
+	OriginalDamages = Damages;
+
+	const FString Settings = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString;
+
+	if(Settings != ""){
+		TArray<FString> LevelSettings;
+		Settings.ParseIntoArray(LevelSettings, TEXT("|"), true);
+
+		if(LevelSettings[0] == "?WorldSaveLoad"){
+			//InitializeAI will be call by the gamemode
+			return;
+		}
 	}
 
+	InitializeAIFromStart();
+}
+
+void AMainAIController::InitializeAIFromStart(){
 	RunBehaviorTree(BehaviorTree);
 	UseBlackboard(BlackboardData, Blackboard);
 
 	Blackboard->SetValueAsFloat("StunTime", StunTime);
 	Blackboard->SetValueAsFloat("InvestigatingTime", InvestigatingTime);
-
-	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
-
-	OriginalDamages = Damages;
 
 	FTimerHandle TimerHandle;
 
@@ -110,6 +122,9 @@ void AMainAIController::InitializeAI(const FAIData NewData){
 	UseBlackboard(BlackboardData, Blackboard);
 
 	GetPawn()->SetActorTransform(NewData.CurrentTransform);
+
+	Blackboard->SetValueAsFloat("StunTime", StunTime);
+	Blackboard->SetValueAsFloat("InvestigatingTime", InvestigatingTime);
 
 	Blackboard->SetValueAsVector("OriginalPosition", NewData.OriginalPosition);
 	Blackboard->SetValueAsBool("IsStun", NewData.bIsStun);

@@ -18,9 +18,19 @@ void USightComponent::BeginPlay(){
 	OnComponentEndOverlap.AddDynamic(this, &USightComponent::ExitSight);
 
 	OwnerBlackboard = Cast<APawn>(GetOwner())->Controller->FindComponentByClass<UBlackboardComponent>();
+}
 
-	SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	SetCanEverAffectNavigation(false);
+void USightComponent::OnComponentDestroyed(bool bDestroyingHierarchy){
+	Super::OnComponentDestroyed(bDestroyingHierarchy);
+
+#if WITH_EDITOR
+	// sinon crash quand change de map
+	if(!IsValid(GetWorld())){
+		return;
+	}
+#endif
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void USightComponent::Check(){
@@ -91,10 +101,10 @@ void USightComponent::ExitSight(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	}
 }
 
-bool USightComponent::IsSomethingInSight(){
+bool USightComponent::IsSomethingInSight() const{
 	return IsValid(SightActor);
 }
 
-bool USightComponent::IsPlayerInSight(){
+bool USightComponent::IsPlayerInSight() const{
 	return bIsPlayerInSight;
 }

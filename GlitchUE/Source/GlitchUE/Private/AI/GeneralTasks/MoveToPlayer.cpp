@@ -34,6 +34,7 @@ EBTNodeResult::Type UMoveToPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
 	MoveToPlayer();
 
+	FinishLatentTask(*BTOwnerComp, EBTNodeResult::InProgress);
 	return EBTNodeResult::InProgress;
 }
 
@@ -41,6 +42,7 @@ void UMoveToPlayer::MoveToPlayer(){
 	if(bUseSight){
 		CheckIfPlayerIsInSight();
 	}
+
 	MoveTask();
 
 	GetWorld()->GetTimerManager().SetTimer(MoveToTimer, [&]() {
@@ -52,7 +54,7 @@ void UMoveToPlayer::MoveTask(){
 	const FVector StartLocation = CurrentBlackboard->GetValue<UBlackboardKeyType_Vector>(PlayerLocation.GetSelectedKeyID());
 	FVector EndLocation = StartLocation;
 	EndLocation.Z -= 250;
-	
+
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(CurrentPawn);
 
@@ -60,28 +62,26 @@ void UMoveToPlayer::MoveTask(){
 
 	FVector TargetLocation;
 
-	if(UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true, FLinearColor::Red, FLinearColor::Green, 5.0f)){
+	if(UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true, FLinearColor::Red, FLinearColor::Green, 5.0f)){
 		TargetLocation = HitResult.ImpactPoint;
 	} else{
 		TargetLocation = StartLocation;
 	}
 
-	
 	const EPathFollowingRequestResult::Type Result = CurrentController->MoveToLocation(TargetLocation, 5, false, true, false, false, UNavAreaCostAsOne::StaticClass(), true);
 
 	switch (Result) {
 		case EPathFollowingRequestResult::Failed:
-			EndTask(EBTNodeResult::Aborted);
+			EndTask(EBTNodeResult::Failed);
 		break;
 		case EPathFollowingRequestResult::AlreadyAtGoal:
-			EndTask(EBTNodeResult::Aborted);
+			EndTask(EBTNodeResult::Failed);
 		break;
 		case EPathFollowingRequestResult::RequestSuccessful:
 			return;
-		break;
 	}
 
-	EndTask(EBTNodeResult::Aborted);
+	EndTask(EBTNodeResult::Failed);
 }
 
 void UMoveToPlayer::CheckIfPlayerIsInSight(){
@@ -102,15 +102,13 @@ void UMoveToPlayer::FindPlayer(){
 	if(SightComponent->IsPlayerInSight()){
 		GetWorld()->GetTimerManager().ClearTimer(TimerPlayerInSight);
 	} else{
-		if(CurrentPawn->GetActorLocation().Equals(CurrentBlackboard->GetValue<UBlackboardKeyType_Vector>(PlayerLocation.GetSelectedKeyID()), 50)){
+		if(!CurrentPawn->GetActorLocation().Equals(CurrentBlackboard->GetValue<UBlackboardKeyType_Vector>(PlayerLocation.GetSelectedKeyID()), 50)){
+
 			if(!GetWorld()->GetTimerManager().IsTimerActive(TimerLoosePlayer)){
-				
+
 				GetWorld()->GetTimerManager().SetTimer(TimerLoosePlayer, [&]() {
-
-					CurrentBlackboard->SetValue<UBlackboardKeyType_Object>(Player.GetSelectedKeyID(), nullptr);
-
-					EndTask(EBTNodeResult::Aborted);
-				}, 3, false);
+					EndTask(EBTNodeResult::Failed);
+				}, LooseTime, false);
 			}
 		}
 	}
@@ -120,5 +118,9 @@ void UMoveToPlayer::EndTask(const EBTNodeResult::Type TaskResult){
 	GetWorld()->GetTimerManager().ClearTimer(MoveToTimer);
 	GetWorld()->GetTimerManager().ClearTimer(TimerPlayerInSight);
 	GetWorld()->GetTimerManager().ClearTimer(TimerLoosePlayer);
+
+	// pour éviter que le pawn se déplace meme après la fin de la task
+	CurrentController->MoveToLocation(CurrentPawn->GetActorLocation());
+
 	FinishLatentTask(*BTOwnerComp, TaskResult);
 }
