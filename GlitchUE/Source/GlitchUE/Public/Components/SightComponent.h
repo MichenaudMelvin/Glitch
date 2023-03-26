@@ -21,8 +21,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
-
 	void Check();
 
 	void LooseSight();

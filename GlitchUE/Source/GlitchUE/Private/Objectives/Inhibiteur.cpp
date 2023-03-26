@@ -17,14 +17,13 @@ AInhibiteur::AInhibiteur(){
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
-		
 	#endif
 }
 
 void AInhibiteur::BeginPlay(){
 	Super::BeginPlay();
 
-#if !UE_BUILD_SHIPPING
+#if WITH_EDITOR
 
 	if(ConstructionZoneList.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
@@ -40,8 +39,6 @@ void AInhibiteur::ActiveObjectif(){
 
 	if(IsValid(SpriteReference.SceneComponent) && IsValid(SpriteReference.PaperSpriteComponent)){
 		SpriteReference.DestroyComponents();
-	} else{
-		UE_LOG(LogTemp, Warning, TEXT("pas valid"));
 	}
 }
 
@@ -61,8 +58,7 @@ void AInhibiteur::ActivateLinkedElements(const bool bActivate){
 	for (int i = 0; i < ConstructionZoneList.Num(); i++) {
 		if (bActivate) {
 			ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
-		}
-		else {
+		} else {
 			ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
 		}
 	}

@@ -493,9 +493,7 @@ void AMainPlayer::UseGlitchReleassed() {
 
 	FTimerHandle TimerHandle;
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		CameraAimReverse();
-	}, 1.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::CameraAimReverse, 1.0f, false);
 }
 
 void AMainPlayer::Tick(float deltaTime){
@@ -593,9 +591,7 @@ void AMainPlayer::ReceiveGlitchUpgrade(){
 
 	FTimerHandle TimerHandle;
 
-	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		ResetGlitchUpgrade();
-	}, GlitchUpgradeDuration, false);
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){

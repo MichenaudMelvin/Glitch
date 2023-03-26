@@ -20,19 +20,6 @@ void USightComponent::BeginPlay(){
 	OwnerBlackboard = Cast<APawn>(GetOwner())->Controller->FindComponentByClass<UBlackboardComponent>();
 }
 
-void USightComponent::OnComponentDestroyed(bool bDestroyingHierarchy){
-	Super::OnComponentDestroyed(bDestroyingHierarchy);
-
-#if WITH_EDITOR
-	// sinon crash quand change de map
-	if(!IsValid(GetWorld())){
-		return;
-	}
-#endif
-
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
-}
-
 void USightComponent::Check(){
 	// if player in sight
 	OwnerBlackboard->SetValueAsVector("InvestigationLocation", SightActor->GetActorLocation());
@@ -84,9 +71,7 @@ void USightComponent::EnterSight(UPrimitiveComponent* OverlappedComp, AActor* Ot
 			bPlayerInCollision = true;
 			GetWorld()->GetTimerManager().ClearTimer(SightTimer);
 
-			GetWorld()->GetTimerManager().SetTimer(SightTimer, [&]() {
-				Check();
-			}, 0.1f, true);
+			GetWorld()->GetTimerManager().SetTimer(SightTimer, this, &USightComponent::Check, 0.1f, true);
 		}
 	}
 }

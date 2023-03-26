@@ -32,7 +32,7 @@ EBTNodeResult::Type UMoveToPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	SightComponent = Cast<USightComponent>(CurrentPawn->GetComponentByClass(USightComponent::StaticClass()));
 	TargetActor = Cast<AActor>(CurrentBlackboard->GetValue<UBlackboardKeyType_Object>(Player.GetSelectedKeyID()));
 
-	MoveToPlayer();
+	GetWorld()->GetTimerManager().SetTimer(MoveToTimer, this, &UMoveToPlayer::MoveToPlayer, 0.2f, true);
 
 	FinishLatentTask(*BTOwnerComp, EBTNodeResult::InProgress);
 	return EBTNodeResult::InProgress;
@@ -44,10 +44,6 @@ void UMoveToPlayer::MoveToPlayer(){
 	}
 
 	MoveTask();
-
-	GetWorld()->GetTimerManager().SetTimer(MoveToTimer, [&]() {
-		MoveToPlayer();
-	}, 0.2f, false);
 }
 
 void UMoveToPlayer::MoveTask(){

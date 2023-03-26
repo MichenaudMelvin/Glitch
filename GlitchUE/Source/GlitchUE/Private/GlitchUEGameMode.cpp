@@ -19,6 +19,7 @@
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
 #include "Mark/Mark.h"
+#include "Objectives/Inhibiteur.h"
 #include "Saves/WorldSave.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
@@ -144,6 +145,26 @@ void AGlitchUEGameMode::InitializeWorld(){
 			}
 		}
 
+		//Inhibiteur
+		TArray<AActor*> InhibiteurList;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
+
+		TArray<FString> FStringArrayBis;
+		CurrentSave->InhibiteurStateList.GetKeys(FStringArrayBis);
+
+		for(int i = 0; i < InhibiteurList.Num(); i++){
+			for(int j = 0; j < FStringArrayBis.Num(); j++){
+				if(InhibiteurList[i]->GetName() == FStringArrayBis[j]){
+
+					AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
+
+					if(CurrentSave->InhibiteurStateList.FindRef(InhibiteurList[i]->GetName())){
+						CurrentInhibiteur->GetActivableComp()->ActivateObject();
+					}
+				}
+			}
+		}
+
 		CurrentSave->LoadedTime++;
 		UE_LOG(LogTemp, Warning, TEXT("Loaded number of this save : %d"), CurrentSave->LoadedTime);
 
@@ -189,6 +210,17 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 		AMainAIController* CurrentCharacter = Cast<AMainAIController>(AIList[i]);
 
 		CurrentSave->AIDataList.Add(CurrentCharacter->GetName(), CurrentCharacter->SaveAI());
+	}
+
+	// Inhibiteurs
+	TArray<AActor*> InhibiteurList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
+
+	CurrentSave->InhibiteurStateList.Empty();
+	for(int i = 0; i < InhibiteurList.Num(); i++){
+		AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
+
+		CurrentSave->InhibiteurStateList.Add(CurrentInhibiteur->GetName(), CurrentInhibiteur->GetActivableComp()->IsActivated());
 	}
 
 	CurrentSave->GlitchValue = GlitchValue;
