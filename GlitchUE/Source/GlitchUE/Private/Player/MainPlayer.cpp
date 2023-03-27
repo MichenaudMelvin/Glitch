@@ -24,6 +24,7 @@
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
 #include "Sound/SoundBase.h"
+#include "AI/AIPursuitDrone/PursuitDrone.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -159,9 +160,20 @@ void AMainPlayer::BeginPlay(){
 	#pragma endregion
 }
 
-void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation){
+void AMainPlayer::Destroyed(){
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	Super::Destroyed();
+}
+
+void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced){
 	SetActorTransform(StartTransform);
 	Controller->SetControlRotation(CameraRotation);
+
+	if(bIsMarkPlaced){
+		Mark->SetActorTransform(MarkTransform);
+		Mark->PlaceMark();
+	}
 }
 
 #pragma region Camera
@@ -223,8 +235,12 @@ int AMainPlayer::GetGolds() const{
 	return Golds;
 }
 
-void AMainPlayer::GiveGolds_Implementation(int Amount){
+void AMainPlayer::GiveGolds_Implementation(const int Amount){
 	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
+}
+
+void AMainPlayer::Loose_Implementation(){
+	StopRecord();
 }
 
 #pragma endregion
@@ -267,6 +283,36 @@ void AMainPlayer::Interact() {
 	if (IsValid(CurrentCheckedObject)) {
 		CurrentCheckedObject->Interact(MainPlayerController, this);
 	}
+}
+
+void AMainPlayer::SetCurrentDrone(APursuitDrone* NewDrone){
+	if(!IsValid(NewDrone)){
+		CurrentDrone = nullptr;
+		return;
+	}
+
+	if(IsValid(CurrentDrone)){
+		DropDrone(NewDrone);
+	}
+
+	CurrentDrone = NewDrone;
+
+	CurrentDrone->AttachDrone(this, "Bone012");
+}
+
+APursuitDrone* AMainPlayer::GetCurrentDrone() const{
+	return CurrentDrone;
+}
+
+void AMainPlayer::DropDrone(APursuitDrone* NewDrone){
+	const FDetachmentTransformRules DetachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
+	CurrentDrone->DetachFromActor(DetachmentRules);
+
+	CurrentDrone->DisableSpinBehavior();
+
+	CurrentDrone->SetActorLocation(NewDrone->GetActorLocation());
+
+	CurrentDrone = nullptr;
 }
 
 void AMainPlayer::UnfeedbackCurrentCheckedObject() {
@@ -424,7 +470,10 @@ void AMainPlayer::TPToMark() {
 	CapsuleRotation.Yaw = Mark->GetActorRotation().Yaw;
 	GetCapsuleComponent()->SetRelativeRotation(CapsuleRotation);
 	GetMesh()->SetVisibility(false, true);
-	
+	if(IsValid(CurrentDrone)){
+		CurrentDrone->GetMesh()->SetVisibility(false, true);
+	}
+
 	CurrentControlRotation = MainPlayerController->GetControlRotation();
 	CurrentCameraPosition = FollowCamera->GetComponentLocation();
 	TargetControlRotation = UKismetMathLibrary::FindLookAtRotation(CurrentCameraPosition, Mark->GetActorLocation());
@@ -444,9 +493,7 @@ void AMainPlayer::UseGlitchReleassed() {
 
 	FTimerHandle TimerHandle;
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		CameraAimReverse();
-	}, 1.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::CameraAimReverse, 1.0f, false);
 }
 
 void AMainPlayer::Tick(float deltaTime){
@@ -544,9 +591,7 @@ void AMainPlayer::ReceiveGlitchUpgrade(){
 
 	FTimerHandle TimerHandle;
 
-	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		ResetGlitchUpgrade();
-	}, GlitchUpgradeDuration, false);
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){
@@ -559,9 +604,7 @@ void AMainPlayer::ResetGlitchUpgrade(){
 void AMainPlayer::StartRecord(){
 	GlitchRewindTransformList.Empty();
 
-	GetWorld()->GetTimerManager().SetTimer(RewindTimer, [&](){
-		RecordRandomLocation();
-	}, RewindSpacesSave, true);
+	GetWorld()->GetTimerManager().SetTimer(RewindTimer, this, &AMainPlayer::RecordRandomLocation, RewindSpacesSave, true);
 }
 
 void AMainPlayer::StopRecord(){
@@ -587,6 +630,13 @@ void AMainPlayer::RecordRandomLocation(){
 
 	FTransform TransformToAdd;
 	TransformToAdd.SetLocation(GetActorLocation());
+
+#if !UE_BUILD_SHIPPING
+	if(!IsValid(Controller)){
+		return;
+	}
+#endif
+
 	TransformToAdd.SetRotation(Controller->GetControlRotation().Quaternion());
 
 	GlitchRewindTransformList.Add(TransformToAdd);
@@ -695,6 +745,10 @@ void AMainPlayer::EndTL() {
 
 		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
+		if(IsValid(CurrentDrone)){
+			CurrentDrone->GetMesh()->SetVisibility(true, true);
+		}
+
 		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 		HealthComp->SetCanTakeDamages(true);

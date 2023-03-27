@@ -21,7 +21,7 @@ protected:
 
 	USaveSelection* SaveSelectionOwner;
 
-	AGlitchUEGameMode* GameMode;
+	AGameModeBase* GameMode;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UButton* SaveButton;

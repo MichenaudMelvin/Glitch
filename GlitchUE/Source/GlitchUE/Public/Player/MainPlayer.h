@@ -14,6 +14,7 @@
 class AMainPlayerController;
 class AMark;
 class AMainAICharacter;
+class APursuitDrone;
 
 UENUM(BlueprintType)
 enum class EPlayerMovementMode : uint8{
@@ -48,11 +49,10 @@ protected:
 
 	virtual void Tick(float deltaTime) override;
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
 public:
-	UFUNCTION(BlueprintCallable)
-	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation);
-	//virtual  void InitializePlayer_Implementation(FTransform StartTransform, FRotator CameraRotation);
+	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced);
 
 	#pragma region Camera
 
@@ -243,8 +243,11 @@ public:
 	int GetGolds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
-	void GiveGolds(int Amount);
-	virtual void GiveGolds_Implementation(int Amount);
+	void GiveGolds(const int Amount);
+	virtual void GiveGolds_Implementation(const int Amount);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Loose")
+	void Loose();
 
 protected:
 	#pragma region Interaction
@@ -258,12 +261,20 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Interaction")
 	bool InteractionLineTrace(FHitResult& OutHit) const;
 
+	APursuitDrone* CurrentDrone;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void InteractionTick();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Interaction")
 	void Interact();
+
+	void SetCurrentDrone(APursuitDrone* NewDrone);
+
+	APursuitDrone* GetCurrentDrone() const;
+
+	void DropDrone(APursuitDrone* NewDrone);
 
 protected:
 	UFUNCTION(Category = "Interaction")

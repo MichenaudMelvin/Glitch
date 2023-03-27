@@ -34,4 +34,8 @@ protected:
 
 public:
 	void SetSpriteReference(const FCompassSprite NewSprite);
+
+#if WITH_EDITORONLY_DATA
+	void OnObjectSelected(UObject* Object);
+#endif
 };

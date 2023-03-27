@@ -10,13 +10,16 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
-#include "AI/AIPursuitDrone/PowerUpDrone.h"
+#include "AI/AIPatrol/PatrolCharacter.h"
+#include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
+#include "Mark/Mark.h"
+#include "Objectives/Inhibiteur.h"
 #include "Saves/WorldSave.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
@@ -114,10 +117,53 @@ void AGlitchUEGameMode::InitializeWorld(){
 
 		UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
 
-		MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation);
+		MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation, CurrentSave->MarkTransform, CurrentSave->bIsMarkPlaced);
 
 		SetLevelState(CurrentSave->LevelState);
 		AddGlitch(CurrentSave->GlitchValue);
+
+		//AI
+		TArray<AActor*> AIList;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIList);
+
+		TArray<FString> FStringArray;
+		CurrentSave->AIDataList.GetKeys(FStringArray);
+
+		for(int i = 0; i < AIList.Num(); i++){
+			bool bFindAI = false;
+
+			for(int j = 0; j < FStringArray.Num(); j++){
+				if(AIList[i]->GetName() == FStringArray[j]){
+					Cast<AMainAIController>(AIList[i])->InitializeAI(CurrentSave->AIDataList.FindRef(AIList[i]->GetName()));
+					bFindAI = true;
+					break;
+				}
+			}
+
+			if(!bFindAI){
+				Cast<AMainAIController>(AIList[i])->GetPawn()->Destroy();
+			}
+		}
+
+		//Inhibiteur
+		TArray<AActor*> InhibiteurList;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
+
+		TArray<FString> FStringArrayBis;
+		CurrentSave->InhibiteurStateList.GetKeys(FStringArrayBis);
+
+		for(int i = 0; i < InhibiteurList.Num(); i++){
+			for(int j = 0; j < FStringArrayBis.Num(); j++){
+				if(InhibiteurList[i]->GetName() == FStringArrayBis[j]){
+
+					AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
+
+					if(CurrentSave->InhibiteurStateList.FindRef(InhibiteurList[i]->GetName())){
+						CurrentInhibiteur->GetActivableComp()->ActivateObject();
+					}
+				}
+			}
+		}
 
 		CurrentSave->LoadedTime++;
 		UE_LOG(LogTemp, Warning, TEXT("Loaded number of this save : %d"), CurrentSave->LoadedTime);
@@ -126,6 +172,7 @@ void AGlitchUEGameMode::InitializeWorld(){
 			UUsefullFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
 			return;
 		}
+
 
 		UUsefullFunctions::SaveToSlot(CurrentSave, SlotIndex);
 	}
@@ -146,14 +193,45 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	CurrentSave->PlayerTransform = MainPlayer->GetActorTransform();
 	CurrentSave->PlayerCameraRotation = MainPlayer->GetController()->GetControlRotation();
 
-	//World
+	if(MainPlayer->GetMark()->GetIsMarkPlaced()){
+		CurrentSave->MarkTransform = MainPlayer->GetMark()->GetActorTransform();
+		CurrentSave->bIsMarkPlaced = true;
+	} else{
+		CurrentSave->bIsMarkPlaced = false;
+	}
+
+	//AI
+
+	TArray<AActor*> AIList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIList);
+
+	CurrentSave->AIDataList.Empty();
+	for(int i = 0; i < AIList.Num(); i++){
+		AMainAIController* CurrentCharacter = Cast<AMainAIController>(AIList[i]);
+
+		CurrentSave->AIDataList.Add(CurrentCharacter->GetName(), CurrentCharacter->SaveAI());
+	}
+
+	// Inhibiteurs
+	TArray<AActor*> InhibiteurList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
+
+	CurrentSave->InhibiteurStateList.Empty();
+	for(int i = 0; i < InhibiteurList.Num(); i++){
+		AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
+
+		CurrentSave->InhibiteurStateList.Add(CurrentInhibiteur->GetName(), CurrentInhibiteur->GetActivableComp()->IsActivated());
+	}
+
 	CurrentSave->GlitchValue = GlitchValue;
 	CurrentSave->LevelState = LevelState;
 
-	Cast<UWorldSave>(UUsefullFunctions::SaveToSlot(CurrentSave, Index));
+	UUsefullFunctions::SaveToSlot(CurrentSave, Index);
 }
 
 void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
+	ISaveInterface::GlobalWorldLoad(Index);
+
 	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
 
 	if(CurrentSave == nullptr){
@@ -276,8 +354,6 @@ float AGlitchUEGameMode::GetCurrentGlitchValue() const{
 }
 
 void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
-	UE_LOG(LogTemp, Warning, TEXT("UpgradeAlliesUnits"));
-
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
 
@@ -290,7 +366,7 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 			continue;
 		}
 
-		if(PlacableActorList[i]->IsA(APowerUpDrone::StaticClass())){
+		if(PlacableActorList[i]->IsA(APursuitDrone::StaticClass()) && CurrentPhase == EPhases::TowerDefense){
 			continue;
 		}
 
@@ -304,8 +380,6 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 }
 
 void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
-	UE_LOG(LogTemp, Warning, TEXT("UpgradeEnemiesAI"));
-
 	TArray<AActor*> AIControllerList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIControllerList);
 
@@ -322,15 +396,10 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 		for(int i = 0; i < LoopNumber; i++){
 			Cast<IGlitchInterface>(AIList[i])->ReceiveGlitchUpgrade();
 		}
-
-	} else{
-		UE_LOG(LogTemp, Warning, TEXT("Aucun ennemis dans le monde"));
 	}
 }
 
 void AGlitchUEGameMode::GlitchUpgradePlayer() const{
-	UE_LOG(LogTemp, Warning, TEXT("UpgradePlayer"));
-
 	Cast<IGlitchInterface>(MainPlayer)->ReceiveGlitchUpgrade();
 }
 
@@ -376,7 +445,11 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 	} else{
 		if(bToggleAtLocation){
 			MainPlayer->SetActorLocation(ActorList[0]->GetActorLocation());
-			MainPlayer->SetActorRotation(Cast<APawn>(ActorList[0])->Controller->GetControlRotation());
+
+			FRotator PlayerRotation = Cast<APawn>(ActorList[0])->Controller->GetControlRotation();
+			PlayerRotation.Pitch = 0;
+
+			MainPlayer->SetActorRotation(PlayerRotation);
 		}
 
 		Cast<APawn>(ActorList[0])->Controller->Possess(MainPlayer);

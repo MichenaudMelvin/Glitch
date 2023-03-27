@@ -11,6 +11,9 @@ UCLASS()
 class GLITCHUE_API APatrolCharacter : public AMainAICharacter{
 	GENERATED_BODY()
 
+public:
+	APatrolCharacter();
+
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
 	TArray<APatrolPoint*> PatrolPointsList;
@@ -23,4 +26,8 @@ protected:
 
 public:
 	TArray<APatrolPoint*> GetPatrolPointList() const;
+
+#if WITH_EDITORONLY_DATA
+	void OnObjectSelected(UObject* Object);
+#endif
 };

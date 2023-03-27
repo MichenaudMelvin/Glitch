@@ -17,8 +17,6 @@ void AMainAIPawn::BeginPlay(){
 	Super::BeginPlay();
 
 	Blackboard = Cast<AMainAIController>(GetController())->GetBlackboardComponent();
-
-	Blackboard->SetValueAsVector("OriginalPosition", GetActorLocation());
 }
 
 void AMainAIPawn::ReceiveGlitchUpgrade(){

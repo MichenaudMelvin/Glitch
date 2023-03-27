@@ -4,6 +4,8 @@
 #include "Objectives/Catalyseur.h"
 #include "PaperSpriteComponent.h"
 #include "AI/Waves/Spawner.h"
+#include "Engine/Selection.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Objectives/Inhibiteur.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -37,6 +39,10 @@ ACatalyseur::ACatalyseur() {
 	check(DesactivAnim.Succeeded());
 
 	DesactivationAnim = DesactivAnim.Object;
+
+	#if WITH_EDITORONLY_DATA
+		USelection::SelectObjectEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
+	#endif
 }
 
 void ACatalyseur::BeginPlay() {
@@ -130,3 +136,28 @@ void ACatalyseur::DeleteCompass(){
 FStateAtWave ACatalyseur::GetStateAtWave() const{
 	return StateAtWave;
 }
+
+#if WITH_EDITORONLY_DATA
+void ACatalyseur::OnObjectSelected(UObject* Object){
+	if (Object == this) {
+
+		for(int i = 0; i < NearInhibiteur.Num(); i++){
+			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
+		}
+
+		for(int i = 0; i < ConstructionZoneList.Num(); i++){
+			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+		}
+
+	} else if (!IsSelected()){
+
+		for(int i = 0; i < NearInhibiteur.Num(); i++){
+			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
+		}
+
+		for(int i = 0; i < ConstructionZoneList.Num(); i++){
+			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+		}
+	}
+}
+#endif

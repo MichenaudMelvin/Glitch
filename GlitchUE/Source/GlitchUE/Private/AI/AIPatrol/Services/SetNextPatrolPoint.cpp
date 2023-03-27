@@ -6,13 +6,13 @@
 #include "AIController.h"
 #include "AI/AIPatrol/PatrolCharacter.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Int.h"
+#include "AI/AIPatrol/PatrolPoint.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 
 USetNextPatrolPoint::USetNextPatrolPoint(){
 	Interval = 1;
-    RandomDeviation = 0;
-	bCallTickOnSearchStart = true;
-	
+	RandomDeviation = 0;
+
 	PatrolPointKey.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(USetNextPatrolPoint, PatrolPointKey), AActor::StaticClass());
 	CurrentPatrolPointIndex.AddIntFilter(this, GET_MEMBER_NAME_CHECKED(USetNextPatrolPoint, PatrolPointKey));
 }
@@ -27,17 +27,14 @@ void USetNextPatrolPoint::InitializeFromAsset(UBehaviorTree& Asset){
 	}
 }
 
-void USetNextPatrolPoint::OnSearchStart(FBehaviorTreeSearchData& SearchData){
-	Super::OnSearchStart(SearchData);
-	PatrolPointList = Cast<APatrolCharacter>(SearchData.OwnerComp.GetAIOwner()->GetCharacter())->GetPatrolPointList();
-}
-
 void USetNextPatrolPoint::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds){
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
 
 	int Index = CurrentBlackboard->GetValue<UBlackboardKeyType_Int>(CurrentPatrolPointIndex.GetSelectedKeyID());
+
+	TArray<APatrolPoint*> PatrolPointList = Cast<APatrolCharacter>(OwnerComp.GetAIOwner()->GetCharacter())->GetPatrolPointList();
 
 	if(Index >= PatrolPointList.Num()){
 		CurrentBlackboard->SetValue<UBlackboardKeyType_Int>(CurrentPatrolPointIndex.GetSelectedKeyID(), 0);

@@ -14,3 +14,7 @@ void USaveAction::BindContextAction(USaveButton* SaveButtonReference) const{
 	SaveButton->OnClicked.AddDynamic(SaveButtonReference, &USaveButton::Save);
 	LoadButton->OnClicked.AddDynamic(SaveButtonReference, &USaveButton::Load);
 }
+
+void USaveAction::UseSaveButton(const bool bUseSaveButton){
+	bUseSaveButton ? SaveButton->SetVisibility(ESlateVisibility::Visible) : SaveButton->SetVisibility(ESlateVisibility::Hidden);
+}

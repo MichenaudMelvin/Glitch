@@ -13,6 +13,7 @@
 #include "NavAreas/NavArea_Obstacle.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "PlacableObject/ConstructionZone.h"
+#include "AI/AIPursuitDrone/PursuitDrone.h"
 
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -62,8 +63,30 @@ void APlacableActor::Tick(float DeltaTime){
 void APlacableActor::SetMesh(){}
 
 void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction) {
+	if(IsValid(CurrentDrone) && IsValid(MainPlayer->GetCurrentDrone())){
+		// à voir ce cas plus tard mais pour l'instant comme ça pour éviter des problèmes
+		return;
+	}
+
+	bool bIsSelling = false;
+
+	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction){
 		SellObject(MainPlayer);
+		bIsSelling = true;
+	}
+
+	if(IsValid(CurrentDrone)){
+		MainPlayer->SetCurrentDrone(CurrentDrone);
+		CurrentDrone = nullptr;
+		return;
+	}
+
+	if(bIsSelling){
+		return;
+	}
+
+	if(IsValid(MainPlayer->GetCurrentDrone())){
+		AddDrone(MainPlayer);
 	}
 }
 
@@ -73,11 +96,27 @@ void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
 
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
 	Destroy();
 }
 
 void APlacableActor::FadeIn(float Alpha){
 	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), AppearenceMaterialCollection, FName("Appearence"), Alpha);
+}
+
+void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
+	CurrentDrone = MainPlayer->GetCurrentDrone();
+	MainPlayer->SetCurrentDrone(nullptr);
+
+	CurrentDrone->AttachDrone(this, "");
+
+	FVector TargetLocation = GetActorLocation();
+	TargetLocation.Z += 100;
+
+	CurrentDrone->SetActorLocation(TargetLocation);
+
+	CurrentDrone->BoostPlacable();
 }
 
 void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){}
@@ -91,6 +130,10 @@ void APlacableActor::OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* 
 		return;
 	}
 
+	if(OtherActor->IsA(APursuitDrone::StaticClass())){
+		return;
+	}
+
 	if(OtherActor->IsA(AMainAICharacter::StaticClass())){
 		AIList.Add(Cast<AMainAICharacter>(OtherActor));
 	}
@@ -98,6 +141,10 @@ void APlacableActor::OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void APlacableActor::OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
 	if(OtherComp->IsA(USightComponent::StaticClass())){
+		return;
+	}
+
+	if(OtherActor->IsA(APursuitDrone::StaticClass())){
 		return;
 	}
 
