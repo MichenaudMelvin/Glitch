@@ -33,6 +33,18 @@ void APursuitDroneController::BeginPlay(){
 	}
 }
 
+void APursuitDroneController::InitializeAIFromStart(){
+	Super::InitializeAIFromStart();
+
+	Blackboard->SetValueAsBool("IsDocked", true);
+}
+
+void APursuitDroneController::InitializeAI(const FAIData NewData){
+	Super::InitializeAI(NewData);
+
+	//Blackboard->SetValueAsBool("IsDocked", NewData.bIsDocked);
+}
+
 void APursuitDroneController::SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData){
 	Super::SwitchBehavior(NewBehaviorTree, NewBlackboardData);
 

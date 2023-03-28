@@ -53,6 +53,7 @@ void AMainAIController::InitializeAIFromStart(){
 	// micro delay pour les AI qui spawnent
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		Blackboard->SetValueAsVector("OriginalPosition", GetPawn()->GetActorLocation());
+		Blackboard->SetValueAsRotator("OriginalRotation", GetPawn()->GetActorRotation());
 	}, 0.2f, false);
 }
 
@@ -108,6 +109,7 @@ FAIData AMainAIController::SaveAI(){
 	CurrentData.CurrentTransform = GetPawn()->GetActorTransform();
 
 	CurrentData.OriginalPosition = Blackboard->GetValueAsVector("OriginalPosition");
+	CurrentData.OriginalRotation = Blackboard->GetValueAsRotator("OriginalRotation");
 	CurrentData.bIsStun = Blackboard->GetValueAsBool("IsStun");
 	CurrentData.bInvestigate = Blackboard->GetValueAsBool("Investigate");
 	CurrentData.InvestigationLocation = Blackboard->GetValueAsVector("InvestigationLocation");
@@ -127,6 +129,7 @@ void AMainAIController::InitializeAI(const FAIData NewData){
 	Blackboard->SetValueAsFloat("InvestigatingTime", InvestigatingTime);
 
 	Blackboard->SetValueAsVector("OriginalPosition", NewData.OriginalPosition);
+	Blackboard->SetValueAsRotator("OriginalRotation", NewData.OriginalRotation);
 	Blackboard->SetValueAsBool("IsStun", NewData.bIsStun);
 	Blackboard->SetValueAsBool("Investigate", NewData.bInvestigate);
 
