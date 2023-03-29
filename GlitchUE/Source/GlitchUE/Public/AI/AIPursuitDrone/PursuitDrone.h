@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PursuitDronePad.h"
 #include "AI/MainAICharacter.h"
 #include "PursuitDrone.generated.h"
 
@@ -13,12 +14,23 @@ class GLITCHUE_API APursuitDrone : public AMainAICharacter{
 public:
 	APursuitDrone();
 
+	float GetStartAnimDuration() const;
+
+	UFUNCTION(BlueprintCallable)
+	void PlayStartAnim(const bool bReverseAnim = false) const;
+
+	void SetCurrentPad(APursuitDronePad* NewPad);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	UPROPERTY(EditDefaultsOnly)
-	USceneComponent* PivotPoint;
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	UPROPERTY(EditAnywhere, Category = "Pad")
+	APursuitDronePad* Pad;
+
+	UAnimationAsset* StartAnim;
 
 	UPROPERTY(EditDefaultsOnly)
 	UInteractableComponent* InteractableComp;

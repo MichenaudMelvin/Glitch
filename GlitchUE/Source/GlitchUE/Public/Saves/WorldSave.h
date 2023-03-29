@@ -19,6 +19,9 @@ public:
 	FVector OriginalPosition;
 
 	UPROPERTY()
+	FRotator OriginalRotation;
+
+	UPROPERTY()
 	bool bIsStun;
 
 	UPROPERTY()

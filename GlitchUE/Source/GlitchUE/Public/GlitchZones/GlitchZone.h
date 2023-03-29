@@ -18,7 +18,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UBillboardComponent* Billboard;
+
 	AGlitchUEGameMode* GameMode;
+
+	UPROPERTY(EditDefaultsOnly);
+	UNavModifierComponent* NavModifierComp;
 
 	FTimerHandle GlitchZoneTimer;
 

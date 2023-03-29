@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavAreas/NavArea_Obstacle.h"
 #include "Player/MainPlayer.h"
 
 AGlitchZone::AGlitchZone(){
@@ -17,6 +18,12 @@ AGlitchZone::AGlitchZone(){
 	GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
 	GetStaticMeshComponent()->SetGenerateOverlapEvents(true);
+
+	Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+	Billboard->SetupAttachment(RootComponent);
+
+	NavModifierComp = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavModifier"));
+	NavModifierComp->AreaClass = UNavArea_Obstacle::StaticClass();
 }
 
 void AGlitchZone::BeginPlay(){
