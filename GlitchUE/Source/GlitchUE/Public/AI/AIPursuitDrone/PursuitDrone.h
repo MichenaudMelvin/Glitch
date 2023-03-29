@@ -19,9 +19,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PlayStartAnim(const bool bReverseAnim = false) const;
 
+	void SetCurrentPad(APursuitDronePad* NewPad);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UPROPERTY(EditAnywhere, Category = "Pad")
 	APursuitDronePad* Pad;

@@ -61,6 +61,28 @@ void APursuitDrone::Tick(float DeltaSeconds){
 	SpinTimeline.TickTimeline(DeltaSeconds);
 }
 
+void APursuitDrone::OnConstruction(const FTransform& Transform){
+	Super::OnConstruction(Transform);
+
+	if(IsValid(Pad)){
+		Pad->SetCurrentDrone(this);
+
+		FTransform TargetTransform = GetActorTransform();
+		FVector TargetVector = TargetTransform.GetLocation();
+		TargetVector.Z -= GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+		TargetTransform.SetLocation(TargetVector);
+
+		FRotator TargetRotator = TargetTransform.GetRotation().Rotator();
+
+		TargetRotator.Yaw += 180;
+
+		TargetTransform.SetRotation(TargetRotator.Quaternion());
+
+		Pad->SetActorTransform(TargetTransform);
+	}
+}
+
 void APursuitDrone::PlayStartAnim(const bool bReverseAnim) const{
 	// for some reasons when reversing the anim, it should be looped
 	GetMesh()->PlayAnimation(StartAnim, bReverseAnim);
@@ -73,6 +95,10 @@ void APursuitDrone::PlayStartAnim(const bool bReverseAnim) const{
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, GetMesh(), &USkeletalMeshComponent::Stop, StartAnim->GetMaxCurrentTime() - 0.1f, false);
 	}
+}
+
+void APursuitDrone::SetCurrentPad(APursuitDronePad* NewPad){
+	Pad = NewPad;
 }
 
 void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
