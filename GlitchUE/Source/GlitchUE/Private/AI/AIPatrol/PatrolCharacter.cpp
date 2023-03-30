@@ -7,6 +7,11 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 
 APatrolCharacter::APatrolCharacter(){
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkelMesh(TEXT("/Game/Meshs/Drones/Seeker/SK_Seeker"));
+	check(SkelMesh.Succeeded());
+
+	GetMesh()->SetSkeletalMesh(SkelMesh.Object, false);
+
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
 	#endif

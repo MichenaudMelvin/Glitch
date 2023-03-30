@@ -93,3 +93,7 @@ bool USightComponent::IsSomethingInSight() const{
 bool USightComponent::IsPlayerInSight() const{
 	return bIsPlayerInSight;
 }
+
+float USightComponent::GetTimerElapsed() const{
+	return InvestigateTimeElapsed;
+}
