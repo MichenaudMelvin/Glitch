@@ -21,7 +21,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Behavior")
 	bool bUseSight = true;
-	
+
+	UPROPERTY(EditAnywhere, Category = "Behavior")
+	float LooseTime = 3;
+
 	UPROPERTY(EditAnywhere, Category = "Player")
 	FBlackboardKeySelector Player;
 

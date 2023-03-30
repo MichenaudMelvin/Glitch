@@ -2,7 +2,6 @@
 
 
 #include "AI/MainAICharacter.h"
-
 #include "AI/UI/SightIndication.h"
 #include "AI/Waves/WaveManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -20,10 +19,10 @@ AMainAICharacter::AMainAICharacter(){
 
 	SightComp->SetRelativeLocation(FVector(0, 0, 160));
 	SightComp->SetRelativeRotation(FRotator(0, 90, 0));
-	
+
 	SightWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("SightWidget"));
 	SightWidget->SetupAttachment(GetMesh());
-	
+
 	SightWidget->SetRelativeLocation(FVector(0, 0, 200));
 	SightWidget->SetRelativeRotation(FRotator(0, 90, 0));
 
@@ -38,7 +37,6 @@ void AMainAICharacter::BeginPlay(){
 
 	AIController = Cast<AMainAIController>(GetController());
 	Blackboard = AIController->GetBlackboardComponent();
-	Blackboard->SetValueAsVector(FName(TEXT("OriginalPosition")), GetActorLocation());
 
 	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
 
@@ -51,12 +49,14 @@ void AMainAICharacter::BeginPlay(){
 	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
 }
 
-void AMainAICharacter::InitializeAI(FTransform NewTransform, UBlackboardData* NewBlackBoard){
-	SetActorTransform(NewTransform);
-	AIController->UseBlackboard(NewBlackBoard, Blackboard);
+void AMainAICharacter::Destroyed(){
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(AIController);
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	Super::Destroyed();
 }
 
-UBlackboardComponent* AMainAICharacter::GetBlackBoard(){
+UBlackboardComponent* AMainAICharacter::GetBlackBoard() const{
 	return Blackboard;
 }
 
@@ -68,10 +68,12 @@ void AMainAICharacter::HealthNull() {
 
 	AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
+	#if WITH_EDITOR
 	// uniquement pour le mode spectateur
 	if(IsValid(Player)){
 		Cast<AMainPlayer>(Player)->GiveGolds(10);
 	}
+	#endif
 
 	if (IsValid(WaveManager)) {
 		WaveManager->RemoveAIFromList(this);

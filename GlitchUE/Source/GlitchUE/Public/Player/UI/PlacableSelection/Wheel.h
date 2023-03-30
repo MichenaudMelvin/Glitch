@@ -23,7 +23,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	USubMenuButton* TrapSubMenuButton;
-	
+
 	TArray<USelectionButton*> MainButtonList;
 
 	USelectionButton* SelectedButton;

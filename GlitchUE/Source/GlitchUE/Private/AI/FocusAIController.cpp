@@ -8,6 +8,11 @@
 void AFocusAIController::BeginPlay(){
 	Super::BeginPlay();
 
+	// maybe temp
+	if(Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString != ""){
+		InitializeAIFromStart();
+	}
+
 	Blackboard->SetValueAsFloat("AttackDistance", AttackDistance);
 
 	TArray<AActor*> NexusArray;

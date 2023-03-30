@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PursuitDronePad.h"
 #include "AI/MainAICharacter.h"
 #include "PursuitDrone.generated.h"
 
@@ -13,8 +14,23 @@ class GLITCHUE_API APursuitDrone : public AMainAICharacter{
 public:
 	APursuitDrone();
 
+	float GetStartAnimDuration() const;
+
+	UFUNCTION(BlueprintCallable)
+	void PlayStartAnim(const bool bReverseAnim = false) const;
+
+	void SetCurrentPad(APursuitDronePad* NewPad);
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	UPROPERTY(EditAnywhere, Category = "Pad")
+	APursuitDronePad* Pad;
+
+	UAnimationAsset* StartAnim;
 
 	UPROPERTY(EditDefaultsOnly)
 	UInteractableComponent* InteractableComp;
@@ -22,9 +38,39 @@ protected:
 	UFUNCTION()
 	void OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+	void TransformIntoPowerUp();
+
+	FTimeline SpinTimeline;
+
+	UCurveFloat* ZeroToOneCurve;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spin")
+	float SpinSpeed = 1;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spin")
+	float SpinOffset = 90;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spin")
+	float InteriorRotationOffset = 45;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spin")
+	FVector SpinScale = FVector(0.5, 0.5, 0.5);
+
+	UFUNCTION()
+	void Spin(float Value);
+
 public:
 	UFUNCTION()
 	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
+	void EnableSpinBehavior();
+
+	void DisableSpinBehavior();
+
+	void AttachDrone(AActor* ActorToAttach, const FName SocketName);
+
+	void BoostPlacable();
 
 	UInteractableComponent* GetInteractableComp() const;
 };

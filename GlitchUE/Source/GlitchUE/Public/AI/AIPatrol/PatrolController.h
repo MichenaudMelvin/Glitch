@@ -12,4 +12,10 @@ class GLITCHUE_API APatrolController : public AMainAIController{
 
 public:
 	APatrolController(const FObjectInitializer& ObjectInitializer);
+
+	virtual void InitializeAIFromStart() override;
+
+	virtual FAIData SaveAI() override;
+
+	virtual void InitializeAI(const FAIData NewData) override;
 };

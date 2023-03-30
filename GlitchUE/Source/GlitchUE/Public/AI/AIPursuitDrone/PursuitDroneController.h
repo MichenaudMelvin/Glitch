@@ -16,6 +16,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void InitializeAIFromStart() override;
+
+	virtual void InitializeAI(const FAIData NewData) override;
+
 	virtual void SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData) override;
 
 	TArray<ACatalyseur*> CatalyseurList;

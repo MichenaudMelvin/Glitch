@@ -7,6 +7,7 @@
 #include "Player/MainPlayer.h"
 #include "Engine/SceneCapture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "Saves/SaveInterface.h"
 #include "GlitchUEGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
@@ -47,7 +48,7 @@ enum class ELevelOptions : uint8{
 };
 
 UCLASS(minimalapi)
-class AGlitchUEGameMode : public AGameModeBase{
+class AGlitchUEGameMode : public AGameModeBase, public ISaveInterface{
 	GENERATED_BODY()
 
 public:
@@ -73,7 +74,7 @@ public:
 	void GlobalWorldSave(const int Index);
 
 	UFUNCTION(BlueprintCallable)
-	void GlobalWorldLoad(const int Index);
+	virtual void GlobalWorldLoad(const int Index) override;
 
 protected:
 	ASceneCapture2D* SceneCapture;

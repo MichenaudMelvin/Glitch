@@ -2,6 +2,7 @@
 
 
 #include "Player/UI/Saves/SaveSelection.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Player/UI/Saves/SaveButton.h"
@@ -16,17 +17,20 @@ void USaveSelection::NativeConstruct(){
 
 		SaveListView->AddItem(CurrentSave);
 	}
+
+	SaveAction->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void USaveSelection::SetupSaveActions(USaveButton* SaveButton) const{
 	UCanvasPanelSlot* SaveActionPanelSlot = Cast<UCanvasPanelSlot>(SaveAction->Slot);
-	// const UCanvasPanelSlot* SaveButtonPanelSlot = Cast<UCanvasPanelSlot>(SaveButton->Slot);
+
+	const FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
 
 	SaveAction->BindContextAction(SaveButton);
 
 	SaveAction->SetVisibility(ESlateVisibility::Visible);
 
-	// SaveActionPanelSlot->SetPosition(SaveButtonPanelSlot->GetPosition());
+	SaveActionPanelSlot->SetPosition(MousePosition);
 }
 
 void USaveSelection::CreateEntry(UObject* Item, UUserWidget* Widget){
@@ -45,4 +49,9 @@ void USaveSelection::CreateEntry(UObject* Item, UUserWidget* Widget){
 
 	CurrentSaveButton->SetIndex(CurrentSave->Index);
 	CurrentSaveButton->SetOwner(this);
+}
+
+void USaveSelection::OpenSaveSelection(const bool bAllowSave){
+	SaveAction->UseSaveButton(bAllowSave);
+	AddToViewport();
 }

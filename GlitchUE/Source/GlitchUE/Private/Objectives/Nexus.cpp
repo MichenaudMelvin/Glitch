@@ -38,6 +38,12 @@ void ANexus::BeginPlay(){
 		CatalyseursList.Add(Cast<ACatalyseur>(CatalyseurArray[i]));
 	}
 
+	AMainPlayer* MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	if(IsValid(MainPlayer)){
+		HealthComp->OnHealthNull.AddDynamic(MainPlayer, &AMainPlayer::Loose);
+	}
+
 	FVector SpawnFXLocation = GetActorLocation();
 	SpawnFXLocation.Z += 200;
 
@@ -65,7 +71,7 @@ void ANexus::TakeDamages(){
 	// nexus health in percent
 	const float NexusHealth = (HealthComp->GetCurrentHealth() * HealthComp->GetMaxHealth()) / 100;
 
-	Dissolver->DissolveTo(NexusHealth * Dissolver->GetRadius());
+	Dissolver->DissolveTo(NexusHealth * Dissolver->GetRadius() / 100);
 }
 
 void ANexus::UpdateDissolver(){
@@ -84,11 +90,6 @@ AActor* ANexus::GetFarestActivatedCatalyseur(){
 	TArray<AActor*> SortedCatalyseurs = UUsefullFunctions::SortActorsByDistanceToActor(ActivatedCatalyseurList, this);
 
 	return SortedCatalyseurs[SortedCatalyseurs.Num() - 1];
-}
-
-void ANexus::HealthNull(){
-	Super::HealthNull();
-	UE_LOG(LogTemp, Warning, TEXT("Le nexus n'a plus de vie"));
 }
 
 void ANexus::ActiveObjectif(){

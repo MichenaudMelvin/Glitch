@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AI/AIPatrol/PatrolPoint.h"
 #include "BehaviorTree/BTService.h"
 #include "SetNextPatrolPoint.generated.h"
 
@@ -13,15 +12,11 @@ class GLITCHUE_API USetNextPatrolPoint : public UBTService{
 
 public:
 	USetNextPatrolPoint();
-	
+
 private:
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
-	
-	virtual void OnSearchStart(FBehaviorTreeSearchData& SearchData) override;
-	
-	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
-	TArray<APatrolPoint*> PatrolPointList;
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere, Category = "PatrolPoint")
 	FBlackboardKeySelector PatrolPointKey;

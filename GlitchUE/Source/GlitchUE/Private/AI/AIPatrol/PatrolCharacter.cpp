@@ -3,6 +3,15 @@
 
 #include "AI/AIPatrol/PatrolCharacter.h"
 
+#include "Engine/Selection.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+
+APatrolCharacter::APatrolCharacter(){
+	#if WITH_EDITORONLY_DATA
+		USelection::SelectObjectEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
+	#endif
+}
+
 void APatrolCharacter::ReceiveGlitchUpgrade(){
 	Super::ReceiveGlitchUpgrade();
 
@@ -18,3 +27,20 @@ void APatrolCharacter::ResetGlitchUpgrade(){
 TArray<APatrolPoint*> APatrolCharacter::GetPatrolPointList() const{
 	return PatrolPointsList;
 }
+
+#if WITH_EDITORONLY_DATA
+void APatrolCharacter::OnObjectSelected(UObject* Object){
+	if (Object == this) {
+
+		for(int i = 0; i < PatrolPointsList.Num(); i++){
+			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(PatrolPointsList[i]->GetRootComponent()));
+		}
+
+	} else if (!IsSelected()){
+
+		for(int i = 0; i < PatrolPointsList.Num(); i++){
+			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(PatrolPointsList[i]->GetRootComponent()));
+		}
+	}
+}
+#endif

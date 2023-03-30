@@ -18,9 +18,6 @@ void USightComponent::BeginPlay(){
 	OnComponentEndOverlap.AddDynamic(this, &USightComponent::ExitSight);
 
 	OwnerBlackboard = Cast<APawn>(GetOwner())->Controller->FindComponentByClass<UBlackboardComponent>();
-
-	SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	SetCanEverAffectNavigation(false);
 }
 
 void USightComponent::Check(){
@@ -74,9 +71,7 @@ void USightComponent::EnterSight(UPrimitiveComponent* OverlappedComp, AActor* Ot
 			bPlayerInCollision = true;
 			GetWorld()->GetTimerManager().ClearTimer(SightTimer);
 
-			GetWorld()->GetTimerManager().SetTimer(SightTimer, [&]() {
-				Check();
-			}, 0.1f, true);
+			GetWorld()->GetTimerManager().SetTimer(SightTimer, this, &USightComponent::Check, 0.1f, true);
 		}
 	}
 }
@@ -91,10 +86,10 @@ void USightComponent::ExitSight(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	}
 }
 
-bool USightComponent::IsSomethingInSight(){
+bool USightComponent::IsSomethingInSight() const{
 	return IsValid(SightActor);
 }
 
-bool USightComponent::IsPlayerInSight(){
+bool USightComponent::IsPlayerInSight() const{
 	return bIsPlayerInSight;
 }

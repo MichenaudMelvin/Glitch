@@ -31,4 +31,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void CreateEntry(UObject* Item, UUserWidget* Widget);
+
+	UFUNCTION(BlueprintCallable)
+	void OpenSaveSelection(const bool bAllowSave = false);
 };

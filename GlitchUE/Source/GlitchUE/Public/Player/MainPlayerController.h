@@ -4,6 +4,7 @@
 
 #include "MainPlayer.h"
 #include "CoreMinimal.h"
+#include "AbstractPlayerController.h"
 #include "GlitchUEGameMode.h"
 #include "GameFramework/PlayerController.h"
 #include "MainPlayerController.generated.h"
@@ -44,8 +45,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnMouseScroll, float, AxisValue);
 
 #pragma region SpecialAbilities
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnInteractPlayer);
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPlaceObject);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchPressed);
@@ -66,8 +65,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnOpenSelectionWheelReleased);
 
 #pragma endregion
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPause);
-
 #pragma endregion
 
 UENUM(BlueprintType)
@@ -81,7 +78,7 @@ enum class EGameplayMode : uint8 {
 };
 
 UCLASS()
-class GLITCHUE_API AMainPlayerController : public APlayerController{
+class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 	GENERATED_BODY()
 
 protected:
@@ -154,9 +151,6 @@ public:
 
 	#pragma region SpecialAbilities
 
-	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
-	FKOnInteractPlayer OnInteractPlayer;
-
 	FTimerHandle InteractionTimer;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
@@ -185,9 +179,6 @@ public:
 	FKOnOpenSelectionWheelReleased OnOpenSelectionWheelReleased;
 
 	#pragma endregion
-
-	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Pause")
-	FKOnPause OnPause;
 
 #pragma endregion
 

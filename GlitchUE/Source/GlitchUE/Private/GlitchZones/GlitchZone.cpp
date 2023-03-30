@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavAreas/NavArea_Obstacle.h"
 #include "Player/MainPlayer.h"
 
 AGlitchZone::AGlitchZone(){
@@ -14,20 +15,22 @@ AGlitchZone::AGlitchZone(){
 	GetStaticMeshComponent()->SetStaticMesh(Mesh.Object);
 	GetStaticMeshComponent()->SetWorldScale3D(FVector(2, 2, 2));
 
-	GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
+	GetStaticMeshComponent()->SetGenerateOverlapEvents(true);
 
-	TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox"));
-	TriggerBox->SetupAttachment(RootComponent);
+	Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+	Billboard->SetupAttachment(RootComponent);
 
-	TriggerBox->SetBoxExtent(FVector(50, 50,50));
+	NavModifierComp = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavModifier"));
+	NavModifierComp->AreaClass = UNavArea_Obstacle::StaticClass();
 }
 
 void AGlitchZone::BeginPlay(){
 	Super::BeginPlay();
 
-	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AGlitchZone::EnterGlitchZone);
-	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AGlitchZone::ExitGlitchZone);
+	GetStaticMeshComponent()->OnComponentBeginOverlap.AddDynamic(this, &AGlitchZone::EnterGlitchZone);
+	GetStaticMeshComponent()->OnComponentEndOverlap.AddDynamic(this, &AGlitchZone::ExitGlitchZone);
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
