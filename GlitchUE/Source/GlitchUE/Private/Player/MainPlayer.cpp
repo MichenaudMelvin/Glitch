@@ -98,11 +98,9 @@ void AMainPlayer::BeginPlay(){
 	FOnTimelineFloat UpdateEvent;
 	FOnTimelineEvent FinishedEvent;
 
-	UpdateEvent.BindDynamic(this, &AMainPlayer::LookAtMark);
-	FinishedEvent.BindDynamic(this, &AMainPlayer::EndTL);
+	UpdateEvent.BindDynamic(this, &AMainPlayer::LookAtTargetUpdate);
 
 	CameraTransitionTL.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
-	CameraTransitionTL.SetTimelineFinishedFunc(FinishedEvent);
 
 	UpdateEvent.Unbind();
 	FinishedEvent.Unbind();
@@ -474,13 +472,15 @@ void AMainPlayer::TPToMark() {
 		CurrentDrone->GetMesh()->SetVisibility(false, true);
 	}
 
-	CurrentControlRotation = MainPlayerController->GetControlRotation();
 	CurrentCameraPosition = FollowCamera->GetComponentLocation();
-	TargetControlRotation = UKismetMathLibrary::FindLookAtRotation(CurrentCameraPosition, Mark->GetActorLocation());
 
 	StartGlitchDashFX();
 
-	CameraTransitionTL.PlayFromStart();
+	FOnTimelineEvent FinishedEvent;
+
+	FinishedEvent.BindDynamic(this, &AMainPlayer::EndTL);
+
+	LookAtTarget(UKismetMathLibrary::FindLookAtRotation(CurrentCameraPosition, Mark->GetActorLocation()), FinishedEvent, GlitchDashCameraTransition);
 }
 
 void AMainPlayer::UseGlitchPressed() {
@@ -510,7 +510,17 @@ void AMainPlayer::SetMark(AMark* NewMark){
 	Mark = NewMark;
 }
 
-void AMainPlayer::LookAtMark(float Value){
+void AMainPlayer::LookAtTarget(const FRotator TargetRotation, const FOnTimelineEvent FinishedEvent, const float Duration){
+	TargetControlRotation = TargetRotation;
+	CurrentControlRotation = MainPlayerController->GetControlRotation();
+
+	CameraTransitionTL.SetTimelineFinishedFunc(FinishedEvent);
+	CameraTransitionTL.SetPlayRate(1/Duration);
+
+	CameraTransitionTL.PlayFromStart();
+}
+
+void AMainPlayer::LookAtTargetUpdate(float Value){
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
 }
 

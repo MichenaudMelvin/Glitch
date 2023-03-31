@@ -137,7 +137,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Speed")
 	float GlitchSpeed = 1500;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|Gravity")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Gravity")
 	float OriginalGravityScale = 2;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -284,8 +284,10 @@ protected:
 
 #pragma region Mark
 
-protected:
 	FTimeline CameraTransitionTL;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch Dash")
+	float GlitchDashCameraTransition = 1;
 
 	UPROPERTY(BlueprintReadWrite)
 	AMark* Mark;
@@ -329,8 +331,11 @@ public:
 
 	FRotator TargetControlRotation;
 
+	UFUNCTION(BlueprintCallable)
+	void LookAtTarget(const FRotator TargetRotation, const FOnTimelineEvent FinishedEvent, const float Duration = 1);
+
 	UFUNCTION()
-	void LookAtMark(float Value);
+	void LookAtTargetUpdate(float Value);
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void StartGlitchDashFX();
