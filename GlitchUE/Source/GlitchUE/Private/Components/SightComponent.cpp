@@ -87,9 +87,21 @@ void USightComponent::ExitSight(UPrimitiveComponent* OverlappedComp, AActor* Oth
 }
 
 bool USightComponent::IsSomethingInSight() const{
-	return IsValid(SightActor);
+	if(!IsValid(SightActor)){
+		return false;
+	}
+
+	if(Cast<AMainPlayer>(SightActor)->IsInGlitchZone()){
+		return false;
+	}
+
+	return true;
 }
 
 bool USightComponent::IsPlayerInSight() const{
 	return bIsPlayerInSight;
+}
+
+float USightComponent::GetTimerElapsed() const{
+	return InvestigateTimeElapsed;
 }

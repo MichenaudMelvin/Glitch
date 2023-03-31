@@ -15,10 +15,10 @@ AMainAICharacter::AMainAICharacter(){
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("AIHealth"));
 
 	SightComp = CreateDefaultSubobject<USightComponent>(TEXT("SightComponent"));
+
 	SightComp->SetupAttachment(GetMesh());
 
-	SightComp->SetRelativeLocation(FVector(0, 0, 160));
-	SightComp->SetRelativeRotation(FRotator(0, 90, 0));
+	SightComp->SetRelativeRotation(FRotator(0, 180, 0));
 
 	SightWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("SightWidget"));
 	SightWidget->SetupAttachment(GetMesh());
@@ -34,6 +34,12 @@ AMainAICharacter::AMainAICharacter(){
 
 void AMainAICharacter::BeginPlay(){
 	Super::BeginPlay();
+
+	FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false);
+	AttachmentRules.LocationRule = EAttachmentRule::KeepRelative;
+	AttachmentRules.RotationRule = EAttachmentRule::KeepRelative;
+
+	SightComp->AttachToComponent(GetMesh(), AttachmentRules, "Drone_Head");
 
 	AIController = Cast<AMainAIController>(GetController());
 	Blackboard = AIController->GetBlackboardComponent();

@@ -26,7 +26,7 @@ protected:
 	void LooseSight();
 
 	UBlackboardComponent* OwnerBlackboard;
-	
+
 	float InvestigateTimeElapsed = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
@@ -63,4 +63,7 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsPlayerInSight() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetTimerElapsed() const;
 };

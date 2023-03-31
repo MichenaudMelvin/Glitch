@@ -4,10 +4,14 @@
 **/*[Tt]est/
 **/*[Tt]esting/
 
+# [Bb]uild folder (without "s") is usefull for plateforms packages, [Ww]indowsNoEditor files are generated when packaging
+**/*[Ww]indowsNoEditor/
+
+# Use it for projects packages
+**/*[Bb]uilds
+
 # Useless folders
 **/*[Bb]inaries/
-**/*[Bb]uild/
-**/*[Bb]uilds/
 **/*[Dd]erivedDataCache/
 **/*[Ii]ntermediate/
 **/*[Ss]aved/
