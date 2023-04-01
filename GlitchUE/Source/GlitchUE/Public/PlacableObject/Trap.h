@@ -66,6 +66,10 @@ protected:
 
 	virtual void SetData(UPlacableActorData* NewData) override;
 
+	virtual void Appear(const bool ReverseEffect) override;
+
+	virtual void FadeIn(float Alpha) override;
+
 	virtual void Attack_Implementation() override;
 
 	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;

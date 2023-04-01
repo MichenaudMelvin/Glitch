@@ -81,24 +81,37 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Nexus", meta = (ExposeOnSpawn = "true"))
 	ANexus* Nexus;
 
-	UFUNCTION(BlueprintCallable, Category = "Appearence")
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	virtual void SetMesh();
 
 	UFUNCTION()
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
-	void SellObject(AMainPlayer* MainPlayer);
+	UFUNCTION()
+	void SellObject();
 
 	float GlitchGaugeValueOnDestruct;
 
-	FTimeline FadeInAppearence;
+	FTimeline FadeInAppearance;
+
+	float AppearanceTime = 2;
+
+	UStaticMeshComponent* WireframeMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Appearence")
+	UMaterialInstance* WireframeMaterial;
+
+	virtual void Appear(const bool ReverseEffect = false);
 
 	UFUNCTION()
-	void FadeIn(float Alpha);
+	virtual void FadeIn(float Alpha);
+
+	UFUNCTION(BlueprintCallable, Category = "Appearence")
+	virtual void EndAppearance();
 
 	UCurveFloat* ZeroToOneCurve;
 
-	UMaterialParameterCollection* AppearenceMaterialCollection;
+	UMaterialParameterCollection* AppearanceMaterialCollection;
 
 	AConstructionZone* AffectedConstructionZone;
 
@@ -108,10 +121,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Appearence")
 	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Appearence")
-	void EndAppearence();
-	virtual void EndAppearence_Implementation();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Attack();

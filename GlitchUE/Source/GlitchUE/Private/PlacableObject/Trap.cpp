@@ -83,16 +83,14 @@ void ATrap::ReceiveGlitchUpgrade(){
 void ATrap::SetMesh(){
 	Super::SetMesh();
 
+	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[0]), true);
+	TrapMesh->PlayAnimation(IdleAnimation, true);
+
 	CrystalMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[1]));
 	CrystalMesh->PlayAnimation(CrystalAnimation, true);
 	CrystalMesh->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
 
-	FTimerHandle TimerHandle;
-	// Micro delay pour éviter les problèmes de navigation
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[0]), true);
-		TrapMesh->PlayAnimation(IdleAnimation, true);
-	}, 0.2f, false);
+	TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
 }
 
 void ATrap::SetData(UPlacableActorData* NewData){
@@ -108,14 +106,25 @@ void ATrap::SetData(UPlacableActorData* NewData){
 	if(IdleFX == nullptr){
 		IdleFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), Data->IdleFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, true, false);
 	}
+}
 
-	TrapDistance->SetBoxExtent(FVector(50, 50, 50), true);
+void ATrap::Appear(const bool ReverseEffect){
+	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[0]), true);
 
-	FTimerHandle TimerHandle;
-	// Micro delay pour éviter les problèmes de navigation
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
-	}, 0.2f, false);
+	for(int i = 0; i < TrapMesh->GetNumMaterials(); i++){
+		TrapMesh->SetMaterial(i, CurrentData->AppearanceMaterial);
+	}
+
+	if(ReverseEffect){
+		CrystalMesh->SetVisibility(false);
+	}
+
+	Super::Appear(ReverseEffect);
+}
+
+void ATrap::FadeIn(float Alpha){
+	Super::FadeIn(Alpha);
+	TrapMesh->SetScalarParameterValueOnMaterials("PercentageApparition", Alpha);
 }
 
 void ATrap::Attack_Implementation(){

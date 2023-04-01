@@ -65,6 +65,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	FVector AttackFXOffset = FVector::ZeroVector;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
+	UMaterialInstance* AppearanceMaterial;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;
 

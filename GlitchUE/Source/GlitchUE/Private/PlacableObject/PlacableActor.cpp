@@ -11,12 +11,11 @@
 #include "Components/TimelineComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavAreas/NavArea_Obstacle.h"
-#include "Kismet/KismetMaterialLibrary.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 
 APlacableActor::APlacableActor(){
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 	AudioComp->SetupAttachment(RootComponent);
@@ -31,12 +30,6 @@ APlacableActor::APlacableActor(){
 	ZeroToOneCurve = Curve.Object;
 
 	NavModifierComp->SetAreaClass(UNavArea_Obstacle::StaticClass());
-
-	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/ConstructionNumeric/MPC_Construction"));
-	//check(MPC.Succeeded());
-
-	//AppearenceMaterialCollection = MPC.Object;
-
 }
 
 void APlacableActor::BeginPlay(){
@@ -48,16 +41,14 @@ void APlacableActor::BeginPlay(){
 	FOnTimelineEvent FinishedEvent;
 
 	UpdateEvent.BindDynamic(this, &APlacableActor::FadeIn);
-	FinishedEvent.BindDynamic(this, &APlacableActor::EndAppearence);
 
-	FadeInAppearence.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
-	FadeInAppearence.SetTimelineFinishedFunc(FinishedEvent);
-
-	FadeInAppearence.PlayFromStart();
+	FadeInAppearance.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	FadeInAppearance.SetTimelineFinishedFunc(FinishedEvent);
+	FadeInAppearance.SetPlayRate(1/AppearanceTime);
 }
 
 void APlacableActor::Tick(float DeltaTime){
-	FadeInAppearence.TickTimeline(DeltaTime);
+	FadeInAppearance.TickTimeline(DeltaTime);
 }
 
 void APlacableActor::SetMesh(){}
@@ -71,7 +62,8 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 	bool bIsSelling = false;
 
 	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction){
-		SellObject(MainPlayer);
+		MainPlayer->GiveGolds(CurrentData->Cost);
+		Appear(true);
 		bIsSelling = true;
 	}
 
@@ -90,8 +82,7 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 	}
 }
 
-void APlacableActor::SellObject(AMainPlayer* MainPlayer){
-	MainPlayer->GiveGolds(CurrentData->Cost);
+void APlacableActor::SellObject(){
 	AffectedConstructionZone->UnoccupiedSlot();
 
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
@@ -101,8 +92,34 @@ void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 	Destroy();
 }
 
-void APlacableActor::FadeIn(float Alpha){
-	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), AppearenceMaterialCollection, FName("Appearence"), Alpha);
+void APlacableActor::Appear(const bool ReverseEffect){
+	WireframeMesh = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), true, GetActorTransform(), false));
+
+	WireframeMesh->SetStaticMesh(CurrentData->FullMesh);
+
+	for(int i = 0; i < WireframeMesh->GetNumMaterials(); i++){
+		WireframeMesh->SetMaterial(i, WireframeMaterial);
+	}
+
+	FOnTimelineEvent FinishFunc;
+
+	if(ReverseEffect){
+		FinishFunc.BindDynamic(this, &APlacableActor::SellObject);
+		FadeInAppearance.Reverse();
+	} else{
+		FinishFunc.BindDynamic(this, &APlacableActor::EndAppearance);
+		FadeInAppearance.Play();
+	}
+
+	FadeInAppearance.SetTimelineFinishedFunc(FinishFunc);
+}
+
+void APlacableActor::FadeIn(float Alpha){}
+
+void APlacableActor::EndAppearance(){
+	WireframeMesh->DestroyComponent();
+
+	SetMesh();
 }
 
 void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
@@ -120,8 +137,6 @@ void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 }
 
 void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){}
-
-void APlacableActor::EndAppearence_Implementation(){}
 
 void APlacableActor::Attack_Implementation(){}
 
@@ -162,7 +177,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	IdleAnimation = CurrentData->IdleAnimation;
 	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
 
-	SetMesh();
+	Appear();
 
 	if(AttackFX == nullptr){
 		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation() + CurrentData->AttackFXOffset, FRotator::ZeroRotator, false, false);
