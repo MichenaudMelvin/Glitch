@@ -89,14 +89,31 @@ void ATurret::RotateToTarget(float Alpha){
 void ATurret::EndRotate_Implementation(){}
 
 void ATurret::ReceiveGlitchUpgrade(){
-	AttackRate = CurrentData->GlitchAttackRate;
-	Damages = CurrentData->GlitchDamages;
-	AttackRange = CurrentData->GlitchAttackRange;
+	Super::ReceiveGlitchUpgrade();
 
 	RotateTimeline.SetPlayRate(1/AttackRate);
 	TurretVision->SetSphereRadius(AttackRange, true);
+}
 
-	Super::ReceiveGlitchUpgrade();
+void ATurret::ResetGlitchUpgrade(){
+	Super::ResetGlitchUpgrade();
+
+	RotateTimeline.SetPlayRate(1/AttackRate);
+	TurretVision->SetSphereRadius(AttackRange, true);
+}
+
+void ATurret::AddDrone(AMainPlayer* MainPlayer){
+	Super::AddDrone(MainPlayer);
+
+	RotateTimeline.SetPlayRate(1/AttackRate);
+	TurretVision->SetSphereRadius(AttackRange, true);
+}
+
+void ATurret::RemoveDrone(AMainPlayer* MainPlayer){
+	Super::RemoveDrone(MainPlayer);
+
+	RotateTimeline.SetPlayRate(1/AttackRate);
+	TurretVision->SetSphereRadius(AttackRange, true);
 }
 
 void ATurret::SetMesh(){

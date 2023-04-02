@@ -71,13 +71,27 @@ void ATrap::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* M
 }
 
 void ATrap::ReceiveGlitchUpgrade(){
-	AttackRate = CurrentData->GlitchAttackRate;
-	Damages = CurrentData->GlitchDamages;
-	AttackRange = CurrentData->GlitchAttackRange;
+	Super::ReceiveGlitchUpgrade();
 
 	TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
+}
 
-	Super::ReceiveGlitchUpgrade();
+void ATrap::ResetGlitchUpgrade(){
+	Super::ResetGlitchUpgrade();
+
+	TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
+}
+
+void ATrap::AddDrone(AMainPlayer* MainPlayer){
+	Super::AddDrone(MainPlayer);
+
+	TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
+}
+
+void ATrap::RemoveDrone(AMainPlayer* MainPlayer){
+	Super::RemoveDrone(MainPlayer);
+
+	TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
 }
 
 void ATrap::SetMesh(){

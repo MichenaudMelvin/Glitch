@@ -38,12 +38,10 @@ void APlacableActor::BeginPlay(){
 	InteractableComp->OnInteract.AddDynamic(this, &APlacableActor::Interact);
 
 	FOnTimelineFloat UpdateEvent;
-	FOnTimelineEvent FinishedEvent;
 
 	UpdateEvent.BindDynamic(this, &APlacableActor::FadeIn);
 
 	FadeInAppearance.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
-	FadeInAppearance.SetTimelineFinishedFunc(FinishedEvent);
 	FadeInAppearance.SetPlayRate(1/AppearanceTime);
 }
 
@@ -68,8 +66,7 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 	}
 
 	if(IsValid(CurrentDrone)){
-		MainPlayer->SetCurrentDrone(CurrentDrone);
-		CurrentDrone = nullptr;
+		RemoveDrone(MainPlayer);
 		return;
 	}
 
@@ -126,6 +123,10 @@ void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 	CurrentDrone = MainPlayer->GetCurrentDrone();
 	MainPlayer->SetCurrentDrone(nullptr);
 
+	AttackRate -= CurrentData->BoostDroneAttackRate;
+	Damages += CurrentData->BoostDroneDamages;
+	AttackRange += CurrentData->BoostDroneAttackRange;
+
 	CurrentDrone->AttachDrone(this, "");
 
 	FVector TargetLocation = GetActorLocation();
@@ -133,7 +134,15 @@ void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 
 	CurrentDrone->SetActorLocation(TargetLocation);
 
-	CurrentDrone->BoostPlacable();
+}
+
+void APlacableActor::RemoveDrone(AMainPlayer* MainPlayer){
+	AttackRate += CurrentData->BoostDroneAttackRate;
+	Damages -= CurrentData->BoostDroneDamages;
+	AttackRange -= CurrentData->BoostDroneAttackRange;
+
+	MainPlayer->SetCurrentDrone(CurrentDrone);
+	CurrentDrone = nullptr;
 }
 
 void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){}
@@ -194,20 +203,20 @@ void APlacableActor::Upgrade(){
 
 void APlacableActor::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
-	// Ici set les upgrades dans les fonctions qui vont hériter
 
-	UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *this->GetName());
+	AttackRate -= CurrentData->GlitchAttackRate;
+	Damages += CurrentData->GlitchDamages;
+	AttackRange += CurrentData->GlitchAttackRange;
 
 	FTimerHandle TimerHandle;
 
-	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		ResetGlitchUpgrade();
-	}, CurrentData->GlitchUpgradeDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &APlacableActor::ResetGlitchUpgrade, CurrentData->GlitchUpgradeDuration, false);
 }
 
 void APlacableActor::ResetGlitchUpgrade(){
 	IGlitchInterface::ResetGlitchUpgrade();
 
-	//reset à l'upgrade actuelle
-	SetData(CurrentData);
+	AttackRate += CurrentData->GlitchAttackRate;
+	Damages -= CurrentData->GlitchDamages;
+	AttackRange -= CurrentData->GlitchAttackRange;
 }

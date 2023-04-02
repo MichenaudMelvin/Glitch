@@ -64,6 +64,12 @@ protected:
 
 	virtual void ReceiveGlitchUpgrade() override;
 
+	virtual void ResetGlitchUpgrade() override;
+
+	virtual void AddDrone(AMainPlayer* MainPlayer) override;
+
+	virtual void RemoveDrone(AMainPlayer* MainPlayer) override;
+
 	virtual void SetMesh() override;
 
 	virtual void SetData(UPlacableActorData* NewData) override;

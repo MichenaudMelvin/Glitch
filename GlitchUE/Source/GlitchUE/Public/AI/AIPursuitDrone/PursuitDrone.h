@@ -70,7 +70,5 @@ public:
 
 	void AttachDrone(AActor* ActorToAttach, const FName SocketName);
 
-	void BoostPlacable();
-
 	UInteractableComponent* GetInteractableComp() const;
 };

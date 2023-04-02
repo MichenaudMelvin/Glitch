@@ -296,6 +296,8 @@ void AMainPlayer::SetCurrentDrone(APursuitDrone* NewDrone){
 	CurrentDrone = NewDrone;
 
 	CurrentDrone->AttachDrone(this, "Bone012");
+
+	
 }
 
 APursuitDrone* AMainPlayer::GetCurrentDrone() const{

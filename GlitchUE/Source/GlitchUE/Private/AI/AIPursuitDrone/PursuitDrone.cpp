@@ -161,10 +161,6 @@ void APursuitDrone::AttachDrone(AActor* ActorToAttach, const FName SocketName){
 	AttachToActor(ActorToAttach, AttachmentRules, SocketName);
 }
 
-void APursuitDrone::BoostPlacable(){
-	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-}
-
 void APursuitDrone::Spin(float Value){
 	const float CurrentYaw = FMath::Lerp(Value, 0.0f, 360.0f);
 	SetActorRotation(FRotator(0, CurrentYaw, 0));

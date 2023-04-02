@@ -117,7 +117,9 @@ protected:
 
 	APursuitDrone* CurrentDrone;
 
-	void AddDrone(AMainPlayer* MainPlayer);
+	virtual void AddDrone(AMainPlayer* MainPlayer);
+
+	virtual void RemoveDrone(AMainPlayer* MainPlayer);
 
 	UFUNCTION(BlueprintCallable, Category = "Appearence")
 	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
