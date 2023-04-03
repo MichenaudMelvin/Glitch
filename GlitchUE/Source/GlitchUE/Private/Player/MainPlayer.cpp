@@ -627,9 +627,9 @@ void AMainPlayer::SelectRandomLocation(){
 	EnableGlitchEffect(true, GlitchUpgradeDuration, 500);
 	StopRecord();
 
-	const int Index = FMath::RandRange(0, GlitchRewindTransformList.Num() - 1);
+	//const int Index = FMath::RandRange(0, GlitchRewindTransformList.Num() - 1);
 
-	const FTransform RandomTransform = GlitchRewindTransformList[Index];
+	const FTransform RandomTransform = GlitchRewindTransformList[0];
 
 	SetActorLocation(RandomTransform.GetLocation());
 	Controller->SetControlRotation(RandomTransform.GetRotation().Rotator());

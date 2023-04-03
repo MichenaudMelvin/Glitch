@@ -94,11 +94,12 @@ protected:
 
 	FTimeline FadeInAppearance;
 
-	float AppearanceTime = 2;
+	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
+	float AppearanceTime = 1.5;
 
 	UStaticMeshComponent* WireframeMesh;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Appearence")
+	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
 	UMaterialInstance* WireframeMaterial;
 
 	virtual void Appear(const bool ReverseEffect = false);
@@ -106,7 +107,7 @@ protected:
 	UFUNCTION()
 	virtual void FadeIn(float Alpha);
 
-	UFUNCTION(BlueprintCallable, Category = "Appearence")
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	virtual void EndAppearance();
 
 	UCurveFloat* ZeroToOneCurve;
@@ -121,7 +122,7 @@ protected:
 
 	virtual void RemoveDrone(AMainPlayer* MainPlayer);
 
-	UFUNCTION(BlueprintCallable, Category = "Appearence")
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
