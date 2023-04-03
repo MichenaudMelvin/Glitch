@@ -62,11 +62,25 @@ protected:
 	void EndRotate();
 	virtual void EndRotate_Implementation();
 
-	virtual void ReceiveGlitchUpgrade() override;;
+	virtual void ReceiveGlitchUpgrade() override;
+
+	virtual void ResetGlitchUpgrade() override;
+
+	virtual void AddDrone(AMainPlayer* MainPlayer) override;
+
+	virtual void RemoveDrone(AMainPlayer* MainPlayer) override;
 
 	virtual void SetMesh() override;
 
 	virtual void SetData(UPlacableActorData* NewData) override;
+
+	UStaticMeshComponent* FullMesh;
+
+	virtual void Appear(const bool ReverseEffect) override;
+
+	virtual void FadeIn(float Alpha) override;
+
+	virtual void EndAppearance() override;
 
 	bool CanSeeThroughWalls = false;
 

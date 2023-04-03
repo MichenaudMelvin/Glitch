@@ -10,8 +10,6 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 
 ATurret::ATurret() {
-	PrimaryActorTick.bCanEverTick = true;
-
 	TurretBase = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretBase"));
 	SetRootComponent(TurretBase);
 
@@ -91,14 +89,31 @@ void ATurret::RotateToTarget(float Alpha){
 void ATurret::EndRotate_Implementation(){}
 
 void ATurret::ReceiveGlitchUpgrade(){
-	AttackRate = CurrentData->GlitchAttackRate;
-	Damages = CurrentData->GlitchDamages;
-	AttackRange = CurrentData->GlitchAttackRange;
+	Super::ReceiveGlitchUpgrade();
 
 	RotateTimeline.SetPlayRate(1/AttackRate);
 	TurretVision->SetSphereRadius(AttackRange, true);
+}
 
-	Super::ReceiveGlitchUpgrade();
+void ATurret::ResetGlitchUpgrade(){
+	Super::ResetGlitchUpgrade();
+
+	RotateTimeline.SetPlayRate(1/AttackRate);
+	TurretVision->SetSphereRadius(AttackRange, true);
+}
+
+void ATurret::AddDrone(AMainPlayer* MainPlayer){
+	Super::AddDrone(MainPlayer);
+
+	RotateTimeline.SetPlayRate(1/AttackRate);
+	TurretVision->SetSphereRadius(AttackRange, true);
+}
+
+void ATurret::RemoveDrone(AMainPlayer* MainPlayer){
+	Super::RemoveDrone(MainPlayer);
+
+	RotateTimeline.SetPlayRate(1/AttackRate);
+	TurretVision->SetSphereRadius(AttackRange, true);
 }
 
 void ATurret::SetMesh(){
@@ -106,18 +121,14 @@ void ATurret::SetMesh(){
 
 	TurretBase->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[0]));
 	TurretPillar->SetStaticMesh(Cast<UStaticMesh>(CurrentData->MeshList[1]));
+	TurretHead->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[2]), true);
+	TurretHead->PlayAnimation(IdleAnimation, true);
 
 	TurretBase->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
 	TurretPillar->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
+	TurretHead->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
 
-	FTimerHandle TimerHandle;
-	// Micro delay pour éviter les problèmes de navigation
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		TurretHead->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[2]), true);
-		TurretHead->PlayAnimation(IdleAnimation, true);
-		TurretHead->SetVectorParameterValueOnMaterials("CrystalColor", FVector(CurrentData->CrystalColor));
-	}, 0.2f, false);
-
+	TurretVision->SetSphereRadius(AttackRange, true);
 }
 
 void ATurret::SetData(UPlacableActorData* NewData){
@@ -130,12 +141,36 @@ void ATurret::SetData(UPlacableActorData* NewData){
 
 	CanSeeThroughWalls = Data->CanSeeThroughWalls;
 	FocusMethod = Data->FocusMethod;
+}
 
-	FTimerHandle TimerHandle;
-	// Micro delay pour éviter les problèmes de navigation
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		TurretVision->SetSphereRadius(AttackRange, true);
-	}, 0.2f, false);
+void ATurret::Appear(const bool ReverseEffect){
+	FullMesh = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), true, GetActorTransform(), false));
+
+	FullMesh->SetStaticMesh(CurrentData->FullMesh);
+
+	for(int i = 0; i < FullMesh->GetNumMaterials(); i++){
+		FullMesh->SetMaterial(i, CurrentData->AppearanceMaterial);
+	}
+
+	if(ReverseEffect){
+		TurretBase->SetVisibility(false);
+		TurretPillar->SetVisibility(false);
+		TurretHead->SetVisibility(false);
+	}
+
+	Super::Appear(ReverseEffect);
+}
+
+void ATurret::FadeIn(float Alpha){
+	Super::FadeIn(Alpha);
+
+	FullMesh->SetScalarParameterValueOnMaterials("PercentageApparition", Alpha);
+}
+
+void ATurret::EndAppearance(){
+	Super::EndAppearance();
+
+	FullMesh->DestroyComponent();
 }
 
 void ATurret::CanAttack(){

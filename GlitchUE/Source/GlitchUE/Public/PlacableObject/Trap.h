@@ -60,11 +60,21 @@ protected:
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
-	virtual void ReceiveGlitchUpgrade() override;;
+	virtual void ReceiveGlitchUpgrade() override;
+
+	virtual void ResetGlitchUpgrade() override;
+
+	virtual void AddDrone(AMainPlayer* MainPlayer) override;
+
+	virtual void RemoveDrone(AMainPlayer* MainPlayer) override;
 
 	virtual void SetMesh() override;
 
 	virtual void SetData(UPlacableActorData* NewData) override;
+
+	virtual void Appear(const bool ReverseEffect) override;
+
+	virtual void FadeIn(float Alpha) override;
 
 	virtual void Attack_Implementation() override;
 

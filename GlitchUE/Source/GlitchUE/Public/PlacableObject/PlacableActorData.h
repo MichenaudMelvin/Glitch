@@ -14,6 +14,12 @@ class GLITCHUE_API UPlacableActorData : public UPrimaryDataAsset{
 	GENERATED_BODY()
 
 public:
+#if WITH_EDITOR
+	virtual void PostLoad() override;
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Name")
 	FName Name;
 
@@ -53,17 +59,53 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float GlitchDamages;
 
+	// Damages + GlitchDamages
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Transient, Category = "Glitch")
+	float RealGlitchDamages;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float GlitchAttackRate;
 
+	// AttackRate + GlitchAttackRate
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Transient, Category = "Glitch")
+	float RealGlitchAttackRate;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float GlitchAttackRange;
+
+	// AttackRange + GlitchAttackRange
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Transient, Category = "Glitch")
+	float RealGlitchAttackRange;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "BoostDrone")
+	float BoostDroneDamages;
+
+	// Damages + BoostDroneDamages
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Transient, Category = "BoostDrone")
+	float RealBoostDroneDamages;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "BoostDrone")
+	float BoostDroneAttackRate;
+
+	// AttackRate + BoostDroneAttackRate
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Transient, Category = "BoostDrone")
+	float RealBoostDroneAttackRate;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "BoostDrone")
+	float BoostDroneAttackRange;
+
+	// AttackRange + BoostDroneAttackRange
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Transient, Category = "BoostDrone")
+	float RealBoostDroneAttackRange;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* AttackFX;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	FVector AttackFXOffset = FVector::ZeroVector;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
+	UMaterialInstance* AppearanceMaterial;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;

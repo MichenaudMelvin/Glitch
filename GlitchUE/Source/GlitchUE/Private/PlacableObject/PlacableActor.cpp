@@ -11,12 +11,11 @@
 #include "Components/TimelineComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavAreas/NavArea_Obstacle.h"
-#include "Kismet/KismetMaterialLibrary.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 
 APlacableActor::APlacableActor(){
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
 	AudioComp->SetupAttachment(RootComponent);
@@ -31,12 +30,6 @@ APlacableActor::APlacableActor(){
 	ZeroToOneCurve = Curve.Object;
 
 	NavModifierComp->SetAreaClass(UNavArea_Obstacle::StaticClass());
-
-	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/ConstructionNumeric/MPC_Construction"));
-	//check(MPC.Succeeded());
-
-	//AppearenceMaterialCollection = MPC.Object;
-
 }
 
 void APlacableActor::BeginPlay(){
@@ -45,19 +38,15 @@ void APlacableActor::BeginPlay(){
 	InteractableComp->OnInteract.AddDynamic(this, &APlacableActor::Interact);
 
 	FOnTimelineFloat UpdateEvent;
-	FOnTimelineEvent FinishedEvent;
 
 	UpdateEvent.BindDynamic(this, &APlacableActor::FadeIn);
-	FinishedEvent.BindDynamic(this, &APlacableActor::EndAppearence);
 
-	FadeInAppearence.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
-	FadeInAppearence.SetTimelineFinishedFunc(FinishedEvent);
-
-	FadeInAppearence.PlayFromStart();
+	FadeInAppearance.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	FadeInAppearance.SetPlayRate(1/AppearanceTime);
 }
 
 void APlacableActor::Tick(float DeltaTime){
-	FadeInAppearence.TickTimeline(DeltaTime);
+	FadeInAppearance.TickTimeline(DeltaTime);
 }
 
 void APlacableActor::SetMesh(){}
@@ -71,13 +60,13 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 	bool bIsSelling = false;
 
 	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction){
-		SellObject(MainPlayer);
+		MainPlayer->GiveGolds(CurrentData->Cost);
+		Appear(true);
 		bIsSelling = true;
 	}
 
 	if(IsValid(CurrentDrone)){
-		MainPlayer->SetCurrentDrone(CurrentDrone);
-		CurrentDrone = nullptr;
+		RemoveDrone(MainPlayer);
 		return;
 	}
 
@@ -90,8 +79,7 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 	}
 }
 
-void APlacableActor::SellObject(AMainPlayer* MainPlayer){
-	MainPlayer->GiveGolds(CurrentData->Cost);
+void APlacableActor::SellObject(){
 	AffectedConstructionZone->UnoccupiedSlot();
 
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
@@ -101,13 +89,43 @@ void APlacableActor::SellObject(AMainPlayer* MainPlayer){
 	Destroy();
 }
 
-void APlacableActor::FadeIn(float Alpha){
-	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), AppearenceMaterialCollection, FName("Appearence"), Alpha);
+void APlacableActor::Appear(const bool ReverseEffect){
+	WireframeMesh = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), true, GetActorTransform(), false));
+
+	WireframeMesh->SetStaticMesh(CurrentData->FullMesh);
+
+	for(int i = 0; i < WireframeMesh->GetNumMaterials(); i++){
+		WireframeMesh->SetMaterial(i, WireframeMaterial);
+	}
+
+	FOnTimelineEvent FinishFunc;
+
+	if(ReverseEffect){
+		FinishFunc.BindDynamic(this, &APlacableActor::SellObject);
+		FadeInAppearance.Reverse();
+	} else{
+		FinishFunc.BindDynamic(this, &APlacableActor::EndAppearance);
+		FadeInAppearance.Play();
+	}
+
+	FadeInAppearance.SetTimelineFinishedFunc(FinishFunc);
+}
+
+void APlacableActor::FadeIn(float Alpha){}
+
+void APlacableActor::EndAppearance(){
+	WireframeMesh->DestroyComponent();
+
+	SetMesh();
 }
 
 void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 	CurrentDrone = MainPlayer->GetCurrentDrone();
 	MainPlayer->SetCurrentDrone(nullptr);
+
+	AttackRate -= CurrentData->BoostDroneAttackRate;
+	Damages += CurrentData->BoostDroneDamages;
+	AttackRange += CurrentData->BoostDroneAttackRange;
 
 	CurrentDrone->AttachDrone(this, "");
 
@@ -116,12 +134,18 @@ void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 
 	CurrentDrone->SetActorLocation(TargetLocation);
 
-	CurrentDrone->BoostPlacable();
+}
+
+void APlacableActor::RemoveDrone(AMainPlayer* MainPlayer){
+	AttackRate += CurrentData->BoostDroneAttackRate;
+	Damages -= CurrentData->BoostDroneDamages;
+	AttackRange -= CurrentData->BoostDroneAttackRange;
+
+	MainPlayer->SetCurrentDrone(CurrentDrone);
+	CurrentDrone = nullptr;
 }
 
 void APlacableActor::SetObjectMaterial(UMaterialInterface* NewMaterial){}
-
-void APlacableActor::EndAppearence_Implementation(){}
 
 void APlacableActor::Attack_Implementation(){}
 
@@ -162,7 +186,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	IdleAnimation = CurrentData->IdleAnimation;
 	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
 
-	SetMesh();
+	Appear();
 
 	if(AttackFX == nullptr){
 		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation() + CurrentData->AttackFXOffset, FRotator::ZeroRotator, false, false);
@@ -179,20 +203,20 @@ void APlacableActor::Upgrade(){
 
 void APlacableActor::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
-	// Ici set les upgrades dans les fonctions qui vont hériter
 
-	UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *this->GetName());
+	AttackRate -= CurrentData->GlitchAttackRate;
+	Damages += CurrentData->GlitchDamages;
+	AttackRange += CurrentData->GlitchAttackRange;
 
 	FTimerHandle TimerHandle;
 
-	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		ResetGlitchUpgrade();
-	}, CurrentData->GlitchUpgradeDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &APlacableActor::ResetGlitchUpgrade, CurrentData->GlitchUpgradeDuration, false);
 }
 
 void APlacableActor::ResetGlitchUpgrade(){
 	IGlitchInterface::ResetGlitchUpgrade();
 
-	//reset à l'upgrade actuelle
-	SetData(CurrentData);
+	AttackRate += CurrentData->GlitchAttackRate;
+	Damages -= CurrentData->GlitchDamages;
+	AttackRange -= CurrentData->GlitchAttackRange;
 }
