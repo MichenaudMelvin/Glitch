@@ -437,16 +437,24 @@ void AMainPlayer::LaunchMark(){
 	MainPlayerController->OnUseGlitchPressed.AddDynamic(this, &AMainPlayer::TPToMark);
 }
 
-FQuat AMainPlayer::FindMarkLaunchRotation(){
+FQuat AMainPlayer::FindMarkLaunchRotation() const{
 	FHitResult HitResult;
-	FVector StartLocation = FollowCamera->GetComponentLocation();
-	FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxDistance()) + StartLocation;
+	const FVector StartLocation = FollowCamera->GetComponentLocation();
+	const FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxDistance()) + StartLocation;
 
 	FCollisionQueryParams QueryParams;
 	FCollisionResponseParams ResponseParam;
 
-	FVector TargetRotation = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) ? HitResult.ImpactPoint : EndLocation;
-	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Bone012"), TargetRotation).Quaternion();
+	FVector TargetLocation = EndLocation;
+
+	if(GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams, ResponseParam)){
+		TargetLocation = HitResult.ImpactPoint;
+		Mark->SetHitSomething(true);
+	}
+
+	Mark->SetTargetLocation(TargetLocation);
+
+	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Bone012"), TargetLocation).Quaternion();
 }
 
 void AMainPlayer::TPToMark() {
@@ -485,11 +493,11 @@ void AMainPlayer::TPToMark() {
 	LookAtTarget(UKismetMathLibrary::FindLookAtRotation(CurrentCameraPosition, Mark->GetActorLocation()), FinishedEvent, GlitchDashCameraTransition);
 }
 
-void AMainPlayer::UseGlitchPressed() {
+void AMainPlayer::UseGlitchPressed(){
 	CameraAim();
 }
 
-void AMainPlayer::UseGlitchReleassed() {
+void AMainPlayer::UseGlitchReleassed(){
 	CameraStopAim();
 	LaunchMark();
 
@@ -526,7 +534,7 @@ void AMainPlayer::LookAtTargetUpdate(float Value){
 	MainPlayerController->SetControlRotation(UKismetMathLibrary::RLerp(CurrentControlRotation, TargetControlRotation, Value, true));
 }
 
-void AMainPlayer::StartGlitchDashFX(){
+void AMainPlayer::StartGlitchDashFX() const{
 	UPopcornFXEmitterComponent* FXToStart;
 	// choisi le FX de backup si le principal est déjà utilisé
 	GlitchDashFX->IsEmitterStarted() ? FXToStart = GlitchDashFXBackup : FXToStart = GlitchDashFX;
@@ -717,7 +725,7 @@ void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float
 }
 
 
-void AMainPlayer::SetGlitchMaterialParameter(const int MaterialIndex, const float Value){
+void AMainPlayer::SetGlitchMaterialParameter(const int MaterialIndex, const float Value) const{
 	UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(GetMesh()->GetMaterial(MaterialIndex));
 
 	if (!DynamicMaterial){
@@ -728,7 +736,7 @@ void AMainPlayer::SetGlitchMaterialParameter(const int MaterialIndex, const floa
 }
 
 
-void AMainPlayer::EndTL() {
+void AMainPlayer::EndTL(){
 
 	// Play sound final of the teleportation
 	UGameplayStatics::SpawnSound2D(this, TPFinal);

@@ -18,11 +18,9 @@ AMark::AMark() {
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("MarkInteraction"));
-
-	MarkMesh->OnComponentHit.AddDynamic(this, &AMark::OnCompHit);
 }
 
-void AMark::BeginPlay() {
+void AMark::BeginPlay(){
 	Super::BeginPlay();
 
 	StopProjectile();
@@ -57,7 +55,7 @@ void AMark::StopProjectile() const{
 	ProjectileMovement->SetVelocityInLocalSpace(FVector::ZeroVector);
 }
 
-FVector AMark::GetTPLocation() {
+FVector AMark::GetTPLocation(){
 	const float PlayerHalfHeight = Player->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	FVector ImpactPoint;
 
@@ -76,7 +74,15 @@ FVector AMark::GetTPLocation() {
 	return ImpactPoint;
 }
 
-bool AMark::LocationTrace(const float UpTraceValue, FVector& OutImpactPoint) {
+void AMark::SetTargetLocation(const FVector NewTargetLocation){
+	TargetLocation = NewTargetLocation;
+}
+
+void AMark::SetHitSomething(const bool bValue){
+	bShouldMarkHitSomething = bValue;
+}
+
+bool AMark::LocationTrace(const float UpTraceValue, FVector& OutImpactPoint){
 	FHitResult HitResult;
 
 	FVector TraceEnd = GetActorLocation();
@@ -91,10 +97,6 @@ bool AMark::LocationTrace(const float UpTraceValue, FVector& OutImpactPoint) {
 	return bHit;
 }
 
-void AMark::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
-	PlaceMark();
-}
-
 bool AMark::GetIsMarkPlaced() const{
 	return bIsMarkPlaced;
 }
@@ -102,13 +104,14 @@ bool AMark::GetIsMarkPlaced() const{
 void AMark::PlaceMark(){
 	StopProjectile();
 	bIsMarkPlaced = true;
-	GetWorldTimerManager().ClearTimer(DistanceTimer);
+	GetWorldTimerManager().ClearTimer(LaunchTimerHandle);
 }
 
 void AMark::ResetMark(){
 	bIsMarkPlaced = false;
+	bShouldMarkHitSomething = false;
 	Player->GetMainPlayerController()->BindGlitch();
-	GetWorldTimerManager().ClearTimer(DistanceTimer);
+	GetWorldTimerManager().ClearTimer(LaunchTimerHandle);
 
 	SetActorLocation(OriginalLocation);
 	StopProjectile();
@@ -118,19 +121,24 @@ void AMark::Launch(const FTransform StartTransform){
 	SetActorTransform(StartTransform);
 	LaunchLocation = StartTransform.GetLocation();
 	StartProjectile();
-	GetWorldTimerManager().SetTimer(DistanceTimer, this, &AMark::CheckDistance, 0.1f, true, 0.0f);
+	GetWorldTimerManager().SetTimer(LaunchTimerHandle, this, &AMark::LaunchTimer, 0.001f, true);
 }
 
 float AMark::GetDistanceToLaunchPoint() const{
 	return FVector::Dist(LaunchLocation, GetActorLocation());
 }
 
-void AMark::CheckDistance() {
+void AMark::LaunchTimer(){
+	if(GetActorLocation().Equals(TargetLocation, EqualTolerance) && bShouldMarkHitSomething){
+		SetActorLocation(TargetLocation);
+		PlaceMark();
+	}
+
 	if ((GetDistanceToLaunchPoint() >= MaxDistance) && !bIsMarkPlaced){
 		ResetMark();
 	}
 }
 
-float AMark::GetMaxDistance() {
+float AMark::GetMaxDistance() const{
 	return MaxDistance;
 }

@@ -212,7 +212,7 @@ public:
 	UHealthComponent* GetHealthComp() const;
 
 	bool IsInGlitchZone() const;
-	
+
 	void SetInGlitchZone(const bool bNewValue);
 
 protected:
@@ -303,7 +303,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundBase* TPFinal;
 
-	FQuat FindMarkLaunchRotation();
+	FQuat FindMarkLaunchRotation() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void TPToMark();
@@ -338,7 +338,7 @@ public:
 	void LookAtTargetUpdate(float Value);
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
-	void StartGlitchDashFX();
+	void StartGlitchDashFX() const;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
 	float GlitchDashDuration = 0.15f;
@@ -413,7 +413,7 @@ protected:
 public:
 	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue);
 
-	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value);
+	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value) const;
 
 #pragma endregion
 
