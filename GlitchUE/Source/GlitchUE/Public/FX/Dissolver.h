@@ -81,7 +81,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UMaterialParameterCollection* MPCDissolver;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	USphereComponent* DissolveCollider;
 
 };
