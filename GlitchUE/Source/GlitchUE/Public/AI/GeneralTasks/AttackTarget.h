@@ -20,4 +20,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	FBlackboardKeySelector TargetToAttack;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	FBlackboardKeySelector AttackKey;
 };

@@ -13,8 +13,8 @@ class GLITCHUE_API AFocusAIController : public AMainAIController{
 
 protected:
 	virtual void BeginPlay() override;
-	
-	float AttackDistance = 250;
+
+	float AttackDistance = 500;
 
 	ANexus* Nexus;
 };
