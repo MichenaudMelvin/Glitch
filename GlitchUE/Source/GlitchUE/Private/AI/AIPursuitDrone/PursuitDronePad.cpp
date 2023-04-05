@@ -6,12 +6,12 @@
 #include "Components/CapsuleComponent.h"
 
 APursuitDronePad::APursuitDronePad(){
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> PadMesh(TEXT("/Game/Meshs/Drones/SK_Drones_Pursuit_Pad"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> PadMesh(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Pursuit_Pad"));
 	check(PadMesh.Succeeded());
 
 	GetSkeletalMeshComponent()->SetSkeletalMesh(PadMesh.Object);
 
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Drones/AS_Drones_Pursuit_Pad"));
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Drones/Pursuit/AS_Drones_Pursuit_Pad"));
 	check(Anim.Succeeded());
 
 	PadAnim = Anim.Object;

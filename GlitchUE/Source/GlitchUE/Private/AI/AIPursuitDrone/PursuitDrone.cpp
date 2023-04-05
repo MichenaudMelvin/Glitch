@@ -10,13 +10,13 @@ APursuitDrone::APursuitDrone(){
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interaction"));
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DroneSkeletal(TEXT("/Game/Meshs/Drones/SK_Drones_Pursuit"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DroneSkeletal(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Pursuit"));
 	check(DroneSkeletal.Succeeded());
 
 	GetMesh()->SetSkeletalMesh(DroneSkeletal.Object);
 	GetMesh()->SetRelativeRotation(FRotator(0, 180, 0));
 
-	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Drones/AS_Drones_Pursuit_Start"));
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Drones/Pursuit/AS_Drones_Pursuit_Start"));
 	check(Anim.Succeeded());
 
 	StartAnim = Anim.Object;
