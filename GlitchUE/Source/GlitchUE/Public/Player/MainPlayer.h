@@ -115,10 +115,8 @@ protected:
 
 	#pragma region Movement
 
-protected:
 	EPlayerMovementMode MovementMode;
 
-public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
 	float NormalSpeed = 550;
 
@@ -140,6 +138,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Gravity")
 	float OriginalGravityScale = 2;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
+	float OriginalGroundFriction = 10;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
+	float OriginalBrakingDecelerationWalking = 2048;
+
+public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EPlayerMovementMode GetMovementMode() const;
 
@@ -333,6 +338,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LookAtTarget(const FRotator TargetRotation, const FOnTimelineEvent FinishedEvent, const float Duration = 1);
+
+	UFUNCTION(BlueprintCallable)
+	void StopLookAtTimeline();
 
 	UFUNCTION()
 	void LookAtTargetUpdate(float Value);

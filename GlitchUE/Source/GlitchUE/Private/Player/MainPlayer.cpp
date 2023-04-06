@@ -142,6 +142,8 @@ void AMainPlayer::BeginPlay(){
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCharacterMovement()->GravityScale = OriginalGravityScale;
+	GetCharacterMovement()->GroundFriction = OriginalGroundFriction;
+	GetCharacterMovement()->BrakingDecelerationWalking = OriginalBrakingDecelerationWalking;
 
 	StartRecord();
 
@@ -528,6 +530,10 @@ void AMainPlayer::LookAtTarget(const FRotator TargetRotation, const FOnTimelineE
 	CameraTransitionTL.SetPlayRate(1/Duration);
 
 	CameraTransitionTL.PlayFromStart();
+}
+
+void AMainPlayer::StopLookAtTimeline(){
+	CameraTransitionTL.Stop();
 }
 
 void AMainPlayer::LookAtTargetUpdate(float Value){
