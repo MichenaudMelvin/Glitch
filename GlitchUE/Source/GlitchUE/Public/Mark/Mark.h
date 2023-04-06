@@ -21,6 +21,16 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
 	UStaticMeshComponent* MarkMesh;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	TArray<UStaticMesh*> PossibleMeshList;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	float SwitchMeshTime = 0.2f;
+
+	void SwitchMesh();
+
+	FTimerHandle SwitchMeshTimer;
+
 	AMainPlayer* Player;
 
 	FVector OriginalLocation;

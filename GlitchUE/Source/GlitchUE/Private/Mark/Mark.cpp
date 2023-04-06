@@ -41,6 +41,10 @@ void AMark::BeginPlay(){
 	InteractableComp->OnInteract.AddDynamic(this, &AMark::Interact);
 }
 
+void AMark::SwitchMesh(){
+	MarkMesh->SetStaticMesh(PossibleMeshList[FMath::RandRange(0, PossibleMeshList.Num() - 1)]);
+}
+
 void AMark::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	ResetMark();
 }
@@ -112,6 +116,7 @@ void AMark::ResetMark(){
 	bShouldMarkHitSomething = false;
 	Player->GetMainPlayerController()->BindGlitch();
 	GetWorldTimerManager().ClearTimer(LaunchTimerHandle);
+	GetWorldTimerManager().ClearTimer(SwitchMeshTimer);
 
 	SetActorLocation(OriginalLocation);
 	StopProjectile();
@@ -122,6 +127,7 @@ void AMark::Launch(const FTransform StartTransform){
 	LaunchLocation = StartTransform.GetLocation();
 	StartProjectile();
 	GetWorldTimerManager().SetTimer(LaunchTimerHandle, this, &AMark::LaunchTimer, 0.001f, true);
+	GetWorldTimerManager().SetTimer(SwitchMeshTimer, this, &AMark::SwitchMesh, SwitchMeshTime, true);
 }
 
 float AMark::GetDistanceToLaunchPoint() const{
