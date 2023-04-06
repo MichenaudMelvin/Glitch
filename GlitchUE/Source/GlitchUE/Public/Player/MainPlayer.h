@@ -173,8 +173,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LookUpAtRate(const float Rate);
 
+	virtual void Jump() override;
+
+	bool bUseCoyoteTime = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
+	float CoyoteTime = 0.15f;
+
+	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
+
 	virtual void AddControllerPitchInput(float Rate) override;
-	
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SneakPressed();
 	void SneakPressed_Implementation();

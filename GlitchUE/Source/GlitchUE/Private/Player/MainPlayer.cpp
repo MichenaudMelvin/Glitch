@@ -337,10 +337,32 @@ void AMainPlayer::LookUpAtRate(const float Rate){
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
+void AMainPlayer::Jump(){
+	Super::Jump();
+
+	if(bUseCoyoteTime){
+		bUseCoyoteTime = false;
+		GetCharacterMovement()->Velocity.Z = FMath::Max(GetCharacterMovement()->Velocity.Z, GetCharacterMovement()->JumpZVelocity);
+	}
+}
+
+void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta){
+	Super::OnWalkingOffLedge_Implementation(PreviousFloorImpactNormal, PreviousFloorContactNormal, PreviousLocation,TimeDelta);
+
+	bUseCoyoteTime = true;
+
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		bUseCoyoteTime = false;
+	}, CoyoteTime, false);
+}
+
 void AMainPlayer::AddControllerPitchInput(float Rate){
 	if (bInvertYAxis) {
 		Rate = Rate * -1;
 	}
+
 	Super::AddControllerPitchInput(Rate);
 }
 
@@ -432,7 +454,6 @@ void AMainPlayer::LaunchMark(){
 	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Bone012"));
 
 	MarkTransform.SetRotation(FindMarkLaunchRotation());
-	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
 	Mark->Launch(MarkTransform);
 
 	MainPlayerController->UnbindGlitch();

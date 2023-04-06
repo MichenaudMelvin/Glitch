@@ -38,13 +38,17 @@ void APatrolCharacter::OnObjectSelected(UObject* Object){
 	if (Object == this) {
 
 		for(int i = 0; i < PatrolPointsList.Num(); i++){
-			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(PatrolPointsList[i]->GetRootComponent()));
+			if(IsValid(PatrolPointsList[i])){
+				UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(PatrolPointsList[i]->GetRootComponent()));
+			}
 		}
 
 	} else if (!IsSelected()){
 
 		for(int i = 0; i < PatrolPointsList.Num(); i++){
-			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(PatrolPointsList[i]->GetRootComponent()));
+			if(IsValid(PatrolPointsList[i])){
+				UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(PatrolPointsList[i]->GetRootComponent()));
+			}
 		}
 	}
 }

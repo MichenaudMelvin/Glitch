@@ -26,11 +26,11 @@ protected:
 
 	UPopcornFXEffect* ConstructionEffect;
 
-	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	EState InitialState;
-	
+
 	UFUNCTION()
 	void ActiveObjectif();
 
