@@ -73,13 +73,17 @@ void AInhibiteur::OnObjectSelected(UObject* Object){
 	if (Object == this) {
 
 		for(int i = 0; i < ConstructionZoneList.Num(); i++){
-			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			if(IsValid(ConstructionZoneList[i])){
+				UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			}
 		}
 
 	} else if (!IsSelected()){
 
 		for(int i = 0; i < ConstructionZoneList.Num(); i++){
-			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			if(IsValid(ConstructionZoneList[i])){
+				UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			}
 		}
 	}
 }

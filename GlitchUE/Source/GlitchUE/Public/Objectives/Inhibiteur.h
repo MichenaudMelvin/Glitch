@@ -11,6 +11,7 @@
 UCLASS()
 class GLITCHUE_API AInhibiteur : public AAbstractObjectif{
 	GENERATED_BODY()
+
 public:
 	AInhibiteur();
 

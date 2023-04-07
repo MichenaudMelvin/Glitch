@@ -21,6 +21,16 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
 	UStaticMeshComponent* MarkMesh;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	TArray<UStaticMesh*> PossibleMeshList;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	float SwitchMeshTime = 0.2f;
+
+	void SwitchMesh();
+
+	FTimerHandle SwitchMeshTimer;
+
 	AMainPlayer* Player;
 
 	FVector OriginalLocation;
@@ -44,13 +54,21 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Projectile")
 	FVector GetTPLocation();
 
+	void SetTargetLocation(const FVector NewTargetLocation);
+
+	void SetHitSomething(const bool bValue);
+
 protected:
 	bool LocationTrace(const float UpTraceValue, FVector& OutImpactPoint);
 
 	FVector LaunchLocation;
 
-	UFUNCTION()
-	void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	FVector TargetLocation;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float EqualTolerance = 100;
+
+	bool bShouldMarkHitSomething = false;
 
 public:
 	bool bIsMarkPlaced = false;
@@ -78,16 +96,16 @@ public:
 protected:
 	float GetDistanceToLaunchPoint() const;
 
-	void CheckDistance();
+	void LaunchTimer();
 
-	FTimerHandle DistanceTimer;
+	FTimerHandle LaunchTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Distance")
 	float MaxDistance;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Distance")
-	float GetMaxDistance();
+	float GetMaxDistance() const;
 
 #pragma endregion
 };

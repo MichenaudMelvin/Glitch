@@ -45,11 +45,18 @@ void AConstructionZone::BeginPlay(){
 }
 
 void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
 	const UBoxComponent* BoxComp = Cast<UBoxComponent>(GetCollisionComponent());
-	
+
 	FVector BoxExtent = UKismetMathLibrary::Vector_SnappedToGrid(BoxComp->GetUnscaledBoxExtent(), 100);
 	BoxExtent.Z = 100;
 	Cast<UBoxComponent>(GetCollisionComponent())->SetBoxExtent(BoxExtent);
+
+	FVector SnappedLocation = UKismetMathLibrary::Vector_SnappedToGrid(GetActorLocation(), 200);
+	SnappedLocation.Z = GetActorLocation().Z;
+
+	SetActorLocation(SnappedLocation);
 }
 
 void AConstructionZone::ActiveObjectif(){

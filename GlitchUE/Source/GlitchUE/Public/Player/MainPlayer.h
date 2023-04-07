@@ -115,10 +115,8 @@ protected:
 
 	#pragma region Movement
 
-protected:
 	EPlayerMovementMode MovementMode;
 
-public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
 	float NormalSpeed = 550;
 
@@ -140,6 +138,13 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Gravity")
 	float OriginalGravityScale = 2;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
+	float OriginalGroundFriction = 10;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
+	float OriginalBrakingDecelerationWalking = 2048;
+
+public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EPlayerMovementMode GetMovementMode() const;
 
@@ -168,8 +173,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LookUpAtRate(const float Rate);
 
+	virtual void Jump() override;
+
+	bool bUseCoyoteTime = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
+	float CoyoteTime = 0.15f;
+
+	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
+
 	virtual void AddControllerPitchInput(float Rate) override;
-	
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SneakPressed();
 	void SneakPressed_Implementation();
@@ -212,7 +226,7 @@ public:
 	UHealthComponent* GetHealthComp() const;
 
 	bool IsInGlitchZone() const;
-	
+
 	void SetInGlitchZone(const bool bNewValue);
 
 protected:
@@ -303,7 +317,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundBase* TPFinal;
 
-	FQuat FindMarkLaunchRotation();
+	FQuat FindMarkLaunchRotation() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void TPToMark();
@@ -334,11 +348,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LookAtTarget(const FRotator TargetRotation, const FOnTimelineEvent FinishedEvent, const float Duration = 1);
 
+	UFUNCTION(BlueprintCallable)
+	void StopLookAtTimeline();
+
 	UFUNCTION()
 	void LookAtTargetUpdate(float Value);
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
-	void StartGlitchDashFX();
+	void StartGlitchDashFX() const;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
 	float GlitchDashDuration = 0.15f;
@@ -413,7 +430,7 @@ protected:
 public:
 	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue);
 
-	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value);
+	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value) const;
 
 #pragma endregion
 
