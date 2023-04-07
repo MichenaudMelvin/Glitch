@@ -55,6 +55,7 @@ void APursuitDrone::BeginPlay(){
 	#endif
 
 	PlayStartAnim(true);
+	IdleFX->SetVisibility(false);
 }
 
 void APursuitDrone::Tick(float DeltaSeconds){

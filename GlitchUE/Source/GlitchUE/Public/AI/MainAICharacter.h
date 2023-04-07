@@ -29,8 +29,13 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	UBlackboardComponent* Blackboard;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* IdleFX;
+
 public:
 	UBlackboardComponent* GetBlackBoard() const;
+
+	UPopcornFXEmitterComponent* GetIdleFX() const;
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
