@@ -22,6 +22,8 @@ protected:
 
 	AGlitchUEGameMode* GameMode;
 
+	AAudioManager* AudioManager;
+
 	UPROPERTY(EditDefaultsOnly);
 	UNavModifierComponent* NavModifierComp;
 

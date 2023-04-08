@@ -2,6 +2,7 @@
 
 
 #include "GlitchZones/GlitchZone.h"
+#include "Audio/AudioManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -33,6 +34,11 @@ void AGlitchZone::BeginPlay(){
 	GetStaticMeshComponent()->OnComponentEndOverlap.AddDynamic(this, &AGlitchZone::ExitGlitchZone);
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	TArray<AActor*> AudioManagerArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAudioManager::StaticClass(), AudioManagerArray);
+
+	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
 }
 
 void AGlitchZone::EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
@@ -41,6 +47,8 @@ void AGlitchZone::EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* O
 		MainPlayer->SetInGlitchZone(true);
 
 		MainPlayer->EnableGlitchEffect(true, GlitchFadeTime);
+
+		AudioManager->SetParameter("Glitch_Zone", 1);
 
 		GetWorld()->GetTimerManager().SetTimer(GlitchGaugeTimer, [&]() {
 			GameMode->AddGlitch(GlitchGaugeValueToAddEveryTick);
@@ -60,6 +68,8 @@ void AGlitchZone::ExitGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		MainPlayer->SetInGlitchZone(false);
 
 		MainPlayer->EnableGlitchEffect(false, GlitchFadeTime);
+
+		AudioManager->SetParameter("Glitch_Zone", 0);
 
 		GetWorld()->GetTimerManager().ClearTimer(GlitchGaugeTimer);
 		GetWorld()->GetTimerManager().ClearTimer(GlitchZoneTimer);
