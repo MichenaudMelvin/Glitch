@@ -8,6 +8,9 @@
 #include "PopcornFXFunctions.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Objectives/Catalyseur.h"
+#include "Audio/AudioManager.h"
+#include "FX/Dissolver.h"
+#include "FMODBlueprintStatics.h"
 
 ANexus::ANexus() {
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> TechEffect(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusFromTechToMed"));
@@ -19,6 +22,11 @@ ANexus::ANexus() {
 	check(MedEffect.Succeeded());
 
 	MedFX = MedEffect.Object;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Nexus"));
+	check(SFX.Succeeded());
+
+	ActivationSFX = SFX.Object;
 }
 
 void ANexus::BeginPlay(){
@@ -37,6 +45,19 @@ void ANexus::BeginPlay(){
 	for(int i = 0; i < CatalyseurArray.Num(); i++){
 		CatalyseursList.Add(Cast<ACatalyseur>(CatalyseurArray[i]));
 	}
+
+	TArray<AActor*> AudioManagerArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAudioManager::StaticClass(), AudioManagerArray);
+
+#if WITH_EDITOR
+
+	if(AudioManagerArray.Num() == 0){
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN AUDIO MANAGER N'EST PLACE DANS LA SCENE"));
+	}
+
+#endif
+
+	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
 
 	AMainPlayer* MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
@@ -94,6 +115,10 @@ AActor* ANexus::GetFarestActivatedCatalyseur(){
 
 void ANexus::ActiveObjectif(){
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this))->SetNewPhase(EPhases::TowerDefense);
+
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
+
+	AudioManager->SwitchToTowerDefenseMusic();
 
 	const int Index = UPopcornFXAttributeFunctions::FindAttributeIndex(TechFXEmitter, "ExplodingChains");
 

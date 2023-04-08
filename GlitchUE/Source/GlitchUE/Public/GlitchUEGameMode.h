@@ -10,9 +10,8 @@
 #include "Saves/SaveInterface.h"
 #include "GlitchUEGameMode.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
-
 class UWorldSave;
+class AAudioManager;
 
 UENUM(BlueprintType)
 enum class EPhases : uint8 {
@@ -47,6 +46,12 @@ enum class ELevelOptions : uint8{
 	FastLoad,
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnGlitchMax);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnSwitchPhases, EPhases, NewPhases);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnSwitchLevelState, ELevelState, NewState);
+
 UCLASS(minimalapi)
 class AGlitchUEGameMode : public AGameModeBase, public ISaveInterface{
 	GENERATED_BODY()
@@ -70,6 +75,12 @@ protected:
 	AWaveManager* WaveManager;
 
 public:
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|World")
+	FKOnSwitchPhases OnSwitchPhases;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|World")
+	FKOnSwitchLevelState OnSwitchLevelState;
+
 	UFUNCTION(BlueprintCallable)
 	void GlobalWorldSave(const int Index);
 
@@ -101,13 +112,13 @@ public:
 	EPhases GetPhases() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Phases")
-	void SetNewPhase(EPhases NewPhase);
+	void SetNewPhase(const EPhases NewPhase);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelState")
 	ELevelState GetLevelState() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "LevelState")
-	void SetLevelState(ELevelState NewState);
+	void SetLevelState(const ELevelState NewState);
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Glitch")
 	void AddGlitch(const float AddedValue);
@@ -183,7 +194,7 @@ private:
 	void ToggleSpectatorMode(const bool bToggleAtLocation = false) const;
 
 	UFUNCTION(Exec)
-	void Dissolve(const float Value);
+	void Dissolve(const float Value) const;
 
 #pragma endregion
 
