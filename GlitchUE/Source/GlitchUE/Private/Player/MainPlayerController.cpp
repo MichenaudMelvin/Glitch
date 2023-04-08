@@ -8,7 +8,7 @@
 
 void AMainPlayerController::BeginPlay() {
 	Super::BeginPlay();
-	
+
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));

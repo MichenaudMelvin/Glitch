@@ -118,10 +118,6 @@ protected:
 
 	APursuitDrone* CurrentDrone;
 
-	virtual void AddDrone(AMainPlayer* MainPlayer);
-
-	virtual void RemoveDrone(AMainPlayer* MainPlayer);
-
 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
 
@@ -136,6 +132,14 @@ protected:
 	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:
+	virtual void AddDrone(AMainPlayer* MainPlayer);
+
+	/**
+	 * @brief 
+	 * @param MainPlayer making MainPlayer valid will set MainPlayer's current drone
+	 */
+	virtual void RemoveDrone(AMainPlayer* MainPlayer);
+
 	UFUNCTION(BlueprintCallable, Category = "PlayerActions")
 	virtual void SetData(UPlacableActorData* NewData);
 

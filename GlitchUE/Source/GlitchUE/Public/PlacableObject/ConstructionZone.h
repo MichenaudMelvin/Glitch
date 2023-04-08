@@ -15,6 +15,8 @@ class GLITCHUE_API AConstructionZone : public ASkeletalMeshActor{
 public:
 	AConstructionZone();
 
+	USkeletalMeshComponent* GetTechMesh() const;
+
 protected:
 	virtual void BeginPlay() override;
 

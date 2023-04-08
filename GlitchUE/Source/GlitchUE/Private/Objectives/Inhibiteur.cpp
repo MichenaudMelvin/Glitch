@@ -75,6 +75,7 @@ void AInhibiteur::OnObjectSelected(UObject* Object){
 		for(int i = 0; i < ConstructionZoneList.Num(); i++){
 			if(IsValid(ConstructionZoneList[i])){
 				UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+				UUsefullFunctions::OutlineComponent(true, ConstructionZoneList[i]->GetTechMesh());
 			}
 		}
 
@@ -83,6 +84,7 @@ void AInhibiteur::OnObjectSelected(UObject* Object){
 		for(int i = 0; i < ConstructionZoneList.Num(); i++){
 			if(IsValid(ConstructionZoneList[i])){
 				UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+				UUsefullFunctions::OutlineComponent(false, ConstructionZoneList[i]->GetTechMesh());
 			}
 		}
 	}

@@ -37,6 +37,10 @@ AConstructionZone::AConstructionZone() {
 	ActivationAnim = ActivAnim.Object;
 }
 
+USkeletalMeshComponent* AConstructionZone::GetTechMesh() const{
+	return TechMesh;
+}
+
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
 

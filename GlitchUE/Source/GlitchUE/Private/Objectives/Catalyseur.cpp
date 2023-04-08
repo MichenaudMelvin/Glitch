@@ -147,6 +147,7 @@ void ACatalyseur::OnObjectSelected(UObject* Object){
 
 		for(int i = 0; i < ConstructionZoneList.Num(); i++){
 			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			UUsefullFunctions::OutlineComponent(true, ConstructionZoneList[i]->GetTechMesh());
 		}
 
 	} else if (!IsSelected()){
@@ -157,6 +158,7 @@ void ACatalyseur::OnObjectSelected(UObject* Object){
 
 		for(int i = 0; i < ConstructionZoneList.Num(); i++){
 			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			UUsefullFunctions::OutlineComponent(false, ConstructionZoneList[i]->GetTechMesh());
 		}
 	}
 }

@@ -6,10 +6,23 @@
 #include "Components/CapsuleComponent.h"
 
 APursuitDronePad::APursuitDronePad(){
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> PadMesh(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Pursuit_Pad"));
-	check(PadMesh.Succeeded());
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> TechPadMesh(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Pursuit_Pad"));
+	check(TechPadMesh.Succeeded());
 
-	GetSkeletalMeshComponent()->SetSkeletalMesh(PadMesh.Object);
+	GetSkeletalMeshComponent()->SetSkeletalMesh(TechPadMesh.Object);
+	GetSkeletalMeshComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetSkeletalMeshComponent()->SetCanEverAffectNavigation(false);
+
+	MedMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MedMesh"));
+	MedMesh->SetupAttachment(GetSkeletalMeshComponent());
+
+	MedMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	MedMesh->SetCanEverAffectNavigation(false);
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MedPadMesh(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drone_Crystal_Pad"));
+	check(MedPadMesh.Succeeded());
+
+	MedMesh->SetSkeletalMesh(MedPadMesh.Object);
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Drones/Pursuit/AS_Drones_Pursuit_Pad"));
 	check(Anim.Succeeded());
