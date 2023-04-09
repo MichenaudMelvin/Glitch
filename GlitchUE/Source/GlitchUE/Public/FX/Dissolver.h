@@ -6,7 +6,11 @@
 #include "Components/SphereComponent.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
+#include "FMODAudioComponent.h"
+#include "GlitchUEGameMode.h"
 #include "Dissolver.generated.h"
+
+class AMainPlayer;
 
 UCLASS()
 class GLITCHUE_API ADissolver : public AActor{
@@ -19,7 +23,27 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Dissolver")
+	USphereComponent* DissolveCollider;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Audio")
+	UFMODAudioComponent* FMODAudio;
+
+	AGlitchUEGameMode* GameMode;
+
 	void UpdateRadius();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	float MaxBorderDistance = 500;
+
+	void BorderSound() const;
+
+	bool bAllowBorderSound = false;
+
+	UFUNCTION()
+	void OnSwitchPhase(const EPhases NewPhase);
+
+	AMainPlayer* MainPlayer;
 
 public:
 	/**
@@ -80,8 +104,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UMaterialParameterCollection* MPCDissolver;
-
-	UPROPERTY(EditDefaultsOnly)
-	USphereComponent* DissolveCollider;
-
 };

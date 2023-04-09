@@ -18,6 +18,7 @@
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
+#include "FX/Dissolver.h"
 #include "Mark/Mark.h"
 #include "Objectives/Inhibiteur.h"
 #include "Saves/WorldSave.h"
@@ -249,8 +250,15 @@ EPhases AGlitchUEGameMode::GetPhases() const{
 	return CurrentPhase;
 }
 
-void AGlitchUEGameMode::SetNewPhase(EPhases NewPhase){
+void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
+	if(CurrentPhase == NewPhase){
+		return;
+	}
+
 	CurrentPhase = NewPhase;
+
+	OnSwitchPhases.Broadcast(CurrentPhase);
+
 	switch (CurrentPhase){
 	case EPhases::Infiltration:
 		break;
@@ -264,8 +272,15 @@ ELevelState AGlitchUEGameMode::GetLevelState() const{
 	return LevelState;
 }
 
-void AGlitchUEGameMode::SetLevelState(ELevelState NewState){
+void AGlitchUEGameMode::SetLevelState(const ELevelState NewState){
+	if(LevelState == NewState){
+		return;
+	}
+
 	LevelState = NewState;
+
+	OnSwitchLevelState.Broadcast(LevelState);
+
 	switch (LevelState){
 	case ELevelState::Normal:
 		RequestNormalState = true;
@@ -459,7 +474,7 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 	}
 }
 
-void AGlitchUEGameMode::Dissolve(const float Value){
+void AGlitchUEGameMode::Dissolve(const float Value) const{
 	TArray<AActor*> DissolverArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
