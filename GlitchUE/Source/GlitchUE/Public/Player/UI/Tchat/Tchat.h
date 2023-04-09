@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ListView.h"
-#include "Components/MultiLineEditableTextBox.h"
 #include "Tchat.generated.h"
 
 UCLASS()
@@ -19,8 +18,6 @@ protected:
 	UWidgetAnimation* AppearAnimation;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Tchat")
-	// UMultiLineEditableTextBox* TchatList;
-
 	UListView* TchatList;
 
 	FTimerHandle DestructTimer;

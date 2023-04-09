@@ -55,6 +55,8 @@ protected:
 
 	virtual void DesactivateObjectif() override;
 
+	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
+
 	UAnimationAsset* ActivationAnim;
 
 	UAnimationAsset* DesactivationAnim;
@@ -68,6 +70,8 @@ protected:
 	FStateAtWave StateAtWave;
 
 	ANexus* Nexus;
+
+	AWaveManager* WaveManager;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;

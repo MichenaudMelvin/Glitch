@@ -99,7 +99,12 @@ void AWaveManager::DisableSpawner(){
 
 void AWaveManager::StartWave_Implementation() {
 
+	bIsStopped = false;
+
 	const FWave CurrentWave = GetCurrentWaveData();
+
+	OnStartWave.Broadcast(CurrentWaveNumber);
+
 	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
 		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
@@ -117,6 +122,8 @@ void AWaveManager::EndWave_Implementation() {
 
 	const FWave CurrentWave = GetCurrentWaveData();
 
+	OnEndWave.Broadcast(CurrentWaveNumber);
+
 	if (CurrentWaveNumber == NumberOfWaves) {
 		return;
 	}
@@ -125,8 +132,8 @@ void AWaveManager::EndWave_Implementation() {
 		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
 
-	if (GetCurrentWaveData().bStopAtEnd) {
-		CurrentWaveNumber++;
+	if (GetCurrentWaveData().bStopAtEnd){
+		bIsStopped = true;
 		return;
 	}
 
@@ -140,9 +147,13 @@ void AWaveManager::EndWave_Implementation() {
 void AWaveManager::SpawnEnemies(){
 	TArray<FAIToSpawn> ListOfAIToSpawn = GetCurrentWaveData().AIToSpawnList;
 
+#if WITH_EDITOR
+
 	if (ActiveSpawnerList.Num() == 0) {
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST ACTIF PENDANT LA VAGUE %d"), CurrentWaveNumber);
 	}
+
+#endif
 
 	for (int i = 0; i < ListOfAIToSpawn.Num(); i++) {
 		const int NumberToSpawnForEachSpawners = ListOfAIToSpawn[i].NumberToSpawn / ActiveSpawnerList.Num();
@@ -153,7 +164,15 @@ void AWaveManager::SpawnEnemies(){
 }
 
 FWave AWaveManager::GetCurrentWaveData() const{
-	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber-1], "");
+	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber - 1], "");
+}
+
+FWave AWaveManager::GetTargetWaveData(const int Target) const{
+	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[Target - 1], "");
+}
+
+bool AWaveManager::IsStopped() const{
+	return bIsStopped;
 }
 
 void AWaveManager::AddAIToList(AMainAICharacter* AIToAdd) {
@@ -173,18 +192,34 @@ void AWaveManager::RemoveAIFromList(const AMainAICharacter* AIToRemove){
 	}
 }
 
+void AWaveManager::NextWave(){
+
+#if !UE_BUILD_SHIPPING
+
+	// used for skip wave in debug
+	if(!bIsStopped){
+		for (int i = 0; i < ActiveSpawnerList.Num(); i++) {
+			ActiveSpawnerList[i]->ForceEndSpawn();
+		}
+
+		TArray<AMainAICharacter*> AIList = WaveAIList.Array();
+
+		for (int i = 0; i < AIList.Num(); i++) {
+			AIList[i]->GetHealthComp()->TakeMaxDamages();
+		}
+
+		return;
+	}
+
+#endif
+
+	SetWave(CurrentWaveNumber + 1);
+}
+
 void AWaveManager::SetWave(const int NewWave){
-	CurrentWaveNumber = NewWave - 1;
+	CurrentWaveNumber = NewWave;
 
-	for (int i = 0; i < ActiveSpawnerList.Num(); i++) {
-		ActiveSpawnerList[i]->ForceEndSpawn();
-	}
-
-	TArray<AMainAICharacter*> AIList = WaveAIList.Array();
-
-	for (int i = 0; i < AIList.Num(); i++) {
-		AIList[i]->GetHealthComp()->TakeMaxDamages();
-	}
+	StartWave();
 }
 
 int AWaveManager::GetCurrentWaveNumber() const{

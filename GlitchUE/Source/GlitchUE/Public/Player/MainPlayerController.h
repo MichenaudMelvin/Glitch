@@ -7,6 +7,7 @@
 #include "AbstractPlayerController.h"
 #include "GlitchUEGameMode.h"
 #include "GameFramework/PlayerController.h"
+#include "UI/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
 #pragma region Delegates
@@ -82,7 +83,6 @@ class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 	GENERATED_BODY()
 
 protected:
-
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -177,6 +177,11 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|UI")
 	FKOnOpenSelectionWheelReleased OnOpenSelectionWheelReleased;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	UTchat* Tchat;
+
+	UTchat* GetTchat() const;
 
 	#pragma endregion
 

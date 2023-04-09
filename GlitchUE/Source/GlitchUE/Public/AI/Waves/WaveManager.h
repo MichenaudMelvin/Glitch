@@ -15,6 +15,10 @@ class ANexus;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnRefreshAIList);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnStartWave, int, CurrentWave);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnEndWave, int, CurrentWave);
+
 UENUM(BlueprintType)
 enum class EWaveEvent : uint8 {
 	ExecuteAtStart,
@@ -66,13 +70,13 @@ public:
 UCLASS()
 class GLITCHUE_API AWaveManager : public AActor{
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AWaveManager();
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 	TSet<ACatalyseur*> CatalyseursList;
 
 	TSet<ASpawner*> SpawnerList;
@@ -90,41 +94,57 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	int NumberOfWaves;
 
+	UPROPERTY(EditAnywhere, Category = "Waves")
 	UDataTable* WavesData;
 
 	UPROPERTY(BlueprintReadOnly)
 	TSet<AMainAICharacter*> WaveAIList;
 
 	void EnableCatalyseurs();
-	
+
 	void DisableCatalyseurs();
 
 	void EnableSpawners();
 
 	void DisableSpawner();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	FWave GetCurrentWaveData() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
+	FWave GetTargetWaveData(const int Target) const;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FKOnRefreshAIList OnRefreshAIList;
+
+	bool bIsStopped = false;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
 	void StartWave();
 	virtual void StartWave_Implementation();
 
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Waves")
+	FKOnStartWave OnStartWave;
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
 	void EndWave();
 	virtual void EndWave_Implementation();
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Waves")
+	FKOnEndWave OnEndWave;
+
+	bool IsStopped() const;
 
 	void AddAIToList(AMainAICharacter* AIToAdd);
 
 	void RemoveAIFromList(const AMainAICharacter* AIToRemove);
 
-	// DEBUG ONLY
+	void NextWave();
+
 	void SetWave(const int NewWave);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	int GetCurrentWaveNumber() const;
 
 private:

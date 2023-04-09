@@ -4,6 +4,7 @@
 #include "Objectives/Catalyseur.h"
 #include "PaperSpriteComponent.h"
 #include "AI/Waves/Spawner.h"
+#include "AI/Waves/WaveManager.h"
 #include "Engine/Selection.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Objectives/Inhibiteur.h"
@@ -53,6 +54,11 @@ void ACatalyseur::BeginPlay() {
 
 	Nexus = Cast<ANexus>(NexusTemp[0]);
 
+	TArray<AActor*> WaveManagerTemp;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaveManager::StaticClass(), WaveManagerTemp);
+
+	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
+
 #if !UE_BUILD_SHIPPING
 
 	if (StateAtWave.EnableAtWave == 0) {
@@ -88,6 +94,14 @@ void ACatalyseur::DesactivateObjectif() {
 
 	MeshObjectif->PlayAnimation(DesactivationAnim, false);
 	TECHMesh->PlayAnimation(DesactivationAnim, false);
+}
+
+void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
+	Super::Interact(MainPlayerController, MainPlayer);
+
+	if(ActivableComp->IsActivated() && WaveManager->IsStopped()){
+		WaveManager->NextWave();
+	}
 }
 
 void ACatalyseur::HealthNull(){
