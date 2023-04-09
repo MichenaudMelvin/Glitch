@@ -23,6 +23,8 @@ EBTNodeResult::Type ULaunchPursuitDrone::ExecuteTask(UBehaviorTreeComponent& Own
 
 	Drone->PlayStartAnim(!bLaunch);
 
+	Drone->GetIdleFX()->SetVisibility(bLaunch);
+
 	Drone->GetWorld()->GetTimerManager().SetTimer(TimerHandle, AnimsTimer, 1, false);
 
 	return EBTNodeResult::InProgress;

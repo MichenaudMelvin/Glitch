@@ -20,6 +20,9 @@ public:
 	void SetCurrentDrone(APursuitDrone* NewDrone);
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	USkeletalMeshComponent* MedMesh;
+
 	UAnimationAsset* PadAnim;
 
 	virtual void OnConstruction(const FTransform& Transform) override;

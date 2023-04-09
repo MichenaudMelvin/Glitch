@@ -30,16 +30,22 @@ AMainAICharacter::AMainAICharacter(){
 	SightWidget->SetDrawSize(FVector2D(1920, 1080));
 
 	SightWidget->SetGenerateOverlapEvents(false);
+
+	IdleFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("IdleFX"));
+	IdleFX->SetupAttachment(GetMesh());
 }
 
 void AMainAICharacter::BeginPlay(){
 	Super::BeginPlay();
 
-	FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false);
-	AttachmentRules.LocationRule = EAttachmentRule::KeepRelative;
-	AttachmentRules.RotationRule = EAttachmentRule::KeepRelative;
+	FAttachmentTransformRules SightAttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false);
+	SightAttachmentRules.LocationRule = EAttachmentRule::KeepRelative;
+	SightAttachmentRules.RotationRule = EAttachmentRule::KeepRelative;
 
-	SightComp->AttachToComponent(GetMesh(), AttachmentRules, "Drone_Head");
+	const FAttachmentTransformRules FXAttachmentRules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, false);
+
+	SightComp->AttachToComponent(GetMesh(), SightAttachmentRules, "Drone_Head");
+	IdleFX->AttachToComponent(GetMesh(), FXAttachmentRules, "Drone_Root");
 
 	AIController = Cast<AMainAIController>(GetController());
 	Blackboard = AIController->GetBlackboardComponent();
@@ -64,6 +70,10 @@ void AMainAICharacter::Destroyed(){
 
 UBlackboardComponent* AMainAICharacter::GetBlackBoard() const{
 	return Blackboard;
+}
+
+UPopcornFXEmitterComponent* AMainAICharacter::GetIdleFX() const{
+	return IdleFX;
 }
 
 void AMainAICharacter::StunAI() {

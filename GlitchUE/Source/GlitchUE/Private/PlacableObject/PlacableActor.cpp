@@ -141,7 +141,10 @@ void APlacableActor::RemoveDrone(AMainPlayer* MainPlayer){
 	Damages -= CurrentData->BoostDroneDamages;
 	AttackRange -= CurrentData->BoostDroneAttackRange;
 
-	MainPlayer->SetCurrentDrone(CurrentDrone);
+	if(IsValid(MainPlayer)){
+		MainPlayer->SetCurrentDrone(CurrentDrone);
+	}
+
 	CurrentDrone = nullptr;
 }
 

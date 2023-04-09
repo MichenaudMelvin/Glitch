@@ -438,10 +438,10 @@ void AGlitchUEGameMode::SetSelfTimeDilation(float TimeDilation) const{
 }
 
 void AGlitchUEGameMode::NextWave() const{
-	WaveManager->SetWave(WaveManager->GetCurrentWaveNumber() + 1);
+	WaveManager->NextWave();
 }
 
-void AGlitchUEGameMode::GoToWave(int NewWave) const{
+void AGlitchUEGameMode::GoToWave(const int NewWave) const{
 	WaveManager->SetWave(NewWave);
 }
 

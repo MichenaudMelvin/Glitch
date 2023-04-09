@@ -8,8 +8,8 @@
 
 void AMainPlayerController::BeginPlay() {
 	Super::BeginPlay();
-	
-	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
+
+	MainPlayer = Cast<AMainPlayer>(GetPawn());
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
@@ -43,6 +43,10 @@ void AMainPlayerController::SelectNewGameplayMode(const EGameplayMode NewGamepla
 
 EGameplayMode AMainPlayerController::GetGameplayMode() const{
 	return GameplayMode;
+}
+
+UTchat* AMainPlayerController::GetTchat() const{
+	return Tchat;
 }
 
 void AMainPlayerController::BindMovement() {

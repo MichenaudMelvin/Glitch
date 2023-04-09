@@ -3,6 +3,7 @@
 
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Player/MainPlayer.h"
 
 APursuitDrone::APursuitDrone(){
@@ -13,8 +14,16 @@ APursuitDrone::APursuitDrone(){
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DroneSkeletal(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Pursuit"));
 	check(DroneSkeletal.Succeeded());
 
-	GetMesh()->SetSkeletalMesh(DroneSkeletal.Object);
+	DroneMesh = DroneSkeletal.Object;
+
+	GetMesh()->SetSkeletalMesh(DroneMesh);
 	GetMesh()->SetRelativeRotation(FRotator(0, 180, 0));
+	GetMesh()->SetGenerateOverlapEvents(true);
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CrystalSkeletal(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Crystal"));
+	check(CrystalSkeletal.Succeeded());
+
+	CrystalMesh = CrystalSkeletal.Object;
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Drones/Pursuit/AS_Drones_Pursuit_Start"));
 	check(Anim.Succeeded());
@@ -35,7 +44,8 @@ void APursuitDrone::BeginPlay(){
 	Super::BeginPlay();
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APursuitDrone::OnTouchSomething);
-	AIController->OnStopBehavior.AddDynamic(this, &APursuitDrone::TransformIntoPowerUp);
+
+	AIController->OnStopBehavior.AddDynamic(this, &APursuitDrone::StopPursuitBehavior);
 	InteractableComp->OnInteract.AddDynamic(this, &APursuitDrone::Interact);
 
 	FOnTimelineFloat UpdateEvent;
@@ -55,6 +65,7 @@ void APursuitDrone::BeginPlay(){
 	#endif
 
 	PlayStartAnim(true);
+	IdleFX->SetVisibility(false);
 }
 
 void APursuitDrone::Tick(float DeltaSeconds){
@@ -118,12 +129,42 @@ void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor
 	}
 }
 
-void APursuitDrone::TransformIntoPowerUp(){
+void APursuitDrone::StopPursuitBehavior(){
 	GetCapsuleComponent()->OnComponentBeginOverlap.Clear();
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APursuitDrone::DroneMeshBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APursuitDrone::DroneMeshEndOverlap);
 
-	InteractableComp->AddInteractable(GetMesh());
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+
+	GetMesh()->GetAnimInstance()->StopAllMontages(0);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
+
+	IdleFX->DestroyComponent();
+}
+
+void APursuitDrone::DroneMeshBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
+	if(OtherActor->IsA(ADissolver::StaticClass())){
+		TransformIntoPowerUp();
+	}
+}
+
+void APursuitDrone::DroneMeshEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
+	if(OtherActor->IsA(ADissolver::StaticClass())){
+		TransformIntoDrone();
+	}
+}
+
+void APursuitDrone::TransformIntoPowerUp(){
+	GetMesh()->SetSkeletalMesh(CrystalMesh);
+	InteractableComp->AddInteractable(GetMesh());
+}
+
+void APursuitDrone::TransformIntoDrone(){
+	GetMesh()->SetSkeletalMesh(DroneMesh);
+	InteractableComp->RemoveInteractable(GetMesh());
+	DisableSpinBehavior();
 }
 
 void APursuitDrone::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
@@ -133,11 +174,11 @@ void APursuitDrone::Interact(AMainPlayerController* MainPlayerController, AMainP
 }
 
 void APursuitDrone::EnableSpinBehavior(){
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Overlap);
+	GetCharacterMovement()->GravityScale = 0;
+
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
-
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
 
 	GetMesh()->SetWorldScale3D(SpinScale);
 	GetMesh()->SetRelativeLocation(FVector(0, SpinOffset, 0));
@@ -146,11 +187,13 @@ void APursuitDrone::EnableSpinBehavior(){
 }
 
 void APursuitDrone::DisableSpinBehavior(){
+	DetachDrone();
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	GetCharacterMovement()->GravityScale = 1;
+
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
-
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Block);
 
 	GetMesh()->SetWorldScale3D(FVector::OneVector);
 	GetMesh()->SetRelativeLocation(FVector::ZeroVector);
@@ -165,6 +208,23 @@ UInteractableComponent* APursuitDrone::GetInteractableComp() const{
 void APursuitDrone::AttachDrone(AActor* ActorToAttach, const FName SocketName){
 	const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, EAttachmentRule::KeepWorld, true);
 	AttachToActor(ActorToAttach, AttachmentRules, SocketName);
+}
+
+void APursuitDrone::DetachDrone(){
+	if(!IsValid(GetAttachParentActor())){
+		return;
+	}
+
+	if(GetAttachParentActor()->IsA(AMainPlayer::StaticClass())){
+		Cast<AMainPlayer>(GetAttachParentActor())->SetCurrentDrone(nullptr);
+	}
+
+	else if(GetAttachParentActor()->IsA(APlacableActor::StaticClass())){
+		Cast<APlacableActor>(GetAttachParentActor())->RemoveDrone(nullptr);
+	}
+
+	const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
+	DetachFromActor(DetachmentTransformRules);
 }
 
 void APursuitDrone::Spin(float Value){

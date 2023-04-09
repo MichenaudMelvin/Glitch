@@ -185,7 +185,7 @@ private:
 	void NextWave() const;
 
 	UFUNCTION(Exec)
-	void GoToWave(int NewWave) const;
+	void GoToWave(const int NewWave) const;
 
 	UFUNCTION(Exec)
 	void CrashGame() const;

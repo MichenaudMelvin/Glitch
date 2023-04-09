@@ -3,20 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/TriggerBox.h"
 #include "Components/ActivableComponent.h"
 #include "PlacableActor.h"
+#include "Animation/SkeletalMeshActor.h"
 #include "ConstructionZone.generated.h"
 
 UCLASS()
-class GLITCHUE_API AConstructionZone : public ATriggerBox{
+class GLITCHUE_API AConstructionZone : public ASkeletalMeshActor{
 	GENERATED_BODY()
 
 public:
 	AConstructionZone();
 
+	USkeletalMeshComponent* GetTechMesh() const;
+
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	USkeletalMeshComponent* TechMesh;
+
+	UAnimationAsset* ActivationAnim;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UActivableComponent* ActivableComp;
