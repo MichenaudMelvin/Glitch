@@ -4,6 +4,7 @@
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "FX/Dissolver.h"
 #include "Player/MainPlayer.h"
 
 APursuitDrone::APursuitDrone(){
