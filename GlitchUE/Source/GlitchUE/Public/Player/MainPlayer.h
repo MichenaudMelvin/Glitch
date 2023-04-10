@@ -46,10 +46,16 @@ public:
 	float BaseLookUpRate;
 
 protected:
-
-	virtual void Tick(float deltaTime) override;
 	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTime) override;
 	virtual void Destroyed() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* RunFX;
+
+	float RunFXLifeTime;
+
+	float RunFXLifeTimeDeviation;
 
 public:
 	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced);

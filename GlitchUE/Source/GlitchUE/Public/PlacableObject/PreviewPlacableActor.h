@@ -32,6 +32,12 @@ protected:
 
 	void SetMesh() override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Color")
+	FVector CanPlaceColor = FVector(0, 0.247059, 1);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Color")
+	FVector CannotPlaceColor = FVector(1, 0,  0);
+
 public:
 	virtual void SetData(UPlacableActorData* NewData) override;
 

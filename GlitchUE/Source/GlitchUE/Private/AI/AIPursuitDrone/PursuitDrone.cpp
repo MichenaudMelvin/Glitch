@@ -26,6 +26,11 @@ APursuitDrone::APursuitDrone(){
 
 	CrystalMesh = CrystalSkeletal.Object;
 
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> DeathEffect(TEXT("/Game/VFX/Particles/FX_Enemies/Drones/Pk_ExplodingDrone_Destruction"));
+	check(DeathEffect.Succeeded());
+
+	DeathFX = DeathEffect.Object;
+
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Drones/Pursuit/AS_Drones_Pursuit_Start"));
 	check(Anim.Succeeded());
 

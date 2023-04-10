@@ -20,7 +20,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Tchat")
 	UListView* TchatList;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
+	float AppearanceDuration = 2;
+
 	FTimerHandle DestructTimer;
+
+	FTimerHandle DisappearTimer;
+
+	void CheckDisappearance();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	float DestructTime = 3;

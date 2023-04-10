@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GlitchUEGameMode.h"
-#include "Components/BoxComponent.h"
+#include "NavModifierComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "GlitchZone.generated.h"
 

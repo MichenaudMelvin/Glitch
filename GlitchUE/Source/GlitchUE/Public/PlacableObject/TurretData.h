@@ -16,7 +16,7 @@ public:
 	bool CanSeeThroughWalls = false;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
-	FFocusMethod FocusMethod;
+	EFocusMethod FocusMethod;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
 	float GlitchFireRate;

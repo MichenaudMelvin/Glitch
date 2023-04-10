@@ -45,7 +45,7 @@ AMainPlayer::AMainPlayer(){
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -53,7 +53,7 @@ AMainPlayer::AMainPlayer(){
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
@@ -78,6 +78,14 @@ AMainPlayer::AMainPlayer(){
 	ZeroToOneCurve = Curve.Object;
 
 	#pragma endregion
+
+	RunFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Run FX"));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> RunEffect(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_RunFX"));
+	check(RunEffect.Succeeded());
+
+	RunFX->SetEffect(RunEffect.Object);
+	RunFX->SetupAttachment(GetMesh());
 
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
 	check(FX.Succeeded());
@@ -148,6 +156,12 @@ void AMainPlayer::BeginPlay(){
 	StartRecord();
 
 	#pragma region FXCreation
+
+	const int LifeTimeIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "Lifetime");
+	const int LifeTimeDeviationIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "LifeTimeDeviation");
+
+	UPopcornFXAttributeFunctions::GetAttributeAsFloat(RunFX, LifeTimeIndex, RunFXLifeTime, true);
+	UPopcornFXAttributeFunctions::GetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, RunFXLifeTimeDeviation, true);
 
 	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
 	GlitchDashFXBackup = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
@@ -399,10 +413,9 @@ void AMainPlayer::MoveRight(const float Value){
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
-		// get right vector 
+
+		// get right vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -537,6 +550,19 @@ void AMainPlayer::Tick(float deltaTime){
 	CameraZoomTransition.TickTimeline(deltaTime);
 	CameraFOVTransition.TickTimeline(deltaTime);
 	FadeInGlitchEffectTimeline.TickTimeline(deltaTime);
+
+	// Manage the run FX, disable it if the character is not on ground or not moving
+	const int LifeTimeIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "Lifetime");
+	const int LifeTimeDeviationIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "LifeTimeDeviation");
+
+	if(GetVelocity().Size() > 0 && GetCharacterMovement()->IsMovingOnGround()){
+		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeIndex, RunFXLifeTime, true);
+		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, RunFXLifeTimeDeviation, true);
+
+	} else if((GetVelocity().Size() <= 0 || !GetCharacterMovement()->IsMovingOnGround())){
+		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeIndex, 0, true);
+		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, 0, true);
+	}
 }
 
 void AMainPlayer::SetMark(AMark* NewMark){

@@ -6,6 +6,7 @@
 #include "Components/ActivableComponent.h"
 #include "PlacableActor.h"
 #include "Animation/SkeletalMeshActor.h"
+#include "Components/BoxComponent.h"
 #include "ConstructionZone.generated.h"
 
 UCLASS()
@@ -27,6 +28,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UActivableComponent* ActivableComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UBoxComponent* NavObstacle;
 
 	UPROPERTY()
 	UPopcornFXEmitterComponent* ConstructionFXEmitter;

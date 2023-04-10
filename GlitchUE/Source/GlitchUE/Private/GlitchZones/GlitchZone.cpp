@@ -20,8 +20,13 @@ AGlitchZone::AGlitchZone(){
 	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
 	GetStaticMeshComponent()->SetGenerateOverlapEvents(true);
 
-	Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+#if WITH_EDITORONLY_DATA
+
+	Billboard = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
 	Billboard->SetupAttachment(RootComponent);
+	Billboard->bIsEditorOnly = true;
+
+#endif
 
 	NavModifierComp = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavModifier"));
 	NavModifierComp->AreaClass = UNavArea_Obstacle::StaticClass();

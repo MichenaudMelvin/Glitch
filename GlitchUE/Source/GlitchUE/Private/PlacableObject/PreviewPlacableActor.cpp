@@ -24,8 +24,6 @@ void APreviewPlacableActor::BeginPlay(){
 	Super::BeginPlay();
 
 	OriginalLocation = GetActorLocation();
-
-	NavModifierComp->DestroyComponent();
 }
 
 void APreviewPlacableActor::SetPlayer(AMainPlayer* NewPlayer){
@@ -73,9 +71,9 @@ bool APreviewPlacableActor::CanBePlaced() {
 
 void APreviewPlacableActor::ChooseColor() {
 	if (CanBePlaced()) {
-		BaseMesh->SetVectorParameterValueOnMaterials("Color", FVector(0, 0.247059, 1));
+		BaseMesh->SetVectorParameterValueOnMaterials("Color", CanPlaceColor);
 	} else {
-		BaseMesh->SetVectorParameterValueOnMaterials("Color", FVector(1, 0, 0));
+		BaseMesh->SetVectorParameterValueOnMaterials("Color", CannotPlaceColor);
 	}
 
 }

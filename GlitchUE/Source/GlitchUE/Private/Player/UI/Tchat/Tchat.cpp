@@ -8,13 +8,18 @@
 void UTchat::NativeConstruct(){
 	Super::NativeConstruct();
 
-	PlayAnimation(AppearAnimation, 0, 1, EUMGSequencePlayMode::Forward, 2, false);
+	PlayAnimation(AppearAnimation, 0, 1, EUMGSequencePlayMode::Forward, AppearanceDuration, false);
+}
+
+void UTchat::CheckDisappearance(){
+	if(IsAnimationPlaying(AppearAnimation)){
+		GetWorld()->GetTimerManager().ClearTimer(DisappearTimer);
+		PlayAnimation(AppearAnimation, GetAnimationCurrentTime(AppearAnimation), 1, EUMGSequencePlayMode::Forward, AppearanceDuration, false);
+	}
 }
 
 void UTchat::StartDestructTimer(){
-	GetWorld()->GetTimerManager().SetTimer(DestructTimer, [&]() {
-		CloseTchat();
-	}, DestructTime, false);
+	GetWorld()->GetTimerManager().SetTimer(DestructTimer, this, &UTchat::CloseTchat, DestructTime, false);
 }
 
 void UTchat::StopDestructTimer(){
@@ -31,6 +36,7 @@ void UTchat::OpenTchat(){
 
 	if(IsInViewport()){
 		StopDestructTimer();
+		CheckDisappearance();
 		return;
 	}
 
@@ -38,14 +44,12 @@ void UTchat::OpenTchat(){
 }
 
 void UTchat::CloseTchat(){
-	PlayAnimation(AppearAnimation, 0, 1, EUMGSequencePlayMode::Reverse, 2, false);
+	PlayAnimation(AppearAnimation, GetAnimationCurrentTime(AppearAnimation), 1, EUMGSequencePlayMode::Reverse, AppearanceDuration, false);
 
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+	GetWorld()->GetTimerManager().SetTimer(DisappearTimer, [&]() {
 		IsOpenByUser = false;
 		RemoveFromParent();
-	}, AppearAnimation->GetEndTime(), false);
+	}, 1/AppearanceDuration, false);
 }
 
 void UTchat::AddTchatLine(const FString NewLocation, const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
@@ -54,29 +58,20 @@ void UTchat::AddTchatLine(const FString NewLocation, const FString NewSpeaker, c
 			AddToViewport();
 			StartDestructTimer();
 		} else{
+			CheckDisappearance();
 			ResetDestructTimer();
 		}
 	}
 
-	UTchatLineData* Salut = NewObject<UTchatLineData>();
+	UTchatLineData* TchatLine = NewObject<UTchatLineData>();
 
-	Salut->Location = "[" + NewLocation + "]";
+	TchatLine->Location = "[" + NewLocation + "]";
 
-	Salut->Speaker = " " + NewSpeaker + ": ";
+	TchatLine->Speaker = " " + NewSpeaker + ": ";
 
-	Salut->Message = NewMessage;
+	TchatLine->Message = NewMessage;
 
-	Salut->SpeakerColor = FSlateColor(SpeakerColor);
+	TchatLine->SpeakerColor = FSlateColor(SpeakerColor);
 
-	// const FString Place = "[" + NewPlace + "]";
-	//
-	// const FString Speaker = " " + NewSpeaker + ": ";
-	//
-	// const FString Message = NewMessage;
-
-	TchatList->AddItem(Salut);
-
-	// const FString FullMessage = TchatList->GetText().ToString() == "" ? Place + Speaker + Message : TchatList->GetText().ToString() + "\n" + Place + Speaker + Message;
-	//
-	// TchatList->SetText(FText::FromString(FullMessage));
+	TchatList->AddItem(TchatLine);
 }

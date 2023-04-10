@@ -11,7 +11,7 @@
 class AMainAICharacter;
 
 UENUM()
-enum class FFocusMethod : uint8{
+enum class EFocusMethod : uint8{
 	FirstTarget,
 	MidTarget,
 	LastTarget,
@@ -84,7 +84,7 @@ protected:
 
 	bool CanSeeThroughWalls = false;
 
-	FFocusMethod FocusMethod;
+	EFocusMethod FocusMethod;
 
 	virtual void Attack_Implementation() override;
 
