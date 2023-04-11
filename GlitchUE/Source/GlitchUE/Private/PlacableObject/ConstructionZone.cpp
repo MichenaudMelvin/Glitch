@@ -78,6 +78,7 @@ void AConstructionZone::BeginPlay(){
 	}
 }
 
+#if WITH_EDITOR
 void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
@@ -86,6 +87,7 @@ void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 	SetActorLocation(SnappedLocation);
 }
+#endif
 
 void AConstructionZone::ActiveObjectif(){
 	ConstructionFXEmitter->StartEmitter();

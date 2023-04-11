@@ -14,7 +14,7 @@ AAudioManager::AAudioManager(){
 
 	StealthMusic = StMusic.Object;
 
-	FMODAudioComp->SetEvent(StealthMusic);
+	FMODAudioComp->Event = StealthMusic;
 
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> TWDMusic(TEXT("/Game/FMOD/Events/MUSIC/MUSIC_TowerDefense"));
 	check(TWDMusic.Succeeded());

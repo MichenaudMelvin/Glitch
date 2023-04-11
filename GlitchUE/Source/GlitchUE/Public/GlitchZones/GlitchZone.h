@@ -18,7 +18,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+#if WITH_EDITORONLY_DATA
 	UBillboardComponent* Billboard;
+#endif
 
 	AGlitchUEGameMode* GameMode;
 
