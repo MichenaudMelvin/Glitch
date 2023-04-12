@@ -12,7 +12,7 @@ class GLITCHUE_API AFocusCatalyseurController : public AFocusAIController{
 
 public:
 	AFocusCatalyseurController();
-	
+
 protected:
 	virtual void BeginPlay() override;
 

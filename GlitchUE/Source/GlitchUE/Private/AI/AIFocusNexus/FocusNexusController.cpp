@@ -10,9 +10,9 @@ AFocusNexusController::AFocusNexusController(){
 	check(BehaviorTreeAsset.Succeeded());
 
 	BehaviorTree = BehaviorTreeAsset.Object;
-	
+
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BlackboardAsset(TEXT("/Game/Blueprint/AI/FocusAI/BB_FocusAI"));
 	check(BlackboardAsset.Succeeded());
-	
+
 	BlackboardData = BlackboardAsset.Object;
 }

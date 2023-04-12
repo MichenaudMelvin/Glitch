@@ -131,7 +131,6 @@ void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 	TargetLocation.Z += 100;
 
 	CurrentDrone->SetActorLocation(TargetLocation);
-
 }
 
 void APlacableActor::RemoveDrone(AMainPlayer* MainPlayer){

@@ -65,6 +65,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Speed")
 	float OriginalSpeed = 200;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Golds")
+	float GivenGoldsAtDeath = 20;
+
 	UFUNCTION()
 	void HealthNull();
 
