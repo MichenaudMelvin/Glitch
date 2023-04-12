@@ -95,6 +95,12 @@ public:
 	FStateAtWave GetStateAtWave() const;
 
 #if WITH_EDITORONLY_DATA
+	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+
 	void OnObjectSelected(UObject* Object);
+
+	void OutlineLinkedObjects(const bool bOutline);
 #endif
 };
