@@ -8,8 +8,6 @@ void UTchatLine::NativeOnListItemObjectSet(UObject* ListItemObject){
 
 	CurrentData = Cast<UTchatLineData>(ListItemObject);
 
-	LocationText->SetText(FText::FromString(CurrentData->Location));
-
 	SpeakerText->SetText(FText::FromString(CurrentData->Speaker));
 	SpeakerText->SetColorAndOpacity(CurrentData->SpeakerColor);
 

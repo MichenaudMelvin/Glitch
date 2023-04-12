@@ -52,7 +52,7 @@ void UTchat::CloseTchat(){
 	}, 1/AppearanceDuration, false);
 }
 
-void UTchat::AddTchatLine(const FString NewLocation, const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
+void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, FLinearColor SpeakerColor){
 	if(!IsOpenByUser){
 		if(!IsInViewport()){
 			AddToViewport();
@@ -65,9 +65,13 @@ void UTchat::AddTchatLine(const FString NewLocation, const FString NewSpeaker, c
 
 	UTchatLineData* TchatLine = NewObject<UTchatLineData>();
 
-	TchatLine->Location = "[" + NewLocation + "]";
+	TchatLine->Speaker = NewSpeaker + ": ";
 
-	TchatLine->Speaker = " " + NewSpeaker + ": ";
+	if(LastSpeaker == NewSpeaker){
+		SpeakerColor.A = 0;
+	} else{
+		LastSpeaker = NewSpeaker;
+	}
 
 	TchatLine->Message = NewMessage;
 

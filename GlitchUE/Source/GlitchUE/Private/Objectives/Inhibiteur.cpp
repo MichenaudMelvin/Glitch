@@ -37,7 +37,7 @@ void AInhibiteur::ActiveObjectif(){
 
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
-	if(IsValid(SpriteReference.SceneComponent) && IsValid(SpriteReference.PaperSpriteComponent)){
+	if(SpriteReference.SceneComponent != nullptr && SpriteReference.PaperSpriteComponent != nullptr){
 		SpriteReference.DestroyComponents();
 	}
 }
