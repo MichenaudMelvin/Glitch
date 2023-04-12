@@ -22,7 +22,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* MeshObjectif;
-	
+
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Health")
 	UHealthComponent* HealthComp;
 

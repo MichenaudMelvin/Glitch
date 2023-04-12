@@ -78,17 +78,6 @@ void AConstructionZone::BeginPlay(){
 	}
 }
 
-#if WITH_EDITOR
-void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	FVector SnappedLocation = UKismetMathLibrary::Vector_SnappedToGrid(GetActorLocation(), 200);
-	SnappedLocation.Z = GetActorLocation().Z;
-
-	SetActorLocation(SnappedLocation);
-}
-#endif
-
 void AConstructionZone::ActiveObjectif(){
 	ConstructionFXEmitter->StartEmitter();
 	GetSkeletalMeshComponent()->PlayAnimation(ActivationAnim, false);
@@ -119,3 +108,14 @@ void AConstructionZone::UnoccupiedSlot(){
 UActivableComponent* AConstructionZone::GetActivableComp(){
 	return ActivableComp;
 }
+
+#if WITH_EDITORONLY_DATA
+void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	FVector SnappedLocation = UKismetMathLibrary::Vector_SnappedToGrid(GetActorLocation(), 200);
+	SnappedLocation.Z = GetActorLocation().Z;
+
+	SetActorLocation(SnappedLocation);
+}
+#endif

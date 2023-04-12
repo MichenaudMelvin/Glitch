@@ -152,35 +152,41 @@ FStateAtWave ACatalyseur::GetStateAtWave() const{
 }
 
 #if WITH_EDITORONLY_DATA
+void ACatalyseur::PreEditChange(FProperty* PropertyAboutToChange){
+	Super::PreEditChange(PropertyAboutToChange);
+
+	OutlineLinkedObjects(false);
+}
+
+void ACatalyseur::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent){
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	OutlineLinkedObjects(true);
+}
+
+
 void ACatalyseur::OnObjectSelected(UObject* Object){
 	if (Object == this) {
 
-		for(int i = 0; i < NearInhibiteur.Num(); i++){
-			if(IsValid(NearInhibiteur[i])){
-				UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
-			}
-		}
-
-		for(int i = 0; i < ConstructionZoneList.Num(); i++){
-			if(IsValid(ConstructionZoneList[i])){
-				UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
-				UUsefullFunctions::OutlineComponent(true, ConstructionZoneList[i]->GetTechMesh());
-			}
-		}
+		OutlineLinkedObjects(true);
 
 	} else if (!IsSelected()){
 
-		for(int i = 0; i < NearInhibiteur.Num(); i++){
-			if(IsValid(NearInhibiteur[i])){
-				UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
-			}
-		}
+		OutlineLinkedObjects(false);
+	}
+}
 
-		for(int i = 0; i < ConstructionZoneList.Num(); i++){
-			if(IsValid(ConstructionZoneList[i])){
-				UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
-				UUsefullFunctions::OutlineComponent(false, ConstructionZoneList[i]->GetTechMesh());
-			}
+void ACatalyseur::OutlineLinkedObjects(const bool bOutline){
+	for(int i = 0; i < NearInhibiteur.Num(); i++){
+		if(IsValid(NearInhibiteur[i])){
+			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
+		}
+	}
+
+	for(int i = 0; i < ConstructionZoneList.Num(); i++){
+		if(IsValid(ConstructionZoneList[i])){
+			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			UUsefullFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
 		}
 	}
 }
