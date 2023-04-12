@@ -20,7 +20,16 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Tchat")
 	UListView* TchatList;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Appearance")
+	float AppearanceDuration = 2;
+
 	FTimerHandle DestructTimer;
+
+	FTimerHandle DisappearTimer;
+
+	FString LastSpeaker;
+
+	void CheckDisappearance();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	float DestructTime = 3;
@@ -41,5 +50,5 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Tchat")
-	void AddTchatLine(const FString NewLocation, const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor);
+	void AddTchatLine(const FString NewSpeaker, const FString NewMessage, FLinearColor SpeakerColor);
 };

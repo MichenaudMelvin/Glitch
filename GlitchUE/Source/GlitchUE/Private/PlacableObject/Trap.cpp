@@ -12,8 +12,6 @@ ATrap::ATrap(){
 	TrapMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TrapMesh"));
 	SetRootComponent(TrapMesh);
 
-	TrapMesh->CanCharacterStepUpOn = ECB_No;
-
 	TrapMesh->SetCollisionResponseToAllChannels(ECR_Block);
 
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
@@ -21,7 +19,11 @@ ATrap::ATrap(){
 	CrystalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Crystal"));
 	CrystalMesh->SetupAttachment(TrapMesh);
 
+	TrapMesh->CanCharacterStepUpOn = ECB_No;
 	CrystalMesh->CanCharacterStepUpOn = ECB_No;
+
+	TrapMesh->SetCanEverAffectNavigation(false);
+	CrystalMesh->SetCanEverAffectNavigation(false);
 
 	static ConstructorHelpers::FObjectFinder<UAnimSequenceBase> Anim(TEXT("/Game/Meshs/Traps/Crystals/AS_Crystal"));
 	check(Anim.Succeeded());

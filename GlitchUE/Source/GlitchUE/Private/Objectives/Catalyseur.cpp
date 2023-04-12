@@ -156,23 +156,31 @@ void ACatalyseur::OnObjectSelected(UObject* Object){
 	if (Object == this) {
 
 		for(int i = 0; i < NearInhibiteur.Num(); i++){
-			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
+			if(IsValid(NearInhibiteur[i])){
+				UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
+			}
 		}
 
 		for(int i = 0; i < ConstructionZoneList.Num(); i++){
-			UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
-			UUsefullFunctions::OutlineComponent(true, ConstructionZoneList[i]->GetTechMesh());
+			if(IsValid(ConstructionZoneList[i])){
+				UUsefullFunctions::OutlineComponent(true, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+				UUsefullFunctions::OutlineComponent(true, ConstructionZoneList[i]->GetTechMesh());
+			}
 		}
 
 	} else if (!IsSelected()){
 
 		for(int i = 0; i < NearInhibiteur.Num(); i++){
-			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
+			if(IsValid(NearInhibiteur[i])){
+				UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(NearInhibiteur[i]->GetRootComponent()));
+			}
 		}
 
 		for(int i = 0; i < ConstructionZoneList.Num(); i++){
-			UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
-			UUsefullFunctions::OutlineComponent(false, ConstructionZoneList[i]->GetTechMesh());
+			if(IsValid(ConstructionZoneList[i])){
+				UUsefullFunctions::OutlineComponent(false, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+				UUsefullFunctions::OutlineComponent(false, ConstructionZoneList[i]->GetTechMesh());
+			}
 		}
 	}
 }

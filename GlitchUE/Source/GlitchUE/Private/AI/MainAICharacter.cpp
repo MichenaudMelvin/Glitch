@@ -2,6 +2,7 @@
 
 
 #include "AI/MainAICharacter.h"
+#include "PopcornFXFunctions.h"
 #include "AI/UI/SightIndication.h"
 #include "AI/Waves/WaveManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -64,6 +65,8 @@ void AMainAICharacter::BeginPlay(){
 void AMainAICharacter::Destroyed(){
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(AIController);
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), DeathFX, "PopcornFX_DefaultScene", GetActorLocation(), GetActorRotation());
 
 	Super::Destroyed();
 }

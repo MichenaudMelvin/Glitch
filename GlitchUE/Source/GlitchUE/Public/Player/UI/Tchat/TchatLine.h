@@ -19,9 +19,6 @@ protected:
 	UTchatLineData* CurrentData;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	UTextBlock* LocationText;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* SpeakerText;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))

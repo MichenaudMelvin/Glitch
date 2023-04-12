@@ -24,6 +24,10 @@ ATurret::ATurret() {
 	TurretPillar->CanCharacterStepUpOn = ECB_No;
 	TurretHead->CanCharacterStepUpOn = ECB_No;
 
+	TurretBase->SetCanEverAffectNavigation(false);
+	TurretPillar->SetCanEverAffectNavigation(false);
+	TurretHead->SetCanEverAffectNavigation(false);
+
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
 
@@ -77,13 +81,10 @@ void ATurret::RotateToTarget(float Alpha){
 
 	AILookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
 	FRotator PillarRotator = FRotator::ZeroRotator;
-	//FRotator HeadRotator = FRotator::ZeroRotator;
 
 	PillarRotator.Yaw = FMath::Lerp(CurrentYawRotation, AILookAtRotation.Yaw, Alpha);
-	//HeadRotator.Pitch = FMath::Lerp(CurrentPitchRotation, AILookAtRotation.Pitch, Alpha);
 
 	TurretPillar->SetWorldRotation(PillarRotator);
-	//TurretHead->SetRelativeRotation(HeadRotator);
 }
 
 void ATurret::EndRotate_Implementation(){}
@@ -234,13 +235,13 @@ AActor* ATurret::GetLastAI(){
 
 void ATurret::SelectTarget(){
 	switch (FocusMethod) {
-	case FFocusMethod::FirstTarget:
+	case EFocusMethod::FirstTarget:
 		CurrentTarget = GetFirstAI();
 		break;
-	case FFocusMethod::MidTarget:
+	case EFocusMethod::MidTarget:
 		CurrentTarget = GetMidAI();
 		break;
-	case FFocusMethod::LastTarget:
+	case EFocusMethod::LastTarget:
 		CurrentTarget = GetLastAI();
 		break;
 	}

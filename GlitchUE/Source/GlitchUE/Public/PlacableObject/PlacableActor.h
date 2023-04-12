@@ -8,7 +8,6 @@
 #include "PlacableActorData.h"
 #include "Objectives/Nexus.h"
 #include "Components/TimelineComponent.h"
-#include "NavModifierComponent.h"
 #include "PopcornFXEmitter.h"
 #include "PlacableActor.generated.h"
 
@@ -50,9 +49,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Data")
 	UAudioComponent* AudioComp;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Navigation")
-	UNavModifierComponent* NavModifierComp;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Name")
 	FName Name;

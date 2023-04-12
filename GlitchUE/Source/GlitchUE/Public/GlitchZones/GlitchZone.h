@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GlitchUEGameMode.h"
-#include "Components/BoxComponent.h"
+#include "NavModifierComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "GlitchZone.generated.h"
 
@@ -18,7 +18,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+#if WITH_EDITORONLY_DATA
 	UBillboardComponent* Billboard;
+#endif
 
 	AGlitchUEGameMode* GameMode;
 

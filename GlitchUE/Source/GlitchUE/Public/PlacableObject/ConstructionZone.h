@@ -6,6 +6,7 @@
 #include "Components/ActivableComponent.h"
 #include "PlacableActor.h"
 #include "Animation/SkeletalMeshActor.h"
+#include "Components/BoxComponent.h"
 #include "ConstructionZone.generated.h"
 
 UCLASS()
@@ -28,12 +29,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UActivableComponent* ActivableComp;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UBoxComponent* NavObstacle;
+
 	UPROPERTY()
 	UPopcornFXEmitterComponent* ConstructionFXEmitter;
 
 	UPopcornFXEffect* ConstructionEffect;
 
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	EState InitialState;

@@ -22,14 +22,10 @@ APlacableActor::APlacableActor(){
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 
-	NavModifierComp = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavModifier"));
-
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
-
-	NavModifierComp->SetAreaClass(UNavArea_Obstacle::StaticClass());
 }
 
 void APlacableActor::BeginPlay(){
@@ -46,6 +42,8 @@ void APlacableActor::BeginPlay(){
 }
 
 void APlacableActor::Tick(float DeltaTime){
+	Super::Tick(DeltaTime);
+
 	FadeInAppearance.TickTimeline(DeltaTime);
 }
 

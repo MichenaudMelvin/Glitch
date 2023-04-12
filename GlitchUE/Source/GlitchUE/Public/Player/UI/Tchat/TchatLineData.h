@@ -11,8 +11,6 @@ class GLITCHUE_API UTchatLineData : public UObject{
 	GENERATED_BODY()
 
 public:
-	FString Location;
-
 	FString Speaker;
 
 	FString Message;

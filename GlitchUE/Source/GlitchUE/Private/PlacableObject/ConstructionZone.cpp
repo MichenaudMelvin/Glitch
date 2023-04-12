@@ -4,7 +4,7 @@
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Components/BoxComponent.h"
+#include "NavAreas/NavArea_Obstacle.h"
 
 AConstructionZone::AConstructionZone() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -15,6 +15,7 @@ AConstructionZone::AConstructionZone() {
 	check(MedSkelMesh.Succeeded());
 
 	GetSkeletalMeshComponent()->SetSkeletalMesh(MedSkelMesh.Object);
+	GetSkeletalMeshComponent()->SetCanEverAffectNavigation(true);
 
 	TechMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TechMesh"));
 	TechMesh->SetupAttachment(GetSkeletalMeshComponent());
@@ -23,6 +24,22 @@ AConstructionZone::AConstructionZone() {
 	check(TechSkelMesh.Succeeded());
 
 	TechMesh->SetSkeletalMesh(TechSkelMesh.Object);
+	TechMesh->SetCanEverAffectNavigation(true);
+
+	NavObstacle = CreateDefaultSubobject<UBoxComponent>("Nav Obstacle");
+	NavObstacle->SetupAttachment(RootComponent);
+
+	NavObstacle->SetCollisionResponseToAllChannels(ECR_Ignore);
+	NavObstacle->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	NavObstacle->SetGenerateOverlapEvents(false);
+
+	NavObstacle->AreaClass = UNavArea_Obstacle::StaticClass();
+	NavObstacle->bDynamicObstacle = true;
+
+	NavObstacle->SetBoxExtent(FVector(60, 60, 10));
+	NavObstacle->SetRelativeLocation(FVector(0, 0, 100));
+
+	NavObstacle->SetVisibility(false);
 
 	InitialState = EState::Desactivated;
 
@@ -57,10 +74,11 @@ void AConstructionZone::BeginPlay(){
 		break;
 	case EState::Desactivated:
 		ActivableComp->DesactivateObject();
-		break; 
+		break;
 	}
 }
 
+#if WITH_EDITOR
 void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
@@ -69,6 +87,7 @@ void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 	SetActorLocation(SnappedLocation);
 }
+#endif
 
 void AConstructionZone::ActiveObjectif(){
 	ConstructionFXEmitter->StartEmitter();
@@ -85,6 +104,7 @@ void AConstructionZone::OccupiedSlot(APlacableActor* NewUnit){
 	UnitInZone = NewUnit;
 	UnitInZone->SetConstructionZone(this);
 	ConstructionFXEmitter->StopEmitter();
+	NavObstacle->SetRelativeLocation(FVector(0, 0, 0));
 }
 
 void AConstructionZone::UnoccupiedSlot(){
@@ -92,6 +112,8 @@ void AConstructionZone::UnoccupiedSlot(){
 	if(ActivableComp->IsActivated()){
 		ConstructionFXEmitter->StartEmitter();
 	}
+
+	NavObstacle->SetRelativeLocation(FVector(0, 0, 100));
 }
 
 UActivableComponent* AConstructionZone::GetActivableComp(){

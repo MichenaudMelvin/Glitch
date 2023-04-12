@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* IdleFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEffect* DeathFX;
+
 public:
 	UBlackboardComponent* GetBlackBoard() const;
 
