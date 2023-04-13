@@ -86,7 +86,8 @@ void AConstructionZone::ActiveObjectif(){
 
 void AConstructionZone::DesactivateObjectif(){
 	ConstructionFXEmitter->StopEmitter();
-	//faire les anim en reverse
+	TechMesh->SetPlayRate(-1);
+	TechMesh->Play(false);
 }
 
 void AConstructionZone::OccupiedSlot(APlacableActor* NewUnit){

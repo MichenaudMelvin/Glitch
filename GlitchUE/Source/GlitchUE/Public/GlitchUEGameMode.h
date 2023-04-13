@@ -196,6 +196,9 @@ private:
 	UFUNCTION(Exec)
 	void Dissolve(const float Value) const;
 
+	UFUNCTION(Exec)
+	void CollectGarbage() const;
+
 #pragma endregion
 
 };

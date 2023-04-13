@@ -19,6 +19,7 @@ protected:
 
 	virtual void NativeDestruct() override;
 
+	UPROPERTY()
 	USettingsSave* Settings;
 
 	UGameUserSettings* GameUserSettings;

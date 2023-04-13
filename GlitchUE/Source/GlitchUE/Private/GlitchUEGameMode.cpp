@@ -60,9 +60,9 @@ void AGlitchUEGameMode::BeginPlay() {
 	TArray<AActor*> SceneCaptureArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
 
-#if !UE_BUILD_SHIPPING
+#if WITH_EDITOR
 
-	if (WaveManagerArray.Num() == 0) {
+	if (WaveManagerArray.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
 	}
 
@@ -130,11 +130,16 @@ void AGlitchUEGameMode::InitializeWorld(){
 		TArray<FString> FStringArray;
 		CurrentSave->AIDataList.GetKeys(FStringArray);
 
+		GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Green, FString::Printf(TEXT("string num : %d"), FStringArray.Num()));
+
 		for(int i = 0; i < AIList.Num(); i++){
 			bool bFindAI = false;
 
+			GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Yellow, FString::Printf(TEXT("ai name : %s"), *AIList[i]->GetName()));
 			for(int j = 0; j < FStringArray.Num(); j++){
+				GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Red, FString::Printf(TEXT("save string : %s"), *FStringArray[j]));
 				if(AIList[i]->GetName() == FStringArray[j]){
+					GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Green, FString::Printf(TEXT("save string : %s"), *FStringArray[j]));
 					Cast<AMainAIController>(AIList[i])->InitializeAI(CurrentSave->AIDataList.FindRef(AIList[i]->GetName()));
 					bFindAI = true;
 					break;
@@ -142,6 +147,7 @@ void AGlitchUEGameMode::InitializeWorld(){
 			}
 
 			if(!bFindAI){
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Destruct AI"));
 				Cast<AMainAIController>(AIList[i])->GetPawn()->Destroy();
 			}
 		}
@@ -162,6 +168,7 @@ void AGlitchUEGameMode::InitializeWorld(){
 					if(CurrentSave->InhibiteurStateList.FindRef(InhibiteurList[i]->GetName())){
 						CurrentInhibiteur->GetActivableComp()->ActivateObject();
 					}
+
 				}
 			}
 		}
@@ -210,8 +217,12 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	for(int i = 0; i < AIList.Num(); i++){
 		AMainAIController* CurrentCharacter = Cast<AMainAIController>(AIList[i]);
 
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, FString::Printf(TEXT("Thing to print %s"), *CurrentCharacter->GetName()));
+
 		CurrentSave->AIDataList.Add(CurrentCharacter->GetName(), CurrentCharacter->SaveAI());
 	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Green, FString::Printf(TEXT("string num : %d"), CurrentSave->AIDataList.Num()));
 
 	// Inhibiteurs
 	TArray<AActor*> InhibiteurList;
@@ -335,13 +346,13 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 		MainPlayer->GetMesh()->SetScalarParameterValueOnMaterials("Apparition", 0);
 
-		switch (CurrentPhase){
-			case EPhases::Infiltration:
-				SetLevelState(ELevelState::Alerted);
-				break;
-			case EPhases::TowerDefense:
-				break;
-		}
+		// switch (CurrentPhase){
+		// 	case EPhases::Infiltration:
+		// 		SetLevelState(ELevelState::Alerted);
+		// 		break;
+		// 	case EPhases::TowerDefense:
+		// 		break;
+		// }
 
 		CheckAvailableGlitchEvents();
 		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 2));
@@ -479,6 +490,10 @@ void AGlitchUEGameMode::Dissolve(const float Value) const{
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
 	Cast<ADissolver>(DissolverArray[0])->DissolveTo(Value);
+}
+
+void AGlitchUEGameMode::CollectGarbage() const{
+	UKismetSystemLibrary::CollectGarbage();
 }
 
 #pragma endregion

@@ -22,12 +22,15 @@ private:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 	ACatalyseur* SetFirstCatalyseurToCheck(const TArray<ACatalyseur*> CatalyseurList);
-	
+
 	UPROPERTY(EditAnywhere, Category = "Nexus")
 	FBlackboardKeySelector NexusLocation;
 
 	UPROPERTY(EditAnywhere, Category = "Catalyseur")
 	FBlackboardKeySelector NearestCatalyseurLocation;
+
+	UPROPERTY(EditAnywhere, Category = "Catalyseur")
+	FBlackboardKeySelector NearestCatalyseurKey;
 
 	ACharacter* OwnerPawn;
 };
