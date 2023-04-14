@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PatrolPoint.h"
 #include "AI/MainAICharacter.h"
+#include "Engine/SplineMeshActor.h"
 #include "PatrolCharacter.generated.h"
 
 UCLASS()
@@ -28,6 +29,16 @@ public:
 	TArray<APatrolPoint*> GetPatrolPointList() const;
 
 #if WITH_EDITORONLY_DATA
+	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+
 	void OnObjectSelected(UObject* Object);
+
+	void OutlineLinkedObjects(const bool bOutline);
+
+	UStaticMesh* CubeMesh;
+
+	TArray<ASplineMeshActor*> SplineList;
 #endif
 };
