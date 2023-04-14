@@ -198,8 +198,11 @@ void APursuitDrone::DisableSpinBehavior(){
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	GetCharacterMovement()->GravityScale = 1;
 
+	if(!GetMesh()->IsVisible()){
+		GetMesh()->SetVisibility(true, true);
+	}
+
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
 
 	GetMesh()->SetWorldScale3D(FVector::OneVector);
 	GetMesh()->SetRelativeLocation(FVector::ZeroVector);

@@ -19,7 +19,6 @@ APatrolCharacter::APatrolCharacter(){
 	check(EditorMesh.Succeeded());
 
 	CubeMesh = EditorMesh.Object;
-
 #endif
 }
 
