@@ -218,19 +218,28 @@ void APursuitDrone::AttachDrone(AActor* ActorToAttach, const FName SocketName){
 
 void APursuitDrone::DetachDrone(){
 	if(!IsValid(GetAttachParentActor())){
+		UE_LOG(LogTemp, Warning, TEXT("parent actor not valid"));
 		return;
 	}
 
 	if(GetAttachParentActor()->IsA(AMainPlayer::StaticClass())){
 		Cast<AMainPlayer>(GetAttachParentActor())->SetCurrentDrone(nullptr);
+
+		const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
+		DetachFromActor(DetachmentTransformRules);
 	}
 
 	else if(GetAttachParentActor()->IsA(APlacableActor::StaticClass())){
-		Cast<APlacableActor>(GetAttachParentActor())->RemoveDrone(nullptr);
-	}
+		FTimerHandle TimerHandle;
 
-	const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
-	DetachFromActor(DetachmentTransformRules);
+		// micro delay for avoid a crash
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+			Cast<APlacableActor>(GetAttachParentActor())->RemoveDrone(nullptr);
+
+			const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
+			DetachFromActor(DetachmentTransformRules);
+		}, 0.1f, false);
+	}
 }
 
 void APursuitDrone::Spin(float Value){

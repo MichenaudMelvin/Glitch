@@ -18,6 +18,8 @@ AMark::AMark() {
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("MarkInteraction"));
+
+	MarkMesh->OnComponentHit.AddDynamic(this, &AMark::OnCompHit);
 }
 
 void AMark::BeginPlay(){
@@ -101,6 +103,10 @@ bool AMark::LocationTrace(const float UpTraceValue, FVector& OutImpactPoint){
 	return bHit;
 }
 
+void AMark::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit){
+	PlaceMark();
+}
+
 bool AMark::GetIsMarkPlaced() const{
 	return bIsMarkPlaced;
 }
@@ -116,7 +122,7 @@ void AMark::ResetMark(){
 	bShouldMarkHitSomething = false;
 	Player->GetMainPlayerController()->BindGlitch();
 	GetWorldTimerManager().ClearTimer(LaunchTimerHandle);
-	GetWorldTimerManager().ClearTimer(SwitchMeshTimer);
+	//GetWorldTimerManager().ClearTimer(SwitchMeshTimer);
 
 	SetActorLocation(OriginalLocation);
 	StopProjectile();
@@ -127,7 +133,7 @@ void AMark::Launch(const FTransform StartTransform){
 	LaunchLocation = StartTransform.GetLocation();
 	StartProjectile();
 	GetWorldTimerManager().SetTimer(LaunchTimerHandle, this, &AMark::LaunchTimer, 0.001f, true);
-	GetWorldTimerManager().SetTimer(SwitchMeshTimer, this, &AMark::SwitchMesh, SwitchMeshTime, true);
+	//GetWorldTimerManager().SetTimer(SwitchMeshTimer, this, &AMark::SwitchMesh, SwitchMeshTime, true);
 }
 
 float AMark::GetDistanceToLaunchPoint() const{
@@ -135,10 +141,10 @@ float AMark::GetDistanceToLaunchPoint() const{
 }
 
 void AMark::LaunchTimer(){
-	if(GetActorLocation().Equals(TargetLocation, EqualTolerance) && bShouldMarkHitSomething){
-		SetActorLocation(TargetLocation);
-		PlaceMark();
-	}
+	// if(GetActorLocation().Equals(TargetLocation, EqualTolerance) && bShouldMarkHitSomething){
+	// 	SetActorLocation(TargetLocation);
+	// 	PlaceMark();
+	// }
 
 	if ((GetDistanceToLaunchPoint() >= MaxDistance) && !bIsMarkPlaced){
 		ResetMark();

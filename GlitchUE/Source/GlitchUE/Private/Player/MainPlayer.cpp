@@ -467,6 +467,7 @@ void AMainPlayer::LaunchMark(){
 	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Bone012"));
 
 	MarkTransform.SetRotation(FindMarkLaunchRotation());
+	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
 	Mark->Launch(MarkTransform);
 
 	MainPlayerController->UnbindGlitch();
@@ -485,7 +486,7 @@ FQuat AMainPlayer::FindMarkLaunchRotation() const{
 
 	if(GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams, ResponseParam)){
 		TargetLocation = HitResult.ImpactPoint;
-		Mark->SetHitSomething(true);
+		//Mark->SetHitSomething(true);
 	}
 
 	Mark->SetTargetLocation(TargetLocation);

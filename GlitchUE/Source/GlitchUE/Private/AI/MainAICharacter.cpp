@@ -90,7 +90,7 @@ void AMainAICharacter::HealthNull() {
 	#if WITH_EDITOR
 	// uniquement pour le mode spectateur
 	if(IsValid(Player)){
-		Cast<AMainPlayer>(Player)->GiveGolds(10);
+		Cast<AMainPlayer>(Player)->GiveGolds(GivenGoldsAtDeath);
 	}
 	#endif
 

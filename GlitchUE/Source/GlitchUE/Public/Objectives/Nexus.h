@@ -31,6 +31,8 @@ protected:
 
 	TArray<ACatalyseur*> CatalyseursList;
 
+	UAnimationAsset* IdleAnim;
+
 	virtual void TakeDamages() override;
 
 	UFUNCTION(BlueprintCallable)

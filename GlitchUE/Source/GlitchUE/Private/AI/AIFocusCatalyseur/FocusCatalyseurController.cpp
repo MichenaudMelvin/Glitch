@@ -15,15 +15,12 @@ AFocusCatalyseurController::AFocusCatalyseurController(){
 
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BlackboardAsset(TEXT("/Game/Blueprint/AI/FocusAI/AIFocusCatalyseur/BB_FocusCatalyseur"));
 	check(BlackboardAsset.Succeeded());
-	
+
 	BlackboardData = BlackboardAsset.Object;
 }
 
 void AFocusCatalyseurController::BeginPlay(){
 	Super::BeginPlay();
-	
-	// marche pas
-	//FindAllActors<ACatalyseur>(GetWorld(), CatalyseurList);
 
 	TArray<AActor*> CatalyseurArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACatalyseur::StaticClass(), CatalyseurArray);

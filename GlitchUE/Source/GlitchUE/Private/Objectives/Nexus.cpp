@@ -27,6 +27,11 @@ ANexus::ANexus() {
 	check(SFX.Succeeded());
 
 	ActivationSFX = SFX.Object;
+
+	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Idle(TEXT("/Game/Meshs/Objectives/Nexus/AS_Nexus"));
+	check(Idle.Succeeded());
+
+	IdleAnim = Idle.Object;
 }
 
 void ANexus::BeginPlay(){
@@ -38,6 +43,8 @@ void ANexus::BeginPlay(){
 	Dissolver = Cast<ADissolver>(DissolverArray[0]);
 	Dissolver->SetActorLocation(GetActorLocation());
 	Dissolver->UpdateShaderFX();
+
+	MeshObjectif->PlayAnimation(IdleAnim, true);
 
 	TArray<AActor*> CatalyseurArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACatalyseur::StaticClass(), CatalyseurArray);
