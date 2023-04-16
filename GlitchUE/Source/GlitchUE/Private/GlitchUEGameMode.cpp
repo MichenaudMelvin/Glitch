@@ -91,7 +91,9 @@ void AGlitchUEGameMode::BeginPlay() {
 	BlinkingTimeline.AddInterpLinearColor(BlinkingCurve, UpdateEvent);
 	BlinkingTimeline.SetTimelineFinishedFunc(FinishEvent);
 
-	InitializeWorld();
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGlitchUEGameMode::InitializeWorld, 0.01f, false);
 }
 
 void AGlitchUEGameMode::Tick(float deltaTime){
@@ -130,24 +132,19 @@ void AGlitchUEGameMode::InitializeWorld(){
 		TArray<FString> FStringArray;
 		CurrentSave->AIDataList.GetKeys(FStringArray);
 
-		GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Green, FString::Printf(TEXT("string num : %d"), FStringArray.Num()));
 
 		for(int i = 0; i < AIList.Num(); i++){
 			bool bFindAI = false;
 
-			GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Yellow, FString::Printf(TEXT("ai name : %s"), *AIList[i]->GetName()));
 			for(int j = 0; j < FStringArray.Num(); j++){
-				GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Red, FString::Printf(TEXT("save string : %s"), *FStringArray[j]));
-				if(AIList[i]->GetName() == FStringArray[j]){
-					GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Green, FString::Printf(TEXT("save string : %s"), *FStringArray[j]));
-					Cast<AMainAIController>(AIList[i])->InitializeAI(CurrentSave->AIDataList.FindRef(AIList[i]->GetName()));
+				if(Cast<AMainAIController>(AIList[i])->GetControllerName() == FStringArray[j]){
+					Cast<AMainAIController>(AIList[i])->InitializeAI(CurrentSave->AIDataList.FindRef(Cast<AMainAIController>(AIList[i])->GetControllerName()));
 					bFindAI = true;
 					break;
 				}
 			}
 
 			if(!bFindAI){
-				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Destruct AI"));
 				Cast<AMainAIController>(AIList[i])->GetPawn()->Destroy();
 			}
 		}
@@ -174,7 +171,6 @@ void AGlitchUEGameMode::InitializeWorld(){
 		}
 
 		CurrentSave->LoadedTime++;
-		UE_LOG(LogTemp, Warning, TEXT("Loaded number of this save : %d"), CurrentSave->LoadedTime);
 
 		if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
 			UUsefullFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
@@ -215,14 +211,10 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 
 	CurrentSave->AIDataList.Empty();
 	for(int i = 0; i < AIList.Num(); i++){
-		AMainAIController* CurrentCharacter = Cast<AMainAIController>(AIList[i]);
+		AMainAIController* CurrentController = Cast<AMainAIController>(AIList[i]);
 
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, FString::Printf(TEXT("Thing to print %s"), *CurrentCharacter->GetName()));
-
-		CurrentSave->AIDataList.Add(CurrentCharacter->GetName(), CurrentCharacter->SaveAI());
+		CurrentSave->AIDataList.Add(CurrentController->GetControllerName(), CurrentController->SaveAI());
 	}
-
-	GEngine->AddOnScreenDebugMessage(-1, 25.0f, FColor::Green, FString::Printf(TEXT("string num : %d"), CurrentSave->AIDataList.Num()));
 
 	// Inhibiteurs
 	TArray<AActor*> InhibiteurList;

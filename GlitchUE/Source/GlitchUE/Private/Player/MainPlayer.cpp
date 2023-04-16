@@ -499,6 +499,7 @@ void AMainPlayer::TPToMark() {
 	MainPlayerController->UnbindMovement();
 	MainPlayerController->UnbindCamera();
 	MainPlayerController->UnbindGlitch();
+	MainPlayerController->SetCanSave(false);
 
 	StopJumping();
 	Mark->PlaceMark();
@@ -814,11 +815,13 @@ void AMainPlayer::EndTL(){
 
 		MainPlayerController->BindMovement();
 		MainPlayerController->BindCamera();
+		MainPlayerController->SetCanSave(true);
 
 		ResetOverlappedMeshes();
 
 		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
+
 		if(IsValid(CurrentDrone)){
 			CurrentDrone->GetMesh()->SetVisibility(true, true);
 		}

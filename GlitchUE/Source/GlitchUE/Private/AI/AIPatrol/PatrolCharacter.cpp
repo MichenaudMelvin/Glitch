@@ -38,6 +38,7 @@ TArray<APatrolPoint*> APatrolCharacter::GetPatrolPointList() const{
 	return PatrolPointsList;
 }
 
+#if WITH_EDITORONLY_DATA
 void APatrolCharacter::PreEditChange(FProperty* PropertyAboutToChange){
 	Super::PreEditChange(PropertyAboutToChange);
 
@@ -50,7 +51,6 @@ void APatrolCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 	OutlineLinkedObjects(true);
 }
 
-#if WITH_EDITORONLY_DATA
 void APatrolCharacter::OnObjectSelected(UObject* Object){
 	if (Object == this) {
 

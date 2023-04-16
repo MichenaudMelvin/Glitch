@@ -69,9 +69,6 @@ void APursuitDrone::BeginPlay(){
 	}
 
 	#endif
-
-	PlayStartAnim(true);
-	IdleFX->SetVisibility(false);
 }
 
 void APursuitDrone::Tick(float DeltaSeconds){
@@ -118,6 +115,20 @@ void APursuitDrone::PlayStartAnim(const bool bReverseAnim) const{
 
 void APursuitDrone::SetCurrentPad(APursuitDronePad* NewPad){
 	Pad = NewPad;
+}
+
+void APursuitDrone::ForceInDock() const{
+	GetMesh()->PlayAnimation(StartAnim, false);
+	GetMesh()->SetPosition(0);
+	GetMesh()->Stop();
+	IdleFX->SetVisibility(false);
+}
+
+void APursuitDrone::ForceStartAnim() const{
+	GetMesh()->PlayAnimation(StartAnim, false);
+	GetMesh()->SetPosition(1);
+	GetMesh()->Stop();
+	IdleFX->SetVisibility(true);
 }
 
 void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){

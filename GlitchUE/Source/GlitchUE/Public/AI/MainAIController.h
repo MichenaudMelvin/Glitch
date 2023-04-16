@@ -23,8 +23,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
 	float AISpawnGlitchValue = 25;
 
+	FString GetControllerName() const;
+
 protected:
 	virtual void BeginPlay() override;
+
+	// needed because controller is instanced
+	UPROPERTY(BlueprintReadOnly)
+	FString ControllerName;
 
 	virtual void InitializeAIFromStart();
 
