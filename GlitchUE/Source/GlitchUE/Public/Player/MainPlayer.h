@@ -188,6 +188,8 @@ public:
 
 	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
 
+	virtual void AddControllerYawInput(float Val) override;
+
 	virtual void AddControllerPitchInput(float Rate) override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
@@ -245,8 +247,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
+	float Sensibility = 1;
+
 public:
 	void SetInvertAxis(const bool bNewValue);
+
+	void SetSensibility(const float NewSensibility);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")

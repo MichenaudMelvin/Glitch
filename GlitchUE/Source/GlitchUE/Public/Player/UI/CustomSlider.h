@@ -28,6 +28,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Slider")
 	float SliderMaxValue;
 
+	UPROPERTY(EditAnywhere, Category = "Slider")
+	float IntegralDigits = 3;
+
+	UPROPERTY(EditAnywhere, Category = "Slider")
+	float FractionalDigits = 0;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Slider", meta = (BindWidget))
 	UTextBlock* SliderValue;
 

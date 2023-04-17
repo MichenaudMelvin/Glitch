@@ -174,7 +174,7 @@ void AMainPlayerController::BindCamera(){
 
 	OnTurn.AddDynamic(MainPlayer, &AMainPlayer::AddControllerYawInput);
 	OnTurnRate.AddDynamic(MainPlayer, &AMainPlayer::TurnAtRate);
-	
+
 	OnLookUp.AddDynamic(MainPlayer, &AMainPlayer::AddControllerPitchInput);
 	OnLookUpRate.AddDynamic(MainPlayer, &AMainPlayer::LookUpAtRate);
 }

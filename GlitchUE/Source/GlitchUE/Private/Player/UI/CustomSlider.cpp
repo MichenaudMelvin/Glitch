@@ -2,7 +2,6 @@
 
 
 #include "Player/UI/CustomSlider.h"
-
 #include "Kismet/KismetTextLibrary.h"
 
 void UCustomSlider::NativeOnInitialized(){
@@ -16,7 +15,7 @@ void UCustomSlider::NativeOnInitialized(){
 }
 
 void UCustomSlider::UpdateText(float Value){
-	SliderValue->SetText(UKismetTextLibrary::Conv_FloatToText(Value, HalfToEven, false, true, 3, 3, 0, 0));
+	SliderValue->SetText(UKismetTextLibrary::Conv_FloatToText(Value, HalfToEven, false, true, IntegralDigits, IntegralDigits, FractionalDigits, FractionalDigits));
 }
 
 void UCustomSlider::SetValue(const float Value){

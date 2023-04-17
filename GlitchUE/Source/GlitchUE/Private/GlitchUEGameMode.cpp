@@ -267,6 +267,7 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 		break;
 	case EPhases::TowerDefense:
 		WaveManager->StartWave();
+		MainPlayer->GetMainPlayerController()->SetCanSave(false);
 		break;
 	}
 }

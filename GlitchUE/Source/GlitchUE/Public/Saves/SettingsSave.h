@@ -24,6 +24,9 @@ public:
 #pragma endregion
 
 	UPROPERTY(BlueprintReadWrite)
-	float CamreaFOV = 90;
+	float CameraFOV = 90;
+
+	UPROPERTY(BlueprintReadWrite)
+	float CameraSensibility = 1;
 
 };
