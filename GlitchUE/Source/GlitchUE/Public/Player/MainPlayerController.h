@@ -168,6 +168,23 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
 	FKOnFastLoad OnFastLoad;
 
+	UFUNCTION(BlueprintCallable, Category = "Saves")
+	void BindFastSaveAndLoad();
+
+	UFUNCTION(BlueprintCallable, Category = "Saves")
+	void UnbindFastSaveAndLoad();
+
+	UFUNCTION()
+	void FastSave();
+
+	UFUNCTION()
+	void FastLoad();
+
+	UPROPERTY(BlueprintReadOnly, Category = "Saves")
+	bool bCanSave = true;
+
+	void SetCanSave(const bool bValue);
+
 	#pragma endregion
 
 	#pragma region UI

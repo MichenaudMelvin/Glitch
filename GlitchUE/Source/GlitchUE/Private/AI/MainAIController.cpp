@@ -19,8 +19,16 @@ AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer
 	Blackboard = CreateDefaultSubobject<UBlackboardComponent>(TEXT("Blackboard"));
 }
 
+FString AMainAIController::GetControllerName() const{
+	return ControllerName;
+}
+
 void AMainAIController::BeginPlay() {
 	Super::BeginPlay();
+
+	if(IsValid(GetPawn())){
+		ControllerName = GetPawn()->GetName() + "Controller";
+	}
 
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
 

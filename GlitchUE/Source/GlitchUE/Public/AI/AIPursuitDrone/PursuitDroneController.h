@@ -22,6 +22,8 @@ protected:
 
 	virtual void SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData) override;
 
+	virtual FAIData SaveAI() override;
+
 	TArray<ACatalyseur*> CatalyseurList;
 
 	virtual TArray<ACatalyseur*> GetCatalyseurList() const override;

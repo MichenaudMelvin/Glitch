@@ -60,9 +60,9 @@ void AGlitchUEGameMode::BeginPlay() {
 	TArray<AActor*> SceneCaptureArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
 
-#if !UE_BUILD_SHIPPING
+#if WITH_EDITOR
 
-	if (WaveManagerArray.Num() == 0) {
+	if (WaveManagerArray.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
 	}
 
@@ -91,7 +91,9 @@ void AGlitchUEGameMode::BeginPlay() {
 	BlinkingTimeline.AddInterpLinearColor(BlinkingCurve, UpdateEvent);
 	BlinkingTimeline.SetTimelineFinishedFunc(FinishEvent);
 
-	InitializeWorld();
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGlitchUEGameMode::InitializeWorld, 0.01f, false);
 }
 
 void AGlitchUEGameMode::Tick(float deltaTime){
@@ -130,12 +132,13 @@ void AGlitchUEGameMode::InitializeWorld(){
 		TArray<FString> FStringArray;
 		CurrentSave->AIDataList.GetKeys(FStringArray);
 
+
 		for(int i = 0; i < AIList.Num(); i++){
 			bool bFindAI = false;
 
 			for(int j = 0; j < FStringArray.Num(); j++){
-				if(AIList[i]->GetName() == FStringArray[j]){
-					Cast<AMainAIController>(AIList[i])->InitializeAI(CurrentSave->AIDataList.FindRef(AIList[i]->GetName()));
+				if(Cast<AMainAIController>(AIList[i])->GetControllerName() == FStringArray[j]){
+					Cast<AMainAIController>(AIList[i])->InitializeAI(CurrentSave->AIDataList.FindRef(Cast<AMainAIController>(AIList[i])->GetControllerName()));
 					bFindAI = true;
 					break;
 				}
@@ -162,12 +165,12 @@ void AGlitchUEGameMode::InitializeWorld(){
 					if(CurrentSave->InhibiteurStateList.FindRef(InhibiteurList[i]->GetName())){
 						CurrentInhibiteur->GetActivableComp()->ActivateObject();
 					}
+
 				}
 			}
 		}
 
 		CurrentSave->LoadedTime++;
-		UE_LOG(LogTemp, Warning, TEXT("Loaded number of this save : %d"), CurrentSave->LoadedTime);
 
 		if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
 			UUsefullFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
@@ -208,9 +211,9 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 
 	CurrentSave->AIDataList.Empty();
 	for(int i = 0; i < AIList.Num(); i++){
-		AMainAIController* CurrentCharacter = Cast<AMainAIController>(AIList[i]);
+		AMainAIController* CurrentController = Cast<AMainAIController>(AIList[i]);
 
-		CurrentSave->AIDataList.Add(CurrentCharacter->GetName(), CurrentCharacter->SaveAI());
+		CurrentSave->AIDataList.Add(CurrentController->GetControllerName(), CurrentController->SaveAI());
 	}
 
 	// Inhibiteurs
@@ -264,6 +267,7 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 		break;
 	case EPhases::TowerDefense:
 		WaveManager->StartWave();
+		MainPlayer->GetMainPlayerController()->SetCanSave(false);
 		break;
 	}
 }
@@ -335,13 +339,13 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 		MainPlayer->GetMesh()->SetScalarParameterValueOnMaterials("Apparition", 0);
 
-		switch (CurrentPhase){
-			case EPhases::Infiltration:
-				SetLevelState(ELevelState::Alerted);
-				break;
-			case EPhases::TowerDefense:
-				break;
-		}
+		// switch (CurrentPhase){
+		// 	case EPhases::Infiltration:
+		// 		SetLevelState(ELevelState::Alerted);
+		// 		break;
+		// 	case EPhases::TowerDefense:
+		// 		break;
+		// }
 
 		CheckAvailableGlitchEvents();
 		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 2));
@@ -479,6 +483,10 @@ void AGlitchUEGameMode::Dissolve(const float Value) const{
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
 	Cast<ADissolver>(DissolverArray[0])->DissolveTo(Value);
+}
+
+void AGlitchUEGameMode::CollectGarbage() const{
+	UKismetSystemLibrary::CollectGarbage();
 }
 
 #pragma endregion

@@ -36,9 +36,13 @@ public:
 	UPROPERTY()
 	bool bReceiveAlert;
 
-	// should be FPatrolData
+	// should be in FPatrolData
 	UPROPERTY()
 	int CurrentIndex;
+
+	// should be in FDroneData
+	UPROPERTY()
+	bool bIsDocked;
 };
 
 USTRUCT(BlueprintType)

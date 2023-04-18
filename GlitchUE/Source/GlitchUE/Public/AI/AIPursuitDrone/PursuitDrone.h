@@ -21,6 +21,10 @@ public:
 
 	void SetCurrentPad(APursuitDronePad* NewPad);
 
+	void ForceInDock() const;
+
+	void ForceStartAnim() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;

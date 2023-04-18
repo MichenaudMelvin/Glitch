@@ -2,7 +2,6 @@
 
 
 #include "Player/UI/Settings/SettingsMenu.h"
-
 #include "GlitchUEGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/GameUserSettings.h"
@@ -18,10 +17,17 @@ void USettingsMenu::NativeOnInitialized(){
 
 	YAxisCheckBox->OnCheckStateChanged.AddDynamic(this, &USettingsMenu::ToggleYAxis);
 	VSyncCheckBox->OnCheckStateChanged.AddDynamic(this, &USettingsMenu::ToggleVSync);
+
 	FOVSlider->GetSlider()->OnValueChanged.AddDynamic(this, &USettingsMenu::UpdateFOVSlider);
+	SensibilitySlider->GetSlider()->OnValueChanged.AddDynamic(this, &USettingsMenu::UpdateSensibilitySlider);
+
 	ResetSettingsButton->OnClicked.AddDynamic(this, &USettingsMenu::ResetSettings);
 
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+}
+
+void USettingsMenu::NativeConstruct(){
+	Super::NativeConstruct();
 
 	InitializeSettings();
 }
@@ -48,7 +54,11 @@ void USettingsMenu::ToggleVSync(bool IsChecked){
 }
 
 void USettingsMenu::UpdateFOVSlider(float Value){
-	Settings->CamreaFOV = Value;
+	Settings->CameraFOV = Value;
+}
+
+void USettingsMenu::UpdateSensibilitySlider(float Value){
+	Settings->CameraSensibility = Value;
 }
 
 void USettingsMenu::InitializeSettings(){
@@ -56,19 +66,21 @@ void USettingsMenu::InitializeSettings(){
 	Settings->bInvertCamYAxis ? YAxisCheckBox->SetCheckedState(ECheckBoxState::Checked) : YAxisCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
 	Settings->VSyncEnable ? VSyncCheckBox->SetCheckedState(ECheckBoxState::Checked) : VSyncCheckBox->SetCheckedState(ECheckBoxState::Unchecked); 
 
-	FOVSlider->SetValue(Settings->CamreaFOV);
+	FOVSlider->SetValue(Settings->CameraFOV);
+	SensibilitySlider->SetValue(Settings->CameraSensibility);
 
 	UpdateGlobalSettings();
 }
 
-void USettingsMenu::UpdateGlobalSettings(){
+void USettingsMenu::UpdateGlobalSettings() const{
 	GameUserSettings->SetVSyncEnabled(Settings->VSyncEnable);
 	GameUserSettings->ApplySettings(false);
 }
 
-void USettingsMenu::UpdatePlayerSettings(){
-	MainPlayer->GetFollowCamera()->SetFieldOfView(Settings->CamreaFOV);
+void USettingsMenu::UpdatePlayerSettings() const{
+	MainPlayer->GetFollowCamera()->SetFieldOfView(Settings->CameraFOV);
 	MainPlayer->SetInvertAxis(Settings->bInvertCamYAxis);
+	MainPlayer->SetSensibility(Settings->CameraSensibility);
 }
 
 void USettingsMenu::ResetSettings(){

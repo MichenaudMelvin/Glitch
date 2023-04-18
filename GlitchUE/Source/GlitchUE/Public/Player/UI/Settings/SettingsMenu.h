@@ -17,8 +17,11 @@ class GLITCHUE_API USettingsMenu : public USubWidget{
 protected:
 	virtual void NativeOnInitialized() override;
 
+	virtual void NativeConstruct() override;
+
 	virtual void NativeDestruct() override;
 
+	UPROPERTY()
 	USettingsSave* Settings;
 
 	UGameUserSettings* GameUserSettings;
@@ -46,19 +49,25 @@ protected:
 
 #pragma region Sliders
 
-#pragma endregion
-
 	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
 	UCustomSlider* FOVSlider;
 
 	UFUNCTION()
 	void UpdateFOVSlider(float Value);
 
+	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
+	UCustomSlider* SensibilitySlider;
+
+	UFUNCTION()
+	void UpdateSensibilitySlider(float Value);
+
+	#pragma endregion
+
 	void InitializeSettings();
 
-	void UpdateGlobalSettings();
+	void UpdateGlobalSettings() const;
 
-	void UpdatePlayerSettings();
+	void UpdatePlayerSettings() const;
 
 	UFUNCTION()
 	void ResetSettings();

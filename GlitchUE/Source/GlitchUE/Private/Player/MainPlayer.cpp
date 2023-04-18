@@ -93,12 +93,12 @@ AMainPlayer::AMainPlayer(){
 	GlichDashFXReference = FX.Object;
 }
 
-
 void AMainPlayer::BeginPlay(){
 	Super::BeginPlay();
 
 	SettingsSave = Cast<USettingsSave>(UUsefullFunctions::LoadSave(USettingsSave::StaticClass(), 0));
-	FollowCamera->FieldOfView = SettingsSave->CamreaFOV;
+	FollowCamera->FieldOfView = SettingsSave->CameraFOV;
+	Sensibility = SettingsSave->CameraSensibility;
 	bInvertYAxis = SettingsSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
@@ -343,12 +343,12 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensibility);
 }
 
 void AMainPlayer::LookUpAtRate(const float Rate){
 	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * Sensibility);
 }
 
 void AMainPlayer::Jump(){
@@ -372,12 +372,16 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 	}, CoyoteTime, false);
 }
 
+void AMainPlayer::AddControllerYawInput(float Val){
+	Super::AddControllerYawInput(Val * Sensibility);
+}
+
 void AMainPlayer::AddControllerPitchInput(float Rate){
 	if (bInvertYAxis) {
 		Rate = Rate * -1;
 	}
 
-	Super::AddControllerPitchInput(Rate);
+	Super::AddControllerPitchInput(Rate * Sensibility);
 }
 
 void AMainPlayer::SneakPressed_Implementation(){}
@@ -434,6 +438,10 @@ void AMainPlayer::PreviewObject(){
 
 void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;
+}
+
+void AMainPlayer::SetSensibility(const float NewSensibility){
+	Sensibility = NewSensibility;
 }
 
 
@@ -499,6 +507,7 @@ void AMainPlayer::TPToMark() {
 	MainPlayerController->UnbindMovement();
 	MainPlayerController->UnbindCamera();
 	MainPlayerController->UnbindGlitch();
+	MainPlayerController->SetCanSave(false);
 
 	StopJumping();
 	Mark->PlaceMark();
@@ -814,11 +823,13 @@ void AMainPlayer::EndTL(){
 
 		MainPlayerController->BindMovement();
 		MainPlayerController->BindCamera();
+		MainPlayerController->SetCanSave(true);
 
 		ResetOverlappedMeshes();
 
 		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
+
 		if(IsValid(CurrentDrone)){
 			CurrentDrone->GetMesh()->SetVisibility(true, true);
 		}
