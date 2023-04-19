@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MainAIController.h"
+#include "MainAIData.h"
 #include "Components/HealthComponent.h"
 #include "Components/SightComponent.h"
 #include "Components/WidgetComponent.h"
@@ -20,20 +21,21 @@ class GLITCHUE_API AMainAICharacter : public ACharacter, public IGlitchInterface
 public:
 	AMainAICharacter();
 
+	virtual void SetCurrentData(UMainAIData* NewData);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 
 	AMainAIController* AIController;
 
+	UMainAIData* CurrentData;
+
 	UPROPERTY(BlueprintReadWrite)
 	UBlackboardComponent* Blackboard;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* IdleFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	UPopcornFXEffect* DeathFX;
 
 public:
 	UBlackboardComponent* GetBlackBoard() const;
@@ -44,29 +46,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UHealthComponent* HealthComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
-	float GlitchHealth = 200;
-
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	USightComponent* SightComp;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Sight")
 	UWidgetComponent* SightWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sight")
-	FVector ScaleDetection = FVector(1, 1, 1);
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch" )
-	float GlitchUpgradeDuration = 10;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
-	float GlitchSpeed = 1000;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Speed")
-	float OriginalSpeed = 200;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Golds")
-	float GivenGoldsAtDeath = 20;
 
 	UFUNCTION()
 	void HealthNull();

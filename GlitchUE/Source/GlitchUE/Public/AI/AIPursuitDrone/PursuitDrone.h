@@ -25,6 +25,8 @@ public:
 
 	void ForceStartAnim() const;
 
+	virtual void SetCurrentData(UMainAIData* NewData) override;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -35,8 +37,6 @@ protected:
 	APursuitDronePad* Pad;
 
 	UAnimationAsset* StartAnim;
-
-	USkeletalMesh* DroneMesh;
 
 	USkeletalMesh* CrystalMesh;
 
@@ -63,18 +63,6 @@ protected:
 	FTimeline SpinTimeline;
 
 	UCurveFloat* ZeroToOneCurve;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Spin")
-	float SpinSpeed = 1;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Spin")
-	float SpinOffset = 90;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Spin")
-	float InteriorRotationOffset = 45;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Spin")
-	FVector SpinScale = FVector(0.5, 0.5, 0.5);
 
 	UFUNCTION()
 	void Spin(float Value);

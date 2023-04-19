@@ -57,7 +57,7 @@ void ASpawner::SpawnAI() {
 	AMainAICharacter* NewPawn = GetWorld()->SpawnActor<AMainAICharacter>(CurrentAITOSpawn, GetActorLocation(), GetActorRotation(), ActorSpawnParameters);
 	NewPawn->SetWaveManager(WaveManager);
 	WaveManager->AddAIToList(NewPawn);
-	Gamemode->AddGlitch(NewPawn->GetMainAIController()->AISpawnGlitchValue);
+	Gamemode->AddGlitch(NewPawn->GetMainAIController()->GetAIData()->AISpawnGlitchValue);
 
 	CurrentNumberOfAISpawned++;
 

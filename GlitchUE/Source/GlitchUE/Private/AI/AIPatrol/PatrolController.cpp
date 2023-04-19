@@ -2,7 +2,6 @@
 
 
 #include "AI/AIPatrol/PatrolController.h"
-
 #include "AI/AIPatrol/PatrolCharacter.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"

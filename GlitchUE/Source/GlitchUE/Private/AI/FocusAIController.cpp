@@ -2,6 +2,7 @@
 
 
 #include "AI/FocusAIController.h"
+#include "AI/FocusAIData.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -13,7 +14,9 @@ void AFocusAIController::BeginPlay(){
 		InitializeAIFromStart();
 	}
 
-	Blackboard->SetValueAsFloat("AttackDistance", AttackDistance);
+	const UFocusAIData* Data = Cast<UFocusAIData>(AIData);
+
+	Blackboard->SetValueAsFloat("AttackDistance", Data->AttackDistance);
 
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);

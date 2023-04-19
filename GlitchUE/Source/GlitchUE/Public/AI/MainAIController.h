@@ -11,6 +11,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnStopBehavior);
 
+class UMainAIData;
+
 UCLASS()
 class GLITCHUE_API AMainAIController : public AAIController{
 	GENERATED_BODY()
@@ -20,13 +22,15 @@ public:
 
 	FKOnStopBehavior OnStopBehavior;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
-	float AISpawnGlitchValue = 25;
-
 	FString GetControllerName() const;
+
+	UMainAIData* GetAIData() const;
 
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	UMainAIData* AIData;
 
 	// needed because controller is instanced
 	UPROPERTY(BlueprintReadOnly)
@@ -37,19 +41,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UBehaviorTree* BehaviorTree;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float StunTime = 5.0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Damages")
-	float Damages = 10;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
-	float GlitchDamages = 25;
-
-	float OriginalDamages;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float InvestigatingTime = 0.2f;
+	float Damages;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UAIPerceptionComponent* AIPerception;
@@ -57,9 +49,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UBlackboardData* BlackboardData;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "AIPerception")
+	UFUNCTION()
 	void PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus);
-	void PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus);
 
 public:
 	void ToggleGlitchDamages(const bool bEnable);

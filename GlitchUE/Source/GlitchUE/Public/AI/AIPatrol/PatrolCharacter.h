@@ -19,12 +19,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
 	TArray<APatrolPoint*> PatrolPointsList;
 
-	virtual void ReceiveGlitchUpgrade() override;
-
-	virtual void ResetGlitchUpgrade() override;
-
-	FVector GlitchScaleDetection = FVector(3, 3, 3);
-
 public:
 	TArray<APatrolPoint*> GetPatrolPointList() const;
 
