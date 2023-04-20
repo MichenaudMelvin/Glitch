@@ -14,13 +14,17 @@ void AFocusAIController::BeginPlay(){
 		InitializeAIFromStart();
 	}
 
-	const UFocusAIData* Data = Cast<UFocusAIData>(AIData);
-
-	Blackboard->SetValueAsFloat("AttackDistance", Data->AttackDistance);
-
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 	Nexus = Cast<ANexus>(NexusArray[0]);
+}
+
+void AFocusAIController::InitializeAIFromStart(){
+	Super::InitializeAIFromStart();
+
+	const UFocusAIData* Data = Cast<UFocusAIData>(AIData);
+
+	Blackboard->SetValueAsFloat("AttackDistance", Data->AttackDistance);
 
 	Blackboard->SetValueAsObject("Nexus", Nexus);
 	Blackboard->SetValueAsVector("NexusLocation", Nexus->GetActorLocation());

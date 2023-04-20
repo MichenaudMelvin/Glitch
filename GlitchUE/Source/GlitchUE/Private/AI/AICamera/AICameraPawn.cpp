@@ -28,20 +28,19 @@ void AAICameraPawn::BeginPlay(){
 	switch (CameraBehavior){
 	case ECameraBehavior::Static:
 		break;
-	
+
 	case ECameraBehavior::Clamped: 
 		Blackboard->SetValueAsFloat("MaxRotation", MaxRotation);
 		Blackboard->SetValueAsFloat("MinRotation", MinRotation);
-		Blackboard->SetValueAsFloat("SpeedRotation", SpeedRoation);
+		Blackboard->SetValueAsFloat("SpeedRotation", SpeedRotation);
 		break;
-	
+
 	case ECameraBehavior::FullRotation: 
-		Blackboard->SetValueAsFloat("SpeedRotation", SpeedRoation);
+		Blackboard->SetValueAsFloat("SpeedRotation", SpeedRotation);
 		break;
 	}
-	
+
 	USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
 	SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
 	SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
-
 }

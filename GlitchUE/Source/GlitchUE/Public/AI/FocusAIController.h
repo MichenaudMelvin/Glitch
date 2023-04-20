@@ -14,5 +14,7 @@ class GLITCHUE_API AFocusAIController : public AMainAIController{
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void InitializeAIFromStart() override;
+
 	ANexus* Nexus;
 };

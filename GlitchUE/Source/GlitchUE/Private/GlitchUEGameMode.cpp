@@ -177,7 +177,7 @@ void AGlitchUEGameMode::InitializeWorld(){
 			return;
 		}
 
-
+		OptionsString = "";
 		UUsefullFunctions::SaveToSlot(CurrentSave, SlotIndex);
 	}
 }

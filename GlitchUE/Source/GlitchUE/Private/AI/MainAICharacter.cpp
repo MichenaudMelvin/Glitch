@@ -54,9 +54,9 @@ void AMainAICharacter::BeginPlay(){
 
 	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
 
-	USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
-	SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
-	SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
+	// USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
+	// SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
+	// SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
 }
 
 void AMainAICharacter::Destroyed(){

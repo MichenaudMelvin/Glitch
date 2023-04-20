@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MainAIController.h"
-#include "MainAIData.h"
 #include "Components/HealthComponent.h"
 #include "Components/SightComponent.h"
 #include "Components/WidgetComponent.h"

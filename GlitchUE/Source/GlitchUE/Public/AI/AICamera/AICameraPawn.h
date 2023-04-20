@@ -24,10 +24,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	USightComponent* SightComp;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UWidgetComponent* SightWidget;
 
@@ -35,8 +35,8 @@ protected:
 	ECameraBehavior CameraBehavior;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior", meta = (EditCondition = "CameraBehavior != ECameraBehavior::Static"))
-	float SpeedRoation = 1;
-	
+	float SpeedRotation = 1;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior", meta = (EditCondition = "CameraBehavior == ECameraBehavior::Clamped"))
 	float MaxRotation = 90;
 

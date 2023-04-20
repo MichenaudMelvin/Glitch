@@ -4,6 +4,7 @@
 #include "BrainComponent.h"
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIData.h"
+#include "AI/MainAIPawn.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -25,22 +26,22 @@ FString AMainAIController::GetControllerName() const{
 	return ControllerName;
 }
 
+void AMainAIController::SetCurrentData(UMainAIData* NewData){
+	AIData = NewData;
+	SetDataToOwner();
+}
+
 UMainAIData* AMainAIController::GetAIData() const{
 	return AIData;
 }
 
-void AMainAIController::BeginPlay() {
+void AMainAIController::BeginPlay(){
 	Super::BeginPlay();
 
 	if(IsValid(GetPawn())){
 		ControllerName = GetPawn()->GetName() + "Controller";
+		SetDataToOwner();
 	}
-
-	if(GetPawn()->IsA(AMainAICharacter::StaticClass())){
-		Cast<AMainAICharacter>(GetPawn())->SetCurrentData(AIData);
-	}
-
-	Damages = AIData->Damages;
 
 	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
 
@@ -56,7 +57,24 @@ void AMainAIController::BeginPlay() {
 		}
 	}
 
+	if(!IsValid(GetPawn()) || !IsValid(AIData)){
+		FTimerHandle TimerHandle;
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainAIController::InitializeAIFromStart,0.2f, false);
+		return;
+	}
+
 	InitializeAIFromStart();
+}
+
+void AMainAIController::SetDataToOwner(){
+	Damages = AIData->Damages;
+
+	if(GetPawn()->IsA(AMainAICharacter::StaticClass())){
+		Cast<AMainAICharacter>(GetPawn())->SetCurrentData(AIData);
+	} else if(GetPawn()->IsA(AMainAIPawn::StaticClass())){
+		//Cast<AMainAIPawn>(GetPawn())->SetCurrentData(AIData);
+	}
 }
 
 void AMainAIController::InitializeAIFromStart(){
@@ -66,13 +84,8 @@ void AMainAIController::InitializeAIFromStart(){
 	Blackboard->SetValueAsFloat("StunTime", AIData->StunTime);
 	Blackboard->SetValueAsFloat("InvestigatingTime", AIData->InvestigatingTime);
 
-	FTimerHandle TimerHandle;
-
-	// micro delay pour les AI qui spawnent
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		Blackboard->SetValueAsVector("OriginalPosition", GetPawn()->GetActorLocation());
-		Blackboard->SetValueAsRotator("OriginalRotation", GetPawn()->GetActorRotation());
-	}, 0.2f, false);
+	Blackboard->SetValueAsVector("OriginalPosition", GetPawn()->GetActorLocation());
+	Blackboard->SetValueAsRotator("OriginalRotation", GetPawn()->GetActorRotation());
 }
 
 void AMainAIController::PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus) {

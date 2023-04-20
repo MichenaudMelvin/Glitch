@@ -24,6 +24,8 @@ public:
 
 	FString GetControllerName() const;
 
+	void SetCurrentData(UMainAIData* NewData);
+
 	UMainAIData* GetAIData() const;
 
 protected:
@@ -31,6 +33,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Data")
 	UMainAIData* AIData;
+
+	void SetDataToOwner();
 
 	// needed because controller is instanced
 	UPROPERTY(BlueprintReadOnly)
