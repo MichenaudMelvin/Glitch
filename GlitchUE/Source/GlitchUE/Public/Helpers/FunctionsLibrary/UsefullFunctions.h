@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/TimelineComponent.h"
+#include "GameFramework/Character.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UsefullFunctions.generated.h"
 
@@ -51,4 +53,19 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 
 		UFUNCTION(BlueprintCallable, Category = "Saves")
 		static bool DeleteSaveSlot(UAbstractSave* SaveObject, const int UserIndex);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timelines")
+		static float GetTimelineDuration(const UTimelineComponent* Timeline);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Character")
+		static bool IsCharacterMoving(const ACharacter* Character);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Character")
+		static bool IsCharacterMovingOnGround(const ACharacter* Character);
+
+		UFUNCTION(BlueprintCallable, Category = "AI|Hearing")
+		static void MakeNoise(AActor* Instigator, const FVector NoiseLocation, const float SoundRadius);
+
+		UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Print(const FString StringToPrint = "Hello World", const bool bPrintToScreen = true, const bool bPrintToLog = true, const FLinearColor TextColor = FLinearColor::Yellow, const float Duration = 0);
 };

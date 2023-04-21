@@ -374,6 +374,8 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 
 void AMainPlayer::AddControllerYawInput(float Val){
 	Super::AddControllerYawInput(Val * Sensibility);
+
+	MakeMovementNoise();
 }
 
 void AMainPlayer::AddControllerPitchInput(float Rate){
@@ -382,6 +384,8 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 	}
 
 	Super::AddControllerPitchInput(Rate * Sensibility);
+
+	MakeMovementNoise();
 }
 
 void AMainPlayer::SneakPressed_Implementation(){}
@@ -391,6 +395,28 @@ void AMainPlayer::SneakReleased_Implementation(){}
 void AMainPlayer::SprintToSneak_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
+
+void AMainPlayer::MakeMovementNoise(){
+	if(!UUsefullFunctions::IsCharacterMovingOnGround(this)){
+		return;
+	}
+
+	float NoiseRadius = 0;
+
+	switch (MovementMode) {
+	case EPlayerMovementMode::Normal:
+		NoiseRadius = NormalSpeedNoiseRange;
+		break;
+	case EPlayerMovementMode::Sneaking:
+		NoiseRadius = CrouchSpeedNoiseRange;
+		break;
+	case EPlayerMovementMode::Sprinting:
+		NoiseRadius = SprintSpeedNoiseRange;
+		break;
+	}
+
+	UUsefullFunctions::MakeNoise(this, GetActorLocation(), NoiseRadius);
+}
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
 	return MovementMode;

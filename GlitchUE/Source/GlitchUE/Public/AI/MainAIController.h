@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Perception/AIPerceptionComponent.h"
 #include "Objectives/Catalyseur.h"
 #include "Saves/WorldSave.h"
 #include "MainAIController.generated.h"
@@ -48,13 +47,7 @@ protected:
 	float Damages;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	UAIPerceptionComponent* AIPerception;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UBlackboardData* BlackboardData;
-
-	UFUNCTION()
-	void PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus);
 
 public:
 	void ToggleGlitchDamages(const bool bEnable);
