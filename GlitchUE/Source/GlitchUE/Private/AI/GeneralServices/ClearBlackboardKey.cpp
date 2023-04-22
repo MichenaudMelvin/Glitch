@@ -8,7 +8,6 @@
 UClearBlackboardKey::UClearBlackboardKey(){
 	Interval = 1;
 	RandomDeviation = 0;
-	
 }
 
 void UClearBlackboardKey::InitializeFromAsset(UBehaviorTree& Asset){

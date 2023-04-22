@@ -46,6 +46,9 @@ FAIData APatrolController::SaveAI(){
 	FAIData CurrentData = Super::SaveAI();
 
 	CurrentData.CurrentIndex = Blackboard->GetValueAsInt("CurrentIndex");
+	CurrentData.bHearSound = Blackboard->GetValueAsBool("HearSound");
+	CurrentData.HearingLocation = Blackboard->GetValueAsVector("HearingLocation");
+	CurrentData.bIsMovingToHearingLocation = Blackboard->GetValueAsBool("IsMovingToHearingLocation");
 
 	return CurrentData;
 }
@@ -55,10 +58,14 @@ void APatrolController::InitializeAI(const FAIData NewData){
 
 	Blackboard->SetValueAsInt("CurrentIndex", NewData.CurrentIndex);
 	Blackboard->SetValueAsObject("CurrentPatrolActor", Cast<APatrolCharacter>(GetPawn())->GetPatrolPointList()[NewData.CurrentIndex]);
+	Blackboard->SetValueAsBool("HearSound", NewData.bHearSound);
+	Blackboard->SetValueAsVector("HearingLocation", NewData.HearingLocation);
+	Blackboard->SetValueAsBool("IsMovingToHearingLocation", NewData.bIsMovingToHearingLocation);
+
 }
 
 void APatrolController::PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus){
-	if(Actor == this){
+	if(Actor->IsA(AMainAICharacter::StaticClass())){
 		return;
 	}
 

@@ -28,7 +28,7 @@ EBTNodeResult::Type ULookAt::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 	const UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
 	AActor* CurrentActor = OwnerComp.GetOwner();
 	FRotator TargetRotator;
-	
+
 	if(LookAtPosition.SelectedKeyType == UBlackboardKeyType_Vector::StaticClass()){
 		TargetRotator = UKismetMathLibrary::FindLookAtRotation(CurrentActor->GetActorLocation(), CurrentBlackboard->GetValue<UBlackboardKeyType_Vector>(LookAtPosition.GetSelectedKeyID()));
 	}
@@ -45,8 +45,8 @@ EBTNodeResult::Type ULookAt::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 	if(bIgnorePitchRotation){
 		TargetRotator.Pitch = 0;
 	}
-	
+
 	CurrentActor->SetActorRotation(TargetRotator, ETeleportType::None);
-	
+
 	return EBTNodeResult::Succeeded;
 }

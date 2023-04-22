@@ -40,6 +40,18 @@ public:
 	UPROPERTY()
 	int CurrentIndex;
 
+	// should be in FPatrolData
+	UPROPERTY()
+	bool bHearSound;
+
+	// should be in FPatrolData
+	UPROPERTY()
+	FVector HearingLocation;
+
+	// should be in FPatrolData
+	UPROPERTY()
+	bool bIsMovingToHearingLocation;
+
 	// should be in FDroneData
 	UPROPERTY()
 	bool bIsDocked;

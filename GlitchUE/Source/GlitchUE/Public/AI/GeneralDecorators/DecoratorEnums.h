@@ -5,7 +5,11 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
-enum class ECheckMethod : uint8{
+enum class ECheckMethod : uint8 {
 	Equal,
+	NotEqual,
+	GreaterThanOrEqualTo,
+	LessOrEqual,
 	GreaterThan,
+	LessThan,
 };

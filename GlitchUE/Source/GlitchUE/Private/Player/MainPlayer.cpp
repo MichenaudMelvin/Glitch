@@ -354,6 +354,8 @@ void AMainPlayer::LookUpAtRate(const float Rate){
 void AMainPlayer::Jump(){
 	Super::Jump();
 
+	UUsefullFunctions::MakeNoise(this, GetActorLocation(), JumpNoiseRange);
+
 	if(bUseCoyoteTime){
 		bUseCoyoteTime = false;
 		GetCharacterMovement()->Velocity.Z = FMath::Max(GetCharacterMovement()->Velocity.Z, GetCharacterMovement()->JumpZVelocity);
@@ -863,6 +865,8 @@ void AMainPlayer::EndTL(){
 		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 		HealthComp->SetCanTakeDamages(true);
+
+		UUsefullFunctions::MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
 	}, 0.2f, false);
 }
 

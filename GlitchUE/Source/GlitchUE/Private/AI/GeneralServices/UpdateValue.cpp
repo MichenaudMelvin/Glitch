@@ -9,7 +9,7 @@
 UUpdateValue::UUpdateValue(){
 	Interval = 1;
 	RandomDeviation = 0;
-	
+
 	ValueToUpdate.AddIntFilter(this, GET_MEMBER_NAME_CHECKED(UUpdateValue, ValueToUpdate));
 	ValueToUpdate.AddFloatFilter(this, GET_MEMBER_NAME_CHECKED(UUpdateValue, ValueToUpdate));
 }
@@ -25,9 +25,9 @@ void UUpdateValue::InitializeFromAsset(UBehaviorTree& Asset){
 
 void UUpdateValue::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds){
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
-	
+
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-	
+
 	// si la blackboard key est un int
 	if (ValueToUpdate.SelectedKeyType == UBlackboardKeyType_Int::StaticClass()){
 		int IntValue = CurrentBlackboard->GetValue<UBlackboardKeyType_Int>(ValueToUpdate.GetSelectedKeyID());
@@ -40,14 +40,14 @@ void UUpdateValue::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory
 			IntValue--;
 			break;
 		}
-		
+
 		CurrentBlackboard->SetValue<UBlackboardKeyType_Int>(ValueToUpdate.GetSelectedKeyID(), IntValue);
 	}
 
 	// si la blackboard key est un float
 	else if(ValueToUpdate.SelectedKeyType == UBlackboardKeyType_Float::StaticClass()){
 		float FloatValue = CurrentBlackboard->GetValue<UBlackboardKeyType_Float>(ValueToUpdate.GetSelectedKeyID());
-		
+
 		switch (UpdateMethod){
 		case EUpdateMethod::Increment:
 			FloatValue++;

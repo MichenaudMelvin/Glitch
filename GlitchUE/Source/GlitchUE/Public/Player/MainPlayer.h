@@ -159,6 +159,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
 	float CrouchSpeedNoiseRange = 50;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float GlitchDashNoiseRange = 750;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float JumpNoiseRange = 500;
+
 	void MakeMovementNoise();
 
 public:

@@ -55,12 +55,12 @@ protected:
 	UFUNCTION()
 	void ExitSight(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool IsSomethingInSight() const;
-
 	bool bIsPlayerInSight = false;
 
 public:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsSomethingInSight() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsPlayerInSight() const;
 
