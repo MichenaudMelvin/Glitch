@@ -4,6 +4,18 @@
 #include "AI/GeneralDecorators/CheckLevelState.h"
 #include "Kismet/GameplayStatics.h"
 
+void UCheckLevelState::PostLoad(){
+	Super::PostLoad();
+
+#if WITH_EDITOR
+	if(!IsValid(GetWorld())){
+		return;
+	}
+#endif
+
+	GlitchUEGameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+}
+
 bool UCheckLevelState::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const{
-	return Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->GetLevelState() == TargetLevelState;
+	return GlitchUEGameMode->GetLevelState() == TargetLevelState;
 }

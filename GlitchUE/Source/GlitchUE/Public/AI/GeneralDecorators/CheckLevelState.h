@@ -11,8 +11,13 @@ UCLASS()
 class GLITCHUE_API UCheckLevelState : public UCustomDecorator{
 	GENERATED_BODY()
 
+public:
+	virtual void PostLoad() override;
+
 private:
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
+
+	AGlitchUEGameMode* GlitchUEGameMode;
 
 	UPROPERTY(EditAnywhere, Category = "LevelState")
 	ELevelState TargetLevelState;

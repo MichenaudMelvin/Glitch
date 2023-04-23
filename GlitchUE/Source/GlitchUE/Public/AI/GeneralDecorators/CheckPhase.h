@@ -14,8 +14,12 @@ class GLITCHUE_API UCheckPhase : public UCustomDecorator{
 public:
 	UCheckPhase();
 
+	virtual void PostLoad() override;
+
 private:
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
+
+	AGlitchUEGameMode* GlitchUEGameMode;
 
 	UPROPERTY(EditAnywhere, Category = "Phases")
 	EPhases TargetPhase;

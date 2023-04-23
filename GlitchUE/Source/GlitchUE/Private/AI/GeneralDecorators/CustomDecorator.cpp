@@ -15,13 +15,20 @@ void UCustomDecorator::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
 
 void UCustomDecorator::CheckAbort(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const{
 	if(FlowAbortMode == EBTFlowAbortMode::None){
-		CalculateRawConditionValue(OwnerComp, NodeMemory);
 		return;
 	}
 
-	if(FlowAbortMode != EBTFlowAbortMode::None){
-		if(CalculateRawConditionValue(OwnerComp, NodeMemory)){
+	const bool bIsOnActiveBranch = OwnerComp.IsExecutingBranch(GetMyNode(), GetChildIndex());
+
+	bool bShouldAbort;
+
+	if (bIsOnActiveBranch){
+		bShouldAbort = (FlowAbortMode == EBTFlowAbortMode::Self || FlowAbortMode == EBTFlowAbortMode::Both) && !CalculateRawConditionValue(OwnerComp, NodeMemory);
+	} else{
+		bShouldAbort = (FlowAbortMode == EBTFlowAbortMode::LowerPriority || FlowAbortMode == EBTFlowAbortMode::Both) && CalculateRawConditionValue(OwnerComp, NodeMemory);
+	}
+
+	if(bShouldAbort){
 			OwnerComp.RequestExecution(this);
-		}
 	}
 }
