@@ -9,6 +9,8 @@
 #include "Kismet/KismetMathLibrary.h"
 
 USetPawnTransform::USetPawnTransform(){
+	ForceInstancing(true);
+
 	bNotifyTick = true;
 
 	TargetLocation.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(USetPawnTransform, TargetLocation));

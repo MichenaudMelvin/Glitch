@@ -2,11 +2,12 @@
 
 
 #include "AI/AIPatrol/PatrolController.h"
-
 #include "AI/AIPatrol/PatrolCharacter.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BlackboardData.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISenseConfig_Hearing.h"
 
 APatrolController::APatrolController(const FObjectInitializer& ObjectInitializer) : AMainAIController(ObjectInitializer){
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BehaviorTreeAsset(TEXT("/Game/Blueprint/AI/AIPatrol/BT_Patrol"));
@@ -18,6 +19,20 @@ APatrolController::APatrolController(const FObjectInitializer& ObjectInitializer
 	check(BlackboardAsset.Succeeded());
 
 	BlackboardData = BlackboardAsset.Object;
+
+	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception"));
+	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &APatrolController::PerceptionUpdate);
+
+	UAISenseConfig_Hearing* ConfigHearing = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
+
+	FAISenseAffiliationFilter AffiliationFilter;
+
+	AffiliationFilter.bDetectEnemies = true;
+	AffiliationFilter.bDetectFriendlies = true;
+	AffiliationFilter.bDetectNeutrals = true;
+
+	ConfigHearing->DetectionByAffiliation = AffiliationFilter;
+	AIPerception->ConfigureSense(*ConfigHearing);
 }
 
 void APatrolController::InitializeAIFromStart(){
@@ -31,6 +46,9 @@ FAIData APatrolController::SaveAI(){
 	FAIData CurrentData = Super::SaveAI();
 
 	CurrentData.CurrentIndex = Blackboard->GetValueAsInt("CurrentIndex");
+	CurrentData.bHearSound = Blackboard->GetValueAsBool("HearSound");
+	CurrentData.HearingLocation = Blackboard->GetValueAsVector("HearingLocation");
+	CurrentData.bIsMovingToHearingLocation = Blackboard->GetValueAsBool("IsMovingToHearingLocation");
 
 	return CurrentData;
 }
@@ -40,4 +58,24 @@ void APatrolController::InitializeAI(const FAIData NewData){
 
 	Blackboard->SetValueAsInt("CurrentIndex", NewData.CurrentIndex);
 	Blackboard->SetValueAsObject("CurrentPatrolActor", Cast<APatrolCharacter>(GetPawn())->GetPatrolPointList()[NewData.CurrentIndex]);
+	Blackboard->SetValueAsBool("HearSound", NewData.bHearSound);
+	Blackboard->SetValueAsVector("HearingLocation", NewData.HearingLocation);
+	Blackboard->SetValueAsBool("IsMovingToHearingLocation", NewData.bIsMovingToHearingLocation);
+
+}
+
+void APatrolController::PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus){
+	if(Actor->IsA(AMainAICharacter::StaticClass())){
+		return;
+	}
+
+	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Hearing::StaticClass()){
+		if(Blackboard->GetValueAsBool("HearSound")){
+			Blackboard->SetValueAsBool("IsMovingToHearingLocation", false);
+		} else{
+			Blackboard->SetValueAsBool("HearSound", true);
+		}
+
+		Blackboard->SetValueAsVector("HearingLocation", Stimulus.StimulusLocation);
+	}
 }

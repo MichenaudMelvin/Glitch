@@ -12,10 +12,10 @@ class GLITCHUE_API ULookAt : public UBTTaskNode{
 
 public:
 	ULookAt();
-	
+
 private:
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
-	
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	UPROPERTY(EditAnywhere, Category = "Rotation")

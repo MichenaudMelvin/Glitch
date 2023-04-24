@@ -150,6 +150,23 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float OriginalBrakingDecelerationWalking = 2048;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float NormalSpeedNoiseRange = 500;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float SprintSpeedNoiseRange = 1000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float CrouchSpeedNoiseRange = 50;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float GlitchDashNoiseRange = 750;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float JumpNoiseRange = 500;
+
+	void MakeMovementNoise();
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EPlayerMovementMode GetMovementMode() const;

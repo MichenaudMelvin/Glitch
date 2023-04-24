@@ -31,7 +31,7 @@ protected:
 	void SpawnAI();
 
 	AGlitchUEGameMode* Gamemode;
-	
+
 	FActorSpawnParameters ActorSpawnParameters;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
@@ -40,6 +40,8 @@ protected:
 	int NumberOfAISpawn;
 
 	int CurrentNumberOfAISpawned;
+
+	UMainAIData* CurrentAIData;
 
 	TSubclassOf<AMainAICharacter> CurrentAITOSpawn;
 
@@ -53,7 +55,7 @@ protected:
 	void DesactivateSpawner();
 
 public:
-	void BeginSpawn(int NumberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn);
+	void BeginSpawn(const int NumberToSpawn, const TSubclassOf<AMainAICharacter> AIToSpawn, UMainAIData* AIData);
 
 	UActivableComponent* GetActivableComp();
 

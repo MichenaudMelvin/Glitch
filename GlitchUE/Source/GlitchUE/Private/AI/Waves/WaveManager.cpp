@@ -158,7 +158,7 @@ void AWaveManager::SpawnEnemies(){
 	for (int i = 0; i < ListOfAIToSpawn.Num(); i++) {
 		const int NumberToSpawnForEachSpawners = ListOfAIToSpawn[i].NumberToSpawn / ActiveSpawnerList.Num();
 		for (int j = 0; j < ActiveSpawnerList.Num(); j++) {
-			ActiveSpawnerList[j]->BeginSpawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn);
+			ActiveSpawnerList[j]->BeginSpawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn, ListOfAIToSpawn[i].AIData);
 		}
 	}
 }

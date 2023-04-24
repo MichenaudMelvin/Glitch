@@ -177,13 +177,15 @@ void AGlitchUEGameMode::InitializeWorld(){
 			return;
 		}
 
-
+		OptionsString = "";
 		UUsefullFunctions::SaveToSlot(CurrentSave, SlotIndex);
 	}
 }
 
 void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index));
+
+	CurrentSave->LoadedTime = 0;
 
 	SceneCapture->SetActorLocation(MainPlayer->GetFollowCamera()->GetComponentLocation());
 	SceneCapture->SetActorRotation(MainPlayer->GetFollowCamera()->GetComponentRotation());

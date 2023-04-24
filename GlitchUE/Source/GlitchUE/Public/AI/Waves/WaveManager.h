@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AI/MainAIData.h"
 #include "Player/MainPlayer.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
@@ -47,6 +48,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int NumberToSpawn = 0;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UMainAIData* AIData;
 };
 
 USTRUCT(BlueprintType)

@@ -42,6 +42,7 @@ void AMainAICharacter::BeginPlay(){
 	FAttachmentTransformRules SightAttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false);
 	SightAttachmentRules.LocationRule = EAttachmentRule::KeepRelative;
 	SightAttachmentRules.RotationRule = EAttachmentRule::KeepRelative;
+	SightAttachmentRules.ScaleRule = EAttachmentRule::KeepWorld;
 
 	const FAttachmentTransformRules FXAttachmentRules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, false);
 
@@ -53,22 +54,40 @@ void AMainAICharacter::BeginPlay(){
 
 	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
 
-	USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
-	SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
-	SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
-
-	SightComp->SetWorldScale3D(ScaleDetection);
-
-	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
+	// USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
+	// SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
+	// SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
 }
 
 void AMainAICharacter::Destroyed(){
+	#if WITH_EDITOR
+		if(!IsValid(CurrentData)){
+			return;
+		}
+	#endif
+
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(AIController);
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
-	UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), DeathFX, "PopcornFX_DefaultScene", GetActorLocation(), GetActorRotation());
+	UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->DeathFX, "PopcornFX_DefaultScene", GetActorLocation(), GetActorRotation());
 
 	Super::Destroyed();
+}
+
+void AMainAICharacter::SetCurrentData(UMainAIData* NewData){
+	CurrentData = NewData;
+
+	if(!IsValid(CurrentData)){
+		return;
+	}
+
+	GetMesh()->SetSkeletalMesh(CurrentData->AIMesh);
+
+	IdleFX->SetEffect(CurrentData->IdleFX);
+	SightComp->SetStaticMesh(CurrentData->SightMesh);
+	SightComp->SetWorldScale3D(CurrentData->SightDetectionScale);
+
+	GetCharacterMovement()->MaxWalkSpeed = CurrentData->Speed;
 }
 
 UBlackboardComponent* AMainAICharacter::GetBlackBoard() const{
@@ -89,8 +108,8 @@ void AMainAICharacter::HealthNull() {
 
 	#if WITH_EDITOR
 	// uniquement pour le mode spectateur
-	if(IsValid(Player)){
-		Cast<AMainPlayer>(Player)->GiveGolds(GivenGoldsAtDeath);
+	if(!IsValid(Player)){
+		return;
 	}
 	#endif
 
@@ -117,9 +136,10 @@ void AMainAICharacter::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
 	// Ici set les upgrades dans les fonctions qui vont hériter
 
-	GetCharacterMovement()->MaxWalkSpeed = GlitchSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = CurrentData->GlitchSpeed;
+	SightComp->SetWorldScale3D(CurrentData->GlitchSightScaleDetection);
 
-	HealthComp->SetMaxHealth(GlitchHealth);
+	HealthComp->SetMaxHealth(CurrentData->GlitchHealth);
 	AIController->ToggleGlitchDamages(true);
 
 	FTimerHandle TimerHandle;
@@ -127,17 +147,19 @@ void AMainAICharacter::ReceiveGlitchUpgrade(){
 	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
 		//reset à l'upgrade actuelle
 		ResetGlitchUpgrade();
-	}, GlitchUpgradeDuration, false);
+	}, CurrentData->GlitchDuration, false);
 }
 
 
 void AMainAICharacter::ResetGlitchUpgrade(){
 	IGlitchInterface::ResetGlitchUpgrade();
 
+	GetCharacterMovement()->MaxWalkSpeed = CurrentData->Speed;
+	SightComp->SetWorldScale3D(CurrentData->SightDetectionScale);
+
 	HealthComp->SetMaxHealth(HealthComp->GetOriginalMaxHealth());
 	AIController->ToggleGlitchDamages(false);
 
-	GetCharacterMovement()->MaxWalkSpeed = OriginalSpeed;
 }
 
 void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages){

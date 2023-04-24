@@ -14,8 +14,12 @@ class GLITCHUE_API USetLevelState : public UBTService{
 public:
 	USetLevelState();
 
+	virtual void PostLoad() override;
+
 private:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+	AGlitchUEGameMode* GlitchUEGameMode;
 
 	UPROPERTY(EditAnywhere, Category = "LevelState")
 	ELevelState NewLevelState;

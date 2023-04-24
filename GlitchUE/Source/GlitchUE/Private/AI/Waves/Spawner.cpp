@@ -43,9 +43,10 @@ void ASpawner::DesactivateSpawner(){
 	UUsefullFunctions::OutlineComponent(false, SpawnerMesh);
 }
 
-void ASpawner::BeginSpawn(int NumberToSpawn, TSubclassOf<AMainAICharacter> AIToSpawn) {
+void ASpawner::BeginSpawn(const int NumberToSpawn, const TSubclassOf<AMainAICharacter> AIToSpawn, UMainAIData* AIData) {
 	CurrentAITOSpawn = AIToSpawn;
 	NumberOfAISpawn = NumberToSpawn;
+	CurrentAIData = AIData;
 
 	CurrentNumberOfAISpawned = 0;
 
@@ -57,15 +58,16 @@ void ASpawner::SpawnAI() {
 	AMainAICharacter* NewPawn = GetWorld()->SpawnActor<AMainAICharacter>(CurrentAITOSpawn, GetActorLocation(), GetActorRotation(), ActorSpawnParameters);
 	NewPawn->SetWaveManager(WaveManager);
 	WaveManager->AddAIToList(NewPawn);
-	Gamemode->AddGlitch(NewPawn->GetMainAIController()->AISpawnGlitchValue);
+	NewPawn->GetMainAIController()->SetCurrentData(CurrentAIData);
+
+	Gamemode->AddGlitch(CurrentAIData->AISpawnGlitchValue);
 
 	CurrentNumberOfAISpawned++;
 
 	if (AnyAILeftToSpawn()) {
 		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-			SpawnAI();
-		}, SpawnDelay, false);
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ASpawner::SpawnAI, SpawnDelay, false);
 	}
 }
 

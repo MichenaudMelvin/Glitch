@@ -22,18 +22,6 @@ APatrolCharacter::APatrolCharacter(){
 #endif
 }
 
-void APatrolCharacter::ReceiveGlitchUpgrade(){
-	Super::ReceiveGlitchUpgrade();
-
-	SightComp->SetWorldScale3D(GlitchScaleDetection);
-}
-
-void APatrolCharacter::ResetGlitchUpgrade(){
-	Super::ResetGlitchUpgrade();
-
-	SightComp->SetWorldScale3D(ScaleDetection);
-}
-
 TArray<APatrolPoint*> APatrolCharacter::GetPatrolPointList() const{
 	return PatrolPointsList;
 }

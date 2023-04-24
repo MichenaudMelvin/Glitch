@@ -2,19 +2,15 @@
 
 #include "AI/MainAIController.h"
 #include "BrainComponent.h"
+#include "AI/MainAICharacter.h"
+#include "AI/MainAIData.h"
+#include "AI/MainAIPawn.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Perception/AIPerceptionTypes.h"
 #include "Perception/AIPerceptionSystem.h"
-#include "Perception/AISenseConfig_Sight.h"
-#include "Perception/AISense_Sight.h"
-#include "Player/MainPlayer.h"
 
-AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer)
-: Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))) {
-
-	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
+AMainAIController::AMainAIController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))){
 
 	Blackboard = CreateDefaultSubobject<UBlackboardComponent>(TEXT("Blackboard"));
 }
@@ -23,16 +19,22 @@ FString AMainAIController::GetControllerName() const{
 	return ControllerName;
 }
 
-void AMainAIController::BeginPlay() {
+void AMainAIController::SetCurrentData(UMainAIData* NewData){
+	AIData = NewData;
+	SetDataToOwner();
+}
+
+UMainAIData* AMainAIController::GetAIData() const{
+	return AIData;
+}
+
+void AMainAIController::BeginPlay(){
 	Super::BeginPlay();
 
 	if(IsValid(GetPawn())){
 		ControllerName = GetPawn()->GetName() + "Controller";
+		SetDataToOwner();
 	}
-
-	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AMainAIController::PerceptionUpdate);
-
-	OriginalDamages = Damages;
 
 	const FString Settings = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString;
 
@@ -46,50 +48,39 @@ void AMainAIController::BeginPlay() {
 		}
 	}
 
+	if(!IsValid(GetPawn()) || !IsValid(AIData)){
+		FTimerHandle TimerHandle;
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainAIController::InitializeAIFromStart,0.2f, false);
+		return;
+	}
+
 	InitializeAIFromStart();
+}
+
+void AMainAIController::SetDataToOwner(){
+	Damages = AIData->Damages;
+
+	if(GetPawn()->IsA(AMainAICharacter::StaticClass())){
+		Cast<AMainAICharacter>(GetPawn())->SetCurrentData(AIData);
+	} else if(GetPawn()->IsA(AMainAIPawn::StaticClass())){
+		//Cast<AMainAIPawn>(GetPawn())->SetCurrentData(AIData);
+	}
 }
 
 void AMainAIController::InitializeAIFromStart(){
 	RunBehaviorTree(BehaviorTree);
 	UseBlackboard(BlackboardData, Blackboard);
 
-	Blackboard->SetValueAsFloat("StunTime", StunTime);
-	Blackboard->SetValueAsFloat("InvestigatingTime", InvestigatingTime);
+	Blackboard->SetValueAsFloat("StunTime", AIData->StunTime);
+	Blackboard->SetValueAsFloat("InvestigatingTime", AIData->InvestigatingTime);
 
-	FTimerHandle TimerHandle;
-
-	// micro delay pour les AI qui spawnent
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		Blackboard->SetValueAsVector("OriginalPosition", GetPawn()->GetActorLocation());
-		Blackboard->SetValueAsRotator("OriginalRotation", GetPawn()->GetActorRotation());
-	}, 0.2f, false);
-}
-
-void AMainAIController::PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus) {
-	UE_LOG(LogTemp, Error, TEXT("c'est un print pour savoir si cette fonction est encore utile"));
-	// if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Sight::StaticClass()) {
-	// 	if (Actor->IsA(AMainPlayer::StaticClass())) {
-	// 		AActor* Player = Actor;
-	//
-	// 		if (IsValid(Blackboard->GetValueAsObject(FName(TEXT("Player"))))) {
-	// 			SetPlayerValues(Player);
-	// 		} 
-	// 		else {
-	// 			Blackboard->SetValueAsBool(FName(TEXT("Investigate")), true);
-	// 			Blackboard->SetValueAsVector(FName(TEXT("InvestigationLocation")), Player->GetActorLocation());
-	//
-	// 			FTimerHandle TimerHandle;
-	//
-	// 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-	// 				SetPlayerValues(Player);
-	// 			}, Blackboard->GetValueAsFloat(FName(TEXT("InvestigatingTime"))), false);
-	// 		}
-	// 	}
-	// }
+	Blackboard->SetValueAsVector("OriginalPosition", GetPawn()->GetActorLocation());
+	Blackboard->SetValueAsRotator("OriginalRotation", GetPawn()->GetActorRotation());
 }
 
 void AMainAIController::ToggleGlitchDamages(const bool bEnable){
-	Damages = bEnable ? GlitchDamages : OriginalDamages; 
+	Damages = bEnable ? AIData->GlitchDamages : AIData->Damages;
 }
 
 float AMainAIController::GetDamages() const{
@@ -133,8 +124,8 @@ void AMainAIController::InitializeAI(const FAIData NewData){
 
 	GetPawn()->SetActorTransform(NewData.CurrentTransform);
 
-	Blackboard->SetValueAsFloat("StunTime", StunTime);
-	Blackboard->SetValueAsFloat("InvestigatingTime", InvestigatingTime);
+	Blackboard->SetValueAsFloat("StunTime", AIData->StunTime);
+	Blackboard->SetValueAsFloat("InvestigatingTime", AIData->InvestigatingTime);
 
 	Blackboard->SetValueAsVector("OriginalPosition", NewData.OriginalPosition);
 	Blackboard->SetValueAsRotator("OriginalRotation", NewData.OriginalRotation);
