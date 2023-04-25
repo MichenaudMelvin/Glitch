@@ -35,6 +35,9 @@ ATrap::ATrap(){
 	TrapDistance->SetRelativeLocation(FVector(0, 0, 50));
 
 	TrapDistance->SetBoxExtent(FVector::ZeroVector);
+
+	TrapDistance->SetCollisionResponseToAllChannels(ECR_Ignore);
+	TrapDistance->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 void ATrap::BeginPlay(){
@@ -53,9 +56,7 @@ void ATrap::OnActivateTrap(){
 	Attack();
 	FTimerHandle TimerHandle;
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		ActivableComp->DesactivateObject();
-	}, TrapDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, ActivableComp, &UActivableComponent::DesactivateObject, TrapDuration, false);
 }
 
 void ATrap::OnDesactivateTrap(){
@@ -146,8 +147,6 @@ void ATrap::FadeIn(float Alpha){
 void ATrap::Attack_Implementation(){
 	Super::Attack_Implementation();
 
-	GEngine->AddOnScreenDebugMessage(-1, AttackRate, FColor::Yellow, TEXT("TrapAttack"));
-
 	TArray<AMainAICharacter*>AIArray = AIList.Array();
 	const UTrapData* Data = Cast<UTrapData>(CurrentData);
 
@@ -156,7 +155,7 @@ void ATrap::Attack_Implementation(){
 	}
 
 	for(int i = 0; i < AIArray.Num(); i++){
-		AIArray[i]->ReceiveTrapEffect(TrapEffect, TrapEffectDuration, Data->EffectTickRate, Data->EffectDamages);
+		AIArray[i]->ReceiveTrapEffect(Data);
 	}
 
 	AttackFX->StartEmitter();

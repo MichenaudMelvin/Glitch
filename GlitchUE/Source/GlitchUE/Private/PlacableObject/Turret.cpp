@@ -38,6 +38,9 @@ ATurret::ATurret() {
 	TurretVision->SetRelativeLocation(FVector(0, 0, 100));
 
 	TurretVision->SetSphereRadius(0);
+
+	TurretVision->SetCollisionResponseToAllChannels(ECR_Ignore);
+	TurretVision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 void ATurret::BeginPlay(){

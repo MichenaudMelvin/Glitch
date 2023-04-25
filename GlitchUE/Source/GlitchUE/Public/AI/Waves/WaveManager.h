@@ -50,7 +50,7 @@ public:
 	int NumberToSpawn = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UMainAIData* AIData;
+	UMainAIData* AIData = nullptr;
 };
 
 USTRUCT(BlueprintType)
