@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "LooseScreen.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API ULooseScreen : public UUserWidget{
 	GENERATED_BODY()
 

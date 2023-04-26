@@ -7,7 +7,7 @@
 #include "Player/MainPlayer.h"
 #include "SelectionButton.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API USelectionButton : public UUserWidget{
 	GENERATED_BODY()
 

@@ -7,7 +7,7 @@
 #include "Components/Border.h"
 #include "FadeScreen.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UFadeScreen : public UUserWidget{
 	GENERATED_BODY()
 

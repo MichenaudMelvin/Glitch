@@ -8,7 +8,7 @@
 #include "Engine/SplineMeshActor.h"
 #include "PatrolCharacter.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API APatrolCharacter : public AMainAICharacter{
 	GENERATED_BODY()
 

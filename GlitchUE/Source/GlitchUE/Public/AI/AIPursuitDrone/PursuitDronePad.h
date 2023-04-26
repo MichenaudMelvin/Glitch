@@ -8,7 +8,7 @@
 
 class APursuitDrone;
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API APursuitDronePad : public ASkeletalMeshActor{
 	GENERATED_BODY()
 

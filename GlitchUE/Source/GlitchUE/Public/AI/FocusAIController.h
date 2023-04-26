@@ -7,7 +7,7 @@
 #include "Objectives/Nexus.h"
 #include "FocusAIController.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AFocusAIController : public AMainAIController{
 	GENERATED_BODY()
 

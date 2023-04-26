@@ -6,7 +6,7 @@
 #include "AI/MainAIController.h"
 #include "AICameraController.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AAICameraController : public AMainAIController{
 	GENERATED_BODY()
 

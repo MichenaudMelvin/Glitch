@@ -3,7 +3,6 @@
 #include "Player/MainPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -18,12 +17,10 @@
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
-#include "AI/Navigation/NavAreaCostAsOne.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
-#include "Sound/SoundBase.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -96,10 +93,10 @@ AMainPlayer::AMainPlayer(){
 void AMainPlayer::BeginPlay(){
 	Super::BeginPlay();
 
-	SettingsSave = Cast<USettingsSave>(UUsefullFunctions::LoadSave(USettingsSave::StaticClass(), 0));
-	FollowCamera->FieldOfView = SettingsSave->CameraFOV;
-	Sensibility = SettingsSave->CameraSensibility;
-	bInvertYAxis = SettingsSave->bInvertCamYAxis;
+	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefullFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
+	FollowCamera->FieldOfView = GameplaySettingsSaveSave->CameraFOV;
+	Sensibility = GameplaySettingsSaveSave->CameraSensibility;
+	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 

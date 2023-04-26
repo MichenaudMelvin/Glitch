@@ -7,7 +7,7 @@
 #include "Player/UI/PlacableSelection/PlacableSelection.h"
 #include "Wheel.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UWheel : public UPlacableSelection{
 	GENERATED_BODY()
 

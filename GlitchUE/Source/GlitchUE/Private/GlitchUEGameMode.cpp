@@ -12,6 +12,7 @@
 #include "AI/MainAIPawn.h"
 #include "AI/AIPatrol/PatrolCharacter.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
@@ -489,6 +490,10 @@ void AGlitchUEGameMode::Dissolve(const float Value) const{
 
 void AGlitchUEGameMode::CollectGarbage() const{
 	UKismetSystemLibrary::CollectGarbage();
+}
+
+void AGlitchUEGameMode::RemoveAllWidgets() const{
+	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
 }
 
 #pragma endregion

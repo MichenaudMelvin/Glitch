@@ -2,6 +2,8 @@
 
 
 #include "Player/MenuGamemode.h"
+
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Saves/WorldSave.h"
@@ -20,4 +22,8 @@ void AMenuGamemode::GlobalWorldLoad(const int Index){
 	LoadOptions += FString::FromInt(Index);
 
 	UGameplayStatics::OpenLevel(this, FName("Level_1"), true, LoadOptions);
+}
+
+void AMenuGamemode::RemoveAllWidgets() const{
+	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
 }

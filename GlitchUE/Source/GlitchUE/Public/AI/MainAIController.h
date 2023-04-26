@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnStopBehavior);
 
 class UMainAIData;
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AMainAIController : public AAIController{
 	GENERATED_BODY()
 

@@ -8,7 +8,7 @@
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
-#include "Saves/SettingsSave.h"
+#include "Saves/Settings/GameplaySettingsSave.h"
 #include "MainPlayer.generated.h"
 
 class AMainPlayerController;
@@ -472,7 +472,7 @@ public:
 	#pragma region Saves
 
 	UPROPERTY(BlueprintReadWrite)
-	USettingsSave* SettingsSave;
+	UGameplaySettingsSave* GameplaySettingsSaveSave;
 
 	#pragma endregion
 

@@ -6,7 +6,6 @@
 #include "CoreMinimal.h"
 #include "AbstractPlayerController.h"
 #include "GlitchUEGameMode.h"
-#include "GameFramework/PlayerController.h"
 #include "UI/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -78,7 +77,7 @@ enum class EGameplayMode : uint8 {
 	Destruction,
 };
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 	GENERATED_BODY()
 

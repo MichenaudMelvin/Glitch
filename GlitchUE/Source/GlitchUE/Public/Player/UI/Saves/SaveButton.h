@@ -10,7 +10,7 @@
 #include "Saves/WorldSave.h"
 #include "SaveButton.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API USaveButton : public UUserWidget, public IUserObjectListEntry{
 	GENERATED_BODY()
 

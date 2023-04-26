@@ -19,7 +19,7 @@ enum class ETrapEffect : uint8{
 	SlowedDown,
 };
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API ATrap : public APlacableActor{
 	GENERATED_BODY()
 

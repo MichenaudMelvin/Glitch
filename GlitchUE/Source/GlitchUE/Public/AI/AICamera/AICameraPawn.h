@@ -15,7 +15,7 @@ enum class ECameraBehavior : uint8{
 	FullRotation,
 };
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AAICameraPawn : public AMainAIPawn{
 	GENERATED_BODY()
 

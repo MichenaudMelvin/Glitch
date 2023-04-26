@@ -13,4 +13,11 @@ class GLITCHUE_API AMenuGamemode : public AGameModeBase, public ISaveInterface{
 
 public:
 	virtual void GlobalWorldLoad(const int Index) override;
+
+	#pragma region ConsoleCommands
+
+	UFUNCTION(Exec)
+	void RemoveAllWidgets() const;
+
+	#pragma endregion
 };

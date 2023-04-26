@@ -6,7 +6,7 @@
 #include "Player/UI/PlacableSelection/SelectionButton.h"
 #include "PlacableObjectButton.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UPlacableObjectButton : public USelectionButton{
 	GENERATED_BODY()
 

@@ -199,6 +199,11 @@ private:
 	UFUNCTION(Exec)
 	void CollectGarbage() const;
 
+	// this one should be used for showing the game without UI, it can easily causes glitch otherwise
+	// you can use the BindNormalMode command to fix glitch
+	UFUNCTION(Exec)
+	void RemoveAllWidgets() const;
+
 #pragma endregion
 
 };

@@ -7,7 +7,7 @@
 #include "Components/Image.h"
 #include "Heart.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UHeart : public UUserWidget{
 	GENERATED_BODY()
 

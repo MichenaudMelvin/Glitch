@@ -8,7 +8,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlacableSelection.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UPlacableSelection : public UUserWidget{
 	GENERATED_BODY()
 

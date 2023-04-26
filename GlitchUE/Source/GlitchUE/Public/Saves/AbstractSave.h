@@ -6,7 +6,7 @@
 #include "GameFramework/SaveGame.h"
 #include "AbstractSave.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UAbstractSave : public USaveGame{
 	GENERATED_BODY()
 

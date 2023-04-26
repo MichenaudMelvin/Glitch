@@ -30,7 +30,7 @@ public:
 	UPlacableActorData* Data = NewObject<UPlacableActorData>();
 };
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API APlacableActor : public AActor, public IGlitchInterface{
 	GENERATED_BODY()
 

@@ -14,7 +14,7 @@
 
 class AWaveManager;
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AMainAICharacter : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
 

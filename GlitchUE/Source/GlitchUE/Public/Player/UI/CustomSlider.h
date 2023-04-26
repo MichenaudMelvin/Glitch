@@ -9,7 +9,7 @@
 #include "Components/TextBlock.h"
 #include "CustomSlider.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UCustomSlider : public UUserWidget{
 	GENERATED_BODY()
 

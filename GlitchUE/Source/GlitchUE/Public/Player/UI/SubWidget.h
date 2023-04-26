@@ -8,7 +8,7 @@
 #include "Player/AbstractPlayerController.h"
 #include "SubWidget.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API USubWidget : public UUserWidget{
 	GENERATED_BODY()
 

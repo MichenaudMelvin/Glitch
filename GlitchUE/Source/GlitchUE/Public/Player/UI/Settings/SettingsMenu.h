@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/CheckBox.h"
 #include "Player/MainPlayer.h"
-#include "Player/UI/CustomSlider.h"
-#include "Player/UI/SubWidget.h"
-#include "Saves/SettingsSave.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
+#include "Saves/Settings/SettingsSave.h"
+#include "GameFramework/GameUserSettings.h"
 #include "SettingsMenu.generated.h"
 
-UCLASS()
-class GLITCHUE_API USettingsMenu : public USubWidget{
+UCLASS(Abstract)
+class GLITCHUE_API USettingsMenu : public UUserWidget{
 	GENERATED_BODY()
 
 protected:
@@ -21,8 +21,13 @@ protected:
 
 	virtual void NativeDestruct() override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Name")
+	FText SettingCategory;
+
 	UPROPERTY()
 	USettingsSave* Settings;
+
+	TSubclassOf<USettingsSave> SettingClass;
 
 	UGameUserSettings* GameUserSettings;
 
@@ -31,44 +36,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
 	UButton* ResetSettingsButton;
 
-#pragma region CheckBox
+	virtual void InitializeSettings();
 
-	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UCheckBox* YAxisCheckBox;
-
-	UFUNCTION()
-	void ToggleYAxis(bool IsChecked);
-
-	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UCheckBox* VSyncCheckBox;
+	virtual void UpdateSettings() const;
 
 	UFUNCTION()
-	void ToggleVSync(bool IsChecked);
+	virtual void ResetSettings();
 
-#pragma endregion
-
-#pragma region Sliders
-
-	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UCustomSlider* FOVSlider;
-
-	UFUNCTION()
-	void UpdateFOVSlider(float Value);
-
-	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UCustomSlider* SensibilitySlider;
-
-	UFUNCTION()
-	void UpdateSensibilitySlider(float Value);
-
-	#pragma endregion
-
-	void InitializeSettings();
-
-	void UpdateGlobalSettings() const;
-
-	void UpdatePlayerSettings() const;
-
-	UFUNCTION()
-	void ResetSettings();
+public:
+	FText GetSettingCategory() const;
 };

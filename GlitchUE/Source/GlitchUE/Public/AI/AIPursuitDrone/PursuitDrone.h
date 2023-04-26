@@ -7,7 +7,7 @@
 #include "AI/MainAICharacter.h"
 #include "PursuitDrone.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API APursuitDrone : public AMainAICharacter{
 	GENERATED_BODY()
 
