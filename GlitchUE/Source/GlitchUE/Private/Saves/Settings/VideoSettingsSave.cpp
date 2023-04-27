@@ -3,3 +3,6 @@
 
 #include "Saves/Settings/VideoSettingsSave.h"
 
+UVideoSettingsSave::UVideoSettingsSave(){
+	SlotName = "VideoSettings";
+}

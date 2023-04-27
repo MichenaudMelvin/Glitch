@@ -67,5 +67,5 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 		static void MakeNoise(AActor* Instigator, const FVector NoiseLocation, const float SoundRadius);
 
 		UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void Print(const FString StringToPrint = "Hello World", const bool bPrintToScreen = true, const bool bPrintToLog = true, const FLinearColor TextColor = FLinearColor::Yellow, const float Duration = 0);
+		static void Print(const FString StringToPrint = "Hello World", const bool bPrintToScreen = true, const bool bPrintToLog = false, const FLinearColor TextColor = FLinearColor::Yellow, const float Duration = 0);
 };

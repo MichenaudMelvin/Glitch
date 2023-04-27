@@ -13,48 +13,48 @@ struct FAIData{
 
 public:
 	UPROPERTY()
-	FTransform CurrentTransform;
+	FTransform CurrentTransform = FTransform::Identity;
 
 	UPROPERTY()
-	FVector OriginalPosition;
+	FVector OriginalPosition = FVector::ZeroVector;
 
 	UPROPERTY()
-	FRotator OriginalRotation;
+	FRotator OriginalRotation = FRotator::ZeroRotator;
 
 	UPROPERTY()
-	bool bIsStun;
+	bool bIsStun = false;
 
 	UPROPERTY()
-	bool bInvestigate;
+	bool bInvestigate = false;
 
 	UPROPERTY()
-	FVector InvestigationLocation;
+	FVector InvestigationLocation = FVector::ZeroVector;
 
 	UPROPERTY()
-	bool bDoingExternalActions;
+	bool bDoingExternalActions = false;
 
 	UPROPERTY()
-	bool bReceiveAlert;
-
-	// should be in FPatrolData
-	UPROPERTY()
-	int CurrentIndex;
+	bool bReceiveAlert = false;
 
 	// should be in FPatrolData
 	UPROPERTY()
-	bool bHearSound;
+	int CurrentIndex = 0;
 
 	// should be in FPatrolData
 	UPROPERTY()
-	FVector HearingLocation;
+	bool bHearSound = false;
 
 	// should be in FPatrolData
 	UPROPERTY()
-	bool bIsMovingToHearingLocation;
+	FVector HearingLocation = FVector::ZeroVector;
+
+	// should be in FPatrolData
+	UPROPERTY()
+	bool bIsMovingToHearingLocation = false;
 
 	// should be in FDroneData
 	UPROPERTY()
-	bool bIsDocked;
+	bool bIsDocked = false;
 };
 
 USTRUCT(BlueprintType)

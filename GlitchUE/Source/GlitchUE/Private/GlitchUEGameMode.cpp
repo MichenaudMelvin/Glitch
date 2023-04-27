@@ -25,13 +25,6 @@
 #include "Saves/WorldSave.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
-	// set default pawn class to our Blueprinted character
-	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Blueprint/Player/BP_MainPlayer"));
-	// if (PlayerPawnBPClass.Class != NULL)
-	// {
-	// 	DefaultPawnClass = PlayerPawnBPClass.Class;
-	// }
-
 	PrimaryActorTick.bCanEverTick = true;
 
 	static ConstructorHelpers::FObjectFinder<UCurveLinearColor> Color(TEXT("/Game/Blueprint/Curves/CC_LevelStateCurve"));
@@ -43,11 +36,6 @@ AGlitchUEGameMode::AGlitchUEGameMode(){
 	check(Blinking.Succeeded());
 
 	BlinkingCurve = Blinking.Object;
-
-	//static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC(TEXT("/Game/VFX/Shaders/Dissolver/MPC_Dissolver"));
-	//check(MPC.Succeeded());
-
-	//AlertedMaterial = MPC.Object;
 }
 
 void AGlitchUEGameMode::BeginPlay() {
@@ -436,10 +424,6 @@ void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
 
 #pragma region ConsoleCommands
 
-void AGlitchUEGameMode::SetGlobalTimeDilation(float TimeDilation) const{
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), TimeDilation);
-}
-
 void AGlitchUEGameMode::SetSelfTimeDilation(float TimeDilation) const{
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn()->CustomTimeDilation = TimeDilation;
 }
@@ -450,10 +434,6 @@ void AGlitchUEGameMode::NextWave() const{
 
 void AGlitchUEGameMode::GoToWave(const int NewWave) const{
 	WaveManager->SetWave(NewWave);
-}
-
-void AGlitchUEGameMode::CrashGame() const{
-	UE_LOG(LogTemp, Fatal, TEXT("CRASH"));
 }
 
 void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
@@ -486,14 +466,6 @@ void AGlitchUEGameMode::Dissolve(const float Value) const{
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
 	Cast<ADissolver>(DissolverArray[0])->DissolveTo(Value);
-}
-
-void AGlitchUEGameMode::CollectGarbage() const{
-	UKismetSystemLibrary::CollectGarbage();
-}
-
-void AGlitchUEGameMode::RemoveAllWidgets() const{
-	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
 }
 
 #pragma endregion

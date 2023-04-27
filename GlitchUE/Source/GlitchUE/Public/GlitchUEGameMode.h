@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
 #include "Player/MainPlayer.h"
 #include "Engine/SceneCapture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "Gamemodes/MainGamemode.h"
 #include "Saves/SaveInterface.h"
 #include "GlitchUEGameMode.generated.h"
 
@@ -53,7 +53,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnSwitchPhases, EPhases, NewPhases
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnSwitchLevelState, ELevelState, NewState);
 
 UCLASS(minimalapi)
-class AGlitchUEGameMode : public AGameModeBase, public ISaveInterface{
+class AGlitchUEGameMode : public AMainGamemode, public ISaveInterface{
 	GENERATED_BODY()
 
 public:
@@ -176,9 +176,6 @@ protected:
 
 private:
 	UFUNCTION(Exec)
-	void SetGlobalTimeDilation(float TimeDilation) const;
-
-	UFUNCTION(Exec)
 	void SetSelfTimeDilation(float TimeDilation) const;
 
 	UFUNCTION(Exec)
@@ -188,21 +185,10 @@ private:
 	void GoToWave(const int NewWave) const;
 
 	UFUNCTION(Exec)
-	void CrashGame() const;
-
-	UFUNCTION(Exec)
 	void ToggleSpectatorMode(const bool bToggleAtLocation = false) const;
 
 	UFUNCTION(Exec)
 	void Dissolve(const float Value) const;
-
-	UFUNCTION(Exec)
-	void CollectGarbage() const;
-
-	// this one should be used for showing the game without UI, it can easily causes glitch otherwise
-	// you can use the BindNormalMode command to fix glitch
-	UFUNCTION(Exec)
-	void RemoveAllWidgets() const;
 
 #pragma endregion
 

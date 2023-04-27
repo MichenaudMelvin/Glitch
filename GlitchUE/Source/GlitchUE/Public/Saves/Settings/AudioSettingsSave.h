@@ -4,18 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "Saves/Settings/SettingsSave.h"
-#include "VideoSettingsSave.generated.h"
+#include "AudioSettingsSave.generated.h"
 
 UCLASS()
-class GLITCHUE_API UVideoSettingsSave : public USettingsSave{
+class GLITCHUE_API UAudioSettingsSave : public USettingsSave{
 	GENERATED_BODY()
 
 public:
-	UVideoSettingsSave();
+	UAudioSettingsSave();
 
 	UPROPERTY(BlueprintReadWrite)
-	bool VSyncEnable = false;
+	float MasterVolume = 1.0f;
 
 	UPROPERTY(BlueprintReadWrite)
-	FIntPoint Resolution = FIntPoint(1920, 1080);
+	float MusicVolume = 1.0f;
+
+	UPROPERTY(BlueprintReadWrite)
+	float SFXVolume = 1.0f;
 };
