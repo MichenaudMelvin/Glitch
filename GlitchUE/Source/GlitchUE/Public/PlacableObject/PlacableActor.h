@@ -9,6 +9,7 @@
 #include "Objectives/Nexus.h"
 #include "Components/TimelineComponent.h"
 #include "PopcornFXEmitter.h"
+#include "Saves/TowerDefenseSave.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
@@ -148,4 +149,8 @@ public:
 	virtual void ReceiveGlitchUpgrade() override;
 
 	virtual void ResetGlitchUpgrade() override;
+
+	virtual FPlacableActorSaveData SavePlacable();
+
+	virtual void InitializePlacable(const FPlacableActorSaveData NewData);
 };

@@ -3,11 +3,9 @@
 
 #include "Gamemodes/MainGamemode.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
-#include "Saves/Settings/AudioSettingsSave.h"
 #include "FMODBlueprintStatics.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Kismet/GameplayStatics.h"
-#include "Saves/Settings/VideoSettingsSave.h"
 
 AMainGamemode::AMainGamemode(){
 	static ConstructorHelpers::FObjectFinder<UFMODVCA> MasterVCA(TEXT("/Game/FMOD/VCAs/Master"));
@@ -34,17 +32,23 @@ void AMainGamemode::BeginPlay(){
 }
 
 void AMainGamemode::UpdateGlobalSettings() const{
-	const UAudioSettingsSave* AudioSettings = Cast<UAudioSettingsSave>(UUsefullFunctions::LoadSave(UAudioSettingsSave::StaticClass(), 0));
-
-	UFMODBlueprintStatics::VCASetVolume(MasterBank, AudioSettings->MasterVolume);
-	UFMODBlueprintStatics::VCASetVolume(MusicBank, AudioSettings->MusicVolume);
-	UFMODBlueprintStatics::VCASetVolume(SFXBank, AudioSettings->SFXVolume);
-
 	const UVideoSettingsSave* VideoSettings = Cast<UVideoSettingsSave>(UUsefullFunctions::LoadSave(UVideoSettingsSave::StaticClass(), 0));
+	UpdateVideoSettings(VideoSettings);
 
+	const UAudioSettingsSave* AudioSettings = Cast<UAudioSettingsSave>(UUsefullFunctions::LoadSave(UAudioSettingsSave::StaticClass(), 0));
+	UpdateAudioSettings(AudioSettings);
+}
+
+void AMainGamemode::UpdateVideoSettings(const UVideoSettingsSave* VideoSettings) const{
 	GameUserSettings->SetVSyncEnabled(VideoSettings->VSyncEnable);
 	GameUserSettings->SetScreenResolution(VideoSettings->Resolution);
 	GameUserSettings->ApplySettings(false);
+}
+
+void AMainGamemode::UpdateAudioSettings(const UAudioSettingsSave* AudioSettings) const{
+	UFMODBlueprintStatics::VCASetVolume(MasterBank, AudioSettings->MasterVolume);
+	UFMODBlueprintStatics::VCASetVolume(MusicBank, AudioSettings->MusicVolume);
+	UFMODBlueprintStatics::VCASetVolume(SFXBank, AudioSettings->SFXVolume);
 }
 
 void AMainGamemode::SetGlobalTimeDilation(float TimeDilation) const{

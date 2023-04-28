@@ -167,10 +167,10 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
 	FKOnFastLoad OnFastLoad;
 
-	UFUNCTION(BlueprintCallable, Category = "Saves")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Saves")
 	void BindFastSaveAndLoad();
 
-	UFUNCTION(BlueprintCallable, Category = "Saves")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Saves")
 	void UnbindFastSaveAndLoad();
 
 	UFUNCTION()

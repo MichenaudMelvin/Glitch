@@ -2,7 +2,6 @@
 
 
 #include "Player/UI/Settings/AudioSettingsMenu.h"
-#include "FMODBlueprintStatics.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Saves/Settings/AudioSettingsSave.h"
 
@@ -10,21 +9,6 @@ UAudioSettingsMenu::UAudioSettingsMenu(const FObjectInitializer& ObjectInitializ
 	SettingClass = UAudioSettingsSave::StaticClass();
 
 	SettingCategory = FText::FromString("Audio");
-
-	static ConstructorHelpers::FObjectFinder<UFMODVCA> MasterVCA(TEXT("/Game/FMOD/VCAs/Master"));
-	check(MasterVCA.Succeeded());
-
-	MasterBank = MasterVCA.Object;
-
-	static ConstructorHelpers::FObjectFinder<UFMODVCA> MusicVCA(TEXT("/Game/FMOD/VCAs/Music"));
-	check(MusicVCA.Succeeded());
-
-	MusicBank = MusicVCA.Object;
-
-	static ConstructorHelpers::FObjectFinder<UFMODVCA> SFXVCA(TEXT("/Game/FMOD/VCAs/SFX"));
-	check(SFXVCA.Succeeded());
-
-	SFXBank = SFXVCA.Object;
 }
 
 void UAudioSettingsMenu::NativeOnInitialized(){
@@ -60,9 +44,5 @@ void UAudioSettingsMenu::InitializeSettings(){
 void UAudioSettingsMenu::UpdateSettings() const{
 	Super::UpdateSettings();
 
-	const UAudioSettingsSave* CastedSettings = Cast<UAudioSettingsSave>(Settings);
-
-	UFMODBlueprintStatics::VCASetVolume(MasterBank, CastedSettings->MasterVolume);
-	UFMODBlueprintStatics::VCASetVolume(MusicBank, CastedSettings->MusicVolume);
-	UFMODBlueprintStatics::VCASetVolume(SFXBank, CastedSettings->SFXVolume);
+	Gamemode->UpdateAudioSettings(Cast<UAudioSettingsSave>(Settings));
 }

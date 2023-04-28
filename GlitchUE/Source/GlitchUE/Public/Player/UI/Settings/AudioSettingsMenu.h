@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Player/UI/CustomSlider.h"
 #include "Player/UI/Settings/SettingsMenu.h"
-#include "FMODVCA.h"
 #include "AudioSettingsMenu.generated.h"
 
 UCLASS(Abstract)
@@ -35,15 +34,6 @@ protected:
 
 	UFUNCTION()
 	void UpdateSFXVolumeSlider(float Value);
-
-	UPROPERTY()
-	UFMODVCA* MasterBank;
-
-	UPROPERTY()
-	UFMODVCA* MusicBank;
-
-	UPROPERTY()
-	UFMODVCA* SFXBank;
 
 	virtual void InitializeSettings() override;
 

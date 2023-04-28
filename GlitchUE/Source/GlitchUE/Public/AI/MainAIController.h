@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Objectives/Catalyseur.h"
-#include "Saves/WorldSave.h"
+#include "Saves/StealthSave.h"
 #include "MainAIController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnStopBehavior);

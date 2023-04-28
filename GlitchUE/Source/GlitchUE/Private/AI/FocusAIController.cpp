@@ -9,11 +9,6 @@
 void AFocusAIController::BeginPlay(){
 	Super::BeginPlay();
 
-	// maybe temp
-	if(Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString != ""){
-		InitializeAIFromStart();
-	}
-
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 	Nexus = Cast<ANexus>(NexusArray[0]);

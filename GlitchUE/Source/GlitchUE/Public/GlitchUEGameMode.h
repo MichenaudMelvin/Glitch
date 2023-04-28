@@ -10,7 +10,6 @@
 #include "Saves/SaveInterface.h"
 #include "GlitchUEGameMode.generated.h"
 
-class UWorldSave;
 class AAudioManager;
 
 UENUM(BlueprintType)
@@ -65,6 +64,8 @@ protected:
 
 	void InitializeWorld();
 
+	void InitializeWorldSave(TArray<FString> LevelSettings);
+
 	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
 	AMainPlayer* MainPlayer;
 
@@ -88,6 +89,14 @@ public:
 	virtual void GlobalWorldLoad(const int Index) override;
 
 protected:
+	UWorldSave* StealthWorldSave(UWorldSave* CurrentSave);
+
+	UWorldSave* TowerDefenseWorldSave(UWorldSave* CurrentSave);
+
+	UWorldSave* StealthWorldLoad(UWorldSave* CurrentSave);
+
+	UWorldSave* TowerDefenseWorldLoad(UWorldSave* CurrentSave);
+
 	ASceneCapture2D* SceneCapture;
 
 	UPROPERTY(EditDefaultsOnly)

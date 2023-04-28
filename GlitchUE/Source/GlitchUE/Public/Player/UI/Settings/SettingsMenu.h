@@ -8,6 +8,7 @@
 #include "Components/Button.h"
 #include "Saves/Settings/SettingsSave.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Gamemodes/MainGamemode.h"
 #include "SettingsMenu.generated.h"
 
 UCLASS(Abstract)
@@ -30,6 +31,8 @@ protected:
 	TSubclassOf<USettingsSave> SettingClass;
 
 	UGameUserSettings* GameUserSettings;
+
+	AMainGamemode* Gamemode;
 
 	AMainPlayer* MainPlayer;
 

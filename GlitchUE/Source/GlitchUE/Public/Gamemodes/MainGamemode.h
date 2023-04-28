@@ -6,9 +6,11 @@
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameUserSettings.h"
 #include "FMODVCA.h"
+#include "Saves/Settings/AudioSettingsSave.h"
+#include "Saves/Settings/VideoSettingsSave.h"
 #include "MainGamemode.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AMainGamemode : public AGameModeBase{
 	GENERATED_BODY()
 
@@ -18,8 +20,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+public:
 	void UpdateGlobalSettings() const;
 
+	void UpdateVideoSettings(const UVideoSettingsSave* VideoSettings) const;
+
+	void UpdateAudioSettings(const UAudioSettingsSave* AudioSettings) const;
+
+protected:
 	UGameUserSettings* GameUserSettings;
 
 	UPROPERTY()

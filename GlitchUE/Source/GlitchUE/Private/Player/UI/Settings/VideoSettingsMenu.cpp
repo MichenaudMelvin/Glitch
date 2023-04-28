@@ -70,9 +70,5 @@ void UVideoSettingsMenu::InitializeSettings(){
 void UVideoSettingsMenu::UpdateSettings() const{
 	Super::UpdateSettings();
 
-	const UVideoSettingsSave* CastedSettings = Cast<UVideoSettingsSave>(Settings);
-
-	GameUserSettings->SetVSyncEnabled(CastedSettings->VSyncEnable);
-	GameUserSettings->SetScreenResolution(CastedSettings->Resolution);
-	GameUserSettings->ApplySettings(false);
+	Gamemode->UpdateVideoSettings(Cast<UVideoSettingsSave>(Settings));
 }

@@ -15,6 +15,8 @@ void USettingsMenu::NativeOnInitialized(){
 	ResetSettingsButton->OnClicked.AddDynamic(this, &USettingsMenu::ResetSettings);
 
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	Gamemode = Cast<AMainGamemode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
 void USettingsMenu::NativeConstruct(){
@@ -35,7 +37,7 @@ void USettingsMenu::InitializeSettings(){}
 void USettingsMenu::UpdateSettings() const{}
 
 void USettingsMenu::ResetSettings(){
-	Settings = Cast<USettingsSave>(UUsefullFunctions::CreateSave(SettingClass));
+	Settings = Cast<USettingsSave>(UUsefullFunctions::CreateSave(SettingClass, 0));
 	InitializeSettings();
 }
 
