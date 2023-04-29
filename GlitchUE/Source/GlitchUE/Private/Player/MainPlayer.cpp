@@ -351,6 +351,7 @@ void AMainPlayer::LookUpAtRate(const float Rate){
 void AMainPlayer::Jump(){
 	Super::Jump();
 
+	MainPlayerController->UnbindSneak();
 	UUsefullFunctions::MakeNoise(this, GetActorLocation(), JumpNoiseRange);
 
 	if(bUseCoyoteTime){
@@ -363,6 +364,7 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 	Super::OnWalkingOffLedge_Implementation(PreviousFloorImpactNormal, PreviousFloorContactNormal, PreviousLocation,TimeDelta);
 
 	bUseCoyoteTime = true;
+	MainPlayerController->UnbindSneak();
 
 	FTimerHandle TimerHandle;
 
@@ -394,6 +396,14 @@ void AMainPlayer::SneakReleased_Implementation(){}
 void AMainPlayer::SprintToSneak_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
+
+void AMainPlayer::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode){
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	if(PrevMovementMode == MOVE_Falling){
+		MainPlayerController->BindSneak();
+	}
+}
 
 void AMainPlayer::MakeMovementNoise(){
 	if(!UUsefullFunctions::IsCharacterMovingOnGround(this)){

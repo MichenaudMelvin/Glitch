@@ -220,10 +220,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SprintToSneak();
 	void SprintToSneak_Implementation();
-	
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void ResetMovement();
 	void ResetMovement_Implementation();
+
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 protected:
 	#pragma endregion
