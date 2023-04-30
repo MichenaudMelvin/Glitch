@@ -318,6 +318,8 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 
+	WaveManager->SetWave(CastedSave->CurrentWave);
+
 	Cast<ANexus>(NexusArray[0])->GetActivableComp()->ActivateObject();
 
 	for(int i = 0; i < CastedSave->PlacableDataList.Num(); i++){
@@ -332,7 +334,6 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 
 	MainPlayer->GiveGolds(CastedSave->PlayerGolds);
 
-	WaveManager->SetWave(CastedSave->CurrentWave);
 
 	return CastedSave;
 }
@@ -354,7 +355,10 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
-		WaveManager->StartWave();
+		if(OptionsString == ""){
+			WaveManager->StartWave();
+		}
+
 		MainPlayer->GetMainPlayerController()->SetCanSave(false);
 		break;
 	}

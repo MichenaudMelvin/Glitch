@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GlitchUEGameMode.h"
 #include "AI/MainAIData.h"
 #include "Player/MainPlayer.h"
 #include "GameFramework/Actor.h"
@@ -86,6 +87,8 @@ protected:
 	TSet<ASpawner*> SpawnerList;
 
 	TArray<ASpawner*> ActiveSpawnerList;
+
+	AGlitchUEGameMode* GameMode;
 
 	UPROPERTY(BlueprintReadOnly)
 	ANexus* Nexus;
