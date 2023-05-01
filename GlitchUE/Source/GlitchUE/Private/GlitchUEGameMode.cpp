@@ -318,9 +318,9 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 
-	WaveManager->SetWave(CastedSave->CurrentWave);
-
 	Cast<ANexus>(NexusArray[0])->GetActivableComp()->ActivateObject();
+
+	WaveManager->SetWave(CastedSave->CurrentWave);
 
 	for(int i = 0; i < CastedSave->PlacableDataList.Num(); i++){
 		const TSubclassOf<APlacableActor> TargetClass = CastedSave->PlacableDataList[i].PlacableActorClass;

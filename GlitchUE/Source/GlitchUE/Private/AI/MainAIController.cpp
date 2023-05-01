@@ -54,7 +54,7 @@ void AMainAIController::BeginPlay(){
 	if(!IsValid(GetPawn()) || !IsValid(AIData)){
 		FTimerHandle TimerHandle;
 
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainAIController::InitializeAIFromStart,0.2f, false);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainAIController::InitializeAIFromStart,0.01f, false);
 		return;
 	}
 
