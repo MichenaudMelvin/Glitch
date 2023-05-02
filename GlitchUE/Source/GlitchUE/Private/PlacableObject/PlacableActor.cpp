@@ -220,3 +220,17 @@ void APlacableActor::ResetGlitchUpgrade(){
 	Damages -= CurrentData->GlitchDamages;
 	AttackRange -= CurrentData->GlitchAttackRange;
 }
+
+FPlacableActorSaveData APlacableActor::SavePlacable(){
+	FPlacableActorSaveData CurrentSaveData;
+
+	CurrentSaveData.PlacableActorClass = GetClass();
+	CurrentSaveData.ActorTransform = GetActorTransform();
+	CurrentSaveData.CurrentPlacableData = CurrentData;
+
+	return CurrentSaveData;
+}
+
+void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData){
+	
+}

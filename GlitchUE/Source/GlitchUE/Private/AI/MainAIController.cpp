@@ -7,6 +7,7 @@
 #include "AI/MainAIPawn.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionSystem.h"
 
@@ -42,7 +43,9 @@ void AMainAIController::BeginPlay(){
 		TArray<FString> LevelSettings;
 		Settings.ParseIntoArray(LevelSettings, TEXT("|"), true);
 
-		if(LevelSettings[0] == "?WorldSaveLoad"){
+		const UAbstractSave* LoadedSave = UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), FCString::Atoi(*LevelSettings[1]), false);
+
+		if(LevelSettings[0] == "?WorldSaveLoad" && LoadedSave->IsA(UStealthSave::StaticClass())){
 			//InitializeAI will be call by the gamemode
 			return;
 		}
@@ -51,7 +54,7 @@ void AMainAIController::BeginPlay(){
 	if(!IsValid(GetPawn()) || !IsValid(AIData)){
 		FTimerHandle TimerHandle;
 
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainAIController::InitializeAIFromStart,0.2f, false);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainAIController::InitializeAIFromStart,0.01f, false);
 		return;
 	}
 

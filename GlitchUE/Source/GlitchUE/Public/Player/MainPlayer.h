@@ -8,7 +8,7 @@
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
-#include "Saves/SettingsSave.h"
+#include "Saves/Settings/GameplaySettingsSave.h"
 #include "MainPlayer.generated.h"
 
 class AMainPlayerController;
@@ -220,10 +220,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SprintToSneak();
 	void SprintToSneak_Implementation();
-	
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void ResetMovement();
 	void ResetMovement_Implementation();
+
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 protected:
 	#pragma endregion
@@ -472,7 +474,7 @@ public:
 	#pragma region Saves
 
 	UPROPERTY(BlueprintReadWrite)
-	USettingsSave* SettingsSave;
+	UGameplaySettingsSave* GameplaySettingsSaveSave;
 
 	#pragma endregion
 

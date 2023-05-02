@@ -6,7 +6,7 @@
 #include "Player/UI/PlacableSelection/PlacableSelection.h"
 #include "HotBar.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UHotBar : public UPlacableSelection{
 	GENERATED_BODY()
 

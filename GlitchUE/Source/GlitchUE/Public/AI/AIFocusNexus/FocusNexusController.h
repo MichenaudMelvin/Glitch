@@ -6,7 +6,7 @@
 #include "AI/FocusAIController.h"
 #include "FocusNexusController.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AFocusNexusController : public AFocusAIController{
 	GENERATED_BODY()
 

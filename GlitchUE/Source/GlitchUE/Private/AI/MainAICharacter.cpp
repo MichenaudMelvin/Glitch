@@ -162,66 +162,107 @@ void AMainAICharacter::ResetGlitchUpgrade(){
 
 }
 
-void AMainAICharacter::ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages){
+void AMainAICharacter::ReceiveTrapEffect(const UTrapData* TrapData){
 	if(CurrentTrapEffect != ETrapEffect::None){
 		return;
 	}
 
-	CurrentTrapEffect = NewEffect;
+	CurrentTrapEffect = TrapData->TrapEffect;
 
-	// hard codé
-	// à voir comment mieux faire
+	TrapEffectFX = UPopcornFXFunctions::SpawnEmitterAttached(TrapData->EffectFX, GetMesh(), "PopcornFX_DefaultScene", "Drone_Root", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true, false);
 
 	switch (CurrentTrapEffect) {
-	case ETrapEffect::Burned: 
-		GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
-			if(!IsValid(this)){
-				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
-				return;
-			}
-
-			HealthComp->TakeDamages(1);
-			UE_LOG(LogTemp, Warning, TEXT("Take burn damages"));
-
-		}, EffectTickRate, true);
-
-		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
-			CurrentTrapEffect = ETrapEffect::None;
-			GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
-		}, EffectDuration, false);
-
+	case ETrapEffect::Burned:
+		ReceiveBurnEffect(TrapData->TrapDuration, TrapData->EffectTickRate, TrapData->Damages);
 		break;
 	case ETrapEffect::Frozen:
-		Blackboard->SetValueAsBool("DoingExternalActions", true);
-
-		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
-			if(!IsValid(this)){
-				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
-				return;
-			}
-
-			CurrentTrapEffect = ETrapEffect::None;
-			Blackboard->SetValueAsBool("DoingExternalActions", false);
-		}, EffectDuration, false);
-
+		ReceiveFreezeEffect(TrapData->TrapDuration);
 		break;
 	case ETrapEffect::Poisoned:
-		UE_LOG(LogTemp, Warning, TEXT("poison"));
-
+		ReceivePoisonEffect(TrapData->TrapDuration);
 		break;
 	case ETrapEffect::SlowedDown:
-		GetCharacterMovement()->MaxWalkSpeed = 50;
-
-		GetWorld()->GetTimerManager().SetTimer(TrapTimer, [&]() {
-			if(!IsValid(this)){
-				GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
-				return;
-			}
-
-			CurrentTrapEffect = ETrapEffect::None;
-			GetCharacterMovement()->MaxWalkSpeed = 200;
-		}, EffectDuration, false);
-
+		ReceiveSlowEffect(TrapData->TrapDuration, TrapData->SlowSpeed);
 		break;
 	}
+}
+
+void AMainAICharacter::ReceiveBurnEffect(const float EffectDuration, const float EffectTickRate, const float EffectDamages){
+	GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
+		if(!IsValid(this)){
+			GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
+			GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
+			return;
+		}
+
+		HealthComp->TakeDamages(EffectDamages);
+
+	}, EffectTickRate, true);
+
+	GetWorld()->GetTimerManager().SetTimer(TrapTimer, this, &AMainAICharacter::ResetTrapEffect, EffectDuration, false);
+}
+
+void AMainAICharacter::ResetBurnEffect(){
+	GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
+}
+
+void AMainAICharacter::ReceiveFreezeEffect(const float EffectDuration){
+	Blackboard->SetValueAsBool("DoingExternalActions", true);
+
+	GetWorld()->GetTimerManager().SetTimer(TrapTimer, this, &AMainAICharacter::ResetTrapEffect, EffectDuration, false);
+}
+
+void AMainAICharacter::ResetFreezeEffect(){
+	Blackboard->SetValueAsBool("DoingExternalActions", false);
+}
+
+void AMainAICharacter::ReceivePoisonEffect(const float EffectDuration){
+	Blackboard->SetValueAsBool("ReceivePoisonEffect", true);
+
+	GetWorld()->GetTimerManager().SetTimer(TrapTimer, this, &AMainAICharacter::ResetTrapEffect, EffectDuration, false);
+}
+
+void AMainAICharacter::ResetPoisonEffect(){
+	Blackboard->SetValueAsBool("ReceivePoisonEffect", false);
+}
+
+void AMainAICharacter::ReceiveSlowEffect(const float EffectDuration, const float SlowSpeed){
+	GetCharacterMovement()->MaxWalkSpeed = SlowSpeed;
+
+	GetWorld()->GetTimerManager().SetTimer(TrapTimer, this, &AMainAICharacter::ResetTrapEffect, EffectDuration, false);
+}
+
+void AMainAICharacter::ResetSlowEffect(){
+	GetCharacterMovement()->MaxWalkSpeed = CurrentData->Speed;
+}
+
+void AMainAICharacter::ResetTrapEffect(){
+	if(!IsValid(this)){
+		GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
+		return;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Reset status"));
+
+	// temporary check
+	if(IsValid(TrapEffectFX)){
+		TrapEffectFX->DestroyComponent();
+	}
+
+	switch (CurrentTrapEffect) {
+	case ETrapEffect::Burned:
+		ResetBurnEffect();
+		break;
+	case ETrapEffect::Frozen:
+		ResetFreezeEffect();
+		break;
+	case ETrapEffect::Poisoned:
+		ResetPoisonEffect();
+		break;
+	case ETrapEffect::SlowedDown:
+		ResetSlowEffect();
+		break;
+	}
+
+	CurrentTrapEffect = ETrapEffect::None;
 }

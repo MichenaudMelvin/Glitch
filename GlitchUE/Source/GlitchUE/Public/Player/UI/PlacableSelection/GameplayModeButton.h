@@ -7,7 +7,7 @@
 #include "Player/UI/PlacableSelection/SelectionButton.h"
 #include "GameplayModeButton.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UGameplayModeButton : public USelectionButton{
 	GENERATED_BODY()
 

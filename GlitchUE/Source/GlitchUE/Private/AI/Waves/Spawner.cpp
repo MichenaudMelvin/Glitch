@@ -56,8 +56,21 @@ void ASpawner::BeginSpawn(const int NumberToSpawn, const TSubclassOf<AMainAIChar
 
 void ASpawner::SpawnAI() {
 	AMainAICharacter* NewPawn = GetWorld()->SpawnActor<AMainAICharacter>(CurrentAITOSpawn, GetActorLocation(), GetActorRotation(), ActorSpawnParameters);
+
+	if(!IsValid(NewPawn)){
+		UE_LOG(LogTemp, Warning, TEXT("Spawner try to instantiate a pawn"));
+		return;
+	}
+
 	NewPawn->SetWaveManager(WaveManager);
 	WaveManager->AddAIToList(NewPawn);
+
+#if WITH_EDITOR
+	if(!IsValid(CurrentAIData)){
+		UE_LOG(LogTemp, Fatal, TEXT("LES DATA DE LA VAGUE %d SONT NULLES"), WaveManager->GetCurrentWaveNumber());
+	}
+#endif
+
 	NewPawn->GetMainAIController()->SetCurrentData(CurrentAIData);
 
 	Gamemode->AddGlitch(CurrentAIData->AISpawnGlitchValue);

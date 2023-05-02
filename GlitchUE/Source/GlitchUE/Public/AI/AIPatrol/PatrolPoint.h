@@ -6,11 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "PatrolPoint.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API APatrolPoint : public AActor{
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	APatrolPoint();
 
 private:

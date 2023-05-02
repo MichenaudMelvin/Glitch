@@ -6,7 +6,6 @@
 #include "CoreMinimal.h"
 #include "AbstractPlayerController.h"
 #include "GlitchUEGameMode.h"
-#include "GameFramework/PlayerController.h"
 #include "UI/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -78,7 +77,7 @@ enum class EGameplayMode : uint8 {
 	Destruction,
 };
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 	GENERATED_BODY()
 
@@ -168,10 +167,10 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
 	FKOnFastLoad OnFastLoad;
 
-	UFUNCTION(BlueprintCallable, Category = "Saves")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Saves")
 	void BindFastSaveAndLoad();
 
-	UFUNCTION(BlueprintCallable, Category = "Saves")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Saves")
 	void UnbindFastSaveAndLoad();
 
 	UFUNCTION()

@@ -9,7 +9,7 @@
 #include "Components/TextBlock.h"
 #include "TchatLine.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UTchatLine : public UUserWidget, public IUserObjectListEntry{
 	GENERATED_BODY()
 

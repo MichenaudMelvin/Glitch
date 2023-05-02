@@ -4,67 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Saves/AbstractSave.h"
-#include "GlitchUEGameMode.h"
 #include "WorldSave.generated.h"
-
-USTRUCT(BlueprintType)
-struct FAIData{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	FTransform CurrentTransform;
-
-	UPROPERTY()
-	FVector OriginalPosition;
-
-	UPROPERTY()
-	FRotator OriginalRotation;
-
-	UPROPERTY()
-	bool bIsStun;
-
-	UPROPERTY()
-	bool bInvestigate;
-
-	UPROPERTY()
-	FVector InvestigationLocation;
-
-	UPROPERTY()
-	bool bDoingExternalActions;
-
-	UPROPERTY()
-	bool bReceiveAlert;
-
-	// should be in FPatrolData
-	UPROPERTY()
-	int CurrentIndex;
-
-	// should be in FPatrolData
-	UPROPERTY()
-	bool bHearSound;
-
-	// should be in FPatrolData
-	UPROPERTY()
-	FVector HearingLocation;
-
-	// should be in FPatrolData
-	UPROPERTY()
-	bool bIsMovingToHearingLocation;
-
-	// should be in FDroneData
-	UPROPERTY()
-	bool bIsDocked;
-};
-
-USTRUCT(BlueprintType)
-struct FPatrolData : public FAIData{
-	GENERATED_BODY()
-
-public:
-	// UPROPERTY()
-	// int CurrentIndex;
-};
 
 UCLASS()
 class GLITCHUE_API UWorldSave : public UAbstractSave{
@@ -79,9 +19,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Save")
 	int LoadedTime = 0; 
 
-	UPROPERTY(BlueprintReadWrite, Category = "AI")
-	TMap<FString, FAIData> AIDataList;
-
 	UPROPERTY(BlueprintReadWrite, Category = "Player")
 	FTransform PlayerTransform;
 
@@ -93,9 +30,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Mark")
 	bool bIsMarkPlaced;
-
-	UPROPERTY(BlueprintReadWrite, Category = "World")
-	ELevelState LevelState;
 
 	UPROPERTY(BlueprintReadWrite, Category = "World")
 	float GlitchValue;

@@ -9,11 +9,12 @@
 #include "Components/SightComponent.h"
 #include "Components/WidgetComponent.h"
 #include "PlacableObject/Trap.h"
+#include "PlacableObject/TrapData.h"
 #include "MainAICharacter.generated.h"
 
 class AWaveManager;
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AMainAICharacter : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
 
@@ -73,10 +74,31 @@ public:
 	virtual void ResetGlitchUpgrade() override;
 
 	UFUNCTION(BlueprintCallable)
-	void ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages);
+	void ReceiveTrapEffect(const UTrapData* TrapData);
 
-private:
+protected:
+	void ResetTrapEffect();
+
+	void ReceiveBurnEffect(const float EffectDuration, const float EffectTickRate, const float EffectDamages);
+
+	void ResetBurnEffect();
+
+	void ReceiveFreezeEffect(const float EffectDuration);
+
+	void ResetFreezeEffect();
+
+	void ReceivePoisonEffect(const float EffectDuration);
+
+	void ResetPoisonEffect();
+
+	void ReceiveSlowEffect(const float EffectDuration, const float SlowSpeed);
+
+	void ResetSlowEffect();
+
 	FTimerHandle EffectTimer;
 
 	FTimerHandle TrapTimer;
+
+	UPROPERTY()
+	UPopcornFXEmitterComponent* TrapEffectFX;
 };

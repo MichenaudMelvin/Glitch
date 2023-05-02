@@ -43,7 +43,7 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 		static void QuickSortByDistance(TArray<AActor*>& InArray, const int Low, const int High, const AActor* Actor);
 
 		UFUNCTION(BlueprintCallable, BlueprintPure, meta = (DeterminesOutputType = "SaveClass"), Category = "Saves")
-		static UAbstractSave* CreateSave(const TSubclassOf<UAbstractSave> SaveClass);
+		static UAbstractSave* CreateSave(const TSubclassOf<UAbstractSave> SaveClass, const int UserIndex);
 
 		UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "SaveObject"), Category = "Saves")
 		static UAbstractSave* SaveToSlot(UAbstractSave* SaveObject, const int UserIndex);
@@ -67,5 +67,5 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 		static void MakeNoise(AActor* Instigator, const FVector NoiseLocation, const float SoundRadius);
 
 		UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void Print(const FString StringToPrint = "Hello World", const bool bPrintToScreen = true, const bool bPrintToLog = true, const FLinearColor TextColor = FLinearColor::Yellow, const float Duration = 0);
+		static void Print(const FString StringToPrint = "Hello World", const bool bPrintToScreen = true, const bool bPrintToLog = false, const FLinearColor TextColor = FLinearColor::Yellow, const float Duration = 0);
 };

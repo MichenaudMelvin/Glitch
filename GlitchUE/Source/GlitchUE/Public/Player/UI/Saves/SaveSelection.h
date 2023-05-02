@@ -10,7 +10,7 @@
 class USaveAction;
 class USaveButton;
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API USaveSelection : public USubWidget{
 	GENERATED_BODY()
 

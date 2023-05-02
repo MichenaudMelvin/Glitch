@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GlitchUEGameMode.h"
 #include "AI/MainAIData.h"
 #include "Player/MainPlayer.h"
 #include "GameFramework/Actor.h"
@@ -50,7 +51,7 @@ public:
 	int NumberToSpawn = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UMainAIData* AIData;
+	UMainAIData* AIData = nullptr;
 };
 
 USTRUCT(BlueprintType)
@@ -86,6 +87,8 @@ protected:
 	TSet<ASpawner*> SpawnerList;
 
 	TArray<ASpawner*> ActiveSpawnerList;
+
+	AGlitchUEGameMode* GameMode;
 
 	UPROPERTY(BlueprintReadOnly)
 	ANexus* Nexus;

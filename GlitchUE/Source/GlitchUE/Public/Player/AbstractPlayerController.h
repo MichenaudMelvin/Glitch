@@ -10,7 +10,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnInteractPlayer);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPause);
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AAbstractPlayerController : public APlayerController{
 	GENERATED_BODY()
 
