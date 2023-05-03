@@ -275,7 +275,7 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
-	int Golds = 0;
+	int Golds = 1000;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	UPlacableActorData* CurrentPlacableActorData;

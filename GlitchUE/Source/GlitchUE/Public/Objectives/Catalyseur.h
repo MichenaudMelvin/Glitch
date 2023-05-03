@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GlitchUEGameMode.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
 #include "Components/CompassIcon.h"
@@ -10,6 +11,7 @@
 #include "Catalyseur.generated.h"
 
 class AInhibiteur;
+class AMainPlayer;
 
 USTRUCT()
 struct FCompassSprite{
@@ -38,6 +40,8 @@ public:
 
 	USkeletalMeshComponent* GetTechMesh() const;
 
+	void UpdateActivatedInhibiteurs(const bool Increase);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -48,6 +52,9 @@ protected:
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
 	virtual void OnConstruction(const FTransform& Transform) override;
+
+	UFUNCTION()
+	void OnSwitchPhases(EPhases CurrentPhase);
 
 	UAnimationAsset* ActivationAnim;
 
@@ -62,6 +69,8 @@ protected:
 	UStaticMeshComponent* CatalyeurZone;
 
 	ANexus* Nexus;
+
+	AMainPlayer* Player;
 
 	AWaveManager* WaveManager;
 
@@ -93,6 +102,23 @@ protected:
 
 	UFUNCTION()
 	virtual void ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	FTimerHandle MoneyTimerHandle;
+
+	void GenerateMoney();
+
+	void StartGeneratingMoney();
+
+	int ActivatedInhibiteurs = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Golds")
+	int GeneratedGolds = 100;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Golds")
+	int GoldsBonus = 500;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Golds")
+	int GoldsTick = 10;
 
 #if WITH_EDITORONLY_DATA
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;

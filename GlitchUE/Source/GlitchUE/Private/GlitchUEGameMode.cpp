@@ -265,6 +265,10 @@ void AGlitchUEGameMode::UpdateActivatedCatalyseurAmount(const bool Increase){
 	Increase ? CurrentActivatedCatalyseurs++ : CurrentActivatedCatalyseurs--;
 }
 
+int AGlitchUEGameMode::GetActivatedCatalyseurNum() const{
+	return CurrentActivatedCatalyseurs;
+}
+
 UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 	UStealthSave* CastedSave = Cast<UStealthSave>(CurrentSave);
 

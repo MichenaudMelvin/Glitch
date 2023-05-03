@@ -13,11 +13,19 @@ EState UActivableComponent::GetState(){
 }
 
 void UActivableComponent::ActivateObject(){
+	if(State == EState::Activated){
+		return;
+	}
+
 	State = EState::Activated;
 	OnActivated.Broadcast();
 }
 
 void UActivableComponent::DesactivateObject(){
+	if(State == EState::Desactivated){
+		return;
+	}
+
 	State = EState::Desactivated;
 	OnDesactivated.Broadcast();
 }

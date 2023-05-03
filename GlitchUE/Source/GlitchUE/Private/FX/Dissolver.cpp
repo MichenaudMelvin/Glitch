@@ -155,3 +155,7 @@ void ADissolver::OnConstruction(const FTransform& Transform){
 	UpdateShaderFX();
 }
 
+float ADissolver::GetMaxRadius() const{
+	return MaxRadius;
+}
+

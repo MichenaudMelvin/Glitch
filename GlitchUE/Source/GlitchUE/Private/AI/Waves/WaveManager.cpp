@@ -111,12 +111,6 @@ void AWaveManager::StartWave(){
 
 	OnStartWave.Broadcast(CurrentWaveNumber);
 
-	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart){
-		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
-	}
-
-	Nexus->UpdateDissolver();
-
 	EnableSpawners();
 
 	SpawnEnemies();
@@ -132,10 +126,6 @@ void AWaveManager::EndWave(){
 
 	if (CurrentWaveNumber == NumberOfWaves){
 		return;
-	}
-
-	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart){
-		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
 
 	if (GetCurrentWaveData().bStopAtEnd){

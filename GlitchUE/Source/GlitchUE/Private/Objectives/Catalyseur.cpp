@@ -9,6 +9,7 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Objectives/Inhibiteur.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/MainPlayer.h"
 #include "Kismet/KismetMathLibrary.h"
 
 FCompassSprite::FCompassSprite(){
@@ -61,6 +62,8 @@ USkeletalMeshComponent* ACatalyseur::GetTechMesh() const{
 void ACatalyseur::BeginPlay(){
 	Super::BeginPlay();
 
+	InteractableComp->AddInteractable(TECHMesh);
+
 	TArray<AActor*> NexusTemp;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusTemp);
 
@@ -72,15 +75,25 @@ void ACatalyseur::BeginPlay(){
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
 
 	GenerateCompass();
+
+	GameMode->OnSwitchPhases.AddDynamic(this, &ACatalyseur::OnSwitchPhases);
+
+	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);
 
-	if (GameMode->GetPhases() == EPhases::Infiltration){
-		GameMode->UpdateActivatedCatalyseurAmount();
-		DeleteCompass();
+	GameMode->UpdateActivatedCatalyseurAmount();
+
+	switch (GameMode->GetPhases()){
+		case EPhases::Infiltration:
+			break;
+		case EPhases::TowerDefense:
+			StartGeneratingMoney();
+			Nexus->UpdateDissolver();
+			break;
 	}
 }
 
@@ -88,13 +101,25 @@ void ACatalyseur::DesactivateObjectif(){
 	MeshObjectif->PlayAnimation(DesactivationAnim, false);
 	TECHMesh->PlayAnimation(DesactivationAnim, false);
 
-	if (GameMode->GetPhases() == EPhases::Infiltration){
-		GameMode->UpdateActivatedCatalyseurAmount(false);
+	GameMode->UpdateActivatedCatalyseurAmount(false);
+
+	switch (GameMode->GetPhases()){
+		case EPhases::Infiltration:
+			break;
+		case EPhases::TowerDefense:
+			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
+			Nexus->UpdateDissolver();
+			break;
 	}
 }
 
 void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	Super::Interact(MainPlayerController, MainPlayer);
+
+	if(!ActivableComp->IsActivated() && GameMode->GetPhases() == EPhases::TowerDefense){
+		ActivableComp->ActivateObject();
+		return;
+	}
 
 	if(ActivableComp->IsActivated() && WaveManager->IsStopped()){
 		WaveManager->NextWave();
@@ -108,6 +133,21 @@ void ACatalyseur::OnConstruction(const FTransform& Transform){
 		if(IsValid(LinkedInhibiteur[i])){
 			LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
 		}
+	}
+}
+
+void ACatalyseur::OnSwitchPhases(EPhases CurrentPhase){
+	switch (CurrentPhase){
+	case EPhases::Infiltration:
+		break;
+	case EPhases::TowerDefense:
+		DeleteCompass();
+
+		if(ActivableComp->IsActivated()){
+			StartGeneratingMoney();
+		}
+
+		break;
 	}
 }
 
@@ -171,6 +211,22 @@ void ACatalyseur::ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor
 		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(false);
 
 		GetWorld()->GetTimerManager().ClearTimer(CatalyeurZoneTimer);
+	}
+}
+
+void ACatalyseur::GenerateMoney(){
+	Player->GiveGolds(GeneratedGolds * ActivatedInhibiteurs);
+}
+
+void ACatalyseur::StartGeneratingMoney(){
+	GetWorld()->GetTimerManager().SetTimer(MoneyTimerHandle, this, &ACatalyseur::GenerateMoney, GoldsTick, true);
+}
+
+void ACatalyseur::UpdateActivatedInhibiteurs(const bool Increase){
+	Increase ? ActivatedInhibiteurs++ : ActivatedInhibiteurs--;
+
+	if(ActivatedInhibiteurs == LinkedInhibiteur.Num()){
+		Player->GiveGolds(GoldsBonus);
 	}
 }
 

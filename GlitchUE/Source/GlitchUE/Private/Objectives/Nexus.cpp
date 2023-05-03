@@ -99,13 +99,15 @@ void ANexus::TakeDamages(){
 	Super::TakeDamages();
 
 	// nexus health in percent
-	const float NexusHealth = (HealthComp->GetCurrentHealth() * HealthComp->GetMaxHealth()) / 100;
+	const float NexusHealth = (HealthComp->GetCurrentHealth() * HealthComp->GetMaxHealth()) / 100.0f;
 
-	Dissolver->DissolveTo(NexusHealth * Dissolver->GetRadius() / 100);
+	Dissolver->DissolveTo(NexusHealth * Dissolver->GetRadius() / 100.0f);
 }
 
 void ANexus::UpdateDissolver(){
-	Dissolver->DissolveTo(GetFarestActivatedCatalyseur()->GetDistanceTo(this) + 250);
+	const float CatalyseurCompletionPercent = 100.0f/CatalyseursList.Num() * GameMode->GetActivatedCatalyseurNum();
+
+	Dissolver->DissolveTo(CatalyseurCompletionPercent * Dissolver->GetMaxRadius() / 100.0f);
 }
 
 AActor* ANexus::GetFarestActivatedCatalyseur(){
@@ -124,6 +126,8 @@ AActor* ANexus::GetFarestActivatedCatalyseur(){
 
 void ANexus::ActiveObjectif(){
 	GameMode->SetNewPhase(EPhases::TowerDefense);
+
+	UpdateDissolver();
 
 	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 

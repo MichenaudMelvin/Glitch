@@ -66,6 +66,7 @@ void AInhibiteur::ActivateLinkedElements(const bool bActivate){
 	}
 
 	bActivate ? OwnerCatalyseur->GetActivableComp()->ActivateObject() : OwnerCatalyseur->GetActivableComp()->DesactivateObject();
+	OwnerCatalyseur->UpdateActivatedInhibiteurs(bActivate);
 }
 
 void AInhibiteur::SetSpriteReference(const FCompassSprite NewSprite){

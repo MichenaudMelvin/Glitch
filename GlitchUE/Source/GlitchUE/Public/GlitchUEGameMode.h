@@ -97,6 +97,8 @@ public:
 
 	void UpdateActivatedCatalyseurAmount(const bool Increase = true);
 
+	int GetActivatedCatalyseurNum() const;
+
 protected:
 	UWorldSave* StealthWorldSave(UWorldSave* CurrentSave);
 

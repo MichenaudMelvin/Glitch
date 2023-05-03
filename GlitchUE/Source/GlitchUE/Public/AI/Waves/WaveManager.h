@@ -22,24 +22,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnStartWave, int, CurrentWave);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnEndWave, int, CurrentWave);
 
-UENUM(BlueprintType)
-enum class EWaveEvent : uint8 {
-	ExecuteAtStart,
-	ExecuteAtEnd,
-};
-
-USTRUCT(BlueprintType)
-struct FWaveGolds{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int Golds = 0;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	EWaveEvent WaveEvent = EWaveEvent::ExecuteAtStart;
-};
-
 USTRUCT(BlueprintType)
 struct FAIToSpawn{
 	GENERATED_BODY()
@@ -62,9 +44,6 @@ struct FWave : public FTableRowBase{
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float NextWaveTimer = 0;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FWaveGolds GivenGolds;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bStopAtEnd = false;
