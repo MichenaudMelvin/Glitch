@@ -49,6 +49,10 @@ void AGlitchUEGameMode::BeginPlay() {
 	TArray<AActor*> SceneCaptureArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
 
+	TArray<AActor*> NexusArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
+
+
 #if WITH_EDITOR
 
 	if (WaveManagerArray.Num() == 0){
@@ -64,6 +68,8 @@ void AGlitchUEGameMode::BeginPlay() {
 	WaveManager = WaveManagerArray[0];
 
 	SceneCapture = Cast<ASceneCapture2D>(SceneCaptureArray[0]);
+
+	Nexus = Cast<ANexus>(NexusArray[0]);
 
 	FOnTimelineLinearColor UpdateEvent;
 	FOnTimelineEvent FinishEvent;
@@ -236,6 +242,29 @@ void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), true, LoadOptions);
 }
 
+void AGlitchUEGameMode::LaunchStealthTimer(){
+	if(MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning()){
+		return;
+	}
+
+	FKOnFinishTimer EndEvent;
+	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
+
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(StealthTimer, EndEvent);
+}
+
+bool AGlitchUEGameMode::CanStartTowerDefense() const{
+	return CurrentActivatedCatalyseurs >= MaxCatalyseurToActivate;
+}
+
+void AGlitchUEGameMode::ForceEndStealthPhase() const{
+	Nexus->GetActivableComp()->ActivateObject();
+}
+
+void AGlitchUEGameMode::UpdateActivatedCatalyseurAmount(const bool Increase){
+	Increase ? CurrentActivatedCatalyseurs++ : CurrentActivatedCatalyseurs--;
+}
+
 UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 	UStealthSave* CastedSave = Cast<UStealthSave>(CurrentSave);
 
@@ -315,10 +344,7 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 
 	FActorSpawnParameters PlacableSpawnParam;
 
-	TArray<AActor*> NexusArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
-
-	Cast<ANexus>(NexusArray[0])->GetActivableComp()->ActivateObject();
+	ForceEndStealthPhase();
 
 	WaveManager->SetWave(CastedSave->CurrentWave);
 
@@ -334,8 +360,11 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 
 	MainPlayer->GiveGolds(CastedSave->PlayerGolds);
 
-
 	return CastedSave;
+}
+
+void AGlitchUEGameMode::EndStealthTimer(){
+	CanStartTowerDefense() ? ForceEndStealthPhase() : MainPlayer->GetHealthComp()->TakeMaxDamages();
 }
 
 EPhases AGlitchUEGameMode::GetPhases() const{
@@ -355,6 +384,8 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
+		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false);
+
 		if(OptionsString == ""){
 			WaveManager->StartWave();
 		}
@@ -383,6 +414,9 @@ void AGlitchUEGameMode::SetLevelState(const ELevelState NewState){
 		LevelStateTimelineDirection = ETimelineDirection::Backward;
 		break;
 	case ELevelState::Alerted:
+
+		LaunchStealthTimer();
+
 		LevelStateTimeline.Play();
 		LevelStateTimelineDirection = ETimelineDirection::Forward;
 		break;

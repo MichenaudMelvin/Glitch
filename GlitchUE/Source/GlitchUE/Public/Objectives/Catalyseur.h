@@ -11,18 +11,6 @@
 
 class AInhibiteur;
 
-USTRUCT(BlueprintType)
-struct FStateAtWave{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int EnableAtWave = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int DisableAtWave = 999;
-};
-
 USTRUCT()
 struct FCompassSprite{
 	GENERATED_BODY()
@@ -48,6 +36,8 @@ class GLITCHUE_API ACatalyseur : public AAbstractObjectif{
 public:
 	ACatalyseur();
 
+	USkeletalMeshComponent* GetTechMesh() const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -56,6 +46,8 @@ protected:
 	virtual void DesactivateObjectif() override;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
+
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UAnimationAsset* ActivationAnim;
 
@@ -66,18 +58,15 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TECHMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
-	FStateAtWave StateAtWave;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
+	UStaticMeshComponent* CatalyeurZone;
 
 	ANexus* Nexus;
 
 	AWaveManager* WaveManager;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))
-	TArray<AConstructionZone*> ConstructionZoneList;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
-	TArray<AInhibiteur*> NearInhibiteur;
+	TArray<AInhibiteur*> LinkedInhibiteur;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
 	UPaperSprite* InhibiteurSprite;
@@ -91,8 +80,19 @@ protected:
 
 	TArray<FCompassSprite> CompassSpriteList;
 
-public:
-	FStateAtWave GetStateAtWave() const;
+	FTimerHandle CatalyeurZoneTimer;
+
+	/**
+	 * @brief Timer in seconds 
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Catalyseur Zone")
+	float ResetLevelStateDuration = 1;
+
+	UFUNCTION()
+	virtual void EnterCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 #if WITH_EDITORONLY_DATA
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;

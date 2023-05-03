@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "AbstractPlayerController.h"
 #include "GlitchUEGameMode.h"
+#include "UI/TimerWidget.h"
 #include "UI/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -83,6 +84,10 @@ class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void CreatePlayerWidgets();
+	virtual void CreatePlayerWidgets_Implementation();
 
 	UPROPERTY(BlueprintReadOnly)
 	AGlitchUEGameMode* GameMode;
@@ -296,4 +301,14 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Pause")
 	void PauseGame();
 	virtual void PauseGame_Implementation();
+
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UTimerWidget* TimerWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UTimerWidget> TimerWidgetClass;
+
+public:
+	UTimerWidget* GetTimerWidget() const;
 };

@@ -7,6 +7,7 @@
 #include "Objectives/Nexus.h"
 #include "AI/Waves/Spawner.h"
 #include "EngineUtils.h"
+#include "Player/MainPlayerController.h"
 
 AWaveManager::AWaveManager(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -23,7 +24,7 @@ AWaveManager::AWaveManager(){
 
 void AWaveManager::BeginPlay(){
 	Super::BeginPlay();
-	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));	
+	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(this, 0));
 
 	NumberOfWaves = WavesData->GetRowNames().Num();
 
@@ -68,30 +69,13 @@ void AWaveManager::BeginPlay(){
 
 	Nexus = Cast<ANexus>(NexusArray[0]);
 
-	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld())); 
-}
+	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
-void AWaveManager::EnableCatalyseurs(){
-	TArray<ACatalyseur*> CatalyseurArray = CatalyseursList.Array();
+	FTimerHandle TimerHandle;
 
-	for (int i = 0; i < CatalyseurArray.Num(); i++){
-		if(CatalyseurArray[i]->GetActivableComp()->IsActivated()){
-			continue;
-		}
-
-		if (CatalyseurArray[i]->GetStateAtWave().EnableAtWave <= CurrentWaveNumber && CatalyseurArray[i]->GetStateAtWave().DisableAtWave >= CurrentWaveNumber){
-			CatalyseurArray[i]->GetActivableComp()->ActivateObject();
-		}
-	}
-}
-
-void AWaveManager::DisableCatalyseurs(){
-	TArray<ACatalyseur*> CatalyseurArray = CatalyseursList.Array();
-	for (int i = 0; i < CatalyseurArray.Num(); i++){
-		if (CatalyseurArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber){
-			CatalyseurArray[i]->GetActivableComp()->DesactivateObject();
-		}
-	}
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		PlayerTimerWidget = Player->GetMainPlayerController()->GetTimerWidget();
+	}, 0.1f, false);
 }
 
 void AWaveManager::EnableSpawners(){
@@ -118,7 +102,7 @@ void AWaveManager::DisableSpawner(){
 	}
 }
 
-void AWaveManager::StartWave_Implementation(){
+void AWaveManager::StartWave(){
 	GameMode->GlobalWorldSave(0);
 
 	bIsStopped = false;
@@ -131,15 +115,15 @@ void AWaveManager::StartWave_Implementation(){
 		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
 
-	EnableCatalyseurs();
+	Nexus->UpdateDissolver();
+
 	EnableSpawners();
 
 	SpawnEnemies();
 }
 
-void AWaveManager::EndWave_Implementation(){
+void AWaveManager::EndWave(){
 
-	DisableCatalyseurs();
 	DisableSpawner();
 
 	const FWave CurrentWave = GetCurrentWaveData();
@@ -159,11 +143,9 @@ void AWaveManager::EndWave_Implementation(){
 		return;
 	}
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		CurrentWaveNumber++;
-		StartWave();
-	}, GetCurrentWaveData().NextWaveTimer, false);
+	FKOnFinishTimer NextWaveEvent;
+	NextWaveEvent.BindDynamic(this, &AWaveManager::NextWave);
+	PlayerTimerWidget->StartTimer(GetCurrentWaveData().NextWaveTimer, NextWaveEvent);
 }
 
 void AWaveManager::SpawnEnemies(){
@@ -234,6 +216,13 @@ void AWaveManager::NextWave(){
 	}
 
 #endif
+
+	CurrentWaveNumber++;
+
+	if(CurrentWaveNumber >= NumberOfWaves){
+		GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Blue, TEXT("Les vagues sont terminées"));
+		return;
+	}
 
 	SetWave(CurrentWaveNumber + 1);
 }

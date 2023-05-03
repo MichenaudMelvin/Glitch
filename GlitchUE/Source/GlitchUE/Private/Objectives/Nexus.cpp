@@ -3,7 +3,6 @@
 
 #include "Objectives/Nexus.h"
 #include "Kismet/GameplayStatics.h"
-#include "GlitchUEGameMode.h"
 #include "PopcornFXAttributeFunctions.h"
 #include "PopcornFXFunctions.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
@@ -89,8 +88,11 @@ void ANexus::OnConstruction(const FTransform& Transform){
 		return;
 	}
 
-	Cast<ADissolver>(DissolverArray[0])->SetActorLocation(GetActorLocation());
-	Cast<ADissolver>(DissolverArray[0])->UpdateShaderFX();
+
+	ADissolver* DissolveActor = Cast<ADissolver>(DissolverArray[0]);
+
+	DissolveActor->SetActorLocation(GetActorLocation());
+	DissolveActor->UpdateShaderFX();
 }
 
 void ANexus::TakeDamages(){
@@ -121,7 +123,7 @@ AActor* ANexus::GetFarestActivatedCatalyseur(){
 }
 
 void ANexus::ActiveObjectif(){
-	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this))->SetNewPhase(EPhases::TowerDefense);
+	GameMode->SetNewPhase(EPhases::TowerDefense);
 
 	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
@@ -141,7 +143,7 @@ void ANexus::ActiveObjectif(){
 }
 
 void ANexus::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	if (!ActivableComp->IsActivated()){
+	if (!ActivableComp->IsActivated() && GameMode->CanStartTowerDefense()){
 		ActivableComp->ActivateObject();
 	}
 }

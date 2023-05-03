@@ -7,8 +7,19 @@
 #include "Components/ActivableComponent.h"
 #include "AI/MainAICharacter.h"
 #include "GlitchUEGameMode.h"
-#include "Objectives/Catalyseur.h"
 #include "Spawner.generated.h"
+
+USTRUCT(BlueprintType)
+struct FStateAtWave{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int EnableAtWave = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int DisableAtWave = 999;
+};
 
 UCLASS()
 class GLITCHUE_API ASpawner : public AActor{

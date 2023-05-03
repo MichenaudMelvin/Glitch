@@ -29,6 +29,10 @@ void AInhibiteur::BeginPlay(){
 		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
 	}
 
+	// if(!IsValid(OwnerCatalyseur)){
+	// 	UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'EST PAS AFFECTE A UN CATALYSEUR"), *this->GetName());
+	// }
+
 #endif
 }
 
@@ -40,6 +44,10 @@ void AInhibiteur::ActiveObjectif(){
 	if(SpriteReference.SceneComponent != nullptr && SpriteReference.PaperSpriteComponent != nullptr){
 		SpriteReference.DestroyComponents();
 	}
+
+	if(GameMode->GetPhases() == EPhases::Infiltration){
+		GameMode->LaunchStealthTimer();
+	}
 }
 
 void AInhibiteur::DesactivateObjectif(){
@@ -47,25 +55,25 @@ void AInhibiteur::DesactivateObjectif(){
 }
 
 void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	const AGlitchUEGameMode* Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-
-	if (Gamemode->GetPhases() == EPhases::Infiltration && !ActivableComp->IsActivated()){
+	if (GameMode->GetPhases() == EPhases::Infiltration && !ActivableComp->IsActivated()){
 		ActivableComp->ActivateObject();
 	}
 }
 
 void AInhibiteur::ActivateLinkedElements(const bool bActivate){
 	for (int i = 0; i < ConstructionZoneList.Num(); i++) {
-		if (bActivate) {
-			ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
-		} else {
-			ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
-		}
+		bActivate ? ConstructionZoneList[i]->GetActivableComp()->ActivateObject() : ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
 	}
+
+	bActivate ? OwnerCatalyseur->GetActivableComp()->ActivateObject() : OwnerCatalyseur->GetActivableComp()->DesactivateObject();
 }
 
 void AInhibiteur::SetSpriteReference(const FCompassSprite NewSprite){
 	SpriteReference = NewSprite;
+}
+
+void AInhibiteur::SetOwnerCatalyseur(ACatalyseur* NewOwner){
+	OwnerCatalyseur = NewOwner;
 }
 
 #if WITH_EDITORONLY_DATA
@@ -99,6 +107,11 @@ void AInhibiteur::OutlineLinkedObjects(const bool bOutline){
 			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
 			UUsefullFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
 		}
+	}
+
+	if(IsValid(OwnerCatalyseur)){
+		UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(OwnerCatalyseur->GetRootComponent()));
+		UUsefullFunctions::OutlineComponent(bOutline, OwnerCatalyseur->GetTechMesh());
 	}
 }
 #endif

@@ -33,8 +33,13 @@ protected:
 
 	void ActivateLinkedElements(const bool bActivate);
 
+	UPROPERTY(BlueprintReadOnly)
+	ACatalyseur* OwnerCatalyseur;
+
 public:
 	void SetSpriteReference(const FCompassSprite NewSprite);
+
+	void SetOwnerCatalyseur(ACatalyseur* NewOwner);
 
 #if WITH_EDITORONLY_DATA
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;

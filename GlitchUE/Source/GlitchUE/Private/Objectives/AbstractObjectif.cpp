@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Objectives/AbstractObjectif.h"
+#include "GlitchUEGameMode.h"
+#include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 
 AAbstractObjectif::AAbstractObjectif(){
@@ -35,6 +37,10 @@ void AAbstractObjectif::BeginPlay(){
 
 	HealthComp->OnReciveDamages.AddDynamic(this, &AAbstractObjectif::TakeDamages);
 	HealthComp->OnHealthNull.AddDynamic(this, &AAbstractObjectif::HealthNull);
+
+	if(UGameplayStatics::GetGameMode(GetWorld())->IsA(AGlitchUEGameMode::StaticClass())){
+		GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	}
 }
 
 void AAbstractObjectif::ActiveObjectif(){}

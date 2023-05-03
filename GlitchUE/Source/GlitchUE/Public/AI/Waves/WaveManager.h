@@ -8,6 +8,7 @@
 #include "Player/MainPlayer.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
+#include "Player/UI/TimerWidget.h"
 #include "WaveManager.generated.h"
 
 class AMainAICharacter;
@@ -91,6 +92,9 @@ protected:
 	AGlitchUEGameMode* GameMode;
 
 	UPROPERTY(BlueprintReadOnly)
+	UTimerWidget* PlayerTimerWidget;
+
+	UPROPERTY(BlueprintReadOnly)
 	ANexus* Nexus;
 
 	AMainPlayer* Player;
@@ -106,10 +110,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	TSet<AMainAICharacter*> WaveAIList;
-
-	void EnableCatalyseurs();
-
-	void DisableCatalyseurs();
 
 	void EnableSpawners();
 
@@ -127,16 +127,12 @@ protected:
 	bool bIsStopped = false;
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
 	void StartWave();
-	virtual void StartWave_Implementation();
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Waves")
 	FKOnStartWave OnStartWave;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
 	void EndWave();
-	virtual void EndWave_Implementation();
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Waves")
 	FKOnEndWave OnEndWave;
@@ -147,6 +143,7 @@ public:
 
 	void RemoveAIFromList(const AMainAICharacter* AIToRemove);
 
+	UFUNCTION()
 	void NextWave();
 
 	void SetWave(const int NewWave);

@@ -15,6 +15,12 @@ void AMainPlayerController::BeginPlay(){
 
 	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
 	SelectNewGameplayMode(EGameplayMode::Normal);
+
+	CreatePlayerWidgets();
+}
+
+void AMainPlayerController::CreatePlayerWidgets_Implementation(){
+	TimerWidget = Cast<UTimerWidget>(CreateWidget(this, TimerWidgetClass));
 }
 
 #pragma region Bind
@@ -251,3 +257,9 @@ void AMainPlayerController::PauseGame_Implementation(){
 }
 
 #pragma endregion
+
+UTimerWidget* AMainPlayerController::GetTimerWidget() const{
+	return TimerWidget;
+}
+
+

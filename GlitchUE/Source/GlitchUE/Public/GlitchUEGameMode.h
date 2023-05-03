@@ -88,6 +88,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void GlobalWorldLoad(const int Index) override;
 
+	void LaunchStealthTimer();
+
+	bool CanStartTowerDefense() const;
+
+	UFUNCTION(Exec)
+	void ForceEndStealthPhase() const;
+
+	void UpdateActivatedCatalyseurAmount(const bool Increase = true);
+
 protected:
 	UWorldSave* StealthWorldSave(UWorldSave* CurrentSave);
 
@@ -97,7 +106,23 @@ protected:
 
 	UWorldSave* TowerDefenseWorldLoad(UWorldSave* CurrentSave);
 
+	UFUNCTION()
+	void EndStealthTimer();
+
+	// Timer in seconds
+	UPROPERTY(EditDefaultsOnly, Category = "Stealth")
+	float StealthTimer = 120.0f;
+
+	// The require amount of catalyseur to active to start tower defense
+	UPROPERTY(EditDefaultsOnly, Category = "Tower Defense")
+	int MaxCatalyseurToActivate = 2;
+
+	UPROPERTY(BlueprintReadOnly)
+	int CurrentActivatedCatalyseurs = 0;
+
 	ASceneCapture2D* SceneCapture;
+
+	ANexus* Nexus;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UTextureRenderTarget2D*> SaveRenderTarget;
