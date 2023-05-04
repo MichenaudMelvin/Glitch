@@ -6,7 +6,7 @@
 #include "Player/UI/PlacableSelection/SelectionButton.h"
 #include "SubMenuButton.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API USubMenuButton : public USelectionButton{
 	GENERATED_BODY()
 

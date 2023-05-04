@@ -8,7 +8,7 @@
 #include "Components/Button.h"
 #include "SaveAction.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API USaveAction : public UUserWidget{
 	GENERATED_BODY()
 

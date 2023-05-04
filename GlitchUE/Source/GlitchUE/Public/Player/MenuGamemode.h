@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "Gamemodes/MainGamemode.h"
 #include "Saves/SaveInterface.h"
 #include "MenuGamemode.generated.h"
 
 UCLASS()
-class GLITCHUE_API AMenuGamemode : public AGameModeBase, public ISaveInterface{
+class GLITCHUE_API AMenuGamemode : public AMainGamemode, public ISaveInterface{
 	GENERATED_BODY()
 
 public:

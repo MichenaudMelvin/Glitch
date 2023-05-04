@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Mark/Mark.h"
 
-void AMainPlayerController::BeginPlay() {
+void AMainPlayerController::BeginPlay(){
 	Super::BeginPlay();
 
 	MainPlayer = Cast<AMainPlayer>(GetPawn());
@@ -45,11 +45,36 @@ EGameplayMode AMainPlayerController::GetGameplayMode() const{
 	return GameplayMode;
 }
 
+void AMainPlayerController::BindFastSaveAndLoad(){
+	OnFastSave.AddDynamic(this, &AMainPlayerController::FastSave);
+	OnFastLoad.AddDynamic(this, &AMainPlayerController::FastLoad);
+}
+
+void AMainPlayerController::UnbindFastSaveAndLoad(){
+	OnFastSave.Clear();
+	OnFastLoad.Clear();
+}
+
+void AMainPlayerController::FastSave(){
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Saving"));
+	GameMode->GlobalWorldSave(0);
+}
+
+void AMainPlayerController::FastLoad(){
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Loading"));
+	GameMode->GlobalWorldLoad(0);
+}
+
+void AMainPlayerController::SetCanSave(const bool bValue){
+	bCanSave = bValue;
+	bCanSave ? BindFastSaveAndLoad() : UnbindFastSaveAndLoad();
+}
+
 UTchat* AMainPlayerController::GetTchat() const{
 	return Tchat;
 }
 
-void AMainPlayerController::BindMovement() {
+void AMainPlayerController::BindMovement(){
 	UnbindMovement();
 	OnMoveForward.AddUniqueDynamic(MainPlayer, &AMainPlayer::MoveForward);
 	OnMoveRight.AddDynamic(MainPlayer, &AMainPlayer::MoveRight);
@@ -58,7 +83,7 @@ void AMainPlayerController::BindMovement() {
 	BindJump();
 }
 
-void AMainPlayerController::UnbindMovement() {
+void AMainPlayerController::UnbindMovement(){
 	OnMoveForward.Clear();
 	OnMoveRight.Clear();
 	UnbindSneak();
@@ -66,13 +91,13 @@ void AMainPlayerController::UnbindMovement() {
 	UnbindJump();
 }
 
-void AMainPlayerController::BindJump() {
+void AMainPlayerController::BindJump(){
 	UnbindJump();
 	OnJumpPressed.AddUniqueDynamic(MainPlayer, &AMainPlayer::Jump);
 	OnJumpReleased.AddDynamic(MainPlayer, &AMainPlayer::StopJumping);
 }
 
-void AMainPlayerController::UnbindJump() {
+void AMainPlayerController::UnbindJump(){
 	OnJumpPressed.Clear();
 	OnJumpReleased.Clear();
 }
@@ -94,12 +119,12 @@ void AMainPlayerController::BindSneak(){
 	}
 }
 
-void AMainPlayerController::UnbindSneak() {
+void AMainPlayerController::UnbindSneak(){
 	OnSneakPressed.Clear();
 	OnSneakReleased.Clear();
 }
 
-void AMainPlayerController::BindSprint_Implementation() {
+void AMainPlayerController::BindSprint_Implementation(){
 	UnbindSprint();
 	//switch (){
 	//
@@ -110,15 +135,15 @@ void AMainPlayerController::BindConstruction_Implementation(){}
 
 void AMainPlayerController::UnbindConstruction_Implementation(){}
 
-void AMainPlayerController::UnbindSprint() {
+void AMainPlayerController::UnbindSprint(){
 	OnSprint.Clear();
 }
 
 void AMainPlayerController::BindGlitch(){
 	UnbindGlitch();
-	if (MainPlayer->GetMark()->GetIsMarkPlaced()) {
+	if (MainPlayer->GetMark()->GetIsMarkPlaced()){
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::TPToMark);
-	} else {
+	} else{
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchPressed);
 		OnUseGlitchReleased.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchReleassed);
 	}
@@ -129,13 +154,13 @@ void AMainPlayerController::UnbindGlitch(){
 	OnUseGlitchReleased.Clear();
 }
 
-void AMainPlayerController::BindInteraction() {
+void AMainPlayerController::BindInteraction(){
 	UnbindInteraction();
 	OnInteractPlayer.AddDynamic(MainPlayer, &AMainPlayer::Interact);
 	GetWorld()->GetTimerManager().SetTimer(InteractionTimer, InteractionTickDelegate, 0.1f, true, 0.0f);
 }
 
-void AMainPlayerController::UnbindInteraction() {
+void AMainPlayerController::UnbindInteraction(){
 	OnInteractPlayer.Clear();
 	GetWorldTimerManager().ClearTimer(InteractionTimer);
 }
@@ -144,17 +169,17 @@ void AMainPlayerController::UnbindInteraction() {
 
 #pragma region Camera
 
-void AMainPlayerController::BindCamera() {
+void AMainPlayerController::BindCamera(){
 	UnbindCamera();
 
 	OnTurn.AddDynamic(MainPlayer, &AMainPlayer::AddControllerYawInput);
 	OnTurnRate.AddDynamic(MainPlayer, &AMainPlayer::TurnAtRate);
-	
+
 	OnLookUp.AddDynamic(MainPlayer, &AMainPlayer::AddControllerPitchInput);
 	OnLookUpRate.AddDynamic(MainPlayer, &AMainPlayer::LookUpAtRate);
 }
 
-void AMainPlayerController::UnbindCamera() {
+void AMainPlayerController::UnbindCamera(){
 	OnTurn.Clear();
 	OnTurnRate.Clear();
 	OnLookUp.Clear();
@@ -165,7 +190,7 @@ void AMainPlayerController::UnbindCamera() {
 
 #pragma region Modes
 
-void AMainPlayerController::BindNormalMode() {
+void AMainPlayerController::BindNormalMode(){
 	UnbindAll();
 	BindPause();
 	BindMovement();
@@ -174,26 +199,28 @@ void AMainPlayerController::BindNormalMode() {
 	BindGlitch();
 	BindOpenSelectionWheel();
 	BindMouseScroll();
+	BindFastSaveAndLoad();
 }
 
-void AMainPlayerController::BindConstructionMode() {
+void AMainPlayerController::BindConstructionMode(){
 	UnbindAll();
 	BindMovement();
 	BindCamera();
 	BindConstruction();
 	BindOpenSelectionWheel();
 	BindMouseScroll();
+	BindFastSaveAndLoad();
 }
 
 
 #pragma endregion
 
-void AMainPlayerController::BindPause() {
+void AMainPlayerController::BindPause(){
 	UnbindPause();
 	OnPause.AddDynamic(this, &AMainPlayerController::PauseGame);
 }
 
-void AMainPlayerController::UnbindPause() {
+void AMainPlayerController::UnbindPause(){
 	OnPause.Clear();
 }
 
@@ -215,6 +242,7 @@ void AMainPlayerController::UnbindAll(){
 	UnbindConstruction();
 	UnbindOpenSelectionWheel();
 	UnbindMouseScroll();
+	UnbindFastSaveAndLoad();
 }
 
 void AMainPlayerController::PauseGame_Implementation(){

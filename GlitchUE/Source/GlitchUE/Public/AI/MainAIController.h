@@ -4,14 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Perception/AIPerceptionComponent.h"
 #include "Objectives/Catalyseur.h"
-#include "Saves/WorldSave.h"
+#include "Saves/StealthSave.h"
 #include "MainAIController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnStopBehavior);
 
-UCLASS()
+class UMainAIData;
+
+UCLASS(Abstract)
 class GLITCHUE_API AMainAIController : public AAIController{
 	GENERATED_BODY()
 
@@ -20,40 +21,33 @@ public:
 
 	FKOnStopBehavior OnStopBehavior;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch")
-	float AISpawnGlitchValue = 25;
+	FString GetControllerName() const;
+
+	void SetCurrentData(UMainAIData* NewData);
+
+	UMainAIData* GetAIData() const;
 
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	UMainAIData* AIData;
+
+	void SetDataToOwner();
+
+	// needed because controller is instanced
+	UPROPERTY(BlueprintReadOnly)
+	FString ControllerName;
 
 	virtual void InitializeAIFromStart();
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UBehaviorTree* BehaviorTree;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float StunTime = 5.0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Damages")
-	float Damages = 10;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
-	float GlitchDamages = 25;
-
-	float OriginalDamages;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float InvestigatingTime = 0.2f;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	UAIPerceptionComponent* AIPerception;
+	float Damages;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UBlackboardData* BlackboardData;
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "AIPerception")
-	void PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus);
-	void PerceptionUpdate_Implementation(AActor* Actor, const FAIStimulus Stimulus);
 
 public:
 	void ToggleGlitchDamages(const bool bEnable);

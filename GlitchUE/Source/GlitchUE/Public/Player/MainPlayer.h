@@ -8,7 +8,7 @@
 #include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
-#include "Saves/SettingsSave.h"
+#include "Saves/Settings/GameplaySettingsSave.h"
 #include "MainPlayer.generated.h"
 
 class AMainPlayerController;
@@ -150,6 +150,23 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float OriginalBrakingDecelerationWalking = 2048;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float NormalSpeedNoiseRange = 500;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float SprintSpeedNoiseRange = 1000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float CrouchSpeedNoiseRange = 50;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float GlitchDashNoiseRange = 750;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	float JumpNoiseRange = 500;
+
+	void MakeMovementNoise();
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	EPlayerMovementMode GetMovementMode() const;
@@ -188,6 +205,8 @@ public:
 
 	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
 
+	virtual void AddControllerYawInput(float Val) override;
+
 	virtual void AddControllerPitchInput(float Rate) override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
@@ -201,10 +220,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SprintToSneak();
 	void SprintToSneak_Implementation();
-	
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void ResetMovement();
 	void ResetMovement_Implementation();
+
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 protected:
 	#pragma endregion
@@ -245,8 +266,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
+	float Sensibility = 1;
+
 public:
 	void SetInvertAxis(const bool bNewValue);
+
+	void SetSensibility(const float NewSensibility);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
@@ -449,7 +474,7 @@ public:
 	#pragma region Saves
 
 	UPROPERTY(BlueprintReadWrite)
-	USettingsSave* SettingsSave;
+	UGameplaySettingsSave* GameplaySettingsSaveSave;
 
 	#pragma endregion
 

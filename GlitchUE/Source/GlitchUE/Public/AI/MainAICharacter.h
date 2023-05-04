@@ -9,16 +9,19 @@
 #include "Components/SightComponent.h"
 #include "Components/WidgetComponent.h"
 #include "PlacableObject/Trap.h"
+#include "PlacableObject/TrapData.h"
 #include "MainAICharacter.generated.h"
 
 class AWaveManager;
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AMainAICharacter : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
 
 public:
 	AMainAICharacter();
+
+	virtual void SetCurrentData(UMainAIData* NewData);
 
 protected:
 	virtual void BeginPlay() override;
@@ -26,14 +29,13 @@ protected:
 
 	AMainAIController* AIController;
 
+	UMainAIData* CurrentData;
+
 	UPROPERTY(BlueprintReadWrite)
 	UBlackboardComponent* Blackboard;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* IdleFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	UPopcornFXEffect* DeathFX;
 
 public:
 	UBlackboardComponent* GetBlackBoard() const;
@@ -44,26 +46,11 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	UHealthComponent* HealthComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
-	float GlitchHealth = 200;
-
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	USightComponent* SightComp;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Sight")
 	UWidgetComponent* SightWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sight")
-	FVector ScaleDetection = FVector(1, 1, 1);
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Glitch" )
-	float GlitchUpgradeDuration = 10;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
-	float GlitchSpeed = 1000;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Speed")
-	float OriginalSpeed = 200;
 
 	UFUNCTION()
 	void HealthNull();
@@ -87,10 +74,31 @@ public:
 	virtual void ResetGlitchUpgrade() override;
 
 	UFUNCTION(BlueprintCallable)
-	void ReceiveTrapEffect(const ETrapEffect NewEffect, const float EffectDuration, const float EffectTickRate, const float EffectDamages);
+	void ReceiveTrapEffect(const UTrapData* TrapData);
 
-private:
+protected:
+	void ResetTrapEffect();
+
+	void ReceiveBurnEffect(const float EffectDuration, const float EffectTickRate, const float EffectDamages);
+
+	void ResetBurnEffect();
+
+	void ReceiveFreezeEffect(const float EffectDuration);
+
+	void ResetFreezeEffect();
+
+	void ReceivePoisonEffect(const float EffectDuration);
+
+	void ResetPoisonEffect();
+
+	void ReceiveSlowEffect(const float EffectDuration, const float SlowSpeed);
+
+	void ResetSlowEffect();
+
 	FTimerHandle EffectTimer;
 
 	FTimerHandle TrapTimer;
+
+	UPROPERTY()
+	UPopcornFXEmitterComponent* TrapEffectFX;
 };

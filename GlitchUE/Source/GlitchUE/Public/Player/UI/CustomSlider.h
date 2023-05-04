@@ -9,7 +9,7 @@
 #include "Components/TextBlock.h"
 #include "CustomSlider.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UCustomSlider : public UUserWidget{
 	GENERATED_BODY()
 
@@ -27,6 +27,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Slider")
 	float SliderMaxValue;
+
+	UPROPERTY(EditAnywhere, Category = "Slider")
+	float IntegralDigits = 3;
+
+	UPROPERTY(EditAnywhere, Category = "Slider")
+	float FractionalDigits = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Slider", meta = (BindWidget))
 	UTextBlock* SliderValue;

@@ -24,6 +24,13 @@ APursuitDroneController::APursuitDroneController(const FObjectInitializer& Objec
 
 void APursuitDroneController::BeginPlay(){
 	Super::BeginPlay();
+}
+
+void APursuitDroneController::InitializeAIFromStart(){
+	Super::InitializeAIFromStart();
+
+	Blackboard->SetValueAsBool("IsDocked", true);
+	Cast<APursuitDrone>(GetPawn())->ForceInDock();
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
@@ -33,16 +40,23 @@ void APursuitDroneController::BeginPlay(){
 	}
 }
 
-void APursuitDroneController::InitializeAIFromStart(){
-	Super::InitializeAIFromStart();
-
-	Blackboard->SetValueAsBool("IsDocked", true);
-}
-
 void APursuitDroneController::InitializeAI(const FAIData NewData){
 	Super::InitializeAI(NewData);
 
-	//Blackboard->SetValueAsBool("IsDocked", NewData.bIsDocked);
+	Blackboard->SetValueAsBool("IsDocked", NewData.bIsDocked);
+
+	if(NewData.bIsDocked){
+		Cast<APursuitDrone>(GetPawn())->ForceInDock();
+	} else{
+		Cast<APursuitDrone>(GetPawn())->ForceStartAnim();
+	}
+
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+
+	if(IsValid(Player)){
+		Blackboard->SetValueAsObject("Player", Player);
+		Blackboard->SetValueAsVector("PlayerLocation", Player->GetActorLocation());
+	}
 }
 
 void APursuitDroneController::SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData){
@@ -67,6 +81,14 @@ void APursuitDroneController::SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBl
 
 	Blackboard->SetValueAsObject("Nexus", Nexus);
 	Blackboard->SetValueAsVector("NexusLocation", Nexus->GetActorLocation());
+}
+
+FAIData APursuitDroneController::SaveAI(){
+	FAIData CurrentData = Super::SaveAI();
+
+	CurrentData.bIsDocked = Blackboard->GetValueAsBool("IsDocked");
+
+	return CurrentData;
 }
 
 TArray<ACatalyseur*> APursuitDroneController::GetCatalyseurList() const{

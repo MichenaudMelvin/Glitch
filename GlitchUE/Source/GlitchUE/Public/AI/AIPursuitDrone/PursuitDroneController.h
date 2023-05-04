@@ -6,7 +6,7 @@
 #include "AI/MainAIController.h"
 #include "PursuitDroneController.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API APursuitDroneController : public AMainAIController{
 	GENERATED_BODY()
 
@@ -21,6 +21,8 @@ protected:
 	virtual void InitializeAI(const FAIData NewData) override;
 
 	virtual void SwitchBehavior(UBehaviorTree* NewBehaviorTree, UBlackboardData* NewBlackboardData) override;
+
+	virtual FAIData SaveAI() override;
 
 	TArray<ACatalyseur*> CatalyseurList;
 

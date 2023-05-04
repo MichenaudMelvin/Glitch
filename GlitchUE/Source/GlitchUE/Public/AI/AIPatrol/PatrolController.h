@@ -6,7 +6,7 @@
 #include "AI/MainAIController.h"
 #include "PatrolController.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API APatrolController : public AMainAIController{
 	GENERATED_BODY()
 
@@ -18,4 +18,11 @@ public:
 	virtual FAIData SaveAI() override;
 
 	virtual void InitializeAI(const FAIData NewData) override;
+
+protected:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UAIPerceptionComponent* AIPerception;
+
+	UFUNCTION()
+	void PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus);
 };

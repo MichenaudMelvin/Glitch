@@ -1,8 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Perception/AISense_Hearing.h"
 #include "Saves/AbstractSave.h"
 
 void UUsefullFunctions::OutlineComponent(bool SetOutline, UPrimitiveComponent* Component){
@@ -22,11 +25,7 @@ bool UUsefullFunctions::CanSee(AActor* SelfActor, FVector StartLocation, AActor*
 
 	UKismetSystemLibrary::LineTraceSingle(ActorToSee->GetWorld(), StartLocation, ActorToSee->GetActorLocation(), UEngineTypes::ConvertToTraceType(CollisionChannel), false, ActorsToIgnore, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
 
-	if (Hit.GetActor() == ActorToSee){
-		return true;
-	} else{
-		return false;
-	}
+	return Hit.GetActor() == ActorToSee;
 }
 
 int UUsefullFunctions::ClampIntToArrayLength(const int IntToClamp, const int ArrayLength){
@@ -75,7 +74,7 @@ void UUsefullFunctions::QuickSortByDistance(TArray<AActor*>& InArray, const int 
 		UE_LOG(LogTemp, Warning, TEXT("Array null"));
 		return;
 	}
-	
+
 	int I = Low;
 	int J = High;
 	// Select a pivot
@@ -105,8 +104,11 @@ void UUsefullFunctions::QuickSortByDistance(TArray<AActor*>& InArray, const int 
 	}
 }
 
-UAbstractSave* UUsefullFunctions::CreateSave(const TSubclassOf<UAbstractSave> SaveClass){
-	return NewObject<UAbstractSave>(GetTransientPackage(), SaveClass);
+UAbstractSave* UUsefullFunctions::CreateSave(const TSubclassOf<UAbstractSave> SaveClass, const int UserIndex){
+	UAbstractSave* NewSave = Cast<UAbstractSave>(UGameplayStatics::CreateSaveGameObject(SaveClass));
+	NewSave->Index = UserIndex;
+	NewSave = SaveToSlot(NewSave, UserIndex);
+	return NewSave;
 }
 
 UAbstractSave* UUsefullFunctions::SaveToSlot(UAbstractSave* SaveObject, const int UserIndex){
@@ -129,10 +131,7 @@ UAbstractSave* UUsefullFunctions::LoadSave(const TSubclassOf<UAbstractSave> Save
 	}
 
 	if(bCreateNewSaveIfDoesntExist){
-		LoadedSave = Cast<UAbstractSave>(UGameplayStatics::CreateSaveGameObject(SaveClass));
-		LoadedSave = SaveToSlot(LoadedSave, UserIndex);
-		LoadedSave->Index = UserIndex;
-		return LoadedSave;
+		return CreateSave(SaveClass, UserIndex);
 	}
 
 	return nullptr;
@@ -143,4 +142,30 @@ bool UUsefullFunctions::DeleteSaveSlot(UAbstractSave* SaveObject, const int User
 	SlotName += FString::FromInt(UserIndex);
 
 	return UGameplayStatics::DeleteGameInSlot(SlotName, 0);
+}
+
+float UUsefullFunctions::GetTimelineDuration(const UTimelineComponent* Timeline){
+	return Timeline->GetTimelineLength() / Timeline->GetPlayRate();
+}
+
+bool UUsefullFunctions::IsCharacterMoving(const ACharacter* Character){
+	return Character->GetVelocity().Size() > 0;
+}
+
+bool UUsefullFunctions::IsCharacterMovingOnGround(const ACharacter* Character){
+	return IsCharacterMoving(Character) && Character->GetCharacterMovement()->IsMovingOnGround();
+}
+
+void UUsefullFunctions::MakeNoise(AActor* Instigator, const FVector NoiseLocation, const float SoundRadius){
+	UAISense_Hearing::ReportNoiseEvent(Instigator->GetWorld(), NoiseLocation, 1, Instigator, SoundRadius, "Noise");
+}
+
+void UUsefullFunctions::Print(const FString StringToPrint, const bool bPrintToScreen, const bool bPrintToLog, const FLinearColor TextColor, const float Duration){
+	if(bPrintToScreen){
+		GEngine->AddOnScreenDebugMessage(-1, Duration, TextColor.ToFColor(false), FString::Printf(TEXT("%s"), *StringToPrint));
+	}
+
+	if(bPrintToLog){
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *StringToPrint);
+	}
 }

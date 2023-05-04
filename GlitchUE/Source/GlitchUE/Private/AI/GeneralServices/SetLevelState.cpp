@@ -10,8 +10,20 @@ USetLevelState::USetLevelState(){
 	RandomDeviation = 0;
 }
 
+void USetLevelState::PostLoad(){
+	Super::PostLoad();
+
+#if WITH_EDITOR
+	if(!IsValid(GetWorld())){
+		return;
+	}
+#endif
+
+	GlitchUEGameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+}
+
 void USetLevelState::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds){
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->SetLevelState(NewLevelState);
+	GlitchUEGameMode->SetLevelState(NewLevelState);
 }

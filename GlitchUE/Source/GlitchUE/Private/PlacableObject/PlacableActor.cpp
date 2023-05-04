@@ -131,7 +131,6 @@ void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 	TargetLocation.Z += 100;
 
 	CurrentDrone->SetActorLocation(TargetLocation);
-
 }
 
 void APlacableActor::RemoveDrone(AMainPlayer* MainPlayer){
@@ -220,4 +219,18 @@ void APlacableActor::ResetGlitchUpgrade(){
 	AttackRate += CurrentData->GlitchAttackRate;
 	Damages -= CurrentData->GlitchDamages;
 	AttackRange -= CurrentData->GlitchAttackRange;
+}
+
+FPlacableActorSaveData APlacableActor::SavePlacable(){
+	FPlacableActorSaveData CurrentSaveData;
+
+	CurrentSaveData.PlacableActorClass = GetClass();
+	CurrentSaveData.ActorTransform = GetActorTransform();
+	CurrentSaveData.CurrentPlacableData = CurrentData;
+
+	return CurrentSaveData;
+}
+
+void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData){
+	
 }

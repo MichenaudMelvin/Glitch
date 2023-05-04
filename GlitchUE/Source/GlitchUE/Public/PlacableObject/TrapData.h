@@ -27,6 +27,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Behavior", meta = (EditCondition = "TrapEffect == ETrapEffect::Burned"))
 	float EffectDamages;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Behavior", meta = (EditCondition = "TrapEffect == ETrapEffect::SlowedDown"))
+	float SlowSpeed;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UPopcornFXEffect* IdleFX;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
+	UPopcornFXEffect* EffectFX;
 };

@@ -3,14 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
 #include "Player/MainPlayer.h"
 #include "Engine/SceneCapture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "Gamemodes/MainGamemode.h"
 #include "Saves/SaveInterface.h"
 #include "GlitchUEGameMode.generated.h"
 
-class UWorldSave;
 class AAudioManager;
 
 UENUM(BlueprintType)
@@ -53,7 +52,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnSwitchPhases, EPhases, NewPhases
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnSwitchLevelState, ELevelState, NewState);
 
 UCLASS(minimalapi)
-class AGlitchUEGameMode : public AGameModeBase, public ISaveInterface{
+class AGlitchUEGameMode : public AMainGamemode, public ISaveInterface{
 	GENERATED_BODY()
 
 public:
@@ -64,6 +63,8 @@ protected:
 	virtual void Tick(float deltaTime) override;
 
 	void InitializeWorld();
+
+	void InitializeWorldSave(TArray<FString> LevelSettings);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
 	AMainPlayer* MainPlayer;
@@ -88,6 +89,14 @@ public:
 	virtual void GlobalWorldLoad(const int Index) override;
 
 protected:
+	UWorldSave* StealthWorldSave(UWorldSave* CurrentSave);
+
+	UWorldSave* TowerDefenseWorldSave(UWorldSave* CurrentSave);
+
+	UWorldSave* StealthWorldLoad(UWorldSave* CurrentSave);
+
+	UWorldSave* TowerDefenseWorldLoad(UWorldSave* CurrentSave);
+
 	ASceneCapture2D* SceneCapture;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -176,9 +185,6 @@ protected:
 
 private:
 	UFUNCTION(Exec)
-	void SetGlobalTimeDilation(float TimeDilation) const;
-
-	UFUNCTION(Exec)
 	void SetSelfTimeDilation(float TimeDilation) const;
 
 	UFUNCTION(Exec)
@@ -186,9 +192,6 @@ private:
 
 	UFUNCTION(Exec)
 	void GoToWave(const int NewWave) const;
-
-	UFUNCTION(Exec)
-	void CrashGame() const;
 
 	UFUNCTION(Exec)
 	void ToggleSpectatorMode(const bool bToggleAtLocation = false) const;

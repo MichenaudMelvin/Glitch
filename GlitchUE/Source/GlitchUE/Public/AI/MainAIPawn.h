@@ -8,7 +8,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "MainAIPawn.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AMainAIPawn : public APawn, public IGlitchInterface{
 	GENERATED_BODY()
 

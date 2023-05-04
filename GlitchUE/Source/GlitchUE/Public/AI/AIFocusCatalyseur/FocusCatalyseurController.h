@@ -6,13 +6,13 @@
 #include "AI/FocusAIController.h"
 #include "FocusCatalyseurController.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AFocusCatalyseurController : public AFocusAIController{
 	GENERATED_BODY()
 
 public:
 	AFocusCatalyseurController();
-	
+
 protected:
 	virtual void BeginPlay() override;
 

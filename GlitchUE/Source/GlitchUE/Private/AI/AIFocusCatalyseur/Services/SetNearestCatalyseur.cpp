@@ -5,6 +5,7 @@
 
 #include "AI/AIFocusCatalyseur/FocusCatalyseurController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 #include "GameFramework/Character.h"
 
@@ -15,6 +16,7 @@ USetNearestCatalyseur::USetNearestCatalyseur(){
 
 	NexusLocation.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(USetNearestCatalyseur, NexusLocation));
 	NearestCatalyseurLocation.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(USetNearestCatalyseur, NearestCatalyseurLocation));
+	NearestCatalyseurKey.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(USetNearestCatalyseur, NearestCatalyseurKey), ACatalyseur::StaticClass());
 }
 
 void USetNearestCatalyseur::InitializeFromAsset(UBehaviorTree& Asset){
@@ -29,6 +31,7 @@ void USetNearestCatalyseur::InitializeFromAsset(UBehaviorTree& Asset){
 
 void USetNearestCatalyseur::OnSearchStart(FBehaviorTreeSearchData& SearchData){
 	Super::OnSearchStart(SearchData);
+
 	OwnerPawn = SearchData.OwnerComp.GetAIOwner()->GetCharacter();
 }
 
@@ -57,7 +60,9 @@ void USetNearestCatalyseur::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	}
 
 	if(IsValid(NearestCatalyseur)){
+		UE_LOG(LogTemp, Warning, TEXT("Nearest catalyseur is : %s"), *NearestCatalyseur->GetName());
 		CurrentBlackboard->SetValue<UBlackboardKeyType_Vector>(NearestCatalyseurLocation.GetSelectedKeyID(), NearestCatalyseur->GetActorLocation());
+		CurrentBlackboard->SetValue<UBlackboardKeyType_Object>(NearestCatalyseurKey.SelectedKeyName, NearestCatalyseur);
 	}
 }
 

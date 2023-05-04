@@ -8,7 +8,7 @@
 USetPlayerPosition::USetPlayerPosition(){
 	Interval = 1;
 	RandomDeviation = 0;
-	
+
 	Player.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(USetPlayerPosition, Player), AActor::StaticClass());
 	PlayerPosition.AddVectorFilter(this, GET_MEMBER_NAME_CHECKED(USetPlayerPosition, PlayerPosition));
 }

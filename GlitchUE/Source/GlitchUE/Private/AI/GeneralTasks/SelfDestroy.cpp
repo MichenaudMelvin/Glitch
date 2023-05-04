@@ -9,6 +9,6 @@ USelfDestroy::USelfDestroy(){}
 EBTNodeResult::Type USelfDestroy::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory){
 
 	OwnerComp.GetAIOwner()->GetPawn()->Destroy();
-	
+
 	return EBTNodeResult::Succeeded;
 }

@@ -6,9 +6,11 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 
 USetBoolKey::USetBoolKey(){
+	ForceInstancing(true);
+
 	Interval = 1;
 	RandomDeviation = 0;
-	
+
 	BoolKey.AddBoolFilter(this, GET_MEMBER_NAME_CHECKED(USetBoolKey, BoolKey));
 }
 
@@ -25,6 +27,6 @@ void USetBoolKey::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-	
+
 	CurrentBlackboard->SetValue<UBlackboardKeyType_Bool>(BoolKey.GetSelectedKeyID(), bBoolValue);
 }

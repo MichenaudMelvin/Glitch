@@ -2,6 +2,8 @@
 
 
 #include "AI/AIPursuitDrone/PursuitDrone.h"
+
+#include "AI/AIPursuitDrone/PursuitDroneData.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "FX/Dissolver.h"
@@ -15,9 +17,7 @@ APursuitDrone::APursuitDrone(){
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DroneSkeletal(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Pursuit"));
 	check(DroneSkeletal.Succeeded());
 
-	DroneMesh = DroneSkeletal.Object;
-
-	GetMesh()->SetSkeletalMesh(DroneMesh);
+	GetMesh()->SetSkeletalMesh(DroneSkeletal.Object);
 	GetMesh()->SetRelativeRotation(FRotator(0, 180, 0));
 	GetMesh()->SetGenerateOverlapEvents(true);
 
@@ -25,11 +25,6 @@ APursuitDrone::APursuitDrone(){
 	check(CrystalSkeletal.Succeeded());
 
 	CrystalMesh = CrystalSkeletal.Object;
-
-	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> DeathEffect(TEXT("/Game/VFX/Particles/FX_Enemies/Drones/Pk_ExplodingDrone_Destruction"));
-	check(DeathEffect.Succeeded());
-
-	DeathFX = DeathEffect.Object;
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Anim(TEXT("/Game/Meshs/Drones/Pursuit/AS_Drones_Pursuit_Start"));
 	check(Anim.Succeeded());
@@ -60,7 +55,6 @@ void APursuitDrone::BeginPlay(){
 
 	SpinTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	SpinTimeline.SetLooping(true);
-	SpinTimeline.SetPlayRate(1/SpinSpeed);
 
 	#if	WITH_EDITOR
 
@@ -69,9 +63,6 @@ void APursuitDrone::BeginPlay(){
 	}
 
 	#endif
-
-	PlayStartAnim(true);
-	IdleFX->SetVisibility(false);
 }
 
 void APursuitDrone::Tick(float DeltaSeconds){
@@ -118,6 +109,28 @@ void APursuitDrone::PlayStartAnim(const bool bReverseAnim) const{
 
 void APursuitDrone::SetCurrentPad(APursuitDronePad* NewPad){
 	Pad = NewPad;
+}
+
+void APursuitDrone::ForceInDock() const{
+	GetMesh()->PlayAnimation(StartAnim, false);
+	GetMesh()->SetPosition(0);
+	GetMesh()->Stop();
+	IdleFX->SetVisibility(false);
+}
+
+void APursuitDrone::ForceStartAnim() const{
+	GetMesh()->PlayAnimation(StartAnim, false);
+	GetMesh()->SetPosition(1);
+	GetMesh()->Stop();
+	IdleFX->SetVisibility(true);
+}
+
+void APursuitDrone::SetCurrentData(UMainAIData* NewData){
+	Super::SetCurrentData(NewData);
+
+	const UPursuitDroneData* Data = Cast<UPursuitDroneData>(NewData);
+
+	SpinTimeline.SetPlayRate(1/Data->SpinSpeed);
 }
 
 void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
@@ -168,7 +181,7 @@ void APursuitDrone::TransformIntoPowerUp(){
 }
 
 void APursuitDrone::TransformIntoDrone(){
-	GetMesh()->SetSkeletalMesh(DroneMesh);
+	GetMesh()->SetSkeletalMesh(CurrentData->AIMesh);
 	InteractableComp->RemoveInteractable(GetMesh());
 	DisableSpinBehavior();
 }
@@ -186,9 +199,10 @@ void APursuitDrone::EnableSpinBehavior(){
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 
-	GetMesh()->SetWorldScale3D(SpinScale);
-	GetMesh()->SetRelativeLocation(FVector(0, SpinOffset, 0));
-	GetMesh()->SetRelativeRotation(FRotator(0, -180, InteriorRotationOffset));
+	const UPursuitDroneData* Data = Cast<UPursuitDroneData>(CurrentData);
+
+	GetMesh()->SetWorldScale3D(Data->SpinScale);
+	GetMesh()->SetRelativeLocation(FVector(0, Data->SpinOffset, 0));
 	SpinTimeline.Play();
 }
 
@@ -198,8 +212,11 @@ void APursuitDrone::DisableSpinBehavior(){
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	GetCharacterMovement()->GravityScale = 1;
 
+	if(!GetMesh()->IsVisible()){
+		GetMesh()->SetVisibility(true, true);
+	}
+
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
 
 	GetMesh()->SetWorldScale3D(FVector::OneVector);
 	GetMesh()->SetRelativeLocation(FVector::ZeroVector);
@@ -218,19 +235,28 @@ void APursuitDrone::AttachDrone(AActor* ActorToAttach, const FName SocketName){
 
 void APursuitDrone::DetachDrone(){
 	if(!IsValid(GetAttachParentActor())){
+		UE_LOG(LogTemp, Warning, TEXT("parent actor not valid"));
 		return;
 	}
 
 	if(GetAttachParentActor()->IsA(AMainPlayer::StaticClass())){
 		Cast<AMainPlayer>(GetAttachParentActor())->SetCurrentDrone(nullptr);
+
+		const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
+		DetachFromActor(DetachmentTransformRules);
 	}
 
 	else if(GetAttachParentActor()->IsA(APlacableActor::StaticClass())){
-		Cast<APlacableActor>(GetAttachParentActor())->RemoveDrone(nullptr);
-	}
+		FTimerHandle TimerHandle;
 
-	const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
-	DetachFromActor(DetachmentTransformRules);
+		// micro delay for avoid a crash
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+			Cast<APlacableActor>(GetAttachParentActor())->RemoveDrone(nullptr);
+
+			const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
+			DetachFromActor(DetachmentTransformRules);
+		}, 0.1f, false);
+	}
 }
 
 void APursuitDrone::Spin(float Value){

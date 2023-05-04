@@ -3,7 +3,6 @@
 #include "Player/MainPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -18,12 +17,10 @@
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
-#include "AI/Navigation/NavAreaCostAsOne.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
-#include "Sound/SoundBase.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -93,13 +90,13 @@ AMainPlayer::AMainPlayer(){
 	GlichDashFXReference = FX.Object;
 }
 
-
 void AMainPlayer::BeginPlay(){
 	Super::BeginPlay();
 
-	SettingsSave = Cast<USettingsSave>(UUsefullFunctions::LoadSave(USettingsSave::StaticClass(), 0));
-	FollowCamera->FieldOfView = SettingsSave->CamreaFOV;
-	bInvertYAxis = SettingsSave->bInvertCamYAxis;
+	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefullFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
+	FollowCamera->FieldOfView = GameplaySettingsSaveSave->CameraFOV;
+	Sensibility = GameplaySettingsSaveSave->CameraSensibility;
+	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 
@@ -343,16 +340,19 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensibility);
 }
 
 void AMainPlayer::LookUpAtRate(const float Rate){
 	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * Sensibility);
 }
 
 void AMainPlayer::Jump(){
 	Super::Jump();
+
+	MainPlayerController->UnbindSneak();
+	UUsefullFunctions::MakeNoise(this, GetActorLocation(), JumpNoiseRange);
 
 	if(bUseCoyoteTime){
 		bUseCoyoteTime = false;
@@ -364,6 +364,7 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 	Super::OnWalkingOffLedge_Implementation(PreviousFloorImpactNormal, PreviousFloorContactNormal, PreviousLocation,TimeDelta);
 
 	bUseCoyoteTime = true;
+	MainPlayerController->UnbindSneak();
 
 	FTimerHandle TimerHandle;
 
@@ -372,12 +373,20 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 	}, CoyoteTime, false);
 }
 
+void AMainPlayer::AddControllerYawInput(float Val){
+	Super::AddControllerYawInput(Val * Sensibility);
+
+	MakeMovementNoise();
+}
+
 void AMainPlayer::AddControllerPitchInput(float Rate){
 	if (bInvertYAxis) {
 		Rate = Rate * -1;
 	}
 
-	Super::AddControllerPitchInput(Rate);
+	Super::AddControllerPitchInput(Rate * Sensibility);
+
+	MakeMovementNoise();
 }
 
 void AMainPlayer::SneakPressed_Implementation(){}
@@ -387,6 +396,36 @@ void AMainPlayer::SneakReleased_Implementation(){}
 void AMainPlayer::SprintToSneak_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
+
+void AMainPlayer::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode){
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	if(PrevMovementMode == MOVE_Falling){
+		MainPlayerController->BindSneak();
+	}
+}
+
+void AMainPlayer::MakeMovementNoise(){
+	if(!UUsefullFunctions::IsCharacterMovingOnGround(this)){
+		return;
+	}
+
+	float NoiseRadius = 0;
+
+	switch (MovementMode) {
+	case EPlayerMovementMode::Normal:
+		NoiseRadius = NormalSpeedNoiseRange;
+		break;
+	case EPlayerMovementMode::Sneaking:
+		NoiseRadius = CrouchSpeedNoiseRange;
+		break;
+	case EPlayerMovementMode::Sprinting:
+		NoiseRadius = SprintSpeedNoiseRange;
+		break;
+	}
+
+	UUsefullFunctions::MakeNoise(this, GetActorLocation(), NoiseRadius);
+}
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
 	return MovementMode;
@@ -436,6 +475,10 @@ void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;
 }
 
+void AMainPlayer::SetSensibility(const float NewSensibility){
+	Sensibility = NewSensibility;
+}
+
 
 void AMainPlayer::PlaceObject(){
 	FTransform SpawnTransform;
@@ -467,6 +510,7 @@ void AMainPlayer::LaunchMark(){
 	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Bone012"));
 
 	MarkTransform.SetRotation(FindMarkLaunchRotation());
+	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
 	Mark->Launch(MarkTransform);
 
 	MainPlayerController->UnbindGlitch();
@@ -485,7 +529,7 @@ FQuat AMainPlayer::FindMarkLaunchRotation() const{
 
 	if(GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams, ResponseParam)){
 		TargetLocation = HitResult.ImpactPoint;
-		Mark->SetHitSomething(true);
+		//Mark->SetHitSomething(true);
 	}
 
 	Mark->SetTargetLocation(TargetLocation);
@@ -498,6 +542,7 @@ void AMainPlayer::TPToMark() {
 	MainPlayerController->UnbindMovement();
 	MainPlayerController->UnbindCamera();
 	MainPlayerController->UnbindGlitch();
+	MainPlayerController->SetCanSave(false);
 
 	StopJumping();
 	Mark->PlaceMark();
@@ -813,11 +858,13 @@ void AMainPlayer::EndTL(){
 
 		MainPlayerController->BindMovement();
 		MainPlayerController->BindCamera();
+		MainPlayerController->SetCanSave(true);
 
 		ResetOverlappedMeshes();
 
 		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
+
 		if(IsValid(CurrentDrone)){
 			CurrentDrone->GetMesh()->SetVisibility(true, true);
 		}
@@ -825,6 +872,8 @@ void AMainPlayer::EndTL(){
 		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 		HealthComp->SetCanTakeDamages(true);
+
+		UUsefullFunctions::MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
 	}, 0.2f, false);
 }
 

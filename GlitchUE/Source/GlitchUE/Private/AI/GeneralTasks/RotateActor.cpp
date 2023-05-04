@@ -19,7 +19,7 @@ URotateActor::URotateActor(){
 
 void URotateActor::InitializeFromAsset(UBehaviorTree& Asset){
 	Super::InitializeFromAsset(Asset);
-	
+
 	const UBlackboardData* BBAsset = GetBlackboardAsset();
 	if (ensure(BBAsset)){
 		CameraBehavior.ResolveSelectedKey(*BBAsset);

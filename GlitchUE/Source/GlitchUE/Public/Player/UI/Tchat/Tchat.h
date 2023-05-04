@@ -7,7 +7,7 @@
 #include "Components/ListView.h"
 #include "Tchat.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API UTchat : public UUserWidget{
 	GENERATED_BODY()
 

@@ -33,9 +33,13 @@ void AWaveManager::BeginPlay(){
 
 	CatalyseursList = TSet<ACatalyseur*>(CatalyseurArray);
 
-	if (CatalyseursList.Num() == 0) {
+#if WITH_EDITOR
+
+	if (CatalyseursList.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN CATALYSEUR EST PLACE DANS LA SCENE"));
 	}
+
+#endif
 
 	TArray<ASpawner*> SpawnerArray;
 
@@ -43,35 +47,48 @@ void AWaveManager::BeginPlay(){
 
 	SpawnerList = TSet<ASpawner*>(SpawnerArray);
 
-	if (SpawnerList.Num() == 0) {
+#if WITH_EDITOR
+
+	if (SpawnerList.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST PLACE DANS LA SCENE"));
 	}
 
+#endif
+
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
-	
+
+#if WITH_EDITOR
+
 	if (NexusArray.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("LE NEXUS N'EST PAS PLACE DANS LA SCENE"));
 	}
-	
+
+#endif
+
 	Nexus = Cast<ANexus>(NexusArray[0]);
 
+	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld())); 
 }
 
 void AWaveManager::EnableCatalyseurs(){
 	TArray<ACatalyseur*> CatalyseurArray = CatalyseursList.Array();
 
-	for (int i = 0; i < CatalyseurArray.Num(); i++) {
-		if (CatalyseurArray[i]->GetStateAtWave().EnableAtWave == CurrentWaveNumber) {
+	for (int i = 0; i < CatalyseurArray.Num(); i++){
+		if(CatalyseurArray[i]->GetActivableComp()->IsActivated()){
+			continue;
+		}
+
+		if (CatalyseurArray[i]->GetStateAtWave().EnableAtWave <= CurrentWaveNumber && CatalyseurArray[i]->GetStateAtWave().DisableAtWave >= CurrentWaveNumber){
 			CatalyseurArray[i]->GetActivableComp()->ActivateObject();
 		}
 	}
 }
 
-void AWaveManager::DisableCatalyseurs() {
+void AWaveManager::DisableCatalyseurs(){
 	TArray<ACatalyseur*> CatalyseurArray = CatalyseursList.Array();
-	for (int i = 0; i < CatalyseurArray.Num(); i++) {
-		if (CatalyseurArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber) {
+	for (int i = 0; i < CatalyseurArray.Num(); i++){
+		if (CatalyseurArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber){
 			CatalyseurArray[i]->GetActivableComp()->DesactivateObject();
 		}
 	}
@@ -79,8 +96,12 @@ void AWaveManager::DisableCatalyseurs() {
 
 void AWaveManager::EnableSpawners(){
 	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
-	for (int i = 0; i < SpawnerArray.Num(); i++) {
-		if (SpawnerArray[i]->GetStateAtWave().EnableAtWave == CurrentWaveNumber) {
+	for (int i = 0; i < SpawnerArray.Num(); i++){
+		if(SpawnerArray[i]->GetActivableComp()->IsActivated()){
+			continue;
+		}
+
+		if(SpawnerArray[i]->GetStateAtWave().EnableAtWave <= CurrentWaveNumber && SpawnerArray[i]->GetStateAtWave().DisableAtWave >= CurrentWaveNumber){
 			SpawnerArray[i]->GetActivableComp()->ActivateObject();
 			ActiveSpawnerList.Add(SpawnerArray[i]);
 		}
@@ -89,15 +110,16 @@ void AWaveManager::EnableSpawners(){
 
 void AWaveManager::DisableSpawner(){
 	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
-	for (int i = 0; i < SpawnerArray.Num(); i++) {
-		if (SpawnerArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber) {
+	for (int i = 0; i < SpawnerArray.Num(); i++){
+		if (SpawnerArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber){
 			SpawnerArray[i]->GetActivableComp()->DesactivateObject();
 			ActiveSpawnerList.Remove(SpawnerArray[i]);
 		}
 	}
 }
 
-void AWaveManager::StartWave_Implementation() {
+void AWaveManager::StartWave_Implementation(){
+	GameMode->GlobalWorldSave(0);
 
 	bIsStopped = false;
 
@@ -105,7 +127,7 @@ void AWaveManager::StartWave_Implementation() {
 
 	OnStartWave.Broadcast(CurrentWaveNumber);
 
-	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
+	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart){
 		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
 
@@ -115,7 +137,7 @@ void AWaveManager::StartWave_Implementation() {
 	SpawnEnemies();
 }
 
-void AWaveManager::EndWave_Implementation() {
+void AWaveManager::EndWave_Implementation(){
 
 	DisableCatalyseurs();
 	DisableSpawner();
@@ -124,11 +146,11 @@ void AWaveManager::EndWave_Implementation() {
 
 	OnEndWave.Broadcast(CurrentWaveNumber);
 
-	if (CurrentWaveNumber == NumberOfWaves) {
+	if (CurrentWaveNumber == NumberOfWaves){
 		return;
 	}
 
-	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart) {
+	if (CurrentWave.GivenGolds.WaveEvent == EWaveEvent::ExecuteAtStart){
 		Player->GiveGolds(CurrentWave.GivenGolds.Golds);
 	}
 
@@ -138,7 +160,7 @@ void AWaveManager::EndWave_Implementation() {
 	}
 
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		CurrentWaveNumber++;
 		StartWave();
 	}, GetCurrentWaveData().NextWaveTimer, false);
@@ -149,16 +171,16 @@ void AWaveManager::SpawnEnemies(){
 
 #if WITH_EDITOR
 
-	if (ActiveSpawnerList.Num() == 0) {
+	if (ActiveSpawnerList.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST ACTIF PENDANT LA VAGUE %d"), CurrentWaveNumber);
 	}
 
 #endif
 
-	for (int i = 0; i < ListOfAIToSpawn.Num(); i++) {
+	for (int i = 0; i < ListOfAIToSpawn.Num(); i++){
 		const int NumberToSpawnForEachSpawners = ListOfAIToSpawn[i].NumberToSpawn / ActiveSpawnerList.Num();
-		for (int j = 0; j < ActiveSpawnerList.Num(); j++) {
-			ActiveSpawnerList[j]->BeginSpawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn);
+		for (int j = 0; j < ActiveSpawnerList.Num(); j++){
+			ActiveSpawnerList[j]->BeginSpawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn, ListOfAIToSpawn[i].AIData);
 		}
 	}
 }
@@ -175,7 +197,7 @@ bool AWaveManager::IsStopped() const{
 	return bIsStopped;
 }
 
-void AWaveManager::AddAIToList(AMainAICharacter* AIToAdd) {
+void AWaveManager::AddAIToList(AMainAICharacter* AIToAdd){
 	WaveAIList.Add(AIToAdd);
 	OnRefreshAIList.Broadcast();
 }
@@ -185,8 +207,8 @@ void AWaveManager::RemoveAIFromList(const AMainAICharacter* AIToRemove){
 
 	OnRefreshAIList.Broadcast();
 
-	if (WaveAIList.Num() == 0) {
-		if (HaveTheSpawnerFinished()) {
+	if (WaveAIList.Num() == 0){
+		if (HaveTheSpawnerFinished()){
 			EndWave();
 		}
 	}
@@ -198,13 +220,13 @@ void AWaveManager::NextWave(){
 
 	// used for skip wave in debug
 	if(!bIsStopped){
-		for (int i = 0; i < ActiveSpawnerList.Num(); i++) {
+		for (int i = 0; i < ActiveSpawnerList.Num(); i++){
 			ActiveSpawnerList[i]->ForceEndSpawn();
 		}
 
 		TArray<AMainAICharacter*> AIList = WaveAIList.Array();
 
-		for (int i = 0; i < AIList.Num(); i++) {
+		for (int i = 0; i < AIList.Num(); i++){
 			AIList[i]->GetHealthComp()->TakeMaxDamages();
 		}
 
@@ -226,9 +248,9 @@ int AWaveManager::GetCurrentWaveNumber() const{
 	return CurrentWaveNumber;
 }
 
-bool AWaveManager::HaveTheSpawnerFinished() {
-	for (int i = 0; i < ActiveSpawnerList.Num(); i++) {
-		if (ActiveSpawnerList[i]->AnyAILeftToSpawn()) {
+bool AWaveManager::HaveTheSpawnerFinished(){
+	for (int i = 0; i < ActiveSpawnerList.Num(); i++){
+		if (ActiveSpawnerList[i]->AnyAILeftToSpawn()){
 			return false;
 		}
 	}
