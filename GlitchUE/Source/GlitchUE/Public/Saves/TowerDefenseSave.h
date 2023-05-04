@@ -29,9 +29,6 @@ class GLITCHUE_API UTowerDefenseSave : public UWorldSave{
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite, Category = "Player")
-	int PlayerGolds;
-
 	UPROPERTY(BlueprintReadWrite, Category = "Waves")
 	int CurrentWave;
 

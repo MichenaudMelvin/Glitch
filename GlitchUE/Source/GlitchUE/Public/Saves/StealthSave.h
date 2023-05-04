@@ -77,4 +77,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "World")
 	ELevelState LevelState;
+
+	UPROPERTY(BlueprintReadWrite, Category = "World")
+	bool bIsStealthTimeRunning;
+
+	UPROPERTY(BlueprintReadWrite, Category = "World")
+	float RemainingStealthTime;
 };

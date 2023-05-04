@@ -135,14 +135,14 @@ void APursuitDrone::SetCurrentData(UMainAIData* NewData){
 
 void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		const AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
+		AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
 
 		if(Blackboard->GetValueAsBool("IsDocked")){
 			return;
 		}
 
-		if(!Player->IsInGlitchZone() && Player->GetHealthComp()->GetCanTakeDamages()){
-			Player->GetHealthComp()->TakeDamages(AIController->GetDamages());
+		if(!Player->IsInGlitchZone() && Player->CanUpdateGolds()){
+			Player->UpdateGolds(AIController->GetDamages(), EGoldsUpdateMethod::TakeDamages);
 			Destroy();
 		}
 	}

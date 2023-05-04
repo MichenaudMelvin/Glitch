@@ -7,6 +7,7 @@
 #include "AbstractPlayerController.h"
 #include "GlitchUEGameMode.h"
 #include "UI/TimerWidget.h"
+#include "UI/Player/PlayerStats.h"
 #include "UI/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -309,6 +310,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UTimerWidget> TimerWidgetClass;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UPlayerStats* PlayerStatsWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UPlayerStats> PlayerStatsWidgetClass;
+
 public:
 	UTimerWidget* GetTimerWidget() const;
+
+	UPlayerStats* GetPlayerStatsWidget() const;
 };

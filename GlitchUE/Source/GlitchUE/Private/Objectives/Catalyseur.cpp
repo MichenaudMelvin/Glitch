@@ -215,7 +215,7 @@ void ACatalyseur::ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor
 }
 
 void ACatalyseur::GenerateMoney(){
-	Player->GiveGolds(GeneratedGolds * ActivatedInhibiteurs);
+	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteurs, EGoldsUpdateMethod::ReceiveGolds);
 }
 
 void ACatalyseur::StartGeneratingMoney(){
@@ -226,7 +226,7 @@ void ACatalyseur::UpdateActivatedInhibiteurs(const bool Increase){
 	Increase ? ActivatedInhibiteurs++ : ActivatedInhibiteurs--;
 
 	if(ActivatedInhibiteurs == LinkedInhibiteur.Num()){
-		Player->GiveGolds(GoldsBonus);
+		Player->UpdateGolds(GoldsBonus, EGoldsUpdateMethod::ReceiveGolds);
 	}
 }
 

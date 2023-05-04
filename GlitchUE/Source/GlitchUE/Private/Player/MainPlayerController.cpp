@@ -21,6 +21,8 @@ void AMainPlayerController::BeginPlay(){
 
 void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	TimerWidget = Cast<UTimerWidget>(CreateWidget(this, TimerWidgetClass));
+	PlayerStatsWidget = Cast<UPlayerStats>(CreateWidget(this, PlayerStatsWidgetClass));
+	PlayerStatsWidget->AddToViewport();
 }
 
 #pragma region Bind
@@ -34,7 +36,7 @@ void AMainPlayerController::SelectNewGameplayMode(const EGameplayMode NewGamepla
 			BindNormalMode();
 			MainPlayer->CameraAimReverse();
 			break;
-		
+
 		case EGameplayMode::Construction:
 			BindConstructionMode();
 			MainPlayer->CameraAim();
@@ -260,6 +262,10 @@ void AMainPlayerController::PauseGame_Implementation(){
 
 UTimerWidget* AMainPlayerController::GetTimerWidget() const{
 	return TimerWidget;
+}
+
+UPlayerStats* AMainPlayerController::GetPlayerStatsWidget() const{
+	return PlayerStatsWidget;
 }
 
 

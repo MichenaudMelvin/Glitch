@@ -121,6 +121,7 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
 
 	MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation, CurrentSave->MarkTransform, CurrentSave->bIsMarkPlaced);
+	MainPlayer->SetGolds(CurrentSave->PlayerGolds);
 
 	AddGlitch(CurrentSave->GlitchValue);
 
@@ -174,9 +175,14 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 			break;
 	}
 
+
 	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(TargetSaveClass, Index, false));
 
-	if(!CurrentSave->IsA(TargetSaveClass)){
+	if(!IsValid(CurrentSave)){
+		CurrentSave = Cast<UWorldSave>(UUsefullFunctions::CreateSave(TargetSaveClass, Index));
+	}
+
+	else if(!CurrentSave->IsA(TargetSaveClass)){
 		CurrentSave = Cast<UWorldSave>(UUsefullFunctions::CreateSave(TargetSaveClass, Index));
 	}
 
@@ -193,6 +199,7 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	//Player
 	CurrentSave->PlayerTransform = MainPlayer->GetActorTransform();
 	CurrentSave->PlayerCameraRotation = MainPlayer->GetController()->GetControlRotation();
+	CurrentSave->PlayerGolds = MainPlayer->GetGolds();
 
 	if(MainPlayer->GetMark()->GetIsMarkPlaced()){
 		CurrentSave->MarkTransform = MainPlayer->GetMark()->GetActorTransform();
@@ -288,6 +295,12 @@ UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 
 	CastedSave->LevelState = LevelState;
 
+	CastedSave->bIsStealthTimeRunning = MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning();
+
+	if(CastedSave->bIsStealthTimeRunning){
+		CastedSave->RemainingStealthTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed();
+	}
+
 	return CastedSave;
 }
 
@@ -309,8 +322,6 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 
 		CastedSave->PlacableDataList.Add(CurrentPlacable->SavePlacable());
 	}
-
-	CastedSave->PlayerGolds = MainPlayer->GetGolds();
 
 	CastedSave->CurrentWave = WaveManager->GetCurrentWaveNumber();
 
@@ -342,6 +353,10 @@ UWorldSave* AGlitchUEGameMode::StealthWorldLoad(UWorldSave* CurrentSave){
 		}
 	}
 
+	if(CastedSave->bIsStealthTimeRunning){
+		LaunchStealthTimer(CastedSave->RemainingStealthTime);
+	}
+
 	SetLevelState(CastedSave->LevelState);
 
 	return CastedSave;
@@ -366,13 +381,11 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 		CurrentPlacableActor->SetData(CastedSave->PlacableDataList[i].CurrentPlacableData);
 	}
 
-	MainPlayer->GiveGolds(CastedSave->PlayerGolds);
-
 	return CastedSave;
 }
 
 void AGlitchUEGameMode::EndStealthTimer(){
-	CanStartTowerDefense() ? ForceEndStealthPhase() : MainPlayer->GetHealthComp()->TakeMaxDamages();
+	CanStartTowerDefense() ? ForceEndStealthPhase() : MainPlayer->KillPlayer();
 }
 
 EPhases AGlitchUEGameMode::GetPhases() const{

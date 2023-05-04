@@ -58,7 +58,7 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 	bool bIsSelling = false;
 
 	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction){
-		MainPlayer->GiveGolds(CurrentData->Cost);
+		MainPlayer->UpdateGolds(CurrentData->Cost, EGoldsUpdateMethod::ReceiveGolds);
 		Appear(true);
 		bIsSelling = true;
 	}

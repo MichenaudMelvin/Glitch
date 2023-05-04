@@ -30,7 +30,7 @@ enum class ELevelState : uint8 {
 
 namespace Glitch {
 	UENUM(BlueprintType)
-	enum EGlitchEvents{
+	enum EGlitchEvents : uint8{
 		UpgradeWorld,
 		UpgradeEnemiesAI,
 		UpgradePlayer,
