@@ -13,6 +13,9 @@ class GLITCHUE_API UWorldSave : public UAbstractSave{
 public:
 	UWorldSave();
 
+	UPROPERTY(BlueprintReadWrite, Category = "Player")
+	int PlayerGolds;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Save")
 	UMaterial* SaveImage;
 

@@ -10,15 +10,19 @@
 #include "Components/InteractableComponent.h"
 #include "AbstractObjectif.generated.h"
 
+class AGlitchUEGameMode;
+
 UCLASS(Abstract)
 class GLITCHUE_API AAbstractObjectif : public AActor{
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AAbstractObjectif();
 
 protected:
 	virtual void BeginPlay() override;
+
+	AGlitchUEGameMode* GameMode;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* MeshObjectif;

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
-#include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
 #include "Saves/Settings/GameplaySettingsSave.h"
@@ -23,6 +22,13 @@ enum class EPlayerMovementMode : uint8{
 	Sprinting,
 };
 
+UENUM(BlueprintType)
+enum class EGoldsUpdateMethod : uint8{
+	BuyPlacable,
+	TakeDamages,
+	ReceiveGolds,
+};
+
 UCLASS(config=Game)
 class AMainPlayer : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
@@ -34,6 +40,7 @@ class AMainPlayer : public ACharacter, public IGlitchInterface{
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
 public:
 	AMainPlayer();
 
@@ -117,7 +124,6 @@ protected:
 	void CameraFOVUpdate(float Alpha);
 
 	#pragma endregion
-
 
 	#pragma region Movement
 
@@ -236,9 +242,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	APreviewPlacableActor* PreviewPlacableActor;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	UHealthComponent* HealthComp;
-
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsInGlitchZone = false;
 
@@ -248,9 +251,6 @@ protected:
 
 public:
 	AMainPlayerController* GetMainPlayerController() const;
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UHealthComponent* GetHealthComp() const;
 
 	bool IsInGlitchZone() const;
 
@@ -275,7 +275,9 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
-	int Golds = 0;
+	int Golds = 1000;
+
+	bool bGoldsCanBeUpdated = true;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	UPlacableActorData* CurrentPlacableActorData;
@@ -287,12 +289,22 @@ public:
 
 	int GetGolds() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
-	void GiveGolds(const int Amount);
-	virtual void GiveGolds_Implementation(const int Amount);
+	UFUNCTION(BlueprintCallable, Exec, Category = "Golds")
+	void UpdateGolds(int Amount = 0, const EGoldsUpdateMethod GoldsUpdateMethod = EGoldsUpdateMethod::ReceiveGolds);
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Golds")
+	void SetGolds(const int Amount = 1000);
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Golds")
+	void KillPlayer();
+
+	bool CanUpdateGolds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Loose")
 	void Loose();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	int RemovedGlitchGolds = -100;
 
 protected:
 	#pragma region Interaction

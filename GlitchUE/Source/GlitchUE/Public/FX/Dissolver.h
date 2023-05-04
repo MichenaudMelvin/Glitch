@@ -104,4 +104,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UMaterialParameterCollection* MPCDissolver;
+
+public:
+	float GetMaxRadius() const;
 };

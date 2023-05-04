@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GlitchUEGameMode.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
 #include "Components/CompassIcon.h"
@@ -10,18 +11,7 @@
 #include "Catalyseur.generated.h"
 
 class AInhibiteur;
-
-USTRUCT(BlueprintType)
-struct FStateAtWave{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int EnableAtWave = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int DisableAtWave = 999;
-};
+class AMainPlayer;
 
 USTRUCT()
 struct FCompassSprite{
@@ -48,6 +38,10 @@ class GLITCHUE_API ACatalyseur : public AAbstractObjectif{
 public:
 	ACatalyseur();
 
+	USkeletalMeshComponent* GetTechMesh() const;
+
+	void UpdateActivatedInhibiteurs(const bool Increase);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -56,6 +50,11 @@ protected:
 	virtual void DesactivateObjectif() override;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
+
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	UFUNCTION()
+	void OnSwitchPhases(EPhases CurrentPhase);
 
 	UAnimationAsset* ActivationAnim;
 
@@ -66,18 +65,17 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TECHMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves", meta = (ExposeOnSpawn = "true"))
-	FStateAtWave StateAtWave;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
+	UStaticMeshComponent* CatalyeurZone;
 
 	ANexus* Nexus;
 
+	AMainPlayer* Player;
+
 	AWaveManager* WaveManager;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "ConstructionZone", meta = (ExposeOnSpawn = "true"))
-	TArray<AConstructionZone*> ConstructionZoneList;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
-	TArray<AInhibiteur*> NearInhibiteur;
+	TArray<AInhibiteur*> LinkedInhibiteur;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
 	UPaperSprite* InhibiteurSprite;
@@ -91,8 +89,36 @@ protected:
 
 	TArray<FCompassSprite> CompassSpriteList;
 
-public:
-	FStateAtWave GetStateAtWave() const;
+	FTimerHandle CatalyeurZoneTimer;
+
+	/**
+	 * @brief Timer in seconds 
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Catalyseur Zone")
+	float ResetLevelStateDuration = 1;
+
+	UFUNCTION()
+	virtual void EnterCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	FTimerHandle MoneyTimerHandle;
+
+	void GenerateMoney();
+
+	void StartGeneratingMoney();
+
+	int ActivatedInhibiteurs = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Golds")
+	int GeneratedGolds = 100;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Golds")
+	int GoldsBonus = 500;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Golds")
+	int GoldsTick = 10;
 
 #if WITH_EDITORONLY_DATA
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;

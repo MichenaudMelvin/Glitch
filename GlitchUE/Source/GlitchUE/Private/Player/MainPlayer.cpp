@@ -58,11 +58,6 @@ AMainPlayer::AMainPlayer(){
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
-
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
 	GetMesh()->SetReceivesDecals(false);
 	GetMesh()->SetEnableGravity(false);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -151,6 +146,8 @@ void AMainPlayer::BeginPlay(){
 	GetCharacterMovement()->BrakingDecelerationWalking = OriginalBrakingDecelerationWalking;
 
 	StartRecord();
+
+	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
 
 	#pragma region FXCreation
 
@@ -246,8 +243,42 @@ int AMainPlayer::GetGolds() const{
 	return Golds;
 }
 
-void AMainPlayer::GiveGolds_Implementation(const int Amount){
-	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
+void AMainPlayer::UpdateGolds(int Amount, const EGoldsUpdateMethod GoldsUpdateMethod){
+	if(!bGoldsCanBeUpdated){
+		return;
+	}
+
+	switch (GoldsUpdateMethod){
+		case EGoldsUpdateMethod::BuyPlacable:
+			// code here
+			break;
+		case EGoldsUpdateMethod::TakeDamages:
+			Amount = - Amount;
+			break;
+		case EGoldsUpdateMethod::ReceiveGolds:
+			// code here
+			break;
+	}
+
+	Golds += Amount;
+	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
+
+	if(Golds < 0){
+		Loose();
+	}
+}
+
+void AMainPlayer::SetGolds(const int Amount){
+	Golds = Amount;
+	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
+}
+
+void AMainPlayer::KillPlayer(){
+	UpdateGolds(Golds + 1, EGoldsUpdateMethod::TakeDamages);
+}
+
+bool AMainPlayer::CanUpdateGolds() const{
+	return bGoldsCanBeUpdated;
 }
 
 void AMainPlayer::Loose_Implementation(){
@@ -491,10 +522,6 @@ AMainPlayerController* AMainPlayer::GetMainPlayerController() const{
 	return MainPlayerController;
 }
 
-UHealthComponent* AMainPlayer::GetHealthComp() const{
-	return HealthComp;
-}
-
 bool AMainPlayer::IsInGlitchZone() const{
 	return bIsInGlitchZone;
 }
@@ -548,7 +575,7 @@ void AMainPlayer::TPToMark() {
 	Mark->PlaceMark();
 	CameraAimReverse();
 
-	HealthComp->SetCanTakeDamages(false);
+	bGoldsCanBeUpdated = false;
 	GetCharacterMovement()->GravityScale = 0;
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
@@ -705,11 +732,29 @@ void AMainPlayer::ResetOverlappedMeshes(){
 void AMainPlayer::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
 
-	SelectRandomLocation();
+	const int RandomEvent = FMath::RandRange(0, 1);
 
-	FTimerHandle TimerHandle;
+	switch (RandomEvent){
+		case 0:
+			UpdateGolds(RemovedGlitchGolds, EGoldsUpdateMethod::TakeDamages);
+			break;
+		case 1:
 
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
+			#if WITH_EDITOR
+				if(GlitchRewindTransformList.Num() == 0){
+					UE_LOG(LogTemp, Warning, TEXT("Liste de position random vide"));
+					return;
+				}
+			#endif
+
+			SelectRandomLocation();
+
+			FTimerHandle TimerHandle;
+
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
+
+			break;
+	}
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){
@@ -732,8 +777,6 @@ void AMainPlayer::StopRecord(){
 void AMainPlayer::SelectRandomLocation(){
 	EnableGlitchEffect(true, GlitchUpgradeDuration, 500);
 	StopRecord();
-
-	//const int Index = FMath::RandRange(0, GlitchRewindTransformList.Num() - 1);
 
 	const FTransform RandomTransform = GlitchRewindTransformList[0];
 
@@ -871,7 +914,7 @@ void AMainPlayer::EndTL(){
 
 		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
-		HealthComp->SetCanTakeDamages(true);
+		bGoldsCanBeUpdated = true;
 
 		UUsefullFunctions::MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
 	}, 0.2f, false);
