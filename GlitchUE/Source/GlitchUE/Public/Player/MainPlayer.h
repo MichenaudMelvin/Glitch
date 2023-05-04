@@ -294,6 +294,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Loose")
 	void Loose();
 
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	int RemovedGlitchGolds = -100;
+
 protected:
 	#pragma region Interaction
 

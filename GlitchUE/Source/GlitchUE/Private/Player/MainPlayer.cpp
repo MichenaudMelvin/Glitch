@@ -705,11 +705,29 @@ void AMainPlayer::ResetOverlappedMeshes(){
 void AMainPlayer::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
 
-	SelectRandomLocation();
+	const int RandomEvent = FMath::RandRange(0, 1);
 
-	FTimerHandle TimerHandle;
+	switch (RandomEvent){
+		case 0:
+			GiveGolds(RemovedGlitchGolds);
+			break;
+		case 1:
 
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
+			#if WITH_EDITOR
+				if(GlitchRewindTransformList.Num() == 0){
+					UE_LOG(LogTemp, Warning, TEXT("Liste de position random vide"));
+					return;
+				}
+			#endif
+
+			SelectRandomLocation();
+
+			FTimerHandle TimerHandle;
+
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
+
+			break;
+	}
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){
@@ -732,8 +750,6 @@ void AMainPlayer::StopRecord(){
 void AMainPlayer::SelectRandomLocation(){
 	EnableGlitchEffect(true, GlitchUpgradeDuration, 500);
 	StopRecord();
-
-	//const int Index = FMath::RandRange(0, GlitchRewindTransformList.Num() - 1);
 
 	const FTransform RandomTransform = GlitchRewindTransformList[0];
 

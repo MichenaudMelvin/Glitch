@@ -59,8 +59,16 @@ void UTimerWidget::StartTimer(const float Timer, const FKOnFinishTimer FinishEve
 	OnFinishTimer = FinishEvent;
 }
 
+void UTimerWidget::ChangeTimerValue(const float NewValue){
+	CurrentDisplayTime = NewValue;
+}
+
 bool UTimerWidget::IsTimerRunning() const{
 	return GetWorld()->GetTimerManager().IsTimerActive(DisplayTimer);
+}
+
+float UTimerWidget::GetTimerElapsed() const{
+	return CurrentDisplayTime;
 }
 
 void UTimerWidget::FinishTimer(){
@@ -74,7 +82,7 @@ void UTimerWidget::FinishTimer(){
 }
 
 void UTimerWidget::ForceFinishTimer(const bool ExecuteFinishedEvent){
-	if(ExecuteFinishedEvent){
+	if(!ExecuteFinishedEvent){
 		OnFinishTimer.Clear();
 	}
 

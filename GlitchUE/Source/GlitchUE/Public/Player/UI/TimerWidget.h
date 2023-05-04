@@ -43,6 +43,9 @@ public:
 	void StartTimer(const float Timer, const FKOnFinishTimer FinishEvent);
 
 	UFUNCTION(BlueprintCallable)
+	void ChangeTimerValue(const float NewValue);
+
+	UFUNCTION(BlueprintCallable)
 	void FinishTimer();
 
 	UFUNCTION(BlueprintCallable)
@@ -51,4 +54,7 @@ public:
 	FKOnFinishTimer OnFinishTimer;
 
 	bool IsTimerRunning() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetTimerElapsed() const;
 };

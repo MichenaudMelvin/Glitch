@@ -242,15 +242,19 @@ void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), true, LoadOptions);
 }
 
-void AGlitchUEGameMode::LaunchStealthTimer(){
+void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	if(MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning()){
 		return;
+	}
+
+	if(TimerValue <= 0){
+		TimerValue = StealthTimer;
 	}
 
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
-	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(StealthTimer, EndEvent);
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
 }
 
 bool AGlitchUEGameMode::CanStartTowerDefense() const{
@@ -419,7 +423,7 @@ void AGlitchUEGameMode::SetLevelState(const ELevelState NewState){
 		break;
 	case ELevelState::Alerted:
 
-		LaunchStealthTimer();
+		LaunchStealthTimer(StealthTimer);
 
 		LevelStateTimeline.Play();
 		LevelStateTimelineDirection = ETimelineDirection::Forward;
@@ -467,34 +471,38 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 	if (GlitchValue == GlitchMaxValue) {
 
-		MainPlayer->GetMesh()->SetScalarParameterValueOnMaterials("Apparition", 0);
-
-		// switch (CurrentPhase){
-		// 	case EPhases::Infiltration:
-		// 		SetLevelState(ELevelState::Alerted);
-		// 		break;
-		// 	case EPhases::TowerDefense:
-		// 		break;
-		// }
-
 		CheckAvailableGlitchEvents();
-		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 2));
+		Glitch::EGlitchEvents RandomGlitchType = Glitch::EGlitchEvents::UpgradePlayer;
+
+		switch (CurrentPhase){
+			case EPhases::Infiltration:
+				RandomGlitchType = static_cast<Glitch::EGlitchEvents>(FMath::RandRange(MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? 0 : Glitch::StealthIndex, Glitch::BothIndex));
+				break;
+			case EPhases::TowerDefense:
+				RandomGlitchType = static_cast<Glitch::EGlitchEvents>(FMath::RandRange(Glitch::StealthIndex, Glitch::TowerDefenseIndex));
+				break;
+		}
 
 		switch (RandomGlitchType){
-		case EGlitchEvent::UpgradeAlliesUnits:
-			GlitchUpgradeAlliesUnits();
-			break;
+			case Glitch::UpgradeAlliesUnits:
+				GlitchUpgradeAlliesUnits();
+				break;
 
-		case EGlitchEvent::UpgradeEnemiesAI:
-			GlitchUpgradeEnemiesAI();
-			break;
+			case Glitch::UpgradeEnemiesAI:
+				GlitchUpgradeEnemiesAI();
+				break;
 
-		case EGlitchEvent::UpgradePlayer:
-			GlitchUpgradePlayer();
-			break;
+			case Glitch::UpgradePlayer:
+				GlitchUpgradePlayer();
+				break;
+
+			case Glitch::UpgradeWorld:
+				GlitchUpgradeWorld();
+				break;
 		}
 
 		GlitchValue = 0;
+		MainPlayer->GetMesh()->SetScalarParameterValueOnMaterials("Apparition", 0);
 	}
 }
 
@@ -550,6 +558,14 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 
 void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 	Cast<IGlitchInterface>(MainPlayer)->ReceiveGlitchUpgrade();
+}
+
+void AGlitchUEGameMode::GlitchUpgradeWorld() const{
+	const float CurrentTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed();
+
+	const float NewTime = FMath::Clamp(CurrentTime - GlitchReduceStealthTimer, 1.0f, StealthTimer);
+
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->ChangeTimerValue(NewTime);
 }
 
 void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{

@@ -59,7 +59,7 @@ void APatrolCharacter::OutlineLinkedObjects(const bool bOutline){
 
 	if(bOutline){
 		for(int i = 0; i < PatrolPointsList.Num(); i++){
-			if(!PatrolPointsList.IsValidIndex(i)){
+			if(!IsValid(PatrolPointsList[i])){
 				continue;
 			}
 
@@ -70,7 +70,7 @@ void APatrolCharacter::OutlineLinkedObjects(const bool bOutline){
 
 			CurrentSplineActor->GetSplineMeshComponent()->SetStartPosition(FVector::ZeroVector);
 
-			const int TargetIndex = PatrolPointsList.IsValidIndex(i + 1) ? i + 1 : 0;
+			const int TargetIndex = PatrolPointsList.IsValidIndex(i + 1 ) && IsValid(PatrolPointsList[i + 1]) ? i + 1 : 0;
 
 			const FVector TargetLocation = PatrolPointsList[TargetIndex]->GetActorLocation() - PatrolPointsList[i]->GetActorLocation();
 			CurrentSplineActor->GetSplineMeshComponent()->SetEndPosition(TargetLocation);
