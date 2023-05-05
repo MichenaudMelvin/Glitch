@@ -147,8 +147,6 @@ void AMainPlayer::BeginPlay(){
 
 	StartRecord();
 
-	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
-
 	#pragma region FXCreation
 
 	const int LifeTimeIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "Lifetime");

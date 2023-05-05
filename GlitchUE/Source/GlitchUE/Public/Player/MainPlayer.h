@@ -277,6 +277,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	int Golds = 1000;
 
+	UPROPERTY(BlueprintReadWrite)
 	bool bGoldsCanBeUpdated = true;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")

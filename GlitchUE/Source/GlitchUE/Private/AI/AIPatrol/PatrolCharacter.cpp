@@ -14,6 +14,7 @@ APatrolCharacter::APatrolCharacter(){
 
 #if WITH_EDITORONLY_DATA
 	USelection::SelectObjectEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
+	USelection::SelectionChangedEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> EditorMesh(TEXT("/Game/Meshs/EditorOnly/SM_DronePath"));
 	check(EditorMesh.Succeeded());
@@ -84,6 +85,11 @@ void APatrolCharacter::OutlineLinkedObjects(const bool bOutline){
 
 		SplineList.Empty();
 	}
+}
 
+void APatrolCharacter::PreSave(const ITargetPlatform* TargetPlatform){
+	Super::PreSave(TargetPlatform);
+
+	OutlineLinkedObjects(false);
 }
 #endif

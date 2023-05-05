@@ -52,6 +52,7 @@ ACatalyseur::ACatalyseur(){
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
+		USelection::SelectionChangedEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
 	#endif
 }
 
@@ -235,12 +236,24 @@ void ACatalyseur::PreEditChange(FProperty* PropertyAboutToChange){
 	Super::PreEditChange(PropertyAboutToChange);
 
 	OutlineLinkedObjects(false);
+
+	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
+		if(IsValid(LinkedInhibiteur[i])){
+			LinkedInhibiteur[i]->SetOwnerCatalyseur(nullptr);
+		}
+	}
 }
 
 void ACatalyseur::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent){
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	OutlineLinkedObjects(true);
+
+	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
+		if(IsValid(LinkedInhibiteur[i])){
+			LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
+		}
+	}
 }
 
 
@@ -261,5 +274,11 @@ void ACatalyseur::OutlineLinkedObjects(const bool bOutline){
 			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(LinkedInhibiteur[i]->GetRootComponent()));
 		}
 	}
+}
+
+void ACatalyseur::PreSave(const ITargetPlatform* TargetPlatform){
+	Super::PreSave(TargetPlatform);
+
+	OutlineLinkedObjects(false);
 }
 #endif

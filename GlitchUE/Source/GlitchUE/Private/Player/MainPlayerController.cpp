@@ -23,6 +23,7 @@ void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	TimerWidget = Cast<UTimerWidget>(CreateWidget(this, TimerWidgetClass));
 	PlayerStatsWidget = Cast<UPlayerStats>(CreateWidget(this, PlayerStatsWidgetClass));
 	PlayerStatsWidget->AddToViewport();
+	PlayerStatsWidget->UpdateDisplayGolds(MainPlayer->GetGolds());
 }
 
 #pragma region Bind
