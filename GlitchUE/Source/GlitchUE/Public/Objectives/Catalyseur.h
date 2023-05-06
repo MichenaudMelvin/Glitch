@@ -7,7 +7,6 @@
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
 #include "Components/CompassIcon.h"
-#include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
 
 class AInhibiteur;
@@ -65,9 +64,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TECHMesh;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
-	UStaticMeshComponent* CatalyeurZone;
-
 	ANexus* Nexus;
 
 	AMainPlayer* Player;
@@ -88,20 +84,6 @@ protected:
 	void DeleteCompass();
 
 	TArray<FCompassSprite> CompassSpriteList;
-
-	FTimerHandle CatalyeurZoneTimer;
-
-	/**
-	 * @brief Timer in seconds 
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Catalyseur Zone")
-	float ResetLevelStateDuration = 1;
-
-	UFUNCTION()
-	virtual void EnterCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	virtual void ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	FTimerHandle MoneyTimerHandle;
 

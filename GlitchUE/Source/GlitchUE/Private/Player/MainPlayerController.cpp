@@ -55,6 +55,7 @@ EGameplayMode AMainPlayerController::GetGameplayMode() const{
 }
 
 void AMainPlayerController::BindFastSaveAndLoad(){
+	UnbindFastSaveAndLoad();
 	OnFastSave.AddDynamic(this, &AMainPlayerController::FastSave);
 	OnFastLoad.AddDynamic(this, &AMainPlayerController::FastLoad);
 }

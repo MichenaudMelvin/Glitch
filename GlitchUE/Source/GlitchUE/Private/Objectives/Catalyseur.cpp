@@ -32,14 +32,6 @@ ACatalyseur::ACatalyseur(){
 	TECHMesh->SetCanEverAffectNavigation(false);
 	TECHMesh->SetupAttachment(RootComponent);
 
-	CatalyeurZone = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CatalyseurZone"));
-	CatalyeurZone->SetupAttachment(RootComponent);
-	CatalyeurZone->SetCollisionResponseToAllChannels(ECR_Ignore);
-	CatalyeurZone->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
-	CatalyeurZone->OnComponentBeginOverlap.AddDynamic(this, &ACatalyseur::EnterCatalyseurZone);
-	CatalyeurZone->OnComponentEndOverlap.AddDynamic(this, &ACatalyseur::ExitCatalyseurZone);
-
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_MED_Catalyser_Open"));
 	check(ActivAnim.Succeeded());
 
@@ -193,26 +185,6 @@ void ACatalyseur::DeleteCompass(){
 	}
 
 	CompassSpriteList.Empty();
-}
-
-void ACatalyseur::EnterCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
-	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(true);
-
-		if(GameMode->GetLevelState() == ELevelState::Alerted){
-			GetWorld()->GetTimerManager().SetTimer(CatalyeurZoneTimer, [&]() {
-				GameMode->SetLevelState(ELevelState::Normal);
-			}, ResetLevelStateDuration, false);
-		}
-	}
-}
-
-void ACatalyseur::ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
-	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(false);
-
-		GetWorld()->GetTimerManager().ClearTimer(CatalyeurZoneTimer);
-	}
 }
 
 void ACatalyseur::GenerateMoney(){
