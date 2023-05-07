@@ -8,8 +8,21 @@
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
 #include "Navigation/NavLinkProxy.h"
-#include "Player/MainPlayer.h"
 #include "AbstractDoor.generated.h"
+
+USTRUCT(BlueprintType)
+struct FBasicDoorData{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	bool bIsOpen;
+
+	UPROPERTY()
+	int RotationFactor;
+};
+
+class AMainPlayer;
 
 UCLASS(Abstract)
 class GLITCHUE_API AAbstractDoor : public AActor{

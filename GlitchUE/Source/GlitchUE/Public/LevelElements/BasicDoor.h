@@ -47,4 +47,10 @@ protected:
 	 * @return Return witch a character forward vector
 	 */
 	FVector SelectDoorParameters();
+
+public:
+	// call by the gamemode
+	virtual void InitializeDoor(const FBasicDoorData Data);
+
+	FBasicDoorData SaveDoor() const;
 };

@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Player/MainPlayer.h"
 #include "NavAreas/NavArea_Obstacle.h"
 
 ABasicDoor::ABasicDoor(){
@@ -49,6 +50,26 @@ void ABasicDoor::BeginPlay(){
 	RotationFactor = MedDoor->GetRelativeRotation().Equals(TargetOpenRotation) && bIsOpen ? 1 : -1;
 
 	OpenDoorTimeline.SetPlaybackPosition(bIsOpen ? 1 : 0, false, true);
+}
+
+void ABasicDoor::InitializeDoor(const FBasicDoorData Data){
+	if(Data.bIsOpen){
+		bIsOpen = Data.bIsOpen;
+		RotationFactor = Data.RotationFactor;
+
+		OpenDoorTimeline.SetPlaybackPosition(bIsOpen ? 1 : 0, false, true);
+
+		UpdateNavModiferParameters();
+	}
+}
+
+FBasicDoorData ABasicDoor::SaveDoor() const{
+	FBasicDoorData Data;
+
+	Data.bIsOpen = bIsOpen;
+	Data.RotationFactor = RotationFactor;
+
+	return Data;
 }
 
 void ABasicDoor::OpenDoor(){

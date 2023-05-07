@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LevelElements/AbstractDoor.h"
 #include "Saves/AbstractSave.h"
 #include "WorldSave.generated.h"
 
@@ -39,4 +40,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Inhibiteur")
 	TMap<FString, bool> InhibiteurStateList;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Door")
+	TMap<FString, FBasicDoorData> DoorDataList;
 };

@@ -2,7 +2,7 @@
 
 
 #include "LevelElements/AbstractDoor.h"
-
+#include "Player/MainPlayer.h"
 #include "AI/MainAICharacter.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "NavAreas/NavArea_Default.h"
@@ -99,7 +99,6 @@ void AAbstractDoor::OnAIReachLink(AActor* MovingActor, const FVector& Destinatio
 		return;
 	}
 
-
 	bIsLinkReached = true;
 	AMainAICharacter* AICharacter = Cast<AMainAICharacter>(MovingActor);
 
@@ -109,7 +108,6 @@ void AAbstractDoor::OnAIReachLink(AActor* MovingActor, const FVector& Destinatio
 		ResetReachLink();
 		return;
 	}
-
 
 	CurrentCharacterOpenningDoor = AICharacter;
 	OpenDoor();

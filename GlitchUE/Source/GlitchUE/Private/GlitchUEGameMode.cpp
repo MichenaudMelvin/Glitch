@@ -18,6 +18,7 @@
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
 #include "FX/Dissolver.h"
+#include "LevelElements/BasicDoor.h"
 #include "Mark/Mark.h"
 #include "Objectives/Inhibiteur.h"
 #include "Saves/StealthSave.h"
@@ -129,12 +130,12 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	TArray<AActor*> InhibiteurList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
 
-	TArray<FString> FStringArrayBis;
-	CurrentSave->InhibiteurStateList.GetKeys(FStringArrayBis);
+	TArray<FString> FStringArray;
+	CurrentSave->InhibiteurStateList.GetKeys(FStringArray);
 
 	for(int i = 0; i < InhibiteurList.Num(); i++){
-		for(int j = 0; j < FStringArrayBis.Num(); j++){
-			if(InhibiteurList[i]->GetName() == FStringArrayBis[j]){
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(InhibiteurList[i]->GetName() == FStringArray[j]){
 
 				AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
 
@@ -142,6 +143,23 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 					CurrentInhibiteur->GetActivableComp()->ActivateObject();
 				}
 
+			}
+		}
+	}
+
+	// Doors
+	TArray<AActor*> DoorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABasicDoor::StaticClass(), DoorList);
+
+	CurrentSave->DoorDataList.GetKeys(FStringArray);
+
+	for(int i = 0; i < DoorList.Num(); i++){
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(DoorList[i]->GetName() == FStringArray[j]){
+
+				ABasicDoor* CurrentDoor = Cast<ABasicDoor>(DoorList[i]);
+
+				CurrentDoor->InitializeDoor(CurrentSave->DoorDataList.FindRef(DoorList[i]->GetName()));
 			}
 		}
 	}
@@ -174,7 +192,6 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 			TargetSaveClass = UTowerDefenseSave::StaticClass();
 			break;
 	}
-
 
 	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(TargetSaveClass, Index, false));
 
@@ -217,6 +234,17 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 		AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
 
 		CurrentSave->InhibiteurStateList.Add(CurrentInhibiteur->GetName(), CurrentInhibiteur->GetActivableComp()->IsActivated());
+	}
+
+	//Doors
+	TArray<AActor*> DoorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABasicDoor::StaticClass(), DoorList);
+
+	CurrentSave->DoorDataList.Empty();
+	for(int i = 0; i < DoorList.Num(); i++){
+		const ABasicDoor* CurrentDoor = Cast<ABasicDoor>(DoorList[i]);
+
+		CurrentSave->DoorDataList.Add(CurrentDoor->GetName(), CurrentDoor->SaveDoor());
 	}
 
 	CurrentSave->GlitchValue = GlitchValue;
