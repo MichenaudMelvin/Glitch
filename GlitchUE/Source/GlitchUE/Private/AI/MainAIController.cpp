@@ -39,6 +39,14 @@ void AMainAIController::BeginPlay(){
 
 	const FString Settings = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString;
 
+#if WITH_EDITOR
+	// for simulation mode
+	if(Settings == "?SpectatorOnly=1"){
+		InitializeAIFromStart();
+		return;
+	}
+#endif
+
 	if(Settings != ""){
 		TArray<FString> LevelSettings;
 		Settings.ParseIntoArray(LevelSettings, TEXT("|"), true);

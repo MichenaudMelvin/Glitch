@@ -919,7 +919,3 @@ void AMainPlayer::EndTL(){
 }
 
 #pragma endregion
-
-void AMainPlayer::TestFunction(){
-	UE_LOG(LogTemp, Warning, TEXT("Test function called"));
-}

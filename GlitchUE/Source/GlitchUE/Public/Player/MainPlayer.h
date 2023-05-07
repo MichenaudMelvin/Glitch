@@ -491,9 +491,6 @@ public:
 
 	#pragma endregion
 
-	UFUNCTION(Exec)
-	void TestFunction();
-
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
