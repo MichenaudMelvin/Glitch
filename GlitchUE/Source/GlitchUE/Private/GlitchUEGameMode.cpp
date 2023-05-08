@@ -405,6 +405,7 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 		const FRotator TargetRotation = CastedSave->PlacableDataList[i].ActorTransform.Rotator();
 
 		APlacableActor* CurrentPlacableActor = GetWorld()->SpawnActor<APlacableActor>(TargetClass, TargetLocation, TargetRotation, PlacableSpawnParam);
+		CurrentPlacableActor->InitializePlacable(CastedSave->PlacableDataList[i]);
 
 		CurrentPlacableActor->SetData(CastedSave->PlacableDataList[i].CurrentPlacableData);
 	}
@@ -433,6 +434,7 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
+		MainPlayer->UpdateGolds(MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() * GoldTimerMultiplier, EGoldsUpdateMethod::ReceiveGolds);
 		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false);
 
 		if(OptionsString == ""){

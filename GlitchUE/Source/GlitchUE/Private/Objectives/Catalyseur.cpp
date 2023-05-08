@@ -86,6 +86,8 @@ void ACatalyseur::ActiveObjectif(){
 		case EPhases::TowerDefense:
 			StartGeneratingMoney();
 			Nexus->UpdateDissolver();
+			HealthComp->ResetHealth();
+			ToggleActivatedInhibiteursState(true);
 			break;
 	}
 }
@@ -102,7 +104,14 @@ void ACatalyseur::DesactivateObjectif(){
 		case EPhases::TowerDefense:
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
 			Nexus->UpdateDissolver();
+			ToggleActivatedInhibiteursState(false);
 			break;
+	}
+}
+
+void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs){
+	for(int i = 0; i < ActivatedInhibiteursList.Num(); i++){
+		ActivateInhibiteurs ? ActivatedInhibiteursList[i]->GetActivableComp()->ActivateObject() : ActivatedInhibiteursList[i]->GetActivableComp()->DesactivateObject();
 	}
 }
 
@@ -188,17 +197,17 @@ void ACatalyseur::DeleteCompass(){
 }
 
 void ACatalyseur::GenerateMoney(){
-	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteurs, EGoldsUpdateMethod::ReceiveGolds);
+	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteursList.Num(), EGoldsUpdateMethod::ReceiveGolds);
 }
 
 void ACatalyseur::StartGeneratingMoney(){
 	GetWorld()->GetTimerManager().SetTimer(MoneyTimerHandle, this, &ACatalyseur::GenerateMoney, GoldsTick, true);
 }
 
-void ACatalyseur::UpdateActivatedInhibiteurs(const bool Increase){
-	Increase ? ActivatedInhibiteurs++ : ActivatedInhibiteurs--;
+void ACatalyseur::AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd){
+	ActivatedInhibiteursList.Add(InhibiteurToAdd);
 
-	if(ActivatedInhibiteurs == LinkedInhibiteur.Num()){
+	if(ActivatedInhibiteursList.Num() == LinkedInhibiteur.Num()){
 		Player->UpdateGolds(GoldsBonus, EGoldsUpdateMethod::ReceiveGolds);
 	}
 }

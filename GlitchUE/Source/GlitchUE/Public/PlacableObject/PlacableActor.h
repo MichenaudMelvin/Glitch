@@ -41,6 +41,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UPlacableActorData* CurrentData;
@@ -99,7 +100,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
 	UMaterialInstance* WireframeMaterial;
 
-	virtual void Appear(const bool ReverseEffect = false);
+public:
+	virtual void Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent);
+
+protected:
+	bool bIsAppearing = false;
 
 	UFUNCTION()
 	virtual void FadeIn(float Alpha);
@@ -153,4 +158,8 @@ public:
 	virtual FPlacableActorSaveData SavePlacable();
 
 	virtual void InitializePlacable(const FPlacableActorSaveData NewData);
+
+	// used for delegates
+	UFUNCTION()
+	void CallDestroy();
 };

@@ -42,12 +42,12 @@ void AInhibiteur::ActiveObjectif(){
 
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
-	if(SpriteReference.SceneComponent != nullptr && SpriteReference.PaperSpriteComponent != nullptr){
-		SpriteReference.DestroyComponents();
-	}
-
 	if(GameMode->GetPhases() == EPhases::Infiltration){
 		GameMode->LaunchStealthTimer();
+
+		if(SpriteReference.SceneComponent != nullptr && SpriteReference.PaperSpriteComponent != nullptr){
+			SpriteReference.DestroyComponents();
+		}
 	}
 }
 
@@ -62,12 +62,14 @@ void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPla
 }
 
 void AInhibiteur::ActivateLinkedElements(const bool bActivate){
-	for (int i = 0; i < ConstructionZoneList.Num(); i++) {
+	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		bActivate ? ConstructionZoneList[i]->GetActivableComp()->ActivateObject() : ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
 	}
 
-	bActivate ? OwnerCatalyseur->GetActivableComp()->ActivateObject() : OwnerCatalyseur->GetActivableComp()->DesactivateObject();
-	OwnerCatalyseur->UpdateActivatedInhibiteurs(bActivate);
+	if(GameMode->GetPhases() == EPhases::Infiltration){
+		bActivate ? OwnerCatalyseur->GetActivableComp()->ActivateObject() : OwnerCatalyseur->GetActivableComp()->DesactivateObject();
+		OwnerCatalyseur->AddInhibiteurToActivatedList(this);
+	}
 }
 
 void AInhibiteur::SetSpriteReference(const FCompassSprite NewSprite){

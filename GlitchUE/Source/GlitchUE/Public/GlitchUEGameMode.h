@@ -127,6 +127,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Stealth")
 	float StealthTimer = 120.0f;
 
+	/**
+	 * @brief This variable will be multiplied with the remaining stealth time when the player activate the nexus. eg : timer is at 20sec : golds added to the player will be 20 * GoldTimerMultiplier
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Stealth")
+	float GoldTimerMultiplier = 1.5f;
+
 	// The require amount of catalyseur to active to start tower defense
 	UPROPERTY(EditDefaultsOnly, Category = "Tower Defense")
 	int MaxCatalyseurToActivate = 2;

@@ -47,6 +47,18 @@ void APlacableActor::Tick(float DeltaTime){
 	FadeInAppearance.TickTimeline(DeltaTime);
 }
 
+void APlacableActor::Destroyed(){
+	if(IsValid(CurrentDrone)){
+		CurrentDrone->DisableSpinBehavior();
+	}
+
+	AffectedConstructionZone->UnoccupiedSlot();
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	Super::Destroyed();
+}
+
 void APlacableActor::SetMesh(){}
 
 void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
@@ -59,7 +71,11 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 
 	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction){
 		MainPlayer->UpdateGolds(CurrentData->Cost, EGoldsUpdateMethod::ReceiveGolds);
-		Appear(true);
+
+		FOnTimelineEvent FinishEvent;
+		FinishEvent.BindDynamic(this, &APlacableActor::SellObject);
+
+		Appear(true, FinishEvent);
 		bIsSelling = true;
 	}
 
@@ -78,16 +94,14 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 }
 
 void APlacableActor::SellObject(){
-	AffectedConstructionZone->UnoccupiedSlot();
-
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
-
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
 	Destroy();
 }
 
-void APlacableActor::Appear(const bool ReverseEffect){
+void APlacableActor::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){
+	bIsAppearing = true;
+
 	WireframeMesh = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), true, GetActorTransform(), false));
 
 	WireframeMesh->SetStaticMesh(CurrentData->FullMesh);
@@ -96,22 +110,16 @@ void APlacableActor::Appear(const bool ReverseEffect){
 		WireframeMesh->SetMaterial(i, WireframeMaterial);
 	}
 
-	FOnTimelineEvent FinishFunc;
+	ReverseEffect ? FadeInAppearance.Reverse() : FadeInAppearance.Play();
 
-	if(ReverseEffect){
-		FinishFunc.BindDynamic(this, &APlacableActor::SellObject);
-		FadeInAppearance.Reverse();
-	} else{
-		FinishFunc.BindDynamic(this, &APlacableActor::EndAppearance);
-		FadeInAppearance.Play();
-	}
-
-	FadeInAppearance.SetTimelineFinishedFunc(FinishFunc);
+	FadeInAppearance.SetTimelineFinishedFunc(AppearFinishEvent);
 }
 
 void APlacableActor::FadeIn(float Alpha){}
 
 void APlacableActor::EndAppearance(){
+	bIsAppearing = false;
+
 	WireframeMesh->DestroyComponent();
 
 	SetMesh();
@@ -186,7 +194,10 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	IdleAnimation = CurrentData->IdleAnimation;
 	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
 
-	Appear();
+	FOnTimelineEvent FinishEvent;
+	FinishEvent.BindDynamic(this, &APlacableActor::EndAppearance);
+
+	Appear(false, FinishEvent);
 
 	if(AttackFX == nullptr){
 		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation() + CurrentData->AttackFXOffset, FRotator::ZeroRotator, false, false);
@@ -232,5 +243,16 @@ FPlacableActorSaveData APlacableActor::SavePlacable(){
 }
 
 void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData){
-	
+	FHitResult HitResult;
+	const FVector StartLocation = GetActorLocation();
+	FVector EndLocation = GetActorLocation();
+	EndLocation.Z = - 100;
+
+	if(ActorLineTraceSingle(HitResult, StartLocation, EndLocation, ECC_Visibility, FCollisionQueryParams())){
+		UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *HitResult.Actor->GetName());
+	}
+}
+
+void APlacableActor::CallDestroy(){
+	Destroy();
 }

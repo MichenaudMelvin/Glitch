@@ -39,7 +39,7 @@ public:
 
 	USkeletalMeshComponent* GetTechMesh() const;
 
-	void UpdateActivatedInhibiteurs(const bool Increase);
+	void AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd);
 
 protected:
 	virtual void BeginPlay() override;
@@ -47,6 +47,8 @@ protected:
 	virtual void ActiveObjectif() override;
 
 	virtual void DesactivateObjectif() override;
+
+	void ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs = true);
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
@@ -73,6 +75,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
 	TArray<AInhibiteur*> LinkedInhibiteur;
 
+	TArray<AInhibiteur*> ActivatedInhibiteursList;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
 	UPaperSprite* InhibiteurSprite;
 
@@ -90,8 +94,6 @@ protected:
 	void GenerateMoney();
 
 	void StartGeneratingMoney();
-
-	int ActivatedInhibiteurs = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Golds")
 	int GeneratedGolds = 100;

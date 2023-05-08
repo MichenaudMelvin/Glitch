@@ -153,6 +153,10 @@ void APursuitDrone::StopPursuitBehavior(){
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APursuitDrone::DroneMeshBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APursuitDrone::DroneMeshEndOverlap);
 
+	// DissolverChannel;
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel5);
+	GetCharacterMovement()->GravityScale = 0;
+
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
@@ -194,7 +198,6 @@ void APursuitDrone::Interact(AMainPlayerController* MainPlayerController, AMainP
 
 void APursuitDrone::EnableSpinBehavior(){
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Overlap);
-	GetCharacterMovement()->GravityScale = 0;
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -210,13 +213,13 @@ void APursuitDrone::DisableSpinBehavior(){
 	DetachDrone();
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	GetCharacterMovement()->GravityScale = 1;
 
 	if(!GetMesh()->IsVisible()){
 		GetMesh()->SetVisibility(true, true);
 	}
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
 
 	GetMesh()->SetWorldScale3D(FVector::OneVector);
 	GetMesh()->SetRelativeLocation(FVector::ZeroVector);
@@ -235,7 +238,6 @@ void APursuitDrone::AttachDrone(AActor* ActorToAttach, const FName SocketName){
 
 void APursuitDrone::DetachDrone(){
 	if(!IsValid(GetAttachParentActor())){
-		UE_LOG(LogTemp, Warning, TEXT("parent actor not valid"));
 		return;
 	}
 
@@ -249,8 +251,12 @@ void APursuitDrone::DetachDrone(){
 	else if(GetAttachParentActor()->IsA(APlacableActor::StaticClass())){
 		FTimerHandle TimerHandle;
 
-		// micro delay for avoid a crash
+		// micro delay to avoid a crash
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+			if(!GetAttachParentActor()){
+				return;
+			}
+
 			Cast<APlacableActor>(GetAttachParentActor())->RemoveDrone(nullptr);
 
 			const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
