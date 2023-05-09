@@ -14,6 +14,7 @@ class AMainPlayerController;
 class AMark;
 class AMainAICharacter;
 class APursuitDrone;
+class UCompassComponent;
 
 UENUM(BlueprintType)
 enum class EPlayerMovementMode : uint8{
@@ -59,6 +60,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* RunFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	UCompassComponent* Compass;
 
 	float RunFXLifeTime;
 

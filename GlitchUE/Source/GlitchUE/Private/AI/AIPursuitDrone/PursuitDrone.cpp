@@ -21,6 +21,8 @@ APursuitDrone::APursuitDrone(){
 	GetMesh()->SetRelativeRotation(FRotator(0, 180, 0));
 	GetMesh()->SetGenerateOverlapEvents(true);
 
+	CompassIcon = CreateDefaultSubobject<UCompassIcon>(TEXT("Compass Icon"));
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CrystalSkeletal(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Crystal"));
 	check(CrystalSkeletal.Succeeded());
 
@@ -116,6 +118,7 @@ void APursuitDrone::ForceInDock() const{
 	GetMesh()->SetPosition(0);
 	GetMesh()->Stop();
 	IdleFX->SetVisibility(false);
+	CompassIcon->SetAllowDraw(false);
 }
 
 void APursuitDrone::ForceStartAnim() const{
@@ -123,6 +126,7 @@ void APursuitDrone::ForceStartAnim() const{
 	GetMesh()->SetPosition(1);
 	GetMesh()->Stop();
 	IdleFX->SetVisibility(true);
+	CompassIcon->SetAllowDraw(true);
 }
 
 void APursuitDrone::SetCurrentData(UMainAIData* NewData){
@@ -131,6 +135,10 @@ void APursuitDrone::SetCurrentData(UMainAIData* NewData){
 	const UPursuitDroneData* Data = Cast<UPursuitDroneData>(NewData);
 
 	SpinTimeline.SetPlayRate(1/Data->SpinSpeed);
+}
+
+UCompassIcon* APursuitDrone::GetCompassIcon() const{
+	return CompassIcon;
 }
 
 void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
@@ -165,6 +173,7 @@ void APursuitDrone::StopPursuitBehavior(){
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
 
 	IdleFX->DestroyComponent();
+	CompassIcon->DestroyComponent();
 }
 
 void APursuitDrone::DroneMeshBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){

@@ -21,6 +21,7 @@
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
+#include "Components/CompassComponent.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -61,6 +62,8 @@ AMainPlayer::AMainPlayer(){
 	GetMesh()->SetReceivesDecals(false);
 	GetMesh()->SetEnableGravity(false);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	Compass = CreateDefaultSubobject<UCompassComponent>(TEXT("Compass"));
 
 	#pragma region Timelines
 
