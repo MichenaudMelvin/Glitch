@@ -125,7 +125,7 @@ void ATrap::SetData(UPlacableActorData* NewData){
 	}
 }
 
-void ATrap::Appear(const bool ReverseEffect){
+void ATrap::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){
 	TrapMesh->SetSkeletalMesh(Cast<USkeletalMesh>(CurrentData->MeshList[0]), true);
 
 	for(int i = 0; i < TrapMesh->GetNumMaterials(); i++){
@@ -136,7 +136,7 @@ void ATrap::Appear(const bool ReverseEffect){
 		CrystalMesh->SetVisibility(false);
 	}
 
-	Super::Appear(ReverseEffect);
+	Super::Appear(ReverseEffect, AppearFinishEvent);
 }
 
 void ATrap::FadeIn(float Alpha){
@@ -145,6 +145,10 @@ void ATrap::FadeIn(float Alpha){
 }
 
 void ATrap::Attack_Implementation(){
+	if(bIsAppearing){
+		return;
+	}
+
 	Super::Attack_Implementation();
 
 	TArray<AMainAICharacter*>AIArray = AIList.Array();

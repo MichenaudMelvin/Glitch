@@ -14,6 +14,7 @@ APatrolCharacter::APatrolCharacter(){
 
 #if WITH_EDITORONLY_DATA
 	USelection::SelectObjectEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
+	USelection::SelectionChangedEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> EditorMesh(TEXT("/Game/Meshs/EditorOnly/SM_DronePath"));
 	check(EditorMesh.Succeeded());
@@ -70,7 +71,11 @@ void APatrolCharacter::OutlineLinkedObjects(const bool bOutline){
 
 			CurrentSplineActor->GetSplineMeshComponent()->SetStartPosition(FVector::ZeroVector);
 
-			const int TargetIndex = PatrolPointsList.IsValidIndex(i + 1 ) && IsValid(PatrolPointsList[i + 1]) ? i + 1 : 0;
+			const int TargetIndex = PatrolPointsList.IsValidIndex(i + 1) && IsValid(PatrolPointsList[i + 1]) ? i + 1 : 0;
+
+			if(!IsValid(PatrolPointsList[TargetIndex])){
+				continue;
+			}
 
 			const FVector TargetLocation = PatrolPointsList[TargetIndex]->GetActorLocation() - PatrolPointsList[i]->GetActorLocation();
 			CurrentSplineActor->GetSplineMeshComponent()->SetEndPosition(TargetLocation);
@@ -84,6 +89,11 @@ void APatrolCharacter::OutlineLinkedObjects(const bool bOutline){
 
 		SplineList.Empty();
 	}
+}
 
+void APatrolCharacter::PreSave(const ITargetPlatform* TargetPlatform){
+	Super::PreSave(TargetPlatform);
+
+	OutlineLinkedObjects(false);
 }
 #endif

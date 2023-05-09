@@ -17,6 +17,7 @@ AInhibiteur::AInhibiteur(){
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
+		USelection::SelectionChangedEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
 	#endif
 }
 
@@ -29,9 +30,9 @@ void AInhibiteur::BeginPlay(){
 		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
 	}
 
-	// if(!IsValid(OwnerCatalyseur)){
-	// 	UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'EST PAS AFFECTE A UN CATALYSEUR"), *this->GetName());
-	// }
+	if(!IsValid(OwnerCatalyseur)){
+		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'EST PAS AFFECTE A UN CATALYSEUR"), *this->GetName());
+	}
 
 #endif
 }
@@ -41,12 +42,12 @@ void AInhibiteur::ActiveObjectif(){
 
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
-	if(SpriteReference.SceneComponent != nullptr && SpriteReference.PaperSpriteComponent != nullptr){
-		SpriteReference.DestroyComponents();
-	}
-
 	if(GameMode->GetPhases() == EPhases::Infiltration){
 		GameMode->LaunchStealthTimer();
+
+		if(SpriteReference.SceneComponent != nullptr && SpriteReference.PaperSpriteComponent != nullptr){
+			SpriteReference.DestroyComponents();
+		}
 	}
 }
 
@@ -61,12 +62,14 @@ void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPla
 }
 
 void AInhibiteur::ActivateLinkedElements(const bool bActivate){
-	for (int i = 0; i < ConstructionZoneList.Num(); i++) {
+	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		bActivate ? ConstructionZoneList[i]->GetActivableComp()->ActivateObject() : ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
 	}
 
-	bActivate ? OwnerCatalyseur->GetActivableComp()->ActivateObject() : OwnerCatalyseur->GetActivableComp()->DesactivateObject();
-	OwnerCatalyseur->UpdateActivatedInhibiteurs(bActivate);
+	if(GameMode->GetPhases() == EPhases::Infiltration){
+		bActivate ? OwnerCatalyseur->GetActivableComp()->ActivateObject() : OwnerCatalyseur->GetActivableComp()->DesactivateObject();
+		OwnerCatalyseur->AddInhibiteurToActivatedList(this);
+	}
 }
 
 void AInhibiteur::SetSpriteReference(const FCompassSprite NewSprite){
@@ -114,5 +117,11 @@ void AInhibiteur::OutlineLinkedObjects(const bool bOutline){
 		UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(OwnerCatalyseur->GetRootComponent()));
 		UUsefullFunctions::OutlineComponent(bOutline, OwnerCatalyseur->GetTechMesh());
 	}
+}
+
+void AInhibiteur::PreSave(const ITargetPlatform* TargetPlatform){
+	Super::PreSave(TargetPlatform);
+
+	OutlineLinkedObjects(false);
 }
 #endif

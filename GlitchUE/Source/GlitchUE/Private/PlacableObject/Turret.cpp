@@ -147,7 +147,7 @@ void ATurret::SetData(UPlacableActorData* NewData){
 	FocusMethod = Data->FocusMethod;
 }
 
-void ATurret::Appear(const bool ReverseEffect){
+void ATurret::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){
 	FullMesh = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), true, GetActorTransform(), false));
 
 	FullMesh->SetStaticMesh(CurrentData->FullMesh);
@@ -162,7 +162,7 @@ void ATurret::Appear(const bool ReverseEffect){
 		TurretHead->SetVisibility(false);
 	}
 
-	Super::Appear(ReverseEffect);
+	Super::Appear(ReverseEffect, AppearFinishEvent);
 }
 
 void ATurret::FadeIn(float Alpha){
@@ -183,7 +183,7 @@ void ATurret::CanAttack(){
 
 	ActorsToIgnore.Add(this);
 
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TurretHead->GetComponentLocation(), GetFirstAI()->GetActorLocation(), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TurretHead->GetComponentLocation(), GetFirstAI()->GetActorLocation(), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, Hit, true);
 
 	if (Hit.GetActor()->IsA(AMainAICharacter::StaticClass())){
 		GetWorldTimerManager().ClearTimer(CanAttackTimer);
@@ -193,6 +193,10 @@ void ATurret::CanAttack(){
 }
 
 void ATurret::Attack_Implementation(){
+	if(bIsAppearing){
+		return;
+	}
+
 	SelectTarget();
 	Super::Attack_Implementation();
 }

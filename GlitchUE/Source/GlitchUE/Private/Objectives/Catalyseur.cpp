@@ -32,14 +32,6 @@ ACatalyseur::ACatalyseur(){
 	TECHMesh->SetCanEverAffectNavigation(false);
 	TECHMesh->SetupAttachment(RootComponent);
 
-	CatalyeurZone = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CatalyseurZone"));
-	CatalyeurZone->SetupAttachment(RootComponent);
-	CatalyeurZone->SetCollisionResponseToAllChannels(ECR_Ignore);
-	CatalyeurZone->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
-	CatalyeurZone->OnComponentBeginOverlap.AddDynamic(this, &ACatalyseur::EnterCatalyseurZone);
-	CatalyeurZone->OnComponentEndOverlap.AddDynamic(this, &ACatalyseur::ExitCatalyseurZone);
-
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_MED_Catalyser_Open"));
 	check(ActivAnim.Succeeded());
 
@@ -52,6 +44,7 @@ ACatalyseur::ACatalyseur(){
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
+		USelection::SelectionChangedEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
 	#endif
 }
 
@@ -93,6 +86,8 @@ void ACatalyseur::ActiveObjectif(){
 		case EPhases::TowerDefense:
 			StartGeneratingMoney();
 			Nexus->UpdateDissolver();
+			HealthComp->ResetHealth();
+			ToggleActivatedInhibiteursState(true);
 			break;
 	}
 }
@@ -109,7 +104,14 @@ void ACatalyseur::DesactivateObjectif(){
 		case EPhases::TowerDefense:
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
 			Nexus->UpdateDissolver();
+			ToggleActivatedInhibiteursState(false);
 			break;
+	}
+}
+
+void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs){
+	for(int i = 0; i < ActivatedInhibiteursList.Num(); i++){
+		ActivateInhibiteurs ? ActivatedInhibiteursList[i]->GetActivableComp()->ActivateObject() : ActivatedInhibiteursList[i]->GetActivableComp()->DesactivateObject();
 	}
 }
 
@@ -194,38 +196,18 @@ void ACatalyseur::DeleteCompass(){
 	CompassSpriteList.Empty();
 }
 
-void ACatalyseur::EnterCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
-	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(true);
-
-		if(GameMode->GetLevelState() == ELevelState::Alerted){
-			GetWorld()->GetTimerManager().SetTimer(CatalyeurZoneTimer, [&]() {
-				GameMode->SetLevelState(ELevelState::Normal);
-			}, ResetLevelStateDuration, false);
-		}
-	}
-}
-
-void ACatalyseur::ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
-	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(false);
-
-		GetWorld()->GetTimerManager().ClearTimer(CatalyeurZoneTimer);
-	}
-}
-
 void ACatalyseur::GenerateMoney(){
-	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteurs, EGoldsUpdateMethod::ReceiveGolds);
+	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteursList.Num(), EGoldsUpdateMethod::ReceiveGolds);
 }
 
 void ACatalyseur::StartGeneratingMoney(){
 	GetWorld()->GetTimerManager().SetTimer(MoneyTimerHandle, this, &ACatalyseur::GenerateMoney, GoldsTick, true);
 }
 
-void ACatalyseur::UpdateActivatedInhibiteurs(const bool Increase){
-	Increase ? ActivatedInhibiteurs++ : ActivatedInhibiteurs--;
+void ACatalyseur::AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd){
+	ActivatedInhibiteursList.Add(InhibiteurToAdd);
 
-	if(ActivatedInhibiteurs == LinkedInhibiteur.Num()){
+	if(ActivatedInhibiteursList.Num() == LinkedInhibiteur.Num()){
 		Player->UpdateGolds(GoldsBonus, EGoldsUpdateMethod::ReceiveGolds);
 	}
 }
@@ -235,12 +217,24 @@ void ACatalyseur::PreEditChange(FProperty* PropertyAboutToChange){
 	Super::PreEditChange(PropertyAboutToChange);
 
 	OutlineLinkedObjects(false);
+
+	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
+		if(IsValid(LinkedInhibiteur[i])){
+			LinkedInhibiteur[i]->SetOwnerCatalyseur(nullptr);
+		}
+	}
 }
 
 void ACatalyseur::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent){
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	OutlineLinkedObjects(true);
+
+	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
+		if(IsValid(LinkedInhibiteur[i])){
+			LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
+		}
+	}
 }
 
 
@@ -261,5 +255,11 @@ void ACatalyseur::OutlineLinkedObjects(const bool bOutline){
 			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(LinkedInhibiteur[i]->GetRootComponent()));
 		}
 	}
+}
+
+void ACatalyseur::PreSave(const ITargetPlatform* TargetPlatform){
+	Super::PreSave(TargetPlatform);
+
+	OutlineLinkedObjects(false);
 }
 #endif

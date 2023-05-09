@@ -17,7 +17,8 @@ AGlitchZone::AGlitchZone(){
 	GetStaticMeshComponent()->SetWorldScale3D(FVector(2, 2, 2));
 
 	GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
+	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetStaticMeshComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	GetStaticMeshComponent()->SetGenerateOverlapEvents(true);
 
 #if WITH_EDITORONLY_DATA

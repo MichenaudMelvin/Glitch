@@ -5,26 +5,47 @@
 #include "CoreMinimal.h"
 #include "PaperSpriteComponent.h"
 #include "Components/ActorComponent.h"
+#include "Player/MainPlayer.h"
 #include "CompassIcon.generated.h"
+
+class UCompassComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GLITCHUE_API UCompassIcon : public UActorComponent{
 	GENERATED_BODY()
 
-public:	
+public:
 	UCompassIcon();
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UPaperSprite* OwnerSprite;
+	UPROPERTY(EditAnywhere, Category = "Mesh")
+	UStaticMesh* OwnerMesh;
 
 	FVector OwnerLocation;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Appearence")
+	bool bAllowDraw = true;
+
+	/**
+	 * @brief if the value is less than 0 the sprite can be always drawn
+	 */
+	UPROPERTY(EditAnywhere, Category = "Distance")
+	float DrawDistance = 500;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Class")
+	TSubclassOf<AActor> TargetCompassOwnerClass = AMainPlayer::StaticClass();
+
+	UCompassComponent* CompassOwner;
+
 public:
-	UPaperSprite* GetOwnerSprite();
+	UStaticMesh* GetOwnerMesh() const;
 
-	FVector GetOwnerLocation();
+	FVector GetOwnerLocation() const;
 
+	bool CanBeDrawn() const;
+
+	void SetAllowDraw(const bool bAllow);
 };

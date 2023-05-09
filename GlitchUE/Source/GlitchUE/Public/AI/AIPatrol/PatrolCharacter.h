@@ -31,6 +31,8 @@ public:
 
 	void OutlineLinkedObjects(const bool bOutline);
 
+	virtual void PreSave(const ITargetPlatform* TargetPlatform) override;
+
 	UStaticMesh* CubeMesh;
 
 	TArray<ASplineMeshActor*> SplineList;

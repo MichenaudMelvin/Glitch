@@ -14,6 +14,7 @@ class AMainPlayerController;
 class AMark;
 class AMainAICharacter;
 class APursuitDrone;
+class UCompassComponent;
 
 UENUM(BlueprintType)
 enum class EPlayerMovementMode : uint8{
@@ -59,6 +60,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* RunFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	UCompassComponent* Compass;
 
 	float RunFXLifeTime;
 
@@ -277,6 +281,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	int Golds = 1000;
 
+	UPROPERTY(BlueprintReadWrite)
 	bool bGoldsCanBeUpdated = true;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
@@ -489,9 +494,6 @@ public:
 	UGameplaySettingsSave* GameplaySettingsSaveSave;
 
 	#pragma endregion
-
-	UFUNCTION(Exec)
-	void TestFunction();
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

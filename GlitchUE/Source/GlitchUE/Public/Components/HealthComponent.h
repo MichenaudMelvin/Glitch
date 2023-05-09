@@ -70,4 +70,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Glitch")
 	float GetOriginalMaxHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Glitch")
+	void ResetHealth();
 };

@@ -69,4 +69,8 @@ float UHealthComponent::GetOriginalMaxHealth() const{
 	return OriginalMaxHealth;
 }
 
+void UHealthComponent::ResetHealth(){
+	CurrentHealth = MaxHealth;
+}
+
 

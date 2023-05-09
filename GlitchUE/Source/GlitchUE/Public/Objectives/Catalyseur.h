@@ -7,7 +7,6 @@
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
 #include "Components/CompassIcon.h"
-#include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.generated.h"
 
 class AInhibiteur;
@@ -40,7 +39,7 @@ public:
 
 	USkeletalMeshComponent* GetTechMesh() const;
 
-	void UpdateActivatedInhibiteurs(const bool Increase);
+	void AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd);
 
 protected:
 	virtual void BeginPlay() override;
@@ -48,6 +47,8 @@ protected:
 	virtual void ActiveObjectif() override;
 
 	virtual void DesactivateObjectif() override;
+
+	void ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs = true);
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
@@ -65,9 +66,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TECHMesh;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
-	UStaticMeshComponent* CatalyeurZone;
-
 	ANexus* Nexus;
 
 	AMainPlayer* Player;
@@ -76,6 +74,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
 	TArray<AInhibiteur*> LinkedInhibiteur;
+
+	TArray<AInhibiteur*> ActivatedInhibiteursList;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
 	UPaperSprite* InhibiteurSprite;
@@ -89,27 +89,11 @@ protected:
 
 	TArray<FCompassSprite> CompassSpriteList;
 
-	FTimerHandle CatalyeurZoneTimer;
-
-	/**
-	 * @brief Timer in seconds 
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Catalyseur Zone")
-	float ResetLevelStateDuration = 1;
-
-	UFUNCTION()
-	virtual void EnterCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	virtual void ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
 	FTimerHandle MoneyTimerHandle;
 
 	void GenerateMoney();
 
 	void StartGeneratingMoney();
-
-	int ActivatedInhibiteurs = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Golds")
 	int GeneratedGolds = 100;
@@ -128,5 +112,7 @@ protected:
 	void OnObjectSelected(UObject* Object);
 
 	void OutlineLinkedObjects(const bool bOutline);
+
+	virtual void PreSave(const ITargetPlatform* TargetPlatform) override;
 #endif
 };

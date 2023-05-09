@@ -72,7 +72,7 @@ protected:
 
 	virtual void SetData(UPlacableActorData* NewData) override;
 
-	virtual void Appear(const bool ReverseEffect) override;
+	virtual void Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent) override;
 
 	virtual void FadeIn(float Alpha) override;
 

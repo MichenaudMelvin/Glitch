@@ -23,6 +23,7 @@ void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	TimerWidget = Cast<UTimerWidget>(CreateWidget(this, TimerWidgetClass));
 	PlayerStatsWidget = Cast<UPlayerStats>(CreateWidget(this, PlayerStatsWidgetClass));
 	PlayerStatsWidget->AddToViewport();
+	PlayerStatsWidget->UpdateDisplayGolds(MainPlayer->GetGolds());
 }
 
 #pragma region Bind
@@ -54,6 +55,7 @@ EGameplayMode AMainPlayerController::GetGameplayMode() const{
 }
 
 void AMainPlayerController::BindFastSaveAndLoad(){
+	UnbindFastSaveAndLoad();
 	OnFastSave.AddDynamic(this, &AMainPlayerController::FastSave);
 	OnFastLoad.AddDynamic(this, &AMainPlayerController::FastLoad);
 }
