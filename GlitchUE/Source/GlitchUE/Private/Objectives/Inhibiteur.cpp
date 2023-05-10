@@ -37,6 +37,14 @@ void AInhibiteur::BeginPlay(){
 #endif
 }
 
+void AInhibiteur::Destroyed(){
+	Super::Destroyed();
+
+#if WITH_EDITORONLY_DATA
+	OutlineLinkedObjects(false);
+#endif
+}
+
 void AInhibiteur::ActiveObjectif(){
 	ActivateLinkedElements(true);
 

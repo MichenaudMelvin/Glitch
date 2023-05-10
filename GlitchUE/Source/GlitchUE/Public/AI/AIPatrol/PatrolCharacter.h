@@ -16,6 +16,8 @@ public:
 	APatrolCharacter();
 
 protected:
+	virtual void Destroyed() override;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
 	TArray<APatrolPoint*> PatrolPointsList;
 
@@ -26,6 +28,8 @@ public:
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+
+	virtual void PostEditUndo() override;
 
 	void OnObjectSelected(UObject* Object);
 

@@ -21,6 +21,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	virtual void Destroyed() override;
+
 	virtual void ActiveObjectif() override;
 
 	UAnimationAsset* ActivationAnim;

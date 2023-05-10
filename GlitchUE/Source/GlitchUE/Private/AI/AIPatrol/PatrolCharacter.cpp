@@ -5,6 +5,7 @@
 #include "Components/SplineMeshComponent.h"
 #include "Engine/Selection.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Kismet/GameplayStatics.h"
 
 APatrolCharacter::APatrolCharacter(){
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkelMesh(TEXT("/Game/Meshs/Drones/Seeker/SK_Seeker"));
@@ -23,6 +24,14 @@ APatrolCharacter::APatrolCharacter(){
 #endif
 }
 
+void APatrolCharacter::Destroyed(){
+	Super::Destroyed();
+
+	#if WITH_EDITORONLY_DATA
+		OutlineLinkedObjects(false);
+	#endif
+}
+
 TArray<APatrolPoint*> APatrolCharacter::GetPatrolPointList() const{
 	return PatrolPointsList;
 }
@@ -38,6 +47,19 @@ void APatrolCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	OutlineLinkedObjects(true);
+}
+
+void APatrolCharacter::PostEditUndo(){
+	Super::PostEditUndo();
+
+	OutlineLinkedObjects(false);
+
+	TArray<AActor*> SplineActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASplineMeshActor::StaticClass(), SplineActorList);
+
+	for(int i = 0; i < SplineActorList.Num(); i++){
+		SplineActorList[i]->Destroy();
+	}
 }
 
 void APatrolCharacter::OnObjectSelected(UObject* Object){
