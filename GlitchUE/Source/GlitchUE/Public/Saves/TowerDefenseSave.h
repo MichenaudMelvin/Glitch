@@ -22,6 +22,12 @@ public:
 
 	UPROPERTY()
 	UPlacableActorData* CurrentPlacableData = nullptr;
+
+	UPROPERTY()
+	bool bHasDrone;
+
+	UPROPERTY()
+	FString DroneName;
 };
 
 UCLASS()
@@ -29,6 +35,9 @@ class GLITCHUE_API UTowerDefenseSave : public UWorldSave{
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintReadWrite, Category = "Dissolver")
+	float DissolverRadius;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Waves")
 	int CurrentWave;
 

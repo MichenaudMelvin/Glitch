@@ -85,8 +85,8 @@ void ATrap::ResetGlitchUpgrade(){
 	TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
 }
 
-void ATrap::AddDrone(AMainPlayer* MainPlayer){
-	Super::AddDrone(MainPlayer);
+void ATrap::AttachDroneToPlacable(APursuitDrone* NewDrone){
+	Super::AttachDroneToPlacable(NewDrone);
 
 	TrapDistance->SetBoxExtent(FVector(AttackRange, AttackRange, 50), true);
 }

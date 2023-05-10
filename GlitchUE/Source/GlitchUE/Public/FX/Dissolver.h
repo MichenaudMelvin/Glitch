@@ -56,6 +56,9 @@ public:
 
 	float GetRadius() const;
 
+	UFUNCTION(BlueprintCallable)
+	void ForceDissolverValue(const float TargetRadius);
+
 protected:
 	void PlayFX();
 

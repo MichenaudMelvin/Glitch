@@ -53,6 +53,8 @@ void AGlitchUEGameMode::BeginPlay() {
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 
+	TArray<AActor*> DissolverArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
 #if WITH_EDITOR
 
@@ -72,6 +74,8 @@ void AGlitchUEGameMode::BeginPlay() {
 
 	Nexus = Cast<ANexus>(NexusArray[0]);
 
+	Dissolver = Cast<ADissolver>(DissolverArray[0]);
+
 	FOnTimelineLinearColor UpdateEvent;
 	FOnTimelineEvent FinishEvent;
 
@@ -88,6 +92,12 @@ void AGlitchUEGameMode::BeginPlay() {
 	BlinkingTimeline.SetTimelineFinishedFunc(FinishEvent);
 
 	FTimerHandle TimerHandle;
+
+	#if WITH_EDITOR
+		if(!IsValid(MainPlayer)){
+			return;
+		}
+	#endif
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGlitchUEGameMode::InitializeWorld, 0.01f, false);
 }
@@ -182,6 +192,10 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 }
 
 void AGlitchUEGameMode::GlobalWorldSave(const int Index){
+	if(OptionsString != ""){
+		return;
+	}
+
 	TSubclassOf<UWorldSave> TargetSaveClass;
 
 	switch (CurrentPhase) {
@@ -335,6 +349,8 @@ UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 	UTowerDefenseSave* CastedSave = Cast<UTowerDefenseSave>(CurrentSave);
 
+	CastedSave->DissolverRadius = Dissolver->GetRadius();
+
 	TArray<AActor*> PlacableList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableList);
 
@@ -395,9 +411,14 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 
 	FActorSpawnParameters PlacableSpawnParam;
 
+	Dissolver->ForceDissolverValue(CastedSave->DissolverRadius);
+
 	ForceEndStealthPhase();
 
 	WaveManager->SetWave(CastedSave->CurrentWave);
+
+	TArray<AActor*> PursuitDroneList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APursuitDrone::StaticClass(), PursuitDroneList);
 
 	for(int i = 0; i < CastedSave->PlacableDataList.Num(); i++){
 		const TSubclassOf<APlacableActor> TargetClass = CastedSave->PlacableDataList[i].PlacableActorClass;
@@ -405,9 +426,8 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 		const FRotator TargetRotation = CastedSave->PlacableDataList[i].ActorTransform.Rotator();
 
 		APlacableActor* CurrentPlacableActor = GetWorld()->SpawnActor<APlacableActor>(TargetClass, TargetLocation, TargetRotation, PlacableSpawnParam);
-		CurrentPlacableActor->InitializePlacable(CastedSave->PlacableDataList[i]);
-
-		CurrentPlacableActor->SetData(CastedSave->PlacableDataList[i].CurrentPlacableData);
+		CurrentPlacableActor->InitializePlacable(CastedSave->PlacableDataList[i], PursuitDroneList);
+		CurrentPlacableActor->SetNexus(Nexus);
 	}
 
 	return CastedSave;
@@ -660,10 +680,7 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 }
 
 void AGlitchUEGameMode::Dissolve(const float Value) const{
-	TArray<AActor*> DissolverArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
-
-	Cast<ADissolver>(DissolverArray[0])->DissolveTo(Value);
+	Dissolver->DissolveTo(Value);
 }
 
 #pragma endregion

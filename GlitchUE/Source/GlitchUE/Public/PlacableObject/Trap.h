@@ -64,7 +64,7 @@ protected:
 
 	virtual void ResetGlitchUpgrade() override;
 
-	virtual void AddDrone(AMainPlayer* MainPlayer) override;
+	virtual void AttachDroneToPlacable(APursuitDrone* NewDrone) override;
 
 	virtual void RemoveDrone(AMainPlayer* MainPlayer) override;
 

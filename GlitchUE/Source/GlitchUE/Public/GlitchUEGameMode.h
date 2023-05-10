@@ -144,6 +144,8 @@ protected:
 
 	ANexus* Nexus;
 
+	ADissolver* Dissolver;
+
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UTextureRenderTarget2D*> SaveRenderTarget;
 

@@ -2,6 +2,7 @@
 
 
 #include "Player/UI/Settings/VideoSettingsMenu.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Saves/Settings/VideoSettingsSave.h"
 
 UVideoSettingsMenu::UVideoSettingsMenu(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer){
@@ -16,24 +17,50 @@ void UVideoSettingsMenu::NativeOnInitialized(){
 	VSyncCheckBox->OnCheckStateChanged.AddDynamic(this, &UVideoSettingsMenu::ToggleVSync);
 
 	ResolutionBox->OnSelectionChanged.AddDynamic(this, &UVideoSettingsMenu::ChangeResolution);
+
+	WindowModeBox->OnSelectionChanged.AddDynamic(this, &UVideoSettingsMenu::ChangeWindowMode);
 }
 
 void UVideoSettingsMenu::NativePreConstruct(){
 	Super::NativePreConstruct();
 
-	if(IsValid(ResolutionBox)){
-		ResolutionBox->ClearOptions();
-		ResolutionBox->AddOption("800x600");
-		ResolutionBox->AddOption("1024x768");
-		ResolutionBox->AddOption("1280x720");
-		ResolutionBox->AddOption("1280x1024");
-		ResolutionBox->AddOption("1366x768");
-		ResolutionBox->AddOption("1600x900");
-		ResolutionBox->AddOption("1680x1050");
-		ResolutionBox->AddOption("1920x1080");
+	if(IsValid(ResolutionBox) && IsValid(GameUserSettings)){
+		TArray<FIntPoint> Array;
 
-		ResolutionBox->SetSelectedOption("1920x1080");
-		ResolutionBox->RefreshOptions();
+		switch (GameUserSettings->GetFullscreenMode()) {
+			case EWindowMode::Fullscreen:
+				UKismetSystemLibrary::GetSupportedFullscreenResolutions(Array);
+				break;
+			case EWindowMode::WindowedFullscreen:
+				UKismetSystemLibrary::GetSupportedFullscreenResolutions(Array);
+				break;
+			case EWindowMode::Windowed:
+				UKismetSystemLibrary::GetSupportedFullscreenResolutions(Array);
+				break;
+			case EWindowMode::NumWindowModes:
+				UKismetSystemLibrary::GetSupportedFullscreenResolutions(Array);
+				break;
+		}
+
+		ResolutionBox->ClearOptions();
+		for(int i = 0; i < Array.Num(); i++){
+			ResolutionBox->AddOption(FString::FromInt(Array[i].X) + "x" + FString::FromInt(Array[i].Y));
+		}
+
+		const FIntPoint CurrentResolution = GameUserSettings->GetScreenResolution();
+
+		auto a = FString::FromInt(CurrentResolution.X) + "x" + FString::FromInt(CurrentResolution.Y);
+		UE_LOG(LogTemp, Warning, TEXT("The vector value is: %s"), *a);
+
+		ResolutionBox->SetSelectedOption(FString::FromInt(CurrentResolution.X) + "x" + FString::FromInt(CurrentResolution.Y));
+	}
+
+	if(IsValid(WindowModeBox)){
+		WindowModeBox->ClearOptions();
+
+		WindowModeBox->AddOption(LexToString(EWindowMode::Fullscreen));
+		WindowModeBox->AddOption(LexToString(EWindowMode::WindowedFullscreen));
+		WindowModeBox->AddOption(LexToString(EWindowMode::Windowed));
 	}
 }
 
@@ -55,6 +82,17 @@ void UVideoSettingsMenu::ChangeResolution(FString SelectedItem, ESelectInfo::Typ
 	Cast<UVideoSettingsSave>(Settings)->Resolution = FIntPoint(X, Y);
 }
 
+void UVideoSettingsMenu::ChangeWindowMode(FString SelectedItem, ESelectInfo::Type SelectionType){
+	if(SelectionType == ESelectInfo::Direct){
+		return;
+	}
+
+	UVideoSettingsSave* CastedSettings = Cast<UVideoSettingsSave>(Settings);
+
+	CastedSettings->WindowMode = EWindowMode::ConvertIntToWindowMode(WindowModeBox->GetSelectedIndex());
+	GameUserSettings->SetFullscreenMode(CastedSettings->WindowMode);
+}
+
 void UVideoSettingsMenu::InitializeSettings(){
 
 	const UVideoSettingsSave* CastedSettings = Cast<UVideoSettingsSave>(Settings);
@@ -64,11 +102,16 @@ void UVideoSettingsMenu::InitializeSettings(){
 	const FString Res = FString::FromInt(CastedSettings->Resolution.X) + "x" + FString::FromInt(CastedSettings->Resolution.Y);
 	ResolutionBox->SetSelectedOption(Res);
 
+	WindowModeBox->SetSelectedOption(LexToString(CastedSettings->WindowMode));
+
 	Super::InitializeSettings();
 }
 
 void UVideoSettingsMenu::UpdateSettings() const{
 	Super::UpdateSettings();
 
-	Gamemode->UpdateVideoSettings(Cast<UVideoSettingsSave>(Settings));
+	const UVideoSettingsSave* CastedSettings = Cast<UVideoSettingsSave>(Settings);
+
+	Gamemode->UpdateVideoSettings(CastedSettings);
+	GameUserSettings->SetFullscreenMode(CastedSettings->WindowMode);
 }
