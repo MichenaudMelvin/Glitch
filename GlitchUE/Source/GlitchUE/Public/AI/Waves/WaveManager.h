@@ -76,6 +76,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	ANexus* Nexus;
 
+	AAudioManager* AudioManager;
+
 	AMainPlayer* Player;
 
 	UPROPERTY(BlueprintReadOnly)

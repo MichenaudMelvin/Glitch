@@ -209,6 +209,8 @@ void AWaveManager::NextWave(){
 
 	CurrentWaveNumber++;
 
+	AudioManager->UpdateTowerDefenseMusic();
+
 	if(CurrentWaveNumber >= NumberOfWaves){
 		GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Blue, TEXT("Les vagues sont terminées"));
 		return;

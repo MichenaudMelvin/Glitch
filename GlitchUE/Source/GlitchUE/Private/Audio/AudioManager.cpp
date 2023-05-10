@@ -115,6 +115,11 @@ void AAudioManager::SwitchToTowerDefenseMusic(){
 	FadeOutMusic(SwitchMusicEvent, FadePhaseTransition);
 }
 
+void AAudioManager::UpdateTowerDefenseMusic() {
+	TowerDefenseLayer++;
+	FMODAudioComp->SetParameter("TowerDefense", TowerDefenseLayer);
+}
+
 UFMODAudioComponent* AAudioManager::GetAudioComp() const{
 	return FMODAudioComp;
 }
