@@ -115,6 +115,10 @@ void APlacableActor::Appear(const bool ReverseEffect, const FOnTimelineEvent App
 	FadeInAppearance.SetTimelineFinishedFunc(AppearFinishEvent);
 }
 
+void APlacableActor::SetNexus(ANexus* NewNexus){
+	Nexus = NewNexus;
+}
+
 void APlacableActor::FadeIn(float Alpha){}
 
 void APlacableActor::EndAppearance(){
@@ -125,13 +129,14 @@ void APlacableActor::EndAppearance(){
 	SetMesh();
 }
 
-void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
-	CurrentDrone = MainPlayer->GetCurrentDrone();
-	MainPlayer->SetCurrentDrone(nullptr);
+void APlacableActor::AttachDroneToPlacable(APursuitDrone* NewDrone){
+	CurrentDrone = NewDrone;
 
 	AttackRate -= CurrentData->BoostDroneAttackRate;
 	Damages += CurrentData->BoostDroneDamages;
 	AttackRange += CurrentData->BoostDroneAttackRange;
+
+	UE_LOG(LogTemp, Warning, TEXT("The boolean value is %s"), ( IsValid(this) ? TEXT("true") : TEXT("false") ));
 
 	CurrentDrone->AttachDrone(this, "");
 
@@ -139,6 +144,12 @@ void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 	TargetLocation.Z += 100;
 
 	CurrentDrone->SetActorLocation(TargetLocation);
+}
+
+
+void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
+	AttachDroneToPlacable(MainPlayer->GetCurrentDrone());
+	MainPlayer->SetCurrentDrone(nullptr);
 }
 
 void APlacableActor::RemoveDrone(AMainPlayer* MainPlayer){
@@ -239,17 +250,39 @@ FPlacableActorSaveData APlacableActor::SavePlacable(){
 	CurrentSaveData.ActorTransform = GetActorTransform();
 	CurrentSaveData.CurrentPlacableData = CurrentData;
 
+	CurrentSaveData.bHasDrone = IsValid(CurrentDrone);
+
+	if(CurrentSaveData.bHasDrone){
+		CurrentSaveData.DroneName = CurrentDrone->GetName();
+	}
+
 	return CurrentSaveData;
 }
 
-void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData){
+void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData, TArray<AActor*> PursuitDroneList){
 	FHitResult HitResult;
 	const FVector StartLocation = GetActorLocation();
 	FVector EndLocation = GetActorLocation();
-	EndLocation.Z = - 100;
+	EndLocation.Z = - 5;
 
-	if(ActorLineTraceSingle(HitResult, StartLocation, EndLocation, ECC_Visibility, FCollisionQueryParams())){
-		UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *HitResult.Actor->GetName());
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::Persistent, HitResult, true);
+
+	Cast<AConstructionZone>(HitResult.Actor)->OccupiedSlot(this);
+
+	SetData(NewData.CurrentPlacableData);
+
+	if(!NewData.bHasDrone){
+		return;
+	}
+
+	for(int i = 0; i < PursuitDroneList.Num(); i++){
+		if(PursuitDroneList[i]->GetName() == NewData.DroneName){
+			AttachDroneToPlacable(Cast<APursuitDrone>(PursuitDroneList[i]));
+			break;
+		}
 	}
 }
 

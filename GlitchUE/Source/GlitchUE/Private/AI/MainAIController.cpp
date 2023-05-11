@@ -53,6 +53,10 @@ void AMainAIController::BeginPlay(){
 
 		const UAbstractSave* LoadedSave = UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), FCString::Atoi(*LevelSettings[1]), false);
 
+		if(!IsValid(LoadedSave)){
+			return;
+		}
+
 		if(LevelSettings[0] == "?WorldSaveLoad" && LoadedSave->IsA(UStealthSave::StaticClass())){
 			//InitializeAI will be call by the gamemode
 			return;

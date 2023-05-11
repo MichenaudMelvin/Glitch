@@ -144,6 +144,11 @@ float ADissolver::GetRadius() const{
 	return Radius;
 }
 
+void ADissolver::ForceDissolverValue(const float TargetRadius){
+	Radius = TargetRadius;
+	UpdateRadius();
+}
+
 void ADissolver::LerpRadius(float Value){
 	Radius = FMath::Lerp(CurrentRadiusValue, TargetRadiusValue, Value);
 	UpdateRadius();

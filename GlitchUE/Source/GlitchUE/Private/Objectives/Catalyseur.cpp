@@ -74,6 +74,14 @@ void ACatalyseur::BeginPlay(){
 	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
+void ACatalyseur::Destroyed(){
+	Super::Destroyed();
+
+#if WITH_EDITORONLY_DATA
+	OutlineLinkedObjects(false);
+#endif
+}
+
 void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);

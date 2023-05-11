@@ -103,6 +103,9 @@ protected:
 public:
 	virtual void Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent);
 
+	// called for save
+	void SetNexus(ANexus* NewNexus);
+
 protected:
 	bool bIsAppearing = false;
 
@@ -133,8 +136,10 @@ protected:
 	UFUNCTION()
 	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	virtual void AttachDroneToPlacable(APursuitDrone* NewDrone);
+
 public:
-	virtual void AddDrone(AMainPlayer* MainPlayer);
+	void AddDrone(AMainPlayer* MainPlayer);
 
 	/**
 	 * @brief 
@@ -157,7 +162,7 @@ public:
 
 	virtual FPlacableActorSaveData SavePlacable();
 
-	virtual void InitializePlacable(const FPlacableActorSaveData NewData);
+	virtual void InitializePlacable(const FPlacableActorSaveData NewData, TArray<AActor*> PursuitDroneList);
 
 	// used for delegates
 	UFUNCTION()

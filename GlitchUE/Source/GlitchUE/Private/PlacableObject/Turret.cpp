@@ -106,8 +106,8 @@ void ATurret::ResetGlitchUpgrade(){
 	TurretVision->SetSphereRadius(AttackRange, true);
 }
 
-void ATurret::AddDrone(AMainPlayer* MainPlayer){
-	Super::AddDrone(MainPlayer);
+void ATurret::AttachDroneToPlacable(APursuitDrone* NewDrone){
+	Super::AttachDroneToPlacable(NewDrone);
 
 	RotateTimeline.SetPlayRate(1/AttackRate);
 	TurretVision->SetSphereRadius(AttackRange, true);
@@ -205,9 +205,7 @@ void ATurret::EndAttack() {
 	if (DoesAIListContainSomething()) {
 		SelectTarget();
 		if (!CanSeeThroughWalls) {
-			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, [&]() {
-				CanAttack();
-				}, 0.1f, true);
+			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, this, &ATurret::CanAttack, 0.1f, true);
 		}else {
 			Attack();
 		}
@@ -220,24 +218,24 @@ void ATurret::FinishAttacking_Implementation(){}
 
 void ATurret::Shoot_Implementation(){}
 
-AActor* ATurret::GetFirstAI(){
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Cast<AActor>(Nexus))[0];
+AActor* ATurret::GetFirstAI() const{
+	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[0];
 }
 
-AActor* ATurret::GetMidAI(){
+AActor* ATurret::GetMidAI() const{
 	if (GetSortedAIList().Num() == 0) {
 		return nullptr;
 	}
 
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Cast<AActor>(Nexus))[GetSortedAIList().Num() / 2];
+	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[GetSortedAIList().Num() / 2];
 }
 
-AActor* ATurret::GetLastAI(){
+AActor* ATurret::GetLastAI() const{
 	if (GetSortedAIList().Num() == 0) {
 		return nullptr;
 	}
 
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Cast<AActor>(Nexus))[GetSortedAIList().Num() - 1];
+	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[GetSortedAIList().Num() - 1];
 }
 
 void ATurret::SelectTarget(){
@@ -275,9 +273,7 @@ void ATurret::OnReachVision(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	if (AIList.Num() == 1) {
 
 		if (!CanSeeThroughWalls) {
-			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, [&]() {
-				CanAttack();
-			}, 0.1f, true);
+			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, this, &ATurret::CanAttack, 0.1f, true);
 		} else {
 			Attack();
 		}
