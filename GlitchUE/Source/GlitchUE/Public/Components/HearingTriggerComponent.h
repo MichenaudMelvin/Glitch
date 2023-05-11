@@ -17,8 +17,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	//bool bRefreshActorListAtNewSound = false;
-
+	UPROPERTY()
 	TArray<UHearingComponent*> HearingComponents;
 
 public:

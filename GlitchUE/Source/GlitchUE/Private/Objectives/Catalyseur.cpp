@@ -22,8 +22,13 @@ FCompassSprite::FCompassSprite(USceneComponent* SceneComp, UStaticMeshComponent*
 }
 
 void FCompassSprite::DestroyComponents() const{
-	SceneComponent->DestroyComponent();
-	StaticMeshComponent->DestroyComponent();
+	if(IsValid(SceneComponent)){
+		SceneComponent->DestroyComponent();
+	}
+
+	if(IsValid(StaticMeshComponent)){
+		StaticMeshComponent->DestroyComponent();
+	}
 }
 
 ACatalyseur::ACatalyseur(){

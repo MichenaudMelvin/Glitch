@@ -70,6 +70,10 @@ void UHearingComponent::HearSound() const{
 
 bool UHearingComponent::IsClassValid(const AActor* ActorToCheck) const{
 	for(int i = 0; i < ClassToIgnore.Num(); i++){
+		if(!IsValid(ClassToIgnore[i])){
+			continue;
+		}
+
 		if(ActorToCheck->IsA(ClassToIgnore[i])){
 			return false;
 		}

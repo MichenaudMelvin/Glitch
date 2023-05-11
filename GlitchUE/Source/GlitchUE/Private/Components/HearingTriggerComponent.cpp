@@ -25,7 +25,7 @@ void UHearingTriggerComponent::BeginPlay(){
 
 void UHearingTriggerComponent::MakeNoise(AActor* Investigator, const FVector NoiseLocation, const float Radius){
 	for(int i = 0; i < HearingComponents.Num(); i++){
-		if(Investigator->GetDistanceTo(HearingComponents[i]->GetOwner()) > Radius){
+		if(IsValid(HearingComponents[i]) && Investigator->GetDistanceTo(HearingComponents[i]->GetOwner()) > Radius){
 			continue;
 		}
 

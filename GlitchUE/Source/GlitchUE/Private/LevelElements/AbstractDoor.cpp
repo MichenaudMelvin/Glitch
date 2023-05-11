@@ -32,7 +32,8 @@ AAbstractDoor::AAbstractDoor(){
 
 	NavLinkProxy = CreateDefaultSubobject<UChildActorComponent>(TEXT("Nav Link Proxy"));
 	NavLinkProxy->SetupAttachment(RootComp);
-	NavLinkProxy->SetChildActorClass(ANavLinkProxy::StaticClass());
+	// make the game crash, needs to be set in blueprint
+	//NavLinkProxy->SetChildActorClass(ANavLinkProxy::StaticClass());
 
 	NavModifier = CreateDefaultSubobject<UNavModifierComponent>(TEXT("Nav Modifier"));
 	NavModifier->SetAreaClass(UNavArea_Null::StaticClass());

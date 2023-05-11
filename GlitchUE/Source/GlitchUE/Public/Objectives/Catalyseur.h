@@ -23,8 +23,10 @@ struct FCompassSprite{
 
 	FCompassSprite(USceneComponent* SceneComp, UStaticMeshComponent* StaticMeshComp);
 
+	UPROPERTY()
 	USceneComponent* SceneComponent;
 
+	UPROPERTY()
 	UStaticMeshComponent* StaticMeshComponent;
 
 	void DestroyComponents() const;
