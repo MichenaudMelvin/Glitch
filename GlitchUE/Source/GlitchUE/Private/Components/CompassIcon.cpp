@@ -59,3 +59,7 @@ bool UCompassIcon::CanBeDrawn() const{
 void UCompassIcon::SetAllowDraw(const bool bAllow){
 	bAllowDraw = bAllow;
 }
+
+FVector UCompassIcon::GetTargetScale() const{
+	return FVector(TargetScale, TargetScale, TargetScale);
+}

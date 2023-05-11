@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PaperSpriteComponent.h"
 #include "Components/ActorComponent.h"
 #include "Player/MainPlayer.h"
 #include "CompassIcon.generated.h"
@@ -26,7 +25,7 @@ protected:
 
 	FVector OwnerLocation;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Appearence")
+	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
 	bool bAllowDraw = true;
 
 	/**
@@ -34,6 +33,9 @@ protected:
 	 */
 	UPROPERTY(EditAnywhere, Category = "Distance")
 	float DrawDistance = 500;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
+	float TargetScale = 0.25f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Class")
 	TSubclassOf<AActor> TargetCompassOwnerClass = AMainPlayer::StaticClass();
@@ -48,4 +50,6 @@ public:
 	bool CanBeDrawn() const;
 
 	void SetAllowDraw(const bool bAllow);
+
+	FVector GetTargetScale() const;
 };

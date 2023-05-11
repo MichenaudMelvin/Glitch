@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PatrolPoint.h"
 #include "AI/MainAICharacter.h"
+#include "Components/HearingComponent.h"
 #include "Engine/SplineMeshActor.h"
 #include "PatrolCharacter.generated.h"
 
@@ -20,6 +21,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
 	TArray<APatrolPoint*> PatrolPointsList;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hearing")
+	UHearingComponent* HearingComponent;
 
 public:
 	TArray<APatrolPoint*> GetPatrolPointList() const;

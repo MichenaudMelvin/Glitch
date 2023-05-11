@@ -136,8 +136,6 @@ void APlacableActor::AttachDroneToPlacable(APursuitDrone* NewDrone){
 	Damages += CurrentData->BoostDroneDamages;
 	AttackRange += CurrentData->BoostDroneAttackRange;
 
-	UE_LOG(LogTemp, Warning, TEXT("The boolean value is %s"), ( IsValid(this) ? TEXT("true") : TEXT("false") ));
-
 	CurrentDrone->AttachDrone(this, "");
 
 	FVector TargetLocation = GetActorLocation();
@@ -268,7 +266,7 @@ void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData, TA
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::Persistent, HitResult, true);
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
 
 	Cast<AConstructionZone>(HitResult.Actor)->OccupiedSlot(this);
 

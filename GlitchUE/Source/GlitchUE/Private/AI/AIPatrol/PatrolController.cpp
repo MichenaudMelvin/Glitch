@@ -19,20 +19,6 @@ APatrolController::APatrolController(const FObjectInitializer& ObjectInitializer
 	check(BlackboardAsset.Succeeded());
 
 	BlackboardData = BlackboardAsset.Object;
-
-	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception"));
-	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &APatrolController::PerceptionUpdate);
-
-	UAISenseConfig_Hearing* ConfigHearing = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
-
-	FAISenseAffiliationFilter AffiliationFilter;
-
-	AffiliationFilter.bDetectEnemies = true;
-	AffiliationFilter.bDetectFriendlies = true;
-	AffiliationFilter.bDetectNeutrals = true;
-
-	ConfigHearing->DetectionByAffiliation = AffiliationFilter;
-	AIPerception->ConfigureSense(*ConfigHearing);
 }
 
 void APatrolController::InitializeAIFromStart(){
@@ -62,20 +48,4 @@ void APatrolController::InitializeAI(const FAIData NewData){
 	Blackboard->SetValueAsVector("HearingLocation", NewData.HearingLocation);
 	Blackboard->SetValueAsBool("IsMovingToHearingLocation", NewData.bIsMovingToHearingLocation);
 
-}
-
-void APatrolController::PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus){
-	if(Actor->IsA(AMainAICharacter::StaticClass())){
-		return;
-	}
-
-	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == UAISense_Hearing::StaticClass()){
-		if(Blackboard->GetValueAsBool("HearSound")){
-			Blackboard->SetValueAsBool("IsMovingToHearingLocation", false);
-		} else{
-			Blackboard->SetValueAsBool("HearSound", true);
-		}
-
-		Blackboard->SetValueAsVector("HearingLocation", Stimulus.StimulusLocation);
-	}
 }

@@ -13,7 +13,6 @@ UCompassPivotIcon::UCompassPivotIcon(){
 
 	FTransform TargetTransform = FTransform::Identity;
 	TargetTransform.SetLocation(FVector(SpriteOffset, 0, 0));
-	TargetTransform.SetScale3D(FVector(0.25f, 0.25f, 0.25f));
 
 	ChildMesh->SetRelativeTransform(TargetTransform);
 
@@ -52,6 +51,7 @@ void UCompassPivotIcon::InitPivotIcon(UCompassComponent* CompassComp, UCompassIc
 	Compass = CompassComp;
 
 	CurrentCompassIcon = TargetCompassIcon;
+	ChildMesh->SetRelativeScale3D(CurrentCompassIcon->GetTargetScale());
 
 	TargetToLookAt = CurrentCompassIcon->GetOwner();
 	ChildMesh->SetStaticMesh(CurrentCompassIcon->GetOwnerMesh());
