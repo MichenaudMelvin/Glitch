@@ -117,6 +117,11 @@ void AAudioManager::SwitchToTowerDefenseMusic(){
 
 void AAudioManager::UpdateTowerDefenseMusic() {
 	TowerDefenseLayer++;
+	if (TowerDefenseLayer == 4)
+	{
+		TowerDefenseLayer = 0;
+		FMODAudioComp->Play();
+	}
 	FMODAudioComp->SetParameter("TowerDefense", TowerDefenseLayer);
 }
 
