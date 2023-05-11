@@ -2,7 +2,6 @@
 
 
 #include "Objectives/Catalyseur.h"
-#include "PaperSpriteComponent.h"
 #include "AI/Waves/Spawner.h"
 #include "AI/Waves/WaveManager.h"
 #include "Engine/Selection.h"
@@ -14,17 +13,22 @@
 
 FCompassSprite::FCompassSprite(){
 	SceneComponent = nullptr;
-	PaperSpriteComponent = nullptr;
+	StaticMeshComponent = nullptr;
 }
 
-FCompassSprite::FCompassSprite(USceneComponent* SceneComp, UPaperSpriteComponent* PaperSpriteComp){
+FCompassSprite::FCompassSprite(USceneComponent* SceneComp, UStaticMeshComponent* StaticMeshComp){
 	SceneComponent = SceneComp;
-	PaperSpriteComponent = PaperSpriteComp;
+	StaticMeshComponent = StaticMeshComp;
 }
 
-void FCompassSprite::DestroyComponents(){
-	SceneComponent->DestroyComponent();
-	PaperSpriteComponent->DestroyComponent();
+void FCompassSprite::DestroyComponents() const{
+	if(IsValid(SceneComponent)){
+		SceneComponent->DestroyComponent();
+	}
+
+	if(IsValid(StaticMeshComponent)){
+		StaticMeshComponent->DestroyComponent();
+	}
 }
 
 ACatalyseur::ACatalyseur(){
@@ -170,7 +174,7 @@ void ACatalyseur::GenerateCompass(){
 
 	const FVector ActorOffset = FVector(0, 0, 80);
 
-	const FTransform SpriteTransform = FTransform(FRotator(0, 90, 0), FVector(CompassRadius, 0, 0), FVector::OneVector);
+	const FTransform SpriteTransform = FTransform(FRotator::ZeroRotator, FVector(CompassRadius, 0, 0), FVector(InhibiteurIconScale, InhibiteurIconScale,  InhibiteurIconScale));
 
 	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
 		USceneComponent* CurrentSceneComp = Cast<USceneComponent>(AddComponentByClass(USceneComponent::StaticClass(), false, FTransform::Identity, false));
@@ -179,17 +183,17 @@ void ACatalyseur::GenerateCompass(){
 
 		CurrentSceneComp->SetRelativeLocation(ActorOffset);
 
-		UPaperSpriteComponent* CurrentIconComp = Cast<UPaperSpriteComponent>(AddComponentByClass(UPaperSpriteComponent::StaticClass(), false, FTransform::Identity, false));
+		UStaticMeshComponent* CurrentStaticMeshComp = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), false, FTransform::Identity, false));
 
-		CurrentIconComp->AttachToComponent(CurrentSceneComp, AttachmentTransformRules);
+		CurrentStaticMeshComp->AttachToComponent(CurrentSceneComp, AttachmentTransformRules);
 
-		CurrentIconComp->SetSprite(InhibiteurSprite);
-		CurrentIconComp->SetRelativeTransform(SpriteTransform);
-		CurrentIconComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+		CurrentStaticMeshComp->SetStaticMesh(InhibiteurMesh);
+		CurrentStaticMeshComp->SetRelativeTransform(SpriteTransform);
+		CurrentStaticMeshComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 
 		CurrentSceneComp->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(CurrentSceneComp->GetComponentLocation(), LinkedInhibiteur[i]->GetActorLocation()));
 
-		const FCompassSprite NewCompassSprite = FCompassSprite(CurrentSceneComp, CurrentIconComp);
+		const FCompassSprite NewCompassSprite = FCompassSprite(CurrentSceneComp, CurrentStaticMeshComp);
 		CompassSpriteList.Add(NewCompassSprite);
 
 		LinkedInhibiteur[i]->SetSpriteReference(CompassSpriteList[i]);

@@ -53,9 +53,7 @@ void AInhibiteur::ActiveObjectif(){
 	if(GameMode->GetPhases() == EPhases::Infiltration){
 		GameMode->LaunchStealthTimer();
 
-		if(SpriteReference.SceneComponent != nullptr && SpriteReference.PaperSpriteComponent != nullptr){
-			SpriteReference.DestroyComponents();
-		}
+		SpriteReference.DestroyComponents();
 	}
 }
 

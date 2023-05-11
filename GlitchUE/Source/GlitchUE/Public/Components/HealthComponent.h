@@ -20,7 +20,7 @@ UCLASS( ClassGroup=(Health), meta=(BlueprintSpawnableComponent) )
 class GLITCHUE_API UHealthComponent : public UActorComponent{
 	GENERATED_BODY()
 
-public:	
+public:
 	UHealthComponent();
 
 protected:

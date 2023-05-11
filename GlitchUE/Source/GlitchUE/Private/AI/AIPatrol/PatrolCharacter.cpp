@@ -13,6 +13,8 @@ APatrolCharacter::APatrolCharacter(){
 
 	GetMesh()->SetSkeletalMesh(SkelMesh.Object, false);
 
+	HearingComponent = CreateDefaultSubobject<UHearingComponent>(TEXT("Hearing Comp"));
+
 #if WITH_EDITORONLY_DATA
 	USelection::SelectObjectEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
 	USelection::SelectionChangedEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);

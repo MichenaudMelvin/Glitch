@@ -65,6 +65,8 @@ AMainPlayer::AMainPlayer(){
 
 	Compass = CreateDefaultSubobject<UCompassComponent>(TEXT("Compass"));
 
+	HearingTrigger = CreateDefaultSubobject<UHearingTriggerComponent>(TEXT("Hearing Trigger"));
+
 	#pragma region Timelines
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
@@ -384,7 +386,7 @@ void AMainPlayer::Jump(){
 	Super::Jump();
 
 	MainPlayerController->UnbindSneak();
-	UUsefullFunctions::MakeNoise(this, GetActorLocation(), JumpNoiseRange);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), JumpNoiseRange);
 
 	if(bUseCoyoteTime){
 		bUseCoyoteTime = false;
@@ -456,7 +458,7 @@ void AMainPlayer::MakeMovementNoise(){
 		break;
 	}
 
-	UUsefullFunctions::MakeNoise(this, GetActorLocation(), NoiseRadius);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius);
 }
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
@@ -917,7 +919,7 @@ void AMainPlayer::EndTL(){
 
 		bGoldsCanBeUpdated = true;
 
-		UUsefullFunctions::MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
+		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
 	}, 0.2f, false);
 }
 

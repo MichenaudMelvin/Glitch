@@ -21,13 +21,15 @@ struct FCompassSprite{
 	 */
 	FCompassSprite();
 
-	FCompassSprite(USceneComponent* SceneComp, UPaperSpriteComponent* PaperSpriteComp);
+	FCompassSprite(USceneComponent* SceneComp, UStaticMeshComponent* StaticMeshComp);
 
+	UPROPERTY()
 	USceneComponent* SceneComponent;
 
-	UPaperSpriteComponent* PaperSpriteComponent;
+	UPROPERTY()
+	UStaticMeshComponent* StaticMeshComponent;
 
-	void DestroyComponents();
+	void DestroyComponents() const;
 };
 
 UCLASS()
@@ -79,10 +81,13 @@ protected:
 
 	TArray<AInhibiteur*> ActivatedInhibiteursList;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
-	UPaperSprite* InhibiteurSprite;
+	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
+	UStaticMesh* InhibiteurMesh;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Inhibiteur")
+	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
+	float InhibiteurIconScale = 0.5;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
 	float CompassRadius = 100;
 
 	void GenerateCompass();

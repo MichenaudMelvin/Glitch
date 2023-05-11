@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/HearingTriggerComponent.h"
 #include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
 #include "GameFramework/Character.h"
@@ -63,6 +64,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Compass")
 	UCompassComponent* Compass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hearing")
+	UHearingTriggerComponent* HearingTrigger;
 
 	float RunFXLifeTime;
 
