@@ -69,6 +69,8 @@ void UHearingComponent::HearSound() const{
 }
 
 bool UHearingComponent::IsClassValid(const AActor* ActorToCheck) const{
+	return !ActorToCheck->IsA(AMainAICharacter::StaticClass());
+
 	for(int i = 0; i < ClassToIgnore.Num(); i++){
 		if(!IsValid(ClassToIgnore[i])){
 			continue;

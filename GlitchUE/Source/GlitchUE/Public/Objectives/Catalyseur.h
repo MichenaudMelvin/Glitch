@@ -56,8 +56,6 @@ protected:
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
-	virtual void OnConstruction(const FTransform& Transform) override;
-
 	UFUNCTION()
 	void OnSwitchPhases(EPhases CurrentPhase);
 
