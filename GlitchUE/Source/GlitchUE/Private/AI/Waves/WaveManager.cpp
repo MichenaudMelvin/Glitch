@@ -7,6 +7,7 @@
 #include "Objectives/Nexus.h"
 #include "AI/Waves/Spawner.h"
 #include "EngineUtils.h"
+#include "Audio/AudioManager.h"
 #include "Player/MainPlayerController.h"
 
 AWaveManager::AWaveManager(){
