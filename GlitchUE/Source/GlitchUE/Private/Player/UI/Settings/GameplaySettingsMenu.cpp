@@ -19,7 +19,7 @@ void UGameplaySettingsMenu::NativeOnInitialized(){
 	YAxisCheckBox->OnCheckStateChanged.AddDynamic(this, &UGameplaySettingsMenu::ToggleYAxis);
 
 	FOVSlider->GetSlider()->OnValueChanged.AddDynamic(this, &UGameplaySettingsMenu::UpdateFOVSlider);
-	SensibilitySlider->GetSlider()->OnValueChanged.AddDynamic(this, &UGameplaySettingsMenu::UpdateSensibilitySlider);
+	SensitivitySlider->GetSlider()->OnValueChanged.AddDynamic(this, &UGameplaySettingsMenu::UpdateSensitivitySlider);
 }
 
 void UGameplaySettingsMenu::NativeDestruct(){
@@ -38,8 +38,8 @@ void UGameplaySettingsMenu::UpdateFOVSlider(float Value){
 	Cast<UGameplaySettingsSave>(Settings)->CameraFOV = Value;
 }
 
-void UGameplaySettingsMenu::UpdateSensibilitySlider(float Value){
-	Cast<UGameplaySettingsSave>(Settings)->CameraSensibility = Value;
+void UGameplaySettingsMenu::UpdateSensitivitySlider(float Value){
+	Cast<UGameplaySettingsSave>(Settings)->CameraSensitivity = Value;
 }
 
 void UGameplaySettingsMenu::InitializeSettings(){
@@ -47,7 +47,7 @@ void UGameplaySettingsMenu::InitializeSettings(){
 
 	CastedSettings->bInvertCamYAxis ? YAxisCheckBox->SetCheckedState(ECheckBoxState::Checked) : YAxisCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
 	FOVSlider->SetValue(CastedSettings->CameraFOV);
-	SensibilitySlider->SetValue(CastedSettings->CameraSensibility);
+	SensitivitySlider->SetValue(CastedSettings->CameraSensitivity);
 
 	Super::InitializeSettings();
 }
@@ -58,5 +58,5 @@ void UGameplaySettingsMenu::UpdateSettings() const{
 
 	MainPlayer->GetFollowCamera()->SetFieldOfView(CastedSettings->CameraFOV);
 	MainPlayer->SetInvertAxis(CastedSettings->bInvertCamYAxis);
-	MainPlayer->SetSensibility(CastedSettings->CameraSensibility);
+	MainPlayer->SetSensitivity(CastedSettings->CameraSensitivity);
 }

@@ -187,25 +187,25 @@ void AWaveManager::RemoveAIFromList(const AMainAICharacter* AIToRemove){
 }
 
 void AWaveManager::NextWave(){
-
-#if !UE_BUILD_SHIPPING
-
-	// used for skip wave in debug
-	if(!bIsStopped){
-		for (int i = 0; i < ActiveSpawnerList.Num(); i++){
-			ActiveSpawnerList[i]->ForceEndSpawn();
-		}
-
-		TArray<AMainAICharacter*> AIList = WaveAIList.Array();
-
-		for (int i = 0; i < AIList.Num(); i++){
-			AIList[i]->GetHealthComp()->TakeMaxDamages();
-		}
-
-		return;
-	}
-
-#endif
+// je le garde pour plutard pour des debug functions
+// #if !UE_BUILD_SHIPPING
+//
+// 	// used for skip wave in debug
+// 	if(!bIsStopped){
+// 		for (int i = 0; i < ActiveSpawnerList.Num(); i++){
+// 			ActiveSpawnerList[i]->ForceEndSpawn();
+// 		}
+// 	
+// 		TArray<AMainAICharacter*> AIList = WaveAIList.Array();
+// 	
+// 		for (int i = 0; i < AIList.Num(); i++){
+// 			AIList[i]->GetHealthComp()->TakeMaxDamages();
+// 		}
+// 	
+// 		return;
+// 	}
+//
+// #endif
 
 	CurrentWaveNumber++;
 
@@ -216,7 +216,7 @@ void AWaveManager::NextWave(){
 		return;
 	}
 
-	SetWave(CurrentWaveNumber + 1);
+	SetWave(CurrentWaveNumber);
 }
 
 void AWaveManager::SetWave(const int NewWave){

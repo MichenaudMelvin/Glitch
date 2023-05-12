@@ -21,10 +21,13 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	virtual void Destroyed() override;
+
 	virtual void ActiveObjectif() override;
 
 	UAnimationAsset* ActivationAnim;
 
+	UPROPERTY()
 	FCompassSprite SpriteReference;
 
 	virtual void DesactivateObjectif() override;
@@ -49,5 +52,7 @@ public:
 	void OnObjectSelected(UObject* Object);
 
 	void OutlineLinkedObjects(const bool bOutline);
+
+	virtual void PreSave(const ITargetPlatform* TargetPlatform) override;
 #endif
 };

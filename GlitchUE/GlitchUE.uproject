@@ -13,7 +13,8 @@
 				"AIModule",
 				"UMG",
 				"NavigationSystem",
-				"CoreUObject"
+				"CoreUObject",
+				"PhysicsCore"
 			]
 		}
 	],

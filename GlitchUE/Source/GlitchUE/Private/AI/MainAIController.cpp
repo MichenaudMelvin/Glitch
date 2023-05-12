@@ -39,11 +39,23 @@ void AMainAIController::BeginPlay(){
 
 	const FString Settings = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OptionsString;
 
+#if WITH_EDITOR
+	// for simulation mode
+	if(Settings == "?SpectatorOnly=1"){
+		InitializeAIFromStart();
+		return;
+	}
+#endif
+
 	if(Settings != ""){
 		TArray<FString> LevelSettings;
 		Settings.ParseIntoArray(LevelSettings, TEXT("|"), true);
 
 		const UAbstractSave* LoadedSave = UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), FCString::Atoi(*LevelSettings[1]), false);
+
+		if(!IsValid(LoadedSave)){
+			return;
+		}
 
 		if(LevelSettings[0] == "?WorldSaveLoad" && LoadedSave->IsA(UStealthSave::StaticClass())){
 			//InitializeAI will be call by the gamemode

@@ -2,7 +2,6 @@
 
 
 #include "Objectives/Catalyseur.h"
-#include "PaperSpriteComponent.h"
 #include "AI/Waves/Spawner.h"
 #include "AI/Waves/WaveManager.h"
 #include "Engine/Selection.h"
@@ -14,31 +13,28 @@
 
 FCompassSprite::FCompassSprite(){
 	SceneComponent = nullptr;
-	PaperSpriteComponent = nullptr;
+	StaticMeshComponent = nullptr;
 }
 
-FCompassSprite::FCompassSprite(USceneComponent* SceneComp, UPaperSpriteComponent* PaperSpriteComp){
+FCompassSprite::FCompassSprite(USceneComponent* SceneComp, UStaticMeshComponent* StaticMeshComp){
 	SceneComponent = SceneComp;
-	PaperSpriteComponent = PaperSpriteComp;
+	StaticMeshComponent = StaticMeshComp;
 }
 
-void FCompassSprite::DestroyComponents(){
-	SceneComponent->DestroyComponent();
-	PaperSpriteComponent->DestroyComponent();
+void FCompassSprite::DestroyComponents() const{
+	if(IsValid(SceneComponent)){
+		SceneComponent->DestroyComponent();
+	}
+
+	if(IsValid(StaticMeshComponent)){
+		StaticMeshComponent->DestroyComponent();
+	}
 }
 
 ACatalyseur::ACatalyseur(){
 	TECHMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TECHMesh"));
 	TECHMesh->SetCanEverAffectNavigation(false);
 	TECHMesh->SetupAttachment(RootComponent);
-
-	CatalyeurZone = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CatalyseurZone"));
-	CatalyeurZone->SetupAttachment(RootComponent);
-	CatalyeurZone->SetCollisionResponseToAllChannels(ECR_Ignore);
-	CatalyeurZone->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
-	CatalyeurZone->OnComponentBeginOverlap.AddDynamic(this, &ACatalyseur::EnterCatalyseurZone);
-	CatalyeurZone->OnComponentEndOverlap.AddDynamic(this, &ACatalyseur::ExitCatalyseurZone);
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_MED_Catalyser_Open"));
 	check(ActivAnim.Succeeded());
@@ -52,6 +48,7 @@ ACatalyseur::ACatalyseur(){
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
+		USelection::SelectionChangedEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
 	#endif
 }
 
@@ -79,6 +76,27 @@ void ACatalyseur::BeginPlay(){
 	GameMode->OnSwitchPhases.AddDynamic(this, &ACatalyseur::OnSwitchPhases);
 
 	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
+
+		#if WITH_EDITOR
+		if(!IsValid(LinkedInhibiteur[i])){
+			UE_LOG(LogTemp, Warning, TEXT("LE CATALYSEUR %s A UN EMPLACEMENT VIDE D'INHIBITEUR"), *this->GetName());
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("LE CATALYSEUR %s A UN EMPLACEMENT VIDE D'INHIBITEUR"), *this->GetName()));
+			continue;
+		}
+		#endif
+
+		LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
+	}
+}
+
+void ACatalyseur::Destroyed(){
+	Super::Destroyed();
+
+#if WITH_EDITORONLY_DATA
+	OutlineLinkedObjects(false);
+#endif
 }
 
 void ACatalyseur::ActiveObjectif(){
@@ -93,6 +111,8 @@ void ACatalyseur::ActiveObjectif(){
 		case EPhases::TowerDefense:
 			StartGeneratingMoney();
 			Nexus->UpdateDissolver();
+			HealthComp->ResetHealth();
+			ToggleActivatedInhibiteursState(true);
 			break;
 	}
 }
@@ -109,7 +129,14 @@ void ACatalyseur::DesactivateObjectif(){
 		case EPhases::TowerDefense:
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
 			Nexus->UpdateDissolver();
+			ToggleActivatedInhibiteursState(false);
 			break;
+	}
+}
+
+void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs){
+	for(int i = 0; i < ActivatedInhibiteursList.Num(); i++){
+		ActivateInhibiteurs ? ActivatedInhibiteursList[i]->GetActivableComp()->ActivateObject() : ActivatedInhibiteursList[i]->GetActivableComp()->DesactivateObject();
 	}
 }
 
@@ -123,16 +150,6 @@ void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPla
 
 	if(ActivableComp->IsActivated() && WaveManager->IsStopped()){
 		WaveManager->NextWave();
-	}
-}
-
-void ACatalyseur::OnConstruction(const FTransform& Transform){
-	Super::OnConstruction(Transform);
-
-	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
-		if(IsValid(LinkedInhibiteur[i])){
-			LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
-		}
 	}
 }
 
@@ -160,7 +177,7 @@ void ACatalyseur::GenerateCompass(){
 
 	const FVector ActorOffset = FVector(0, 0, 80);
 
-	const FTransform SpriteTransform = FTransform(FRotator(0, 90, 0), FVector(CompassRadius, 0, 0), FVector::OneVector);
+	const FTransform SpriteTransform = FTransform(FRotator::ZeroRotator, FVector(CompassRadius, 0, 0), FVector(InhibiteurIconScale, InhibiteurIconScale,  InhibiteurIconScale));
 
 	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
 		USceneComponent* CurrentSceneComp = Cast<USceneComponent>(AddComponentByClass(USceneComponent::StaticClass(), false, FTransform::Identity, false));
@@ -169,17 +186,17 @@ void ACatalyseur::GenerateCompass(){
 
 		CurrentSceneComp->SetRelativeLocation(ActorOffset);
 
-		UPaperSpriteComponent* CurrentIconComp = Cast<UPaperSpriteComponent>(AddComponentByClass(UPaperSpriteComponent::StaticClass(), false, FTransform::Identity, false));
+		UStaticMeshComponent* CurrentStaticMeshComp = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), false, FTransform::Identity, false));
 
-		CurrentIconComp->AttachToComponent(CurrentSceneComp, AttachmentTransformRules);
+		CurrentStaticMeshComp->AttachToComponent(CurrentSceneComp, AttachmentTransformRules);
 
-		CurrentIconComp->SetSprite(InhibiteurSprite);
-		CurrentIconComp->SetRelativeTransform(SpriteTransform);
-		CurrentIconComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+		CurrentStaticMeshComp->SetStaticMesh(InhibiteurMesh);
+		CurrentStaticMeshComp->SetRelativeTransform(SpriteTransform);
+		CurrentStaticMeshComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 
 		CurrentSceneComp->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(CurrentSceneComp->GetComponentLocation(), LinkedInhibiteur[i]->GetActorLocation()));
 
-		const FCompassSprite NewCompassSprite = FCompassSprite(CurrentSceneComp, CurrentIconComp);
+		const FCompassSprite NewCompassSprite = FCompassSprite(CurrentSceneComp, CurrentStaticMeshComp);
 		CompassSpriteList.Add(NewCompassSprite);
 
 		LinkedInhibiteur[i]->SetSpriteReference(CompassSpriteList[i]);
@@ -194,38 +211,18 @@ void ACatalyseur::DeleteCompass(){
 	CompassSpriteList.Empty();
 }
 
-void ACatalyseur::EnterCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
-	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(true);
-
-		if(GameMode->GetLevelState() == ELevelState::Alerted){
-			GetWorld()->GetTimerManager().SetTimer(CatalyeurZoneTimer, [&]() {
-				GameMode->SetLevelState(ELevelState::Normal);
-			}, ResetLevelStateDuration, false);
-		}
-	}
-}
-
-void ACatalyseur::ExitCatalyseurZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
-	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(false);
-
-		GetWorld()->GetTimerManager().ClearTimer(CatalyeurZoneTimer);
-	}
-}
-
 void ACatalyseur::GenerateMoney(){
-	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteurs, EGoldsUpdateMethod::ReceiveGolds);
+	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteursList.Num(), EGoldsUpdateMethod::ReceiveGolds);
 }
 
 void ACatalyseur::StartGeneratingMoney(){
 	GetWorld()->GetTimerManager().SetTimer(MoneyTimerHandle, this, &ACatalyseur::GenerateMoney, GoldsTick, true);
 }
 
-void ACatalyseur::UpdateActivatedInhibiteurs(const bool Increase){
-	Increase ? ActivatedInhibiteurs++ : ActivatedInhibiteurs--;
+void ACatalyseur::AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd){
+	ActivatedInhibiteursList.Add(InhibiteurToAdd);
 
-	if(ActivatedInhibiteurs == LinkedInhibiteur.Num()){
+	if(ActivatedInhibiteursList.Num() == LinkedInhibiteur.Num()){
 		Player->UpdateGolds(GoldsBonus, EGoldsUpdateMethod::ReceiveGolds);
 	}
 }
@@ -235,12 +232,24 @@ void ACatalyseur::PreEditChange(FProperty* PropertyAboutToChange){
 	Super::PreEditChange(PropertyAboutToChange);
 
 	OutlineLinkedObjects(false);
+
+	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
+		if(IsValid(LinkedInhibiteur[i])){
+			LinkedInhibiteur[i]->SetOwnerCatalyseur(nullptr);
+		}
+	}
 }
 
 void ACatalyseur::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent){
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	OutlineLinkedObjects(true);
+
+	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
+		if(IsValid(LinkedInhibiteur[i])){
+			LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
+		}
+	}
 }
 
 
@@ -261,5 +270,11 @@ void ACatalyseur::OutlineLinkedObjects(const bool bOutline){
 			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(LinkedInhibiteur[i]->GetRootComponent()));
 		}
 	}
+}
+
+void ACatalyseur::PreSave(const ITargetPlatform* TargetPlatform){
+	Super::PreSave(TargetPlatform);
+
+	OutlineLinkedObjects(false);
 }
 #endif

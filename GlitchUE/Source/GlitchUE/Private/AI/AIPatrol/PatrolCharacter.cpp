@@ -5,6 +5,7 @@
 #include "Components/SplineMeshComponent.h"
 #include "Engine/Selection.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Kismet/GameplayStatics.h"
 
 APatrolCharacter::APatrolCharacter(){
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkelMesh(TEXT("/Game/Meshs/Drones/Seeker/SK_Seeker"));
@@ -12,14 +13,25 @@ APatrolCharacter::APatrolCharacter(){
 
 	GetMesh()->SetSkeletalMesh(SkelMesh.Object, false);
 
+	HearingComponent = CreateDefaultSubobject<UHearingComponent>(TEXT("Hearing Comp"));
+
 #if WITH_EDITORONLY_DATA
 	USelection::SelectObjectEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
+	USelection::SelectionChangedEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> EditorMesh(TEXT("/Game/Meshs/EditorOnly/SM_DronePath"));
 	check(EditorMesh.Succeeded());
 
 	CubeMesh = EditorMesh.Object;
 #endif
+}
+
+void APatrolCharacter::Destroyed(){
+	Super::Destroyed();
+
+	#if WITH_EDITORONLY_DATA
+		OutlineLinkedObjects(false);
+	#endif
 }
 
 TArray<APatrolPoint*> APatrolCharacter::GetPatrolPointList() const{
@@ -37,6 +49,19 @@ void APatrolCharacter::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	OutlineLinkedObjects(true);
+}
+
+void APatrolCharacter::PostEditUndo(){
+	Super::PostEditUndo();
+
+	OutlineLinkedObjects(false);
+
+	TArray<AActor*> SplineActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASplineMeshActor::StaticClass(), SplineActorList);
+
+	for(int i = 0; i < SplineActorList.Num(); i++){
+		SplineActorList[i]->Destroy();
+	}
 }
 
 void APatrolCharacter::OnObjectSelected(UObject* Object){
@@ -70,7 +95,11 @@ void APatrolCharacter::OutlineLinkedObjects(const bool bOutline){
 
 			CurrentSplineActor->GetSplineMeshComponent()->SetStartPosition(FVector::ZeroVector);
 
-			const int TargetIndex = PatrolPointsList.IsValidIndex(i + 1 ) && IsValid(PatrolPointsList[i + 1]) ? i + 1 : 0;
+			const int TargetIndex = PatrolPointsList.IsValidIndex(i + 1) && IsValid(PatrolPointsList[i + 1]) ? i + 1 : 0;
+
+			if(!IsValid(PatrolPointsList[TargetIndex])){
+				continue;
+			}
 
 			const FVector TargetLocation = PatrolPointsList[TargetIndex]->GetActorLocation() - PatrolPointsList[i]->GetActorLocation();
 			CurrentSplineActor->GetSplineMeshComponent()->SetEndPosition(TargetLocation);
@@ -84,6 +113,11 @@ void APatrolCharacter::OutlineLinkedObjects(const bool bOutline){
 
 		SplineList.Empty();
 	}
+}
 
+void APatrolCharacter::PreSave(const ITargetPlatform* TargetPlatform){
+	Super::PreSave(TargetPlatform);
+
+	OutlineLinkedObjects(false);
 }
 #endif

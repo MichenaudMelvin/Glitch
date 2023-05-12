@@ -86,8 +86,17 @@ void AConstructionZone::ActiveObjectif(){
 
 void AConstructionZone::DesactivateObjectif(){
 	ConstructionFXEmitter->StopEmitter();
+
+	GetSkeletalMeshComponent()->SetPlayRate(-1);
+	GetSkeletalMeshComponent()->Play(false);
 	TechMesh->SetPlayRate(-1);
 	TechMesh->Play(false);
+
+	if(IsValid(UnitInZone)){
+		FOnTimelineEvent FinishEvent;
+		FinishEvent.BindDynamic(UnitInZone, &APlacableActor::CallDestroy);
+		UnitInZone->Appear(true, FinishEvent);
+	}
 }
 
 void AConstructionZone::OccupiedSlot(APlacableActor* NewUnit){

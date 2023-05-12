@@ -16,6 +16,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool VSyncEnable = false;
 
+	UPROPERTY()
+	TEnumAsByte<EWindowMode::Type> WindowMode = EWindowMode::WindowedFullscreen;
+
 	UPROPERTY(BlueprintReadWrite)
 	FIntPoint Resolution = FIntPoint(1920, 1080);
 };

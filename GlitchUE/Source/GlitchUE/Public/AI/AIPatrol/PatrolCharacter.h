@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PatrolPoint.h"
 #include "AI/MainAICharacter.h"
+#include "Components/HearingComponent.h"
 #include "Engine/SplineMeshActor.h"
 #include "PatrolCharacter.generated.h"
 
@@ -16,8 +17,13 @@ public:
 	APatrolCharacter();
 
 protected:
+	virtual void Destroyed() override;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
 	TArray<APatrolPoint*> PatrolPointsList;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hearing")
+	UHearingComponent* HearingComponent;
 
 public:
 	TArray<APatrolPoint*> GetPatrolPointList() const;
@@ -27,9 +33,13 @@ public:
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
+	virtual void PostEditUndo() override;
+
 	void OnObjectSelected(UObject* Object);
 
 	void OutlineLinkedObjects(const bool bOutline);
+
+	virtual void PreSave(const ITargetPlatform* TargetPlatform) override;
 
 	UStaticMesh* CubeMesh;
 

@@ -32,6 +32,12 @@ protected:
 	UFUNCTION()
 	void ChangeResolution(FString SelectedItem, ESelectInfo::Type SelectionType);
 
+	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
+	UComboBoxString* WindowModeBox;
+
+	UFUNCTION()
+	void ChangeWindowMode(FString SelectedItem, ESelectInfo::Type SelectionType);
+
 	virtual void InitializeSettings() override;
 
 	virtual void UpdateSettings() const override;

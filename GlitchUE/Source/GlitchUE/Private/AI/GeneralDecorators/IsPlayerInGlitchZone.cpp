@@ -14,6 +14,15 @@ bool UIsPlayerInGlitchZone::CalculateRawConditionValue(UBehaviorTreeComponent& O
 
 	const UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
 
+#if WITH_EDITOR
+
+	// for simulation mode
+	if(!IsValid(CurrentBlackboard->GetValue<UBlackboardKeyType_Object>(Player.SelectedKeyName))){
+		return false;
+	}
+
+#endif
+
 	const UObject* PlayerObject = CurrentBlackboard->GetValue<UBlackboardKeyType_Object>(Player.SelectedKeyName);
 
 	if(bInvertResult){

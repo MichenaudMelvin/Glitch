@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/HearingTriggerComponent.h"
 #include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
 #include "GameFramework/Character.h"
@@ -14,6 +15,7 @@ class AMainPlayerController;
 class AMark;
 class AMainAICharacter;
 class APursuitDrone;
+class UCompassComponent;
 
 UENUM(BlueprintType)
 enum class EPlayerMovementMode : uint8{
@@ -59,6 +61,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* RunFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	UCompassComponent* Compass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hearing")
+	UHearingTriggerComponent* HearingTrigger;
 
 	float RunFXLifeTime;
 
@@ -266,17 +274,18 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
-	float Sensibility = 1;
+	float Sensitivity = 1;
 
 public:
 	void SetInvertAxis(const bool bNewValue);
 
-	void SetSensibility(const float NewSensibility);
+	void SetSensitivity(const float NewSensitivity);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	int Golds = 1000;
 
+	UPROPERTY(BlueprintReadWrite)
 	bool bGoldsCanBeUpdated = true;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
@@ -489,9 +498,6 @@ public:
 	UGameplaySettingsSave* GameplaySettingsSaveSave;
 
 	#pragma endregion
-
-	UFUNCTION(Exec)
-	void TestFunction();
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

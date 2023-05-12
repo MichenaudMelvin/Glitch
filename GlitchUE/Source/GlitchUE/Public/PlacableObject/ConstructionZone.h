@@ -48,10 +48,10 @@ protected:
 
 	APlacableActor* UnitInZone;
 
+public:
 	UFUNCTION(BlueprintCallable)
 	void OccupiedSlot(APlacableActor* NewUnit);
 
-public:
 	UFUNCTION(BlueprintCallable)
 	void UnoccupiedSlot();
 

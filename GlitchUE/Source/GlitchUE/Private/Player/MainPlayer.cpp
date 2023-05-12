@@ -21,6 +21,7 @@
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
+#include "Components/CompassComponent.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -62,6 +63,10 @@ AMainPlayer::AMainPlayer(){
 	GetMesh()->SetEnableGravity(false);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 
+	Compass = CreateDefaultSubobject<UCompassComponent>(TEXT("Compass"));
+
+	HearingTrigger = CreateDefaultSubobject<UHearingTriggerComponent>(TEXT("Hearing Trigger"));
+
 	#pragma region Timelines
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
@@ -90,7 +95,7 @@ void AMainPlayer::BeginPlay(){
 
 	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefullFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
 	FollowCamera->FieldOfView = GameplaySettingsSaveSave->CameraFOV;
-	Sensibility = GameplaySettingsSaveSave->CameraSensibility;
+	Sensitivity = GameplaySettingsSaveSave->CameraSensitivity;
 	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
@@ -146,8 +151,6 @@ void AMainPlayer::BeginPlay(){
 	GetCharacterMovement()->BrakingDecelerationWalking = OriginalBrakingDecelerationWalking;
 
 	StartRecord();
-
-	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
 
 	#pragma region FXCreation
 
@@ -371,19 +374,19 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensibility);
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensitivity);
 }
 
 void AMainPlayer::LookUpAtRate(const float Rate){
 	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * Sensibility);
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * Sensitivity);
 }
 
 void AMainPlayer::Jump(){
 	Super::Jump();
 
 	MainPlayerController->UnbindSneak();
-	UUsefullFunctions::MakeNoise(this, GetActorLocation(), JumpNoiseRange);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), JumpNoiseRange);
 
 	if(bUseCoyoteTime){
 		bUseCoyoteTime = false;
@@ -405,7 +408,7 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 }
 
 void AMainPlayer::AddControllerYawInput(float Val){
-	Super::AddControllerYawInput(Val * Sensibility);
+	Super::AddControllerYawInput(Val * Sensitivity);
 
 	MakeMovementNoise();
 }
@@ -415,7 +418,7 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 		Rate = Rate * -1;
 	}
 
-	Super::AddControllerPitchInput(Rate * Sensibility);
+	Super::AddControllerPitchInput(Rate * Sensitivity);
 
 	MakeMovementNoise();
 }
@@ -455,7 +458,7 @@ void AMainPlayer::MakeMovementNoise(){
 		break;
 	}
 
-	UUsefullFunctions::MakeNoise(this, GetActorLocation(), NoiseRadius);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius);
 }
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
@@ -506,8 +509,8 @@ void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;
 }
 
-void AMainPlayer::SetSensibility(const float NewSensibility){
-	Sensibility = NewSensibility;
+void AMainPlayer::SetSensitivity(const float NewSensitivity){
+	Sensitivity = NewSensitivity;
 }
 
 
@@ -916,12 +919,8 @@ void AMainPlayer::EndTL(){
 
 		bGoldsCanBeUpdated = true;
 
-		UUsefullFunctions::MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
+		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
 	}, 0.2f, false);
 }
 
 #pragma endregion
-
-void AMainPlayer::TestFunction(){
-	UE_LOG(LogTemp, Warning, TEXT("Test function called"));
-}

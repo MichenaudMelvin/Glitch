@@ -18,11 +18,4 @@ public:
 	virtual FAIData SaveAI() override;
 
 	virtual void InitializeAI(const FAIData NewData) override;
-
-protected:
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	UAIPerceptionComponent* AIPerception;
-
-	UFUNCTION()
-	void PerceptionUpdate(AActor* Actor, const FAIStimulus Stimulus);
 };

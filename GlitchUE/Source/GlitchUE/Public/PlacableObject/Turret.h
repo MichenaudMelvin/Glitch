@@ -66,7 +66,7 @@ protected:
 
 	virtual void ResetGlitchUpgrade() override;
 
-	virtual void AddDrone(AMainPlayer* MainPlayer) override;
+	virtual void AttachDroneToPlacable(APursuitDrone* NewDrone) override;
 
 	virtual void RemoveDrone(AMainPlayer* MainPlayer) override;
 
@@ -76,7 +76,7 @@ protected:
 
 	UStaticMeshComponent* FullMesh;
 
-	virtual void Appear(const bool ReverseEffect) override;
+	virtual void Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent) override;
 
 	virtual void FadeIn(float Alpha) override;
 
@@ -109,13 +109,13 @@ protected:
 	virtual void Shoot_Implementation();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AActor* GetFirstAI();
+	AActor* GetFirstAI() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AActor* GetMidAI();
-	
+	AActor* GetMidAI() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AActor* GetLastAI();
+	AActor* GetLastAI() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SelectTarget();
