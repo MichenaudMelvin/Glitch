@@ -76,6 +76,19 @@ void ACatalyseur::BeginPlay(){
 	GameMode->OnSwitchPhases.AddDynamic(this, &ACatalyseur::OnSwitchPhases);
 
 	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
+
+		#if WITH_EDITOR
+		if(!IsValid(LinkedInhibiteur[i])){
+			UE_LOG(LogTemp, Warning, TEXT("LE CATALYSEUR %s A UN EMPLACEMENT VIDE D'INHIBITEUR"), *this->GetName());
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("LE CATALYSEUR %s A UN EMPLACEMENT VIDE D'INHIBITEUR"), *this->GetName()));
+			continue;
+		}
+		#endif
+
+		LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
+	}
 }
 
 void ACatalyseur::Destroyed(){
@@ -137,16 +150,6 @@ void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPla
 
 	if(ActivableComp->IsActivated() && WaveManager->IsStopped()){
 		WaveManager->NextWave();
-	}
-}
-
-void ACatalyseur::OnConstruction(const FTransform& Transform){
-	Super::OnConstruction(Transform);
-
-	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
-		if(IsValid(LinkedInhibiteur[i])){
-			LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
-		}
 	}
 }
 

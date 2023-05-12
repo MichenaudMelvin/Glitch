@@ -274,12 +274,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
-	float Sensibility = 1;
+	float Sensitivity = 1;
 
 public:
 	void SetInvertAxis(const bool bNewValue);
 
-	void SetSensibility(const float NewSensibility);
+	void SetSensitivity(const float NewSensitivity);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")

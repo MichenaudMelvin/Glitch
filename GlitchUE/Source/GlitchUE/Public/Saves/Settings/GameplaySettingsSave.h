@@ -20,5 +20,5 @@ public:
 	float CameraFOV = 90;
 
 	UPROPERTY(BlueprintReadWrite)
-	float CameraSensibility = 1;
+	float CameraSensitivity = 1;
 };

@@ -30,9 +30,13 @@ void AInhibiteur::BeginPlay(){
 		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
 	}
 
-	if(!IsValid(OwnerCatalyseur)){
-		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'EST PAS AFFECTE A UN CATALYSEUR"), *this->GetName());
-	}
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		if(!IsValid(OwnerCatalyseur)){
+			UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'EST PAS AFFECTE A UN CATALYSEUR"), *this->GetName());
+		}
+	}, 0.2f, false);
 
 #endif
 }

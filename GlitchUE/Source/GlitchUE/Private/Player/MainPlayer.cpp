@@ -95,7 +95,7 @@ void AMainPlayer::BeginPlay(){
 
 	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefullFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
 	FollowCamera->FieldOfView = GameplaySettingsSaveSave->CameraFOV;
-	Sensibility = GameplaySettingsSaveSave->CameraSensibility;
+	Sensitivity = GameplaySettingsSaveSave->CameraSensitivity;
 	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
@@ -374,12 +374,12 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensibility);
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensitivity);
 }
 
 void AMainPlayer::LookUpAtRate(const float Rate){
 	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * Sensibility);
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * Sensitivity);
 }
 
 void AMainPlayer::Jump(){
@@ -408,7 +408,7 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 }
 
 void AMainPlayer::AddControllerYawInput(float Val){
-	Super::AddControllerYawInput(Val * Sensibility);
+	Super::AddControllerYawInput(Val * Sensitivity);
 
 	MakeMovementNoise();
 }
@@ -418,7 +418,7 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 		Rate = Rate * -1;
 	}
 
-	Super::AddControllerPitchInput(Rate * Sensibility);
+	Super::AddControllerPitchInput(Rate * Sensitivity);
 
 	MakeMovementNoise();
 }
@@ -509,8 +509,8 @@ void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;
 }
 
-void AMainPlayer::SetSensibility(const float NewSensibility){
-	Sensibility = NewSensibility;
+void AMainPlayer::SetSensitivity(const float NewSensitivity){
+	Sensitivity = NewSensitivity;
 }
 
 

@@ -27,6 +27,7 @@ protected:
 
 	UAnimationAsset* ActivationAnim;
 
+	UPROPERTY()
 	FCompassSprite SpriteReference;
 
 	virtual void DesactivateObjectif() override;
