@@ -24,6 +24,11 @@ void UHearingComponent::RegisterSound(AActor* Investigator, const FVector SoundL
 		return;
 	}
 
+	if (!IsValid(this)) {
+		UE_LOG(LogTemp, Warning, TEXT("hearing comp pas valid"));
+		return;
+	}
+
 	CurrentSoundLocation = SoundLocation;
 
 	TArray<AActor*> ActorsToIgnore;
