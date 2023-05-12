@@ -39,10 +39,10 @@ protected:
 	void UpdateFOVSlider(float Value);
 
 	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UCustomSlider* SensibilitySlider;
+	UCustomSlider* SensitivitySlider;
 
 	UFUNCTION()
-	void UpdateSensibilitySlider(float Value);
+	void UpdateSensitivitySlider(float Value);
 
 #pragma endregion
 

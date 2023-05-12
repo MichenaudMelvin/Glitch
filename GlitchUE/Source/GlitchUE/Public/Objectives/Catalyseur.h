@@ -92,6 +92,7 @@ protected:
 
 	void DeleteCompass();
 
+	UPROPERTY()
 	TArray<FCompassSprite> CompassSpriteList;
 
 	FTimerHandle MoneyTimerHandle;
