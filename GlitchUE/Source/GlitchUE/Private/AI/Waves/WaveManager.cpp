@@ -7,6 +7,7 @@
 #include "Objectives/Nexus.h"
 #include "AI/Waves/Spawner.h"
 #include "EngineUtils.h"
+#include "Audio/AudioManager.h"
 #include "Player/MainPlayerController.h"
 
 AWaveManager::AWaveManager(){
@@ -208,6 +209,8 @@ void AWaveManager::NextWave(){
 // #endif
 
 	CurrentWaveNumber++;
+
+	AudioManager->UpdateTowerDefenseMusic();
 
 	if(CurrentWaveNumber >= NumberOfWaves){
 		GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Blue, TEXT("Les vagues sont terminées"));

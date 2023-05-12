@@ -56,6 +56,8 @@ protected:
 	UFUNCTION()
 	void SetStealthAudio(const ELevelState LevelState);
 
+	float TowerDefenseLayer = 0;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
 	void FadeParameter(const FName Param, const bool bFadeIn = true);
@@ -70,6 +72,8 @@ public:
 	void FadeOutMusic(const FOnTimelineEvent FinishEvent, const float FadeDuration);
 
 	void SwitchToTowerDefenseMusic();
+
+	void UpdateTowerDefenseMusic();
 
 	UFMODAudioComponent* GetAudioComp() const;
 };
