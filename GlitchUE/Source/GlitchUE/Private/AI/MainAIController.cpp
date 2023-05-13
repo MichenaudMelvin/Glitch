@@ -47,6 +47,14 @@ void AMainAIController::BeginPlay(){
 	}
 #endif
 
+#if !UE_BUILD_SHIPPING
+	// for launch game
+	if(Settings == "?Name=Player"){
+		InitializeAIFromStart();
+		return;
+	}
+#endif
+
 	if(Settings != ""){
 		TArray<FString> LevelSettings;
 		Settings.ParseIntoArray(LevelSettings, TEXT("|"), true);
