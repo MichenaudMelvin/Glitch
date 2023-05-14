@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TchatLine.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ListView.h"
 #include "Tchat.generated.h"
@@ -19,6 +20,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Tchat")
 	UListView* TchatList;
+
+	TArray<UTchatLine*> TchatLines;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Appearance")
 	float AppearanceDuration = 2;
@@ -48,7 +51,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void CloseTchat();
 
+	void AddTchatLineDelay();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Tchat")
-	void AddTchatLine(const FString NewSpeaker, const FString NewMessage, FLinearColor SpeakerColor);
+	void AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor);
 };
