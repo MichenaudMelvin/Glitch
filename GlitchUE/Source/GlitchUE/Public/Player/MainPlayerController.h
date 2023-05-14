@@ -7,7 +7,10 @@
 #include "AbstractPlayerController.h"
 #include "GlitchUEGameMode.h"
 #include "UI/TimerWidget.h"
+#include "UI/PlacableSelection/HotBar.h"
+#include "UI/PlacableSelection/Wheel.h"
 #include "UI/Player/PlayerStats.h"
+#include "UI/Player/SightWidget.h"
 #include "UI/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -111,7 +114,6 @@ public:
 
 	#pragma region Movement
 
-public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Movement")
 	FKOnMoveForward OnMoveForward;
 
@@ -200,11 +202,6 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|UI")
 	FKOnOpenSelectionWheelReleased OnOpenSelectionWheelReleased;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "UI")
-	UTchat* Tchat;
-
-	UTchat* GetTchat() const;
-
 	#pragma endregion
 
 #pragma endregion
@@ -213,34 +210,32 @@ public:
 
 	#pragma region Actions
 
-public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void BindMovement();
+	virtual void BindMovement();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindMovement();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void BindCamera();
+	virtual void BindCamera();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindCamera();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void BindJump();
+	virtual void BindJump();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindJump();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void BindSneak();
+	virtual void BindSneak();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindSneak();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
-	void BindSprint();
-	void BindSprint_Implementation();
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
+	virtual void BindSprint();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
 	void BindConstruction();
@@ -254,13 +249,13 @@ public:
 	void UnbindSprint();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void BindGlitch();
-	
+	virtual void BindGlitch();
+
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindGlitch();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void BindInteraction();
+	virtual void BindInteraction();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindInteraction();
@@ -277,20 +272,23 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindPause();
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Delegates")
-	void BindMouseScroll();
-	virtual void BindMouseScroll_Implementation();
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
+	virtual void BindMouseScroll();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindMouseScroll();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
-	void BindOpenSelectionWheel();
-	void BindOpenSelectionWheel_Implementation();
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
+	virtual void BindOpenSelectionWheel();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindOpenSelectionWheel();
-	void UnbindOpenSelectionWheel_Implementation();
+
+	/**
+	 * @brief this one should call by an external element and should not be called in the player controller. To unbind this movement use select GameplayMode();
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Cling")
+	void BindClingMovement();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindAll();
@@ -303,7 +301,21 @@ public:
 	void PauseGame();
 	virtual void PauseGame_Implementation();
 
+#pragma region Widgets
+
 protected:
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	USightWidget* SightWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<USightWidget> SightWidgetClass;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	UTchat* Tchat;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UTchat> TchatWidgetClass;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
 	UTimerWidget* TimerWidget;
 
@@ -316,8 +328,48 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UPlayerStats> PlayerStatsWidgetClass;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UWheel* WheelWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UWheel> WheelWidgetWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets|Wheel")
+	float WheelTimeDilation = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets|Wheel")
+	float OpenWheelTimer = 0.05f;
+
+	FTimerHandle OpenWheelTimerHandle;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UHotBar* HotBarWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UHotBar> HotBarWidgetWidgetClass;
+
+	UFUNCTION()
+	void StartOpenWheelTimer();
+
+	UFUNCTION()
+	void OpenWheel();
+
+	UFUNCTION()
+	void CloseWheel();
+
+	UFUNCTION()
+	void ShowHotBar(float AxisValue);
+
+	FTimerHandle HotBarTimerHandle;
+
 public:
+	UTchat* GetTchatWidget() const;
+
+	USightWidget* GetSightWidget() const;
+
 	UTimerWidget* GetTimerWidget() const;
 
 	UPlayerStats* GetPlayerStatsWidget() const;
+
+#pragma endregion
 };

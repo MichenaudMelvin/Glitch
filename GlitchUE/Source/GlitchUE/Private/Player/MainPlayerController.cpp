@@ -2,6 +2,8 @@
 
 
 #include "Player/MainPlayerController.h"
+
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mark/Mark.h"
@@ -10,20 +12,29 @@ void AMainPlayerController::BeginPlay(){
 	Super::BeginPlay();
 
 	MainPlayer = Cast<AMainPlayer>(GetPawn());
+	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
+
+	CreatePlayerWidgets();
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
-	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
 	SelectNewGameplayMode(EGameplayMode::Normal);
-
-	CreatePlayerWidgets();
 }
 
 void AMainPlayerController::CreatePlayerWidgets_Implementation(){
+	Tchat = Cast<UTchat>(CreateWidget(this, TchatWidgetClass));
+
+	SightWidget = Cast<USightWidget>(CreateWidget(this, SightWidgetClass));
+
 	TimerWidget = Cast<UTimerWidget>(CreateWidget(this, TimerWidgetClass));
+
 	PlayerStatsWidget = Cast<UPlayerStats>(CreateWidget(this, PlayerStatsWidgetClass));
 	PlayerStatsWidget->AddToViewport();
 	PlayerStatsWidget->UpdateDisplayGolds(MainPlayer->GetGolds());
+
+	WheelWidget = Cast<UWheel>(CreateWidget(this, WheelWidgetWidgetClass));
+
+	HotBarWidget = Cast<UHotBar>(CreateWidget(this, HotBarWidgetWidgetClass));
 }
 
 #pragma region Bind
@@ -80,10 +91,6 @@ void AMainPlayerController::SetCanSave(const bool bValue){
 	bCanSave ? BindFastSaveAndLoad() : UnbindFastSaveAndLoad();
 }
 
-UTchat* AMainPlayerController::GetTchat() const{
-	return Tchat;
-}
-
 void AMainPlayerController::BindMovement(){
 	UnbindMovement();
 	OnMoveForward.AddUniqueDynamic(MainPlayer, &AMainPlayer::MoveForward);
@@ -134,11 +141,19 @@ void AMainPlayerController::UnbindSneak(){
 	OnSneakReleased.Clear();
 }
 
-void AMainPlayerController::BindSprint_Implementation(){
+void AMainPlayerController::BindSprint(){
 	UnbindSprint();
-	//switch (){
-	//
-	//}
+	switch (MainPlayer->GetMovementMode()){
+		case EPlayerMovementMode::Normal:
+			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			break;
+	case EPlayerMovementMode::Sneaking:
+			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::SneakToSprint);
+			break;
+		case EPlayerMovementMode::Sprinting:
+			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			break;
+	}
 }
 
 void AMainPlayerController::BindConstruction_Implementation(){}
@@ -234,15 +249,35 @@ void AMainPlayerController::UnbindPause(){
 	OnPause.Clear();
 }
 
-void AMainPlayerController::BindMouseScroll_Implementation(){}
+void AMainPlayerController::BindMouseScroll(){
+	UnbindMouseScroll();
+	OnMouseScroll.AddDynamic(HotBarWidget, &UHotBar::Scroll);
+	OnMouseScroll.AddDynamic(this, &AMainPlayerController::ShowHotBar);
+}
 
 void AMainPlayerController::UnbindMouseScroll(){
 	OnMouseScroll.Clear();
 }
 
-void AMainPlayerController::BindOpenSelectionWheel_Implementation(){}
+void AMainPlayerController::BindOpenSelectionWheel(){
+	UnbindOpenSelectionWheel();
+	OnOpenSelectionWheelPressed.AddDynamic(this, &AMainPlayerController::StartOpenWheelTimer);
+	OnOpenSelectionWheelReleased.AddDynamic(this, &AMainPlayerController::CloseWheel);
+}
 
-void AMainPlayerController::UnbindOpenSelectionWheel_Implementation(){}
+void AMainPlayerController::UnbindOpenSelectionWheel(){
+	OnOpenSelectionWheelPressed.Clear();
+	OnOpenSelectionWheelReleased.Clear();
+}
+
+void AMainPlayerController::BindClingMovement(){
+	UnbindMovement();
+	UnbindInteraction();
+	UnbindGlitch();
+
+	OnMoveForward.AddDynamic(MainPlayer, &AMainPlayer::ClingUp);
+	OnMoveRight.AddDynamic(MainPlayer, &AMainPlayer::ClingRight);
+}
 
 void AMainPlayerController::UnbindAll(){
 	UnbindMovement();
@@ -261,6 +296,55 @@ void AMainPlayerController::PauseGame_Implementation(){
 }
 
 #pragma endregion
+
+void AMainPlayerController::StartOpenWheelTimer(){
+	GetWorld()->GetTimerManager().SetTimer(OpenWheelTimerHandle, this, &AMainPlayerController::OpenWheel, OpenWheelTimer, false, OpenWheelTimer);
+}
+
+void AMainPlayerController::OpenWheel(){
+	WheelWidget->AddToViewport();
+	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, WheelWidget, EMouseLockMode::DoNotLock, false);
+
+	UnbindCamera();
+	UnbindMouseScroll();
+
+	bShowMouseCursor = true;
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WheelTimeDilation);
+}
+
+void AMainPlayerController::CloseWheel(){
+	if(GetWorld()->GetTimerManager().GetTimerElapsed(OpenWheelTimerHandle) > -1){
+		SelectNewGameplayMode(EGameplayMode::Normal);
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(OpenWheelTimerHandle);
+	WheelWidget->RemoveFromParent();
+
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+	BindCamera();
+
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+	bShowMouseCursor = false;
+}
+
+void AMainPlayerController::ShowHotBar(float AxisValue){
+	GetWorld()->GetTimerManager().ClearTimer(HotBarTimerHandle);
+
+	if(!HotBarWidget->IsInViewport()){
+		HotBarWidget->AddToViewport();
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(HotBarTimerHandle, HotBarWidget, &UHotBar::PlayFadeOutAnimation, 0.1f, false, 2.0f);
+
+}
+
+UTchat* AMainPlayerController::GetTchatWidget() const{
+	return Tchat;
+}
+
+USightWidget* AMainPlayerController::GetSightWidget() const{
+	return SightWidget;
+}
 
 UTimerWidget* AMainPlayerController::GetTimerWidget() const{
 	return TimerWidget;

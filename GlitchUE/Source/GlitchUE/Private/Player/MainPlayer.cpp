@@ -189,12 +189,16 @@ void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotat
 
 #pragma region Camera
 
-void AMainPlayer::CameraAim_Implementation(){
+void AMainPlayer::CameraAim(){
+	if(!MainPlayerController->GetSightWidget()->IsInViewport()){
+		MainPlayerController->GetSightWidget()->AddToViewport();
+	}
+
 	CameraAimTransition.Play();
 	CameraAimTimelineDirection = ETimelineDirection::Forward;
 }
 
-void AMainPlayer::CameraAimReverse_Implementation(){
+void AMainPlayer::CameraAimReverse(){
 	CameraAimTransition.Reverse();
 	CameraAimTimelineDirection = ETimelineDirection::Backward;
 }
@@ -203,11 +207,20 @@ void AMainPlayer::CameraStopAim(){
 	CameraAimTransition.Stop();
 }
 
-void AMainPlayer::CameraAimUpdate_Implementation(float Alpha){
+void AMainPlayer::CameraAimUpdate(float Alpha){
 	CameraBoom->SocketOffset = UKismetMathLibrary::VLerp(FVector::ZeroVector, AimOffset, Alpha);
+	MainPlayerController->GetSightWidget()->UpdateOpacity(Alpha);
 }
 
-void AMainPlayer::CameraAimFinished_Implementation(){}
+void AMainPlayer::CameraAimFinished(){
+	switch (CameraAimTimelineDirection){
+		case ETimelineDirection::Forward:
+			break;
+		case ETimelineDirection::Backward:
+			MainPlayerController->GetSightWidget()->RemoveFromParent();
+			break;
+	}
+}
 
 ETimelineDirection::Type AMainPlayer::GetCameraAimDirection() const{
 	return CameraAimTimelineDirection;
@@ -423,11 +436,15 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 	MakeMovementNoise();
 }
 
+void AMainPlayer::Dash_Implementation(){}
+
 void AMainPlayer::SneakPressed_Implementation(){}
 
 void AMainPlayer::SneakReleased_Implementation(){}
 
 void AMainPlayer::SprintToSneak_Implementation(){}
+
+void AMainPlayer::SneakToSprint_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
 
@@ -492,6 +509,34 @@ void AMainPlayer::MoveRight(const float Value){
 		AddMovementInput(Direction, Value);
 	}
 }
+
+void AMainPlayer::ClingUp(float AxisValue){
+	switch (FMath::TruncToInt(AxisValue)) {
+		case -1:
+			VerticalCling(EDirection::Down);
+			break;
+		case 1:
+			VerticalCling(EDirection::Up);
+			break;
+	}
+
+}
+
+void AMainPlayer::ClingRight(float AxisValue){
+	switch (FMath::TruncToInt(AxisValue)) {
+		case -1:
+			HorizontalCling(EDirection::Left);
+			break;
+		case 1:
+			HorizontalCling(EDirection::Right);
+			break;
+	}
+
+}
+
+void AMainPlayer::HorizontalCling_Implementation(const EDirection Direction){}
+
+void AMainPlayer::VerticalCling_Implementation(const EDirection Direction){}
 
 void AMainPlayer::PreviewObject(){
 	FHitResult Hit;

@@ -8,6 +8,7 @@
 #include "Components/InteractableComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
+#include "Helpers/UsefullEnums.h"
 #include "Saves/Settings/GameplaySettingsSave.h"
 #include "MainPlayer.generated.h"
 
@@ -77,25 +78,21 @@ public:
 
 	#pragma region Camera
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Camera")
 	void CameraAim();
-	virtual void CameraAim_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Camera")
 	void CameraAimReverse();
-	virtual void CameraAimReverse_Implementation();
 
 protected:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Camera")
 	void CameraStopAim();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera")
+	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void CameraAimUpdate(float Alpha);
-	virtual void CameraAimUpdate_Implementation(float Alpha);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera")
+	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void CameraAimFinished();
-	virtual void CameraAimFinished_Implementation();
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FVector AimOffset = FVector(75, 75, 60);
@@ -196,6 +193,20 @@ public:
 	/** Called for side to side input */
 	void MoveRight(const float Value);
 
+	UFUNCTION()
+	void ClingUp(float AxisValue);
+
+	UFUNCTION()
+	void ClingRight(float AxisValue);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movevement|Cling")
+	void HorizontalCling(const EDirection Direction);
+	virtual void HorizontalCling_Implementation(const EDirection Direction);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movevement|Cling")
+	void VerticalCling(const EDirection Direction);
+	virtual void VerticalCling_Implementation(const EDirection Direction);
+
 	/** 
 	 * Called via input to turn at a given rate. 
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -224,6 +235,10 @@ public:
 	virtual void AddControllerPitchInput(float Rate) override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void Dash();
+	void Dash_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SneakPressed();
 	void SneakPressed_Implementation();
 
@@ -234,6 +249,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SprintToSneak();
 	void SprintToSneak_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void SneakToSprint();
+	void SneakToSprint_Implementation();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void ResetMovement();
