@@ -18,12 +18,13 @@ protected:
 
 	int CurrentIndex = 0;
 
-	UFUNCTION(BlueprintCallable)
-	void Scroll(const float Value);
-
 	UFUNCTION()
 	void SelectIndex();
 
-	UFUNCTION(BlueprintCallable)
+public:
+	UFUNCTION()
+	void Scroll(const float Value);
+
+	UFUNCTION()
 	void PlayFadeOutAnimation();
 };
