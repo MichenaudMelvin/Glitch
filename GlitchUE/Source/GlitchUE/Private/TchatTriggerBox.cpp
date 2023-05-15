@@ -19,7 +19,7 @@ void ATchatTriggerBox::EnterTriggerBox(UPrimitiveComponent* OverlappedComp, AAct
 
 void ATchatTriggerBox::WriteMessages(){
 
-	CurrentController->GetTchat()->AddTchatLine(TchatMessageList[Index].Speaker, TchatMessageList[Index].TextMessage, TchatMessageList[Index].SpeakerColor);
+	CurrentController->GetTchatWidget()->AddTchatLine(TchatMessageList[Index].Speaker, TchatMessageList[Index].TextMessage, TchatMessageList[Index].SpeakerColor);
 
 	Index++;
 
