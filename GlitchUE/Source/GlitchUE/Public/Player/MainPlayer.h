@@ -284,13 +284,6 @@ public:
 	void SetInGlitchZone(const bool bNewValue);
 
 protected:
-	UFUNCTION(BlueprintCallable)
-	void PlaceObject();
-
-	UFUNCTION(BlueprintCallable)
-	void PreviewObject();
-
-	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
 	float Sensitivity = 1;
@@ -310,7 +303,26 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	UPlacableActorData* CurrentPlacableActorData;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Construction")
+	FVector TargetPreviewActorLocation;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Construction")
+	AConstructionZone* CurrentFocusedConstructionZone;
+
 public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Construction")
+	void PreviewPlacableObject();
+	virtual void PreviewPlacableObject_Implementation();
+
+	UFUNCTION()
+	void PlacePlacableActor();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Construction")
+	void StopPreviewMovement();
+	virtual void StopPreviewMovement_Implementation();
+
+	APreviewPlacableActor* GetPreviewPlacableActor() const;
+
 	void SetPlacableActorData(UPlacableActorData* Data);
 
 	UPlacableActorData* GetCurrentPlacableActorData() const;

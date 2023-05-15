@@ -72,6 +72,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnOpenSelectionWheelReleased);
 
 #pragma endregion
 
+DECLARE_DELEGATE_OneParam(FInputSwitchInventoryDelegate, const int32);
+
 UENUM(BlueprintType)
 enum class EGameplayMode : uint8 {
 
@@ -88,6 +90,8 @@ class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void SetupInputComponent() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void CreatePlayerWidgets();
@@ -237,13 +241,11 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	virtual void BindSprint();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
-	void BindConstruction();
-	void BindConstruction_Implementation();
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
+	virtual void BindConstruction();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Delegates")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindConstruction();
-	void UnbindConstruction_Implementation();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindSprint();
@@ -300,6 +302,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Pause")
 	void PauseGame();
 	virtual void PauseGame_Implementation();
+
+	FTimerHandle PreviewObjectTimerHandle;
 
 #pragma region Widgets
 
@@ -372,4 +376,6 @@ public:
 	UPlayerStats* GetPlayerStatsWidget() const;
 
 #pragma endregion
+
+	void SwitchThing(const int32 Int);
 };

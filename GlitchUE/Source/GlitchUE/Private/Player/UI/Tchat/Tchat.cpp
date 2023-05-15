@@ -11,6 +11,7 @@ void UTchat::NativeConstruct(){
 	PlayAnimation(AppearAnimation, 0, 1, EUMGSequencePlayMode::Forward, AppearanceDuration, false);
 
 	TchatList->SetScrollbarVisibility(ESlateVisibility::Hidden);
+	TchatList->ScrollToBottom();
 }
 
 void UTchat::CheckDisappearance(){
@@ -55,8 +56,7 @@ void UTchat::CloseTchat(){
 }
 
 void UTchat::AddTchatLineDelay(){
-	UTchatLine* LastWidget = Cast<UTchatLine>(TchatList->GetDisplayedEntryWidgets()[TchatList->GetDisplayedEntryWidgets().Num() - 1]);
-	TchatLines.Add(LastWidget);
+	LastTchatLine = Cast<UTchatLine>(TchatList->GetDisplayedEntryWidgets()[TchatList->GetDisplayedEntryWidgets().Num() - 1]);
 }
 
 void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
@@ -77,7 +77,7 @@ void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, co
 	const bool bIsSameSpeaker = LastSpeaker == NewSpeaker;
 
 	if(TchatList->GetNumItems() > 0){
-		TchatLines[TchatLines.Num() - 1]->SetLineAsRead(bIsSameSpeaker);
+		LastTchatLine->SetLineAsRead(bIsSameSpeaker);
 
 		UTchatLineData* CurrentData = Cast<UTchatLineData>(TchatList->GetItemAt(TchatList->GetNumItems() - 1));
 		CurrentData->bIsMessageRead = true;
@@ -98,5 +98,5 @@ void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, co
 
 	// forced to use a timer because the display entry list is not updated instantly
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::AddTchatLineDelay, 0.01f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::AddTchatLineDelay, 0.001f, false);
 }

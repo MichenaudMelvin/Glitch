@@ -23,6 +23,7 @@
 #include "Mark/Mark.h"
 #include "Components/CompassComponent.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
+#include "PlacableObject/ConstructionZone.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -246,6 +247,26 @@ void AMainPlayer::CameraFOVUpdate(float Alpha){
 	FollowCamera->FieldOfView = FMath::Lerp(CurrentFOVValue, TargetFOVValue, Alpha);
 }
 
+void AMainPlayer::PreviewPlacableObject_Implementation(){}
+
+void AMainPlayer::PlacePlacableActor(){
+	if(!PreviewPlacableActor->CanBePlaced()){
+		return;
+	}
+
+	UpdateGolds(CurrentPlacableActorData->Cost, EGoldsUpdateMethod::BuyPlacable);
+	APlacableActor* NewPlacable = GetWorld()->SpawnActor<APlacableActor>(CurrentPlacableActorData->ClassToSpawn, TargetPreviewActorLocation, FRotator::ZeroRotator, FActorSpawnParameters());
+	NewPlacable->SetNexus(Nexus);
+	NewPlacable->SetData(CurrentPlacableActorData);
+	CurrentFocusedConstructionZone->OccupiedSlot(NewPlacable);
+}
+
+void AMainPlayer::StopPreviewMovement_Implementation(){}
+
+APreviewPlacableActor* AMainPlayer::GetPreviewPlacableActor() const{
+	return PreviewPlacableActor;
+}
+
 void AMainPlayer::SetPlacableActorData(UPlacableActorData* Data){
 	CurrentPlacableActorData = Data;
 	PreviewPlacableActor->SetData(CurrentPlacableActorData);
@@ -266,7 +287,7 @@ void AMainPlayer::UpdateGolds(int Amount, const EGoldsUpdateMethod GoldsUpdateMe
 
 	switch (GoldsUpdateMethod){
 		case EGoldsUpdateMethod::BuyPlacable:
-			// code here
+			Amount = - Amount;
 			break;
 		case EGoldsUpdateMethod::TakeDamages:
 			Amount = - Amount;
@@ -538,32 +559,12 @@ void AMainPlayer::HorizontalCling_Implementation(const EDirection Direction){}
 
 void AMainPlayer::VerticalCling_Implementation(const EDirection Direction){}
 
-void AMainPlayer::PreviewObject(){
-	FHitResult Hit;
-	const FCollisionQueryParams QueryParams;
-	const FCollisionResponseParams ResponseParam;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PreviewPlacableActor->CanBePlaced()){
-		PlacableActorLocation = Hit.Location;
-		PreviewPlacableActor->SetActorLocation(PlacableActorLocation.GridSnap(100));
-	} else {
-		PreviewPlacableActor->ResetActor();
-	}
-}
-
 void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;
 }
 
 void AMainPlayer::SetSensitivity(const float NewSensitivity){
 	Sensitivity = NewSensitivity;
-}
-
-
-void AMainPlayer::PlaceObject(){
-	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(PlacableActorLocation);
-	const FActorSpawnParameters ActorsSpawnParameters;
-	GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), SpawnTransform, ActorsSpawnParameters);
 }
 
 AMainPlayerController* AMainPlayer::GetMainPlayerController() const{

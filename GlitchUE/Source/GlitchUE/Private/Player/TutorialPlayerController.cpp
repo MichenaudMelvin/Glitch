@@ -45,6 +45,12 @@ void ATutorialPlayerController::BindInteraction(){
 	}
 }
 
+void ATutorialPlayerController::BindConstruction(){
+	if(bShouldBindConstruction){
+		Super::BindConstruction();
+	}
+}
+
 void ATutorialPlayerController::BindOpenSelectionWheel(){
 	if(bShouldBindConstruction){
 		Super::BindOpenSelectionWheel();

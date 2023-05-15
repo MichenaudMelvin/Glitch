@@ -25,6 +25,8 @@ protected:
 
 	virtual void BindInteraction() override;
 
+	virtual void BindConstruction() override;
+
 	virtual void BindOpenSelectionWheel() override;
 
 	virtual void BindMouseScroll() override;

@@ -21,6 +21,15 @@ void AMainPlayerController::BeginPlay(){
 	SelectNewGameplayMode(EGameplayMode::Normal);
 }
 
+void AMainPlayerController::SetupInputComponent(){
+	Super::SetupInputComponent();
+
+	// FInputActionBinding test;
+	// test.ActionDelegate.GetDelegateForManualSet().bind OnJumpPressed;
+	// InputComponent->BindAction<FKOnJumpPressed>("Jump", IE_Pressed, this, &FKOnJumpPressed::Broadcast, 1);
+	// InputComponent->BindAction("Jump", IE_Pressed, OnJumpPressed, &FKOnJumpPressed::Broadcast);
+}
+
 void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	Tchat = Cast<UTchat>(CreateWidget(this, TchatWidgetClass));
 
@@ -156,9 +165,21 @@ void AMainPlayerController::BindSprint(){
 	}
 }
 
-void AMainPlayerController::BindConstruction_Implementation(){}
+void AMainPlayerController::BindConstruction(){
+	GetWorld()->GetTimerManager().SetTimer(PreviewObjectTimerHandle, MainPlayer, &AMainPlayer::PreviewPlacableObject, 0.1f, true);
+	OnPlaceObject.AddDynamic(MainPlayer, &AMainPlayer::PlacePlacableActor);
+	BindMouseScroll();
+}
 
-void AMainPlayerController::UnbindConstruction_Implementation(){}
+void AMainPlayerController::UnbindConstruction(){
+	GetWorld()->GetTimerManager().ClearTimer(PreviewObjectTimerHandle);
+	OnPlaceObject.Clear();
+
+	if(IsValid(MainPlayer->GetPreviewPlacableActor())){
+		MainPlayer->StopPreviewMovement();
+		MainPlayer->GetPreviewPlacableActor()->ResetActor();
+	}
+}
 
 void AMainPlayerController::UnbindSprint(){
 	OnSprint.Clear();

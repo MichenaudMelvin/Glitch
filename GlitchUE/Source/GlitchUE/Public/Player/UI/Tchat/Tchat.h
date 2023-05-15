@@ -21,7 +21,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Tchat")
 	UListView* TchatList;
 
-	TArray<UTchatLine*> TchatLines;
+	UTchatLine* LastTchatLine;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Appearance")
 	float AppearanceDuration = 2;
