@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/HearingTriggerComponent.h"
 #include "PlacableObject/PreviewPlacableActor.h"
 #include "Components/InteractableComponent.h"
-#include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
+#include "Helpers/UsefullEnums.h"
 #include "Saves/Settings/GameplaySettingsSave.h"
 #include "MainPlayer.generated.h"
 
@@ -15,12 +16,20 @@ class AMainPlayerController;
 class AMark;
 class AMainAICharacter;
 class APursuitDrone;
+class UCompassComponent;
 
 UENUM(BlueprintType)
 enum class EPlayerMovementMode : uint8{
 	Normal,
 	Sneaking,
 	Sprinting,
+};
+
+UENUM(BlueprintType)
+enum class EGoldsUpdateMethod : uint8{
+	BuyPlacable,
+	TakeDamages,
+	ReceiveGolds,
 };
 
 UCLASS(config=Game)
@@ -34,6 +43,7 @@ class AMainPlayer : public ACharacter, public IGlitchInterface{
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
 public:
 	AMainPlayer();
 
@@ -53,6 +63,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* RunFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	UCompassComponent* Compass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hearing")
+	UHearingTriggerComponent* HearingTrigger;
+
 	float RunFXLifeTime;
 
 	float RunFXLifeTimeDeviation;
@@ -62,25 +78,21 @@ public:
 
 	#pragma region Camera
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Camera")
 	void CameraAim();
-	virtual void CameraAim_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Camera")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Camera")
 	void CameraAimReverse();
-	virtual void CameraAimReverse_Implementation();
 
 protected:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Camera")
 	void CameraStopAim();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera")
+	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void CameraAimUpdate(float Alpha);
-	virtual void CameraAimUpdate_Implementation(float Alpha);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Camera")
+	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void CameraAimFinished();
-	virtual void CameraAimFinished_Implementation();
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FVector AimOffset = FVector(75, 75, 60);
@@ -117,7 +129,6 @@ protected:
 	void CameraFOVUpdate(float Alpha);
 
 	#pragma endregion
-
 
 	#pragma region Movement
 
@@ -182,6 +193,20 @@ public:
 	/** Called for side to side input */
 	void MoveRight(const float Value);
 
+	UFUNCTION()
+	void ClingUp(float AxisValue);
+
+	UFUNCTION()
+	void ClingRight(float AxisValue);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movevement|Cling")
+	void HorizontalCling(const EDirection Direction);
+	virtual void HorizontalCling_Implementation(const EDirection Direction);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movevement|Cling")
+	void VerticalCling(const EDirection Direction);
+	virtual void VerticalCling_Implementation(const EDirection Direction);
+
 	/** 
 	 * Called via input to turn at a given rate. 
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -210,6 +235,10 @@ public:
 	virtual void AddControllerPitchInput(float Rate) override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void Dash();
+	void Dash_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SneakPressed();
 	void SneakPressed_Implementation();
 
@@ -220,6 +249,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SprintToSneak();
 	void SprintToSneak_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void SneakToSprint();
+	void SneakToSprint_Implementation();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void ResetMovement();
@@ -236,9 +269,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Placable")
 	APreviewPlacableActor* PreviewPlacableActor;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	UHealthComponent* HealthComp;
-
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsInGlitchZone = false;
 
@@ -249,50 +279,72 @@ protected:
 public:
 	AMainPlayerController* GetMainPlayerController() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UHealthComponent* GetHealthComp() const;
-
 	bool IsInGlitchZone() const;
 
 	void SetInGlitchZone(const bool bNewValue);
 
 protected:
-	UFUNCTION(BlueprintCallable)
-	void PlaceObject();
-
-	UFUNCTION(BlueprintCallable)
-	void PreviewObject();
-
-	UPROPERTY(BlueprintReadWrite)
 	bool bInvertYAxis;
 
-	float Sensibility = 1;
+	float Sensitivity = 1;
 
 public:
 	void SetInvertAxis(const bool bNewValue);
 
-	void SetSensibility(const float NewSensibility);
+	void SetSensitivity(const float NewSensitivity);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
-	int Golds = 0;
+	int Golds = 1000;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bGoldsCanBeUpdated = true;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
 	UPlacableActorData* CurrentPlacableActorData;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Construction")
+	FVector TargetPreviewActorLocation;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Construction")
+	AConstructionZone* CurrentFocusedConstructionZone;
+
 public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Construction")
+	void PreviewPlacableObject();
+	virtual void PreviewPlacableObject_Implementation();
+
+	UFUNCTION()
+	void PlacePlacableActor();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Construction")
+	void StopPreviewMovement();
+	virtual void StopPreviewMovement_Implementation();
+
+	APreviewPlacableActor* GetPreviewPlacableActor() const;
+
 	void SetPlacableActorData(UPlacableActorData* Data);
 
 	UPlacableActorData* GetCurrentPlacableActorData() const;
 
 	int GetGolds() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Construction")
-	void GiveGolds(const int Amount);
-	virtual void GiveGolds_Implementation(const int Amount);
+	UFUNCTION(BlueprintCallable, Exec, Category = "Golds")
+	void UpdateGolds(int Amount = 0, const EGoldsUpdateMethod GoldsUpdateMethod = EGoldsUpdateMethod::ReceiveGolds);
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Golds")
+	void SetGolds(const int Amount = 1000);
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Golds")
+	void KillPlayer();
+
+	bool CanUpdateGolds() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Loose")
 	void Loose();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	int RemovedGlitchGolds = -100;
 
 protected:
 	#pragma region Interaction
@@ -477,9 +529,6 @@ public:
 	UGameplaySettingsSave* GameplaySettingsSaveSave;
 
 	#pragma endregion
-
-	UFUNCTION(Exec)
-	void TestFunction();
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

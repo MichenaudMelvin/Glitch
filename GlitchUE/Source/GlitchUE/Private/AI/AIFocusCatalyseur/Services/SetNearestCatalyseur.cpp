@@ -60,7 +60,6 @@ void USetNearestCatalyseur::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 	}
 
 	if(IsValid(NearestCatalyseur)){
-		UE_LOG(LogTemp, Warning, TEXT("Nearest catalyseur is : %s"), *NearestCatalyseur->GetName());
 		CurrentBlackboard->SetValue<UBlackboardKeyType_Vector>(NearestCatalyseurLocation.GetSelectedKeyID(), NearestCatalyseur->GetActorLocation());
 		CurrentBlackboard->SetValue<UBlackboardKeyType_Object>(NearestCatalyseurKey.SelectedKeyName, NearestCatalyseur);
 	}

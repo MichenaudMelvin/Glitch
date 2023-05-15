@@ -106,8 +106,8 @@ void ATurret::ResetGlitchUpgrade(){
 	TurretVision->SetSphereRadius(AttackRange, true);
 }
 
-void ATurret::AddDrone(AMainPlayer* MainPlayer){
-	Super::AddDrone(MainPlayer);
+void ATurret::AttachDroneToPlacable(APursuitDrone* NewDrone){
+	Super::AttachDroneToPlacable(NewDrone);
 
 	RotateTimeline.SetPlayRate(1/AttackRate);
 	TurretVision->SetSphereRadius(AttackRange, true);
@@ -147,7 +147,7 @@ void ATurret::SetData(UPlacableActorData* NewData){
 	FocusMethod = Data->FocusMethod;
 }
 
-void ATurret::Appear(const bool ReverseEffect){
+void ATurret::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){
 	FullMesh = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), true, GetActorTransform(), false));
 
 	FullMesh->SetStaticMesh(CurrentData->FullMesh);
@@ -162,7 +162,7 @@ void ATurret::Appear(const bool ReverseEffect){
 		TurretHead->SetVisibility(false);
 	}
 
-	Super::Appear(ReverseEffect);
+	Super::Appear(ReverseEffect, AppearFinishEvent);
 }
 
 void ATurret::FadeIn(float Alpha){
@@ -183,7 +183,7 @@ void ATurret::CanAttack(){
 
 	ActorsToIgnore.Add(this);
 
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TurretHead->GetComponentLocation(), GetFirstAI()->GetActorLocation(), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), TurretHead->GetComponentLocation(), GetFirstAI()->GetActorLocation(), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, Hit, true);
 
 	if (Hit.GetActor()->IsA(AMainAICharacter::StaticClass())){
 		GetWorldTimerManager().ClearTimer(CanAttackTimer);
@@ -193,6 +193,10 @@ void ATurret::CanAttack(){
 }
 
 void ATurret::Attack_Implementation(){
+	if(bIsAppearing){
+		return;
+	}
+
 	SelectTarget();
 	Super::Attack_Implementation();
 }
@@ -201,9 +205,7 @@ void ATurret::EndAttack() {
 	if (DoesAIListContainSomething()) {
 		SelectTarget();
 		if (!CanSeeThroughWalls) {
-			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, [&]() {
-				CanAttack();
-				}, 0.1f, true);
+			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, this, &ATurret::CanAttack, 0.1f, true);
 		}else {
 			Attack();
 		}
@@ -216,24 +218,24 @@ void ATurret::FinishAttacking_Implementation(){}
 
 void ATurret::Shoot_Implementation(){}
 
-AActor* ATurret::GetFirstAI(){
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Cast<AActor>(Nexus))[0];
+AActor* ATurret::GetFirstAI() const{
+	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[0];
 }
 
-AActor* ATurret::GetMidAI(){
+AActor* ATurret::GetMidAI() const{
 	if (GetSortedAIList().Num() == 0) {
 		return nullptr;
 	}
 
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Cast<AActor>(Nexus))[GetSortedAIList().Num() / 2];
+	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[GetSortedAIList().Num() / 2];
 }
 
-AActor* ATurret::GetLastAI(){
+AActor* ATurret::GetLastAI() const{
 	if (GetSortedAIList().Num() == 0) {
 		return nullptr;
 	}
 
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Cast<AActor>(Nexus))[GetSortedAIList().Num() - 1];
+	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[GetSortedAIList().Num() - 1];
 }
 
 void ATurret::SelectTarget(){
@@ -271,9 +273,7 @@ void ATurret::OnReachVision(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	if (AIList.Num() == 1) {
 
 		if (!CanSeeThroughWalls) {
-			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, [&]() {
-				CanAttack();
-			}, 0.1f, true);
+			GetWorld()->GetTimerManager().SetTimer(CanAttackTimer, this, &ATurret::CanAttack, 0.1f, true);
 		} else {
 			Attack();
 		}

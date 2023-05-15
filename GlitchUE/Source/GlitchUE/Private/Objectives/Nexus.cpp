@@ -3,7 +3,6 @@
 
 #include "Objectives/Nexus.h"
 #include "Kismet/GameplayStatics.h"
-#include "GlitchUEGameMode.h"
 #include "PopcornFXAttributeFunctions.h"
 #include "PopcornFXFunctions.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
@@ -89,21 +88,26 @@ void ANexus::OnConstruction(const FTransform& Transform){
 		return;
 	}
 
-	Cast<ADissolver>(DissolverArray[0])->SetActorLocation(GetActorLocation());
-	Cast<ADissolver>(DissolverArray[0])->UpdateShaderFX();
+
+	ADissolver* DissolveActor = Cast<ADissolver>(DissolverArray[0]);
+
+	DissolveActor->SetActorLocation(GetActorLocation());
+	DissolveActor->UpdateShaderFX();
 }
 
 void ANexus::TakeDamages(){
 	Super::TakeDamages();
 
 	// nexus health in percent
-	const float NexusHealth = (HealthComp->GetCurrentHealth() * HealthComp->GetMaxHealth()) / 100;
+	const float NexusHealth = (HealthComp->GetCurrentHealth() * HealthComp->GetMaxHealth()) / 100.0f;
 
-	Dissolver->DissolveTo(NexusHealth * Dissolver->GetRadius() / 100);
+	Dissolver->DissolveTo(NexusHealth * Dissolver->GetRadius() / 100.0f);
 }
 
 void ANexus::UpdateDissolver(){
-	Dissolver->DissolveTo(GetFarestActivatedCatalyseur()->GetDistanceTo(this) + 250);
+	const float CatalyseurCompletionPercent = 100.0f/CatalyseursList.Num() * GameMode->GetActivatedCatalyseurNum();
+
+	Dissolver->DissolveTo(CatalyseurCompletionPercent * Dissolver->GetMaxRadius() / 100.0f);
 }
 
 AActor* ANexus::GetFarestActivatedCatalyseur(){
@@ -121,7 +125,9 @@ AActor* ANexus::GetFarestActivatedCatalyseur(){
 }
 
 void ANexus::ActiveObjectif(){
-	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this))->SetNewPhase(EPhases::TowerDefense);
+	GameMode->SetNewPhase(EPhases::TowerDefense);
+
+	UpdateDissolver();
 
 	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
@@ -141,7 +147,7 @@ void ANexus::ActiveObjectif(){
 }
 
 void ANexus::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	if (!ActivableComp->IsActivated()){
+	if (!ActivableComp->IsActivated() && GameMode->CanStartTowerDefense()){
 		ActivableComp->ActivateObject();
 	}
 }

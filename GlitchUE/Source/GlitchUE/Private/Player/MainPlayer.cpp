@@ -21,7 +21,9 @@
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
+#include "Components/CompassComponent.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
+#include "PlacableObject/ConstructionZone.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMainPlayer
@@ -58,14 +60,13 @@ AMainPlayer::AMainPlayer(){
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
-
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
 	GetMesh()->SetReceivesDecals(false);
 	GetMesh()->SetEnableGravity(false);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	Compass = CreateDefaultSubobject<UCompassComponent>(TEXT("Compass"));
+
+	HearingTrigger = CreateDefaultSubobject<UHearingTriggerComponent>(TEXT("Hearing Trigger"));
 
 	#pragma region Timelines
 
@@ -95,7 +96,7 @@ void AMainPlayer::BeginPlay(){
 
 	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefullFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
 	FollowCamera->FieldOfView = GameplaySettingsSaveSave->CameraFOV;
-	Sensibility = GameplaySettingsSaveSave->CameraSensibility;
+	Sensitivity = GameplaySettingsSaveSave->CameraSensitivity;
 	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
@@ -189,12 +190,16 @@ void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotat
 
 #pragma region Camera
 
-void AMainPlayer::CameraAim_Implementation(){
+void AMainPlayer::CameraAim(){
+	if(!MainPlayerController->GetSightWidget()->IsInViewport()){
+		MainPlayerController->GetSightWidget()->AddToViewport();
+	}
+
 	CameraAimTransition.Play();
 	CameraAimTimelineDirection = ETimelineDirection::Forward;
 }
 
-void AMainPlayer::CameraAimReverse_Implementation(){
+void AMainPlayer::CameraAimReverse(){
 	CameraAimTransition.Reverse();
 	CameraAimTimelineDirection = ETimelineDirection::Backward;
 }
@@ -203,11 +208,20 @@ void AMainPlayer::CameraStopAim(){
 	CameraAimTransition.Stop();
 }
 
-void AMainPlayer::CameraAimUpdate_Implementation(float Alpha){
+void AMainPlayer::CameraAimUpdate(float Alpha){
 	CameraBoom->SocketOffset = UKismetMathLibrary::VLerp(FVector::ZeroVector, AimOffset, Alpha);
+	MainPlayerController->GetSightWidget()->UpdateOpacity(Alpha);
 }
 
-void AMainPlayer::CameraAimFinished_Implementation(){}
+void AMainPlayer::CameraAimFinished(){
+	switch (CameraAimTimelineDirection){
+		case ETimelineDirection::Forward:
+			break;
+		case ETimelineDirection::Backward:
+			MainPlayerController->GetSightWidget()->RemoveFromParent();
+			break;
+	}
+}
 
 ETimelineDirection::Type AMainPlayer::GetCameraAimDirection() const{
 	return CameraAimTimelineDirection;
@@ -233,6 +247,26 @@ void AMainPlayer::CameraFOVUpdate(float Alpha){
 	FollowCamera->FieldOfView = FMath::Lerp(CurrentFOVValue, TargetFOVValue, Alpha);
 }
 
+void AMainPlayer::PreviewPlacableObject_Implementation(){}
+
+void AMainPlayer::PlacePlacableActor(){
+	if(!PreviewPlacableActor->CanBePlaced()){
+		return;
+	}
+
+	UpdateGolds(CurrentPlacableActorData->Cost, EGoldsUpdateMethod::BuyPlacable);
+	APlacableActor* NewPlacable = GetWorld()->SpawnActor<APlacableActor>(CurrentPlacableActorData->ClassToSpawn, TargetPreviewActorLocation, FRotator::ZeroRotator, FActorSpawnParameters());
+	NewPlacable->SetNexus(Nexus);
+	NewPlacable->SetData(CurrentPlacableActorData);
+	CurrentFocusedConstructionZone->OccupiedSlot(NewPlacable);
+}
+
+void AMainPlayer::StopPreviewMovement_Implementation(){}
+
+APreviewPlacableActor* AMainPlayer::GetPreviewPlacableActor() const{
+	return PreviewPlacableActor;
+}
+
 void AMainPlayer::SetPlacableActorData(UPlacableActorData* Data){
 	CurrentPlacableActorData = Data;
 	PreviewPlacableActor->SetData(CurrentPlacableActorData);
@@ -246,8 +280,42 @@ int AMainPlayer::GetGolds() const{
 	return Golds;
 }
 
-void AMainPlayer::GiveGolds_Implementation(const int Amount){
-	Golds = FMath::Clamp((Amount + Golds), 0, 999999);
+void AMainPlayer::UpdateGolds(int Amount, const EGoldsUpdateMethod GoldsUpdateMethod){
+	if(!bGoldsCanBeUpdated){
+		return;
+	}
+
+	switch (GoldsUpdateMethod){
+		case EGoldsUpdateMethod::BuyPlacable:
+			Amount = - Amount;
+			break;
+		case EGoldsUpdateMethod::TakeDamages:
+			Amount = - Amount;
+			break;
+		case EGoldsUpdateMethod::ReceiveGolds:
+			// code here
+			break;
+	}
+
+	Golds += Amount;
+	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
+
+	if(Golds < 0){
+		Loose();
+	}
+}
+
+void AMainPlayer::SetGolds(const int Amount){
+	Golds = Amount;
+	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
+}
+
+void AMainPlayer::KillPlayer(){
+	UpdateGolds(Golds + 1, EGoldsUpdateMethod::TakeDamages);
+}
+
+bool AMainPlayer::CanUpdateGolds() const{
+	return bGoldsCanBeUpdated;
 }
 
 void AMainPlayer::Loose_Implementation(){
@@ -340,19 +408,19 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensibility);
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensitivity);
 }
 
 void AMainPlayer::LookUpAtRate(const float Rate){
 	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * Sensibility);
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds() * Sensitivity);
 }
 
 void AMainPlayer::Jump(){
 	Super::Jump();
 
 	MainPlayerController->UnbindSneak();
-	UUsefullFunctions::MakeNoise(this, GetActorLocation(), JumpNoiseRange);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), JumpNoiseRange);
 
 	if(bUseCoyoteTime){
 		bUseCoyoteTime = false;
@@ -374,7 +442,7 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 }
 
 void AMainPlayer::AddControllerYawInput(float Val){
-	Super::AddControllerYawInput(Val * Sensibility);
+	Super::AddControllerYawInput(Val * Sensitivity);
 
 	MakeMovementNoise();
 }
@@ -384,16 +452,20 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 		Rate = Rate * -1;
 	}
 
-	Super::AddControllerPitchInput(Rate * Sensibility);
+	Super::AddControllerPitchInput(Rate * Sensitivity);
 
 	MakeMovementNoise();
 }
+
+void AMainPlayer::Dash_Implementation(){}
 
 void AMainPlayer::SneakPressed_Implementation(){}
 
 void AMainPlayer::SneakReleased_Implementation(){}
 
 void AMainPlayer::SprintToSneak_Implementation(){}
+
+void AMainPlayer::SneakToSprint_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
 
@@ -424,7 +496,7 @@ void AMainPlayer::MakeMovementNoise(){
 		break;
 	}
 
-	UUsefullFunctions::MakeNoise(this, GetActorLocation(), NoiseRadius);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius);
 }
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
@@ -459,40 +531,44 @@ void AMainPlayer::MoveRight(const float Value){
 	}
 }
 
-void AMainPlayer::PreviewObject(){
-	FHitResult Hit;
-	const FCollisionQueryParams QueryParams;
-	const FCollisionResponseParams ResponseParam;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, FollowCamera->GetComponentLocation(), (FollowCamera->GetForwardVector() * InteractionLength) + FollowCamera->GetComponentLocation(), ECollisionChannel::ECC_Visibility, QueryParams, ResponseParam) && PreviewPlacableActor->CanBePlaced()){
-		PlacableActorLocation = Hit.Location;
-		PreviewPlacableActor->SetActorLocation(PlacableActorLocation.GridSnap(100));
-	} else {
-		PreviewPlacableActor->ResetActor();
+void AMainPlayer::ClingUp(float AxisValue){
+	switch (FMath::TruncToInt(AxisValue)) {
+		case -1:
+			VerticalCling(EDirection::Down);
+			break;
+		case 1:
+			VerticalCling(EDirection::Up);
+			break;
 	}
+
 }
+
+void AMainPlayer::ClingRight(float AxisValue){
+	switch (FMath::TruncToInt(AxisValue)) {
+		case -1:
+			HorizontalCling(EDirection::Left);
+			break;
+		case 1:
+			HorizontalCling(EDirection::Right);
+			break;
+	}
+
+}
+
+void AMainPlayer::HorizontalCling_Implementation(const EDirection Direction){}
+
+void AMainPlayer::VerticalCling_Implementation(const EDirection Direction){}
 
 void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;
 }
 
-void AMainPlayer::SetSensibility(const float NewSensibility){
-	Sensibility = NewSensibility;
-}
-
-
-void AMainPlayer::PlaceObject(){
-	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(PlacableActorLocation);
-	const FActorSpawnParameters ActorsSpawnParameters;
-	GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), SpawnTransform, ActorsSpawnParameters);
+void AMainPlayer::SetSensitivity(const float NewSensitivity){
+	Sensitivity = NewSensitivity;
 }
 
 AMainPlayerController* AMainPlayer::GetMainPlayerController() const{
 	return MainPlayerController;
-}
-
-UHealthComponent* AMainPlayer::GetHealthComp() const{
-	return HealthComp;
 }
 
 bool AMainPlayer::IsInGlitchZone() const{
@@ -548,7 +624,7 @@ void AMainPlayer::TPToMark() {
 	Mark->PlaceMark();
 	CameraAimReverse();
 
-	HealthComp->SetCanTakeDamages(false);
+	bGoldsCanBeUpdated = false;
 	GetCharacterMovement()->GravityScale = 0;
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
@@ -705,11 +781,29 @@ void AMainPlayer::ResetOverlappedMeshes(){
 void AMainPlayer::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
 
-	SelectRandomLocation();
+	const int RandomEvent = FMath::RandRange(0, 1);
 
-	FTimerHandle TimerHandle;
+	switch (RandomEvent){
+		case 0:
+			UpdateGolds(RemovedGlitchGolds, EGoldsUpdateMethod::TakeDamages);
+			break;
+		case 1:
 
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
+			#if WITH_EDITOR
+				if(GlitchRewindTransformList.Num() == 0){
+					UE_LOG(LogTemp, Warning, TEXT("Liste de position random vide"));
+					return;
+				}
+			#endif
+
+			SelectRandomLocation();
+
+			FTimerHandle TimerHandle;
+
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
+
+			break;
+	}
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){
@@ -732,8 +826,6 @@ void AMainPlayer::StopRecord(){
 void AMainPlayer::SelectRandomLocation(){
 	EnableGlitchEffect(true, GlitchUpgradeDuration, 500);
 	StopRecord();
-
-	//const int Index = FMath::RandRange(0, GlitchRewindTransformList.Num() - 1);
 
 	const FTransform RandomTransform = GlitchRewindTransformList[0];
 
@@ -871,14 +963,10 @@ void AMainPlayer::EndTL(){
 
 		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
-		HealthComp->SetCanTakeDamages(true);
+		bGoldsCanBeUpdated = true;
 
-		UUsefullFunctions::MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
+		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
 	}, 0.2f, false);
 }
 
 #pragma endregion
-
-void AMainPlayer::TestFunction(){
-	UE_LOG(LogTemp, Warning, TEXT("Test function called"));
-}

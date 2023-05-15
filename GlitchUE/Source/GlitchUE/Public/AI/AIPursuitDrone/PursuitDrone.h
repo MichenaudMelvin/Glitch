@@ -27,6 +27,8 @@ public:
 
 	virtual void SetCurrentData(UMainAIData* NewData) override;
 
+	UCompassIcon* GetCompassIcon() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -35,6 +37,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Pad")
 	APursuitDronePad* Pad;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	UCompassIcon* CompassIcon;
 
 	UAnimationAsset* StartAnim;
 

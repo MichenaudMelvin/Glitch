@@ -41,6 +41,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Data")
 	UPlacableActorData* CurrentData;
@@ -99,7 +100,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
 	UMaterialInstance* WireframeMaterial;
 
-	virtual void Appear(const bool ReverseEffect = false);
+public:
+	virtual void Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent);
+
+	// called for save
+	void SetNexus(ANexus* NewNexus);
+
+protected:
+	bool bIsAppearing = false;
 
 	UFUNCTION()
 	virtual void FadeIn(float Alpha);
@@ -128,8 +136,10 @@ protected:
 	UFUNCTION()
 	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	virtual void AttachDroneToPlacable(APursuitDrone* NewDrone);
+
 public:
-	virtual void AddDrone(AMainPlayer* MainPlayer);
+	void AddDrone(AMainPlayer* MainPlayer);
 
 	/**
 	 * @brief 
@@ -152,5 +162,9 @@ public:
 
 	virtual FPlacableActorSaveData SavePlacable();
 
-	virtual void InitializePlacable(const FPlacableActorSaveData NewData);
+	virtual void InitializePlacable(const FPlacableActorSaveData NewData, TArray<AActor*> PursuitDroneList);
+
+	// used for delegates
+	UFUNCTION()
+	void CallDestroy();
 };

@@ -17,7 +17,8 @@ AGlitchZone::AGlitchZone(){
 	GetStaticMeshComponent()->SetWorldScale3D(FVector(2, 2, 2));
 
 	GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
+	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetStaticMeshComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	GetStaticMeshComponent()->SetGenerateOverlapEvents(true);
 
 #if WITH_EDITORONLY_DATA
@@ -55,15 +56,12 @@ void AGlitchZone::EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* O
 
 		AudioManager->SetParameter("Glitch_Zone", 1);
 
+		GameMode->AddGlitch(GlitchGaugeValueToAddAtStart);
+		GameMode->SetLevelState(ELevelState::Normal);
+
 		GetWorld()->GetTimerManager().SetTimer(GlitchGaugeTimer, [&]() {
 			GameMode->AddGlitch(GlitchGaugeValueToAddEveryTick);
 		}, GlitchGaugeTick, true);
-
-		if(GameMode->GetLevelState() == ELevelState::Alerted){
-			GetWorld()->GetTimerManager().SetTimer(GlitchZoneTimer, [&]() {
-				GameMode->SetLevelState(ELevelState::Normal);
-			}, ResetLevelStateDuration, false);
-		}
 	}
 }
 
@@ -77,6 +75,5 @@ void AGlitchZone::ExitGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		AudioManager->SetParameter("Glitch_Zone", 0);
 
 		GetWorld()->GetTimerManager().ClearTimer(GlitchGaugeTimer);
-		GetWorld()->GetTimerManager().ClearTimer(GlitchZoneTimer);
 	}
 }

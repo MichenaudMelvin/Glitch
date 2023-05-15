@@ -56,6 +56,9 @@ public:
 
 	float GetRadius() const;
 
+	UFUNCTION(BlueprintCallable)
+	void ForceDissolverValue(const float TargetRadius);
+
 protected:
 	void PlayFX();
 
@@ -104,4 +107,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UMaterialParameterCollection* MPCDissolver;
+
+public:
+	float GetMaxRadius() const;
 };

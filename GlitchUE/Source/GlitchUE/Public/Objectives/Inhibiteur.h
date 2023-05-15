@@ -21,10 +21,13 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	virtual void Destroyed() override;
+
 	virtual void ActiveObjectif() override;
 
 	UAnimationAsset* ActivationAnim;
 
+	UPROPERTY()
 	FCompassSprite SpriteReference;
 
 	virtual void DesactivateObjectif() override;
@@ -33,8 +36,13 @@ protected:
 
 	void ActivateLinkedElements(const bool bActivate);
 
+	UPROPERTY(BlueprintReadOnly)
+	ACatalyseur* OwnerCatalyseur;
+
 public:
 	void SetSpriteReference(const FCompassSprite NewSprite);
+
+	void SetOwnerCatalyseur(ACatalyseur* NewOwner);
 
 #if WITH_EDITORONLY_DATA
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
@@ -44,5 +52,7 @@ public:
 	void OnObjectSelected(UObject* Object);
 
 	void OutlineLinkedObjects(const bool bOutline);
+
+	virtual void PreSave(const ITargetPlatform* TargetPlatform) override;
 #endif
 };

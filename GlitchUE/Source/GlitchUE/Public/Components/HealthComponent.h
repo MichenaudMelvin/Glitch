@@ -20,7 +20,7 @@ UCLASS( ClassGroup=(Health), meta=(BlueprintSpawnableComponent) )
 class GLITCHUE_API UHealthComponent : public UActorComponent{
 	GENERATED_BODY()
 
-public:	
+public:
 	UHealthComponent();
 
 protected:
@@ -70,4 +70,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Glitch")
 	float GetOriginalMaxHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Glitch")
+	void ResetHealth();
 };

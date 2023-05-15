@@ -144,6 +144,11 @@ float ADissolver::GetRadius() const{
 	return Radius;
 }
 
+void ADissolver::ForceDissolverValue(const float TargetRadius){
+	Radius = TargetRadius;
+	UpdateRadius();
+}
+
 void ADissolver::LerpRadius(float Value){
 	Radius = FMath::Lerp(CurrentRadiusValue, TargetRadiusValue, Value);
 	UpdateRadius();
@@ -153,5 +158,9 @@ void ADissolver::OnConstruction(const FTransform& Transform){
 	Super::OnConstruction(Transform);
 
 	UpdateShaderFX();
+}
+
+float ADissolver::GetMaxRadius() const{
+	return MaxRadius;
 }
 

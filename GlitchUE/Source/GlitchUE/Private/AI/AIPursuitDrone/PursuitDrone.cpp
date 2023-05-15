@@ -21,6 +21,8 @@ APursuitDrone::APursuitDrone(){
 	GetMesh()->SetRelativeRotation(FRotator(0, 180, 0));
 	GetMesh()->SetGenerateOverlapEvents(true);
 
+	CompassIcon = CreateDefaultSubobject<UCompassIcon>(TEXT("Compass Icon"));
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CrystalSkeletal(TEXT("/Game/Meshs/Drones/Pursuit/SK_Drones_Crystal"));
 	check(CrystalSkeletal.Succeeded());
 
@@ -116,6 +118,7 @@ void APursuitDrone::ForceInDock() const{
 	GetMesh()->SetPosition(0);
 	GetMesh()->Stop();
 	IdleFX->SetVisibility(false);
+	CompassIcon->SetAllowDraw(false);
 }
 
 void APursuitDrone::ForceStartAnim() const{
@@ -123,6 +126,7 @@ void APursuitDrone::ForceStartAnim() const{
 	GetMesh()->SetPosition(1);
 	GetMesh()->Stop();
 	IdleFX->SetVisibility(true);
+	CompassIcon->SetAllowDraw(true);
 }
 
 void APursuitDrone::SetCurrentData(UMainAIData* NewData){
@@ -133,16 +137,20 @@ void APursuitDrone::SetCurrentData(UMainAIData* NewData){
 	SpinTimeline.SetPlayRate(1/Data->SpinSpeed);
 }
 
+UCompassIcon* APursuitDrone::GetCompassIcon() const{
+	return CompassIcon;
+}
+
 void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		const AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
+		AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
 
 		if(Blackboard->GetValueAsBool("IsDocked")){
 			return;
 		}
 
-		if(!Player->IsInGlitchZone() && Player->GetHealthComp()->GetCanTakeDamages()){
-			Player->GetHealthComp()->TakeDamages(AIController->GetDamages());
+		if(!Player->IsInGlitchZone() && Player->CanUpdateGolds()){
+			Player->UpdateGolds(AIController->GetDamages(), EGoldsUpdateMethod::TakeDamages);
 			Destroy();
 		}
 	}
@@ -153,6 +161,10 @@ void APursuitDrone::StopPursuitBehavior(){
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APursuitDrone::DroneMeshBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APursuitDrone::DroneMeshEndOverlap);
 
+	// DissolverChannel;
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel5);
+	GetCharacterMovement()->GravityScale = 0;
+
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Overlap);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
@@ -161,6 +173,7 @@ void APursuitDrone::StopPursuitBehavior(){
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
 
 	IdleFX->DestroyComponent();
+	CompassIcon->DestroyComponent();
 }
 
 void APursuitDrone::DroneMeshBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
@@ -194,7 +207,6 @@ void APursuitDrone::Interact(AMainPlayerController* MainPlayerController, AMainP
 
 void APursuitDrone::EnableSpinBehavior(){
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Overlap);
-	GetCharacterMovement()->GravityScale = 0;
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -210,13 +222,13 @@ void APursuitDrone::DisableSpinBehavior(){
 	DetachDrone();
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	GetCharacterMovement()->GravityScale = 1;
 
 	if(!GetMesh()->IsVisible()){
 		GetMesh()->SetVisibility(true, true);
 	}
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Block);
 
 	GetMesh()->SetWorldScale3D(FVector::OneVector);
 	GetMesh()->SetRelativeLocation(FVector::ZeroVector);
@@ -235,7 +247,6 @@ void APursuitDrone::AttachDrone(AActor* ActorToAttach, const FName SocketName){
 
 void APursuitDrone::DetachDrone(){
 	if(!IsValid(GetAttachParentActor())){
-		UE_LOG(LogTemp, Warning, TEXT("parent actor not valid"));
 		return;
 	}
 
@@ -249,8 +260,12 @@ void APursuitDrone::DetachDrone(){
 	else if(GetAttachParentActor()->IsA(APlacableActor::StaticClass())){
 		FTimerHandle TimerHandle;
 
-		// micro delay for avoid a crash
+		// micro delay to avoid a crash
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+			if(!GetAttachParentActor()){
+				return;
+			}
+
 			Cast<APlacableActor>(GetAttachParentActor())->RemoveDrone(nullptr);
 
 			const FDetachmentTransformRules DetachmentTransformRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);

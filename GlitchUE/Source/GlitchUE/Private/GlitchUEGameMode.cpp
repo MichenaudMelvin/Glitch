@@ -18,6 +18,7 @@
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
 #include "FX/Dissolver.h"
+#include "LevelElements/BasicDoor.h"
 #include "Mark/Mark.h"
 #include "Objectives/Inhibiteur.h"
 #include "Saves/StealthSave.h"
@@ -49,6 +50,12 @@ void AGlitchUEGameMode::BeginPlay() {
 	TArray<AActor*> SceneCaptureArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
 
+	TArray<AActor*> NexusArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
+
+	TArray<AActor*> DissolverArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
+
 #if WITH_EDITOR
 
 	if (WaveManagerArray.Num() == 0){
@@ -64,6 +71,10 @@ void AGlitchUEGameMode::BeginPlay() {
 	WaveManager = WaveManagerArray[0];
 
 	SceneCapture = Cast<ASceneCapture2D>(SceneCaptureArray[0]);
+
+	Nexus = Cast<ANexus>(NexusArray[0]);
+
+	Dissolver = Cast<ADissolver>(DissolverArray[0]);
 
 	FOnTimelineLinearColor UpdateEvent;
 	FOnTimelineEvent FinishEvent;
@@ -81,6 +92,12 @@ void AGlitchUEGameMode::BeginPlay() {
 	BlinkingTimeline.SetTimelineFinishedFunc(FinishEvent);
 
 	FTimerHandle TimerHandle;
+
+	#if WITH_EDITOR
+		if(!IsValid(MainPlayer)){
+			return;
+		}
+	#endif
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGlitchUEGameMode::InitializeWorld, 0.01f, false);
 }
@@ -115,6 +132,7 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
 
 	MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation, CurrentSave->MarkTransform, CurrentSave->bIsMarkPlaced);
+	MainPlayer->SetGolds(CurrentSave->PlayerGolds);
 
 	AddGlitch(CurrentSave->GlitchValue);
 
@@ -122,12 +140,12 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	TArray<AActor*> InhibiteurList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
 
-	TArray<FString> FStringArrayBis;
-	CurrentSave->InhibiteurStateList.GetKeys(FStringArrayBis);
+	TArray<FString> FStringArray;
+	CurrentSave->InhibiteurStateList.GetKeys(FStringArray);
 
 	for(int i = 0; i < InhibiteurList.Num(); i++){
-		for(int j = 0; j < FStringArrayBis.Num(); j++){
-			if(InhibiteurList[i]->GetName() == FStringArrayBis[j]){
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(InhibiteurList[i]->GetName() == FStringArray[j]){
 
 				AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
 
@@ -135,6 +153,23 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 					CurrentInhibiteur->GetActivableComp()->ActivateObject();
 				}
 
+			}
+		}
+	}
+
+	// Doors
+	TArray<AActor*> DoorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABasicDoor::StaticClass(), DoorList);
+
+	CurrentSave->DoorDataList.GetKeys(FStringArray);
+
+	for(int i = 0; i < DoorList.Num(); i++){
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(DoorList[i]->GetName() == FStringArray[j]){
+
+				ABasicDoor* CurrentDoor = Cast<ABasicDoor>(DoorList[i]);
+
+				CurrentDoor->InitializeDoor(CurrentSave->DoorDataList.FindRef(DoorList[i]->GetName()));
 			}
 		}
 	}
@@ -157,6 +192,10 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 }
 
 void AGlitchUEGameMode::GlobalWorldSave(const int Index){
+	if(OptionsString != ""){
+		return;
+	}
+
 	TSubclassOf<UWorldSave> TargetSaveClass;
 
 	switch (CurrentPhase) {
@@ -170,7 +209,11 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 
 	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(TargetSaveClass, Index, false));
 
-	if(!CurrentSave->IsA(TargetSaveClass)){
+	if(!IsValid(CurrentSave)){
+		CurrentSave = Cast<UWorldSave>(UUsefullFunctions::CreateSave(TargetSaveClass, Index));
+	}
+
+	else if(!CurrentSave->IsA(TargetSaveClass)){
 		CurrentSave = Cast<UWorldSave>(UUsefullFunctions::CreateSave(TargetSaveClass, Index));
 	}
 
@@ -187,6 +230,7 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	//Player
 	CurrentSave->PlayerTransform = MainPlayer->GetActorTransform();
 	CurrentSave->PlayerCameraRotation = MainPlayer->GetController()->GetControlRotation();
+	CurrentSave->PlayerGolds = MainPlayer->GetGolds();
 
 	if(MainPlayer->GetMark()->GetIsMarkPlaced()){
 		CurrentSave->MarkTransform = MainPlayer->GetMark()->GetActorTransform();
@@ -204,6 +248,17 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 		AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
 
 		CurrentSave->InhibiteurStateList.Add(CurrentInhibiteur->GetName(), CurrentInhibiteur->GetActivableComp()->IsActivated());
+	}
+
+	//Doors
+	TArray<AActor*> DoorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABasicDoor::StaticClass(), DoorList);
+
+	CurrentSave->DoorDataList.Empty();
+	for(int i = 0; i < DoorList.Num(); i++){
+		const ABasicDoor* CurrentDoor = Cast<ABasicDoor>(DoorList[i]);
+
+		CurrentSave->DoorDataList.Add(CurrentDoor->GetName(), CurrentDoor->SaveDoor());
 	}
 
 	CurrentSave->GlitchValue = GlitchValue;
@@ -236,6 +291,37 @@ void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), true, LoadOptions);
 }
 
+void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
+	if(MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning()){
+		return;
+	}
+
+	if(TimerValue <= 0){
+		TimerValue = StealthTimer;
+	}
+
+	FKOnFinishTimer EndEvent;
+	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
+
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
+}
+
+bool AGlitchUEGameMode::CanStartTowerDefense() const{
+	return CurrentActivatedCatalyseurs >= MaxCatalyseurToActivate;
+}
+
+void AGlitchUEGameMode::ForceEndStealthPhase() const{
+	Nexus->GetActivableComp()->ActivateObject();
+}
+
+void AGlitchUEGameMode::UpdateActivatedCatalyseurAmount(const bool Increase){
+	Increase ? CurrentActivatedCatalyseurs++ : CurrentActivatedCatalyseurs--;
+}
+
+int AGlitchUEGameMode::GetActivatedCatalyseurNum() const{
+	return CurrentActivatedCatalyseurs;
+}
+
 UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 	UStealthSave* CastedSave = Cast<UStealthSave>(CurrentSave);
 
@@ -251,11 +337,19 @@ UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 
 	CastedSave->LevelState = LevelState;
 
+	CastedSave->bIsStealthTimeRunning = MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning();
+
+	if(CastedSave->bIsStealthTimeRunning){
+		CastedSave->RemainingStealthTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed();
+	}
+
 	return CastedSave;
 }
 
 UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 	UTowerDefenseSave* CastedSave = Cast<UTowerDefenseSave>(CurrentSave);
+
+	CastedSave->DissolverRadius = Dissolver->GetRadius();
 
 	TArray<AActor*> PlacableList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableList);
@@ -272,8 +366,6 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 
 		CastedSave->PlacableDataList.Add(CurrentPlacable->SavePlacable());
 	}
-
-	CastedSave->PlayerGolds = MainPlayer->GetGolds();
 
 	CastedSave->CurrentWave = WaveManager->GetCurrentWaveNumber();
 
@@ -305,6 +397,10 @@ UWorldSave* AGlitchUEGameMode::StealthWorldLoad(UWorldSave* CurrentSave){
 		}
 	}
 
+	if(CastedSave->bIsStealthTimeRunning){
+		LaunchStealthTimer(CastedSave->RemainingStealthTime);
+	}
+
 	SetLevelState(CastedSave->LevelState);
 
 	return CastedSave;
@@ -315,12 +411,14 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 
 	FActorSpawnParameters PlacableSpawnParam;
 
-	TArray<AActor*> NexusArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
+	Dissolver->ForceDissolverValue(CastedSave->DissolverRadius);
 
-	Cast<ANexus>(NexusArray[0])->GetActivableComp()->ActivateObject();
+	ForceEndStealthPhase();
 
 	WaveManager->SetWave(CastedSave->CurrentWave);
+
+	TArray<AActor*> PursuitDroneList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APursuitDrone::StaticClass(), PursuitDroneList);
 
 	for(int i = 0; i < CastedSave->PlacableDataList.Num(); i++){
 		const TSubclassOf<APlacableActor> TargetClass = CastedSave->PlacableDataList[i].PlacableActorClass;
@@ -328,14 +426,15 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 		const FRotator TargetRotation = CastedSave->PlacableDataList[i].ActorTransform.Rotator();
 
 		APlacableActor* CurrentPlacableActor = GetWorld()->SpawnActor<APlacableActor>(TargetClass, TargetLocation, TargetRotation, PlacableSpawnParam);
-
-		CurrentPlacableActor->SetData(CastedSave->PlacableDataList[i].CurrentPlacableData);
+		CurrentPlacableActor->InitializePlacable(CastedSave->PlacableDataList[i], PursuitDroneList);
+		CurrentPlacableActor->SetNexus(Nexus);
 	}
 
-	MainPlayer->GiveGolds(CastedSave->PlayerGolds);
-
-
 	return CastedSave;
+}
+
+void AGlitchUEGameMode::EndStealthTimer(){
+	CanStartTowerDefense() ? ForceEndStealthPhase() : MainPlayer->KillPlayer();
 }
 
 EPhases AGlitchUEGameMode::GetPhases() const{
@@ -355,6 +454,9 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
+		MainPlayer->UpdateGolds(MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() * GoldTimerMultiplier, EGoldsUpdateMethod::ReceiveGolds);
+		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false);
+
 		if(OptionsString == ""){
 			WaveManager->StartWave();
 		}
@@ -383,6 +485,9 @@ void AGlitchUEGameMode::SetLevelState(const ELevelState NewState){
 		LevelStateTimelineDirection = ETimelineDirection::Backward;
 		break;
 	case ELevelState::Alerted:
+
+		LaunchStealthTimer(StealthTimer);
+
 		LevelStateTimeline.Play();
 		LevelStateTimelineDirection = ETimelineDirection::Forward;
 		break;
@@ -429,34 +534,38 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 	if (GlitchValue == GlitchMaxValue) {
 
-		MainPlayer->GetMesh()->SetScalarParameterValueOnMaterials("Apparition", 0);
-
-		// switch (CurrentPhase){
-		// 	case EPhases::Infiltration:
-		// 		SetLevelState(ELevelState::Alerted);
-		// 		break;
-		// 	case EPhases::TowerDefense:
-		// 		break;
-		// }
-
 		CheckAvailableGlitchEvents();
-		const EGlitchEvent::Type RandomGlitchType = static_cast<EGlitchEvent::Type>(FMath::RandRange(0, 2));
+		Glitch::EGlitchEvents RandomGlitchType = Glitch::EGlitchEvents::UpgradePlayer;
+
+		switch (CurrentPhase){
+			case EPhases::Infiltration:
+				RandomGlitchType = static_cast<Glitch::EGlitchEvents>(FMath::RandRange(MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? 0 : Glitch::StealthIndex, Glitch::BothIndex));
+				break;
+			case EPhases::TowerDefense:
+				RandomGlitchType = static_cast<Glitch::EGlitchEvents>(FMath::RandRange(Glitch::StealthIndex, Glitch::TowerDefenseIndex));
+				break;
+		}
 
 		switch (RandomGlitchType){
-		case EGlitchEvent::UpgradeAlliesUnits:
-			GlitchUpgradeAlliesUnits();
-			break;
+			case Glitch::UpgradeAlliesUnits:
+				GlitchUpgradeAlliesUnits();
+				break;
 
-		case EGlitchEvent::UpgradeEnemiesAI:
-			GlitchUpgradeEnemiesAI();
-			break;
+			case Glitch::UpgradeEnemiesAI:
+				GlitchUpgradeEnemiesAI();
+				break;
 
-		case EGlitchEvent::UpgradePlayer:
-			GlitchUpgradePlayer();
-			break;
+			case Glitch::UpgradePlayer:
+				GlitchUpgradePlayer();
+				break;
+
+			case Glitch::UpgradeWorld:
+				GlitchUpgradeWorld();
+				break;
 		}
 
 		GlitchValue = 0;
+		MainPlayer->GetMesh()->SetScalarParameterValueOnMaterials("Apparition", 0);
 	}
 }
 
@@ -514,6 +623,14 @@ void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 	Cast<IGlitchInterface>(MainPlayer)->ReceiveGlitchUpgrade();
 }
 
+void AGlitchUEGameMode::GlitchUpgradeWorld() const{
+	const float CurrentTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed();
+
+	const float NewTime = FMath::Clamp(CurrentTime - GlitchReduceStealthTimer, 1.0f, StealthTimer);
+
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->ChangeTimerValue(NewTime);
+}
+
 void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
@@ -563,10 +680,7 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 }
 
 void AGlitchUEGameMode::Dissolve(const float Value) const{
-	TArray<AActor*> DissolverArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
-
-	Cast<ADissolver>(DissolverArray[0])->DissolveTo(Value);
+	Dissolver->DissolveTo(Value);
 }
 
 #pragma endregion

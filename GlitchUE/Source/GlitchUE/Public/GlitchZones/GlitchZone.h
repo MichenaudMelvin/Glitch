@@ -29,15 +29,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly);
 	UNavModifierComponent* NavModifierComp;
 
-	FTimerHandle GlitchZoneTimer;
-
-	UPROPERTY(EditDefaultsOnly, Category = "GlitchZone")
-	float ResetLevelStateDuration = 5;
-
 	FTimerHandle GlitchGaugeTimer;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
 	float GlitchGaugeTick = 0.2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	float GlitchGaugeValueToAddAtStart = 500;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
 	float GlitchGaugeValueToAddEveryTick = 100;

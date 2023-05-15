@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LevelElements/AbstractDoor.h"
 #include "Saves/AbstractSave.h"
 #include "WorldSave.generated.h"
 
@@ -12,6 +13,9 @@ class GLITCHUE_API UWorldSave : public UAbstractSave{
 
 public:
 	UWorldSave();
+
+	UPROPERTY(BlueprintReadWrite, Category = "Player")
+	int PlayerGolds;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Save")
 	UMaterial* SaveImage;
@@ -36,4 +40,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Inhibiteur")
 	TMap<FString, bool> InhibiteurStateList;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Door")
+	TMap<FString, FBasicDoorData> DoorDataList;
 };

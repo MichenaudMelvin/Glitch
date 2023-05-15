@@ -35,9 +35,11 @@ protected:
 
 	virtual void TakeDamages() override;
 
+public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateDissolver();
 
+protected:
 	AActor* GetFarestActivatedCatalyseur();
 
 	virtual void ActiveObjectif() override;

@@ -47,6 +47,18 @@ void APlacableActor::Tick(float DeltaTime){
 	FadeInAppearance.TickTimeline(DeltaTime);
 }
 
+void APlacableActor::Destroyed(){
+	if(IsValid(CurrentDrone)){
+		CurrentDrone->DisableSpinBehavior();
+	}
+
+	AffectedConstructionZone->UnoccupiedSlot();
+
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+
+	Super::Destroyed();
+}
+
 void APlacableActor::SetMesh(){}
 
 void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
@@ -58,8 +70,12 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 	bool bIsSelling = false;
 
 	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction){
-		MainPlayer->GiveGolds(CurrentData->Cost);
-		Appear(true);
+		MainPlayer->UpdateGolds(CurrentData->Cost, EGoldsUpdateMethod::ReceiveGolds);
+
+		FOnTimelineEvent FinishEvent;
+		FinishEvent.BindDynamic(this, &APlacableActor::SellObject);
+
+		Appear(true, FinishEvent);
 		bIsSelling = true;
 	}
 
@@ -78,16 +94,14 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 }
 
 void APlacableActor::SellObject(){
-	AffectedConstructionZone->UnoccupiedSlot();
-
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
-
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
 	Destroy();
 }
 
-void APlacableActor::Appear(const bool ReverseEffect){
+void APlacableActor::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){
+	bIsAppearing = true;
+
 	WireframeMesh = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), true, GetActorTransform(), false));
 
 	WireframeMesh->SetStaticMesh(CurrentData->FullMesh);
@@ -96,30 +110,27 @@ void APlacableActor::Appear(const bool ReverseEffect){
 		WireframeMesh->SetMaterial(i, WireframeMaterial);
 	}
 
-	FOnTimelineEvent FinishFunc;
+	ReverseEffect ? FadeInAppearance.Reverse() : FadeInAppearance.Play();
 
-	if(ReverseEffect){
-		FinishFunc.BindDynamic(this, &APlacableActor::SellObject);
-		FadeInAppearance.Reverse();
-	} else{
-		FinishFunc.BindDynamic(this, &APlacableActor::EndAppearance);
-		FadeInAppearance.Play();
-	}
+	FadeInAppearance.SetTimelineFinishedFunc(AppearFinishEvent);
+}
 
-	FadeInAppearance.SetTimelineFinishedFunc(FinishFunc);
+void APlacableActor::SetNexus(ANexus* NewNexus){
+	Nexus = NewNexus;
 }
 
 void APlacableActor::FadeIn(float Alpha){}
 
 void APlacableActor::EndAppearance(){
+	bIsAppearing = false;
+
 	WireframeMesh->DestroyComponent();
 
 	SetMesh();
 }
 
-void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
-	CurrentDrone = MainPlayer->GetCurrentDrone();
-	MainPlayer->SetCurrentDrone(nullptr);
+void APlacableActor::AttachDroneToPlacable(APursuitDrone* NewDrone){
+	CurrentDrone = NewDrone;
 
 	AttackRate -= CurrentData->BoostDroneAttackRate;
 	Damages += CurrentData->BoostDroneDamages;
@@ -131,6 +142,12 @@ void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
 	TargetLocation.Z += 100;
 
 	CurrentDrone->SetActorLocation(TargetLocation);
+}
+
+
+void APlacableActor::AddDrone(AMainPlayer* MainPlayer){
+	AttachDroneToPlacable(MainPlayer->GetCurrentDrone());
+	MainPlayer->SetCurrentDrone(nullptr);
 }
 
 void APlacableActor::RemoveDrone(AMainPlayer* MainPlayer){
@@ -186,7 +203,10 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	IdleAnimation = CurrentData->IdleAnimation;
 	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
 
-	Appear();
+	FOnTimelineEvent FinishEvent;
+	FinishEvent.BindDynamic(this, &APlacableActor::EndAppearance);
+
+	Appear(false, FinishEvent);
 
 	if(AttackFX == nullptr){
 		AttackFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->AttackFX, "PopcornFX_DefaultScene", GetActorLocation() + CurrentData->AttackFXOffset, FRotator::ZeroRotator, false, false);
@@ -228,9 +248,42 @@ FPlacableActorSaveData APlacableActor::SavePlacable(){
 	CurrentSaveData.ActorTransform = GetActorTransform();
 	CurrentSaveData.CurrentPlacableData = CurrentData;
 
+	CurrentSaveData.bHasDrone = IsValid(CurrentDrone);
+
+	if(CurrentSaveData.bHasDrone){
+		CurrentSaveData.DroneName = CurrentDrone->GetName();
+	}
+
 	return CurrentSaveData;
 }
 
-void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData){
-	
+void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData, TArray<AActor*> PursuitDroneList){
+	FHitResult HitResult;
+	const FVector StartLocation = GetActorLocation();
+	FVector EndLocation = GetActorLocation();
+	EndLocation.Z = - 5;
+
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocation, EndLocation, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
+
+	Cast<AConstructionZone>(HitResult.Actor)->OccupiedSlot(this);
+
+	SetData(NewData.CurrentPlacableData);
+
+	if(!NewData.bHasDrone){
+		return;
+	}
+
+	for(int i = 0; i < PursuitDroneList.Num(); i++){
+		if(PursuitDroneList[i]->GetName() == NewData.DroneName){
+			AttachDroneToPlacable(Cast<APursuitDrone>(PursuitDroneList[i]));
+			break;
+		}
+	}
+}
+
+void APlacableActor::CallDestroy(){
+	Destroy();
 }

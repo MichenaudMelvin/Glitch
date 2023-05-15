@@ -8,6 +8,7 @@
 #include "Player/MainPlayer.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
+#include "Player/UI/TimerWidget.h"
 #include "WaveManager.generated.h"
 
 class AMainAICharacter;
@@ -20,24 +21,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnRefreshAIList);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnStartWave, int, CurrentWave);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnEndWave, int, CurrentWave);
-
-UENUM(BlueprintType)
-enum class EWaveEvent : uint8 {
-	ExecuteAtStart,
-	ExecuteAtEnd,
-};
-
-USTRUCT(BlueprintType)
-struct FWaveGolds{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int Golds = 0;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	EWaveEvent WaveEvent = EWaveEvent::ExecuteAtStart;
-};
 
 USTRUCT(BlueprintType)
 struct FAIToSpawn{
@@ -61,9 +44,6 @@ struct FWave : public FTableRowBase{
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float NextWaveTimer = 0;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FWaveGolds GivenGolds;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bStopAtEnd = false;
@@ -91,7 +71,12 @@ protected:
 	AGlitchUEGameMode* GameMode;
 
 	UPROPERTY(BlueprintReadOnly)
+	UTimerWidget* PlayerTimerWidget;
+
+	UPROPERTY(BlueprintReadOnly)
 	ANexus* Nexus;
+
+	AAudioManager* AudioManager;
 
 	AMainPlayer* Player;
 
@@ -106,10 +91,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	TSet<AMainAICharacter*> WaveAIList;
-
-	void EnableCatalyseurs();
-
-	void DisableCatalyseurs();
 
 	void EnableSpawners();
 
@@ -127,16 +108,12 @@ protected:
 	bool bIsStopped = false;
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
 	void StartWave();
-	virtual void StartWave_Implementation();
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Waves")
 	FKOnStartWave OnStartWave;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Waves")
 	void EndWave();
-	virtual void EndWave_Implementation();
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Waves")
 	FKOnEndWave OnEndWave;
@@ -147,6 +124,7 @@ public:
 
 	void RemoveAIFromList(const AMainAICharacter* AIToRemove);
 
+	UFUNCTION()
 	void NextWave();
 
 	void SetWave(const int NewWave);

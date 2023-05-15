@@ -28,13 +28,20 @@ enum class ELevelState : uint8 {
 	Alerted,
 };
 
-UENUM(BlueprintType)
-namespace EGlitchEvent {
-	enum Type{
-		UpgradeAlliesUnits,
+namespace Glitch {
+	UENUM(BlueprintType)
+	enum EGlitchEvents : uint8{
+		UpgradeWorld,
 		UpgradeEnemiesAI,
 		UpgradePlayer,
+		UpgradeAlliesUnits,
 	};
+
+	static int StealthIndex = 1;
+
+	static int TowerDefenseIndex = 3;
+
+	static int BothIndex = TowerDefenseIndex - StealthIndex;
 }
 
 UENUM(BlueprintType)
@@ -88,6 +95,22 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void GlobalWorldLoad(const int Index) override;
 
+	/**
+	 * @brief 
+	 * @param TimerValue if TimerValue is equal to 0 it will uses the stealth timer variable
+	 */
+	UFUNCTION(Exec)
+	void LaunchStealthTimer(float TimerValue = 0);
+
+	bool CanStartTowerDefense() const;
+
+	UFUNCTION(Exec)
+	void ForceEndStealthPhase() const;
+
+	void UpdateActivatedCatalyseurAmount(const bool Increase = true);
+
+	int GetActivatedCatalyseurNum() const;
+
 protected:
 	UWorldSave* StealthWorldSave(UWorldSave* CurrentSave);
 
@@ -97,7 +120,31 @@ protected:
 
 	UWorldSave* TowerDefenseWorldLoad(UWorldSave* CurrentSave);
 
+	UFUNCTION()
+	void EndStealthTimer();
+
+	// Timer in seconds
+	UPROPERTY(EditDefaultsOnly, Category = "Stealth")
+	float StealthTimer = 120.0f;
+
+	/**
+	 * @brief This variable will be multiplied with the remaining stealth time when the player activate the nexus. eg : timer is at 20sec : golds added to the player will be 20 * GoldTimerMultiplier
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Stealth")
+	float GoldTimerMultiplier = 1.5f;
+
+	// The require amount of catalyseur to active to start tower defense
+	UPROPERTY(EditDefaultsOnly, Category = "Tower Defense")
+	int MaxCatalyseurToActivate = 2;
+
+	UPROPERTY(BlueprintReadOnly)
+	int CurrentActivatedCatalyseurs = 0;
+
 	ASceneCapture2D* SceneCapture;
+
+	ANexus* Nexus;
+
+	ADissolver* Dissolver;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UTextureRenderTarget2D*> SaveRenderTarget;
@@ -111,7 +158,7 @@ protected:
 	float GlitchValue;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Glitch")
-	float GlitchMaxValue;
+	float GlitchMaxValue = 5000;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
 	FKOnGlitchMax OnGlitchMax;
@@ -173,6 +220,9 @@ protected:
 	UFUNCTION(Exec, Category = "Glitch")
 	void GlitchUpgradePlayer() const;
 
+	UFUNCTION(Exec, Category = "Glitch")
+	void GlitchUpgradeWorld() const;
+
 	void CheckAvailableGlitchEvents() const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
@@ -180,6 +230,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
 	int NumberOfAlliesUnitsToAffect = 5;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
+	float GlitchReduceStealthTimer = 10;
 
 #pragma region ConsoleCommands
 
