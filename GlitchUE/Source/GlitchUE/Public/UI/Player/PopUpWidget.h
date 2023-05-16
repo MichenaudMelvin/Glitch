@@ -27,7 +27,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Buttons", meta = (BindWidget))
 	UButton* BackButton;
 
+	TArray<FString> CurrentPopUpArray;
+
+	int ArrayCount = 0;
+
+	void InitWidget();
+
+	UFUNCTION()
+	void GoToNextPopUp();
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void ShowPopUp(const FString PopUpMessage);
+
+	UFUNCTION(BlueprintCallable)
+	void ShowMultiplePopUps(const TArray<FString> PopUpMessages);
 };

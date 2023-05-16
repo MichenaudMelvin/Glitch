@@ -39,16 +39,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	USceneComponent* RootComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
 	UStaticMeshComponent* MedFrame;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
 	UStaticMeshComponent* TechFrame;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
 	UStaticMeshComponent* MedDoor;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
 	UStaticMeshComponent* TechDoor;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Navigation")
@@ -60,7 +60,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Navigation")
 	UNavModifierComponent* NavModifier;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
 	UInteractableComponent* DoorInteraction;
 
 	FTimeline OpenDoorTimeline;
