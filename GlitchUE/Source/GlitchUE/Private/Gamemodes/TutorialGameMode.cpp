@@ -6,5 +6,6 @@
 void ATutorialGameMode::LaunchStealthTimer(float TimerValue){
 	if(CanLaunchStealthTimer){
 		Super::LaunchStealthTimer(TimerValue);
+		OnStartStealthTimer.Broadcast();
 	}
 }

@@ -6,6 +6,8 @@
 #include "GlitchUEGameMode.h"
 #include "TutorialGameMode.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnStartStealthTimer);
+
 UCLASS(Abstract)
 class GLITCHUE_API ATutorialGameMode : public AGlitchUEGameMode{
 	GENERATED_BODY()
@@ -15,4 +17,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Stealth")
 	bool CanLaunchStealthTimer = false;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnStartStealthTimer OnStartStealthTimer;
 };
