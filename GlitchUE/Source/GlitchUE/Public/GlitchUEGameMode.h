@@ -100,7 +100,7 @@ public:
 	 * @param TimerValue if TimerValue is equal to 0 it will uses the stealth timer variable
 	 */
 	UFUNCTION(Exec)
-	void LaunchStealthTimer(float TimerValue = 0);
+	virtual void LaunchStealthTimer(float TimerValue = 0);
 
 	bool CanStartTowerDefense() const;
 

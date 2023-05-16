@@ -9,8 +9,6 @@ void UPopUpWidget::NativeOnInitialized(){
 	Super::NativeOnInitialized();
 
 	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-
-	BackButton->OnClicked.AddDynamic(this, &UPopUpWidget::RemoveFromParent);
 }
 
 void UPopUpWidget::NativeDestruct(){
@@ -22,13 +20,42 @@ void UPopUpWidget::NativeDestruct(){
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
 
-void UPopUpWidget::ShowPopUp(const FString PopUpMessage){
+void UPopUpWidget::InitWidget(){
+	BackButton->OnClicked.Clear();
+
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 
 	MainPlayerController->UnbindAll();
 	MainPlayerController->bShowMouseCursor = true;
+	AddToViewport();
+}
+
+void UPopUpWidget::GoToNextPopUp(){
+
+	PopUpText->SetText(FText::FromString(CurrentPopUpArray[ArrayCount]));
+
+	ArrayCount++;
+
+	if(ArrayCount == CurrentPopUpArray.Num()){
+		BackButton->OnClicked.Clear();
+		BackButton->OnClicked.AddDynamic(this, &UPopUpWidget::RemoveFromParent);
+	}
+}
+
+void UPopUpWidget::ShowPopUp(const FString PopUpMessage){
+	InitWidget();
+
+	BackButton->OnClicked.AddDynamic(this, &UPopUpWidget::RemoveFromParent);
 
 	PopUpText->SetText(FText::FromString(PopUpMessage));
+}
 
-	AddToViewport();
+void UPopUpWidget::ShowMultiplePopUps(const TArray<FString> PopUpMessages){
+	ArrayCount = 0;
+	CurrentPopUpArray = PopUpMessages;
+
+	InitWidget();
+
+	BackButton->OnClicked.AddDynamic(this, &UPopUpWidget::GoToNextPopUp);
+	GoToNextPopUp();
 }
