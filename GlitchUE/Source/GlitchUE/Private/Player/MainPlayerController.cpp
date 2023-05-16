@@ -21,15 +21,6 @@ void AMainPlayerController::BeginPlay(){
 	SelectNewGameplayMode(EGameplayMode::Normal);
 }
 
-void AMainPlayerController::SetupInputComponent(){
-	Super::SetupInputComponent();
-
-	// FInputActionBinding test;
-	// test.ActionDelegate.GetDelegateForManualSet().bind OnJumpPressed;
-	// InputComponent->BindAction<FKOnJumpPressed>("Jump", IE_Pressed, this, &FKOnJumpPressed::Broadcast, 1);
-	// InputComponent->BindAction("Jump", IE_Pressed, OnJumpPressed, &FKOnJumpPressed::Broadcast);
-}
-
 void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	Tchat = Cast<UTchat>(CreateWidget(this, TchatWidgetClass));
 
@@ -44,6 +35,10 @@ void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	WheelWidget = Cast<UWheel>(CreateWidget(this, WheelWidgetWidgetClass));
 
 	HotBarWidget = Cast<UHotBar>(CreateWidget(this, HotBarWidgetWidgetClass));
+
+	PauseWidget = Cast<UPauseMenu>(CreateWidget(this, PauseWidgetClass));
+
+	PopUpWidget = Cast<UPopUpWidget>(CreateWidget(this, PopUpWidgetClass));
 }
 
 #pragma region Bind
@@ -98,6 +93,10 @@ void AMainPlayerController::FastLoad(){
 void AMainPlayerController::SetCanSave(const bool bValue){
 	bCanSave = bValue;
 	bCanSave ? BindFastSaveAndLoad() : UnbindFastSaveAndLoad();
+}
+
+bool AMainPlayerController::CanSave() const{
+	return bCanSave;
 }
 
 void AMainPlayerController::BindMovement(){
@@ -311,9 +310,12 @@ void AMainPlayerController::UnbindAll(){
 	UnbindFastSaveAndLoad();
 }
 
-void AMainPlayerController::PauseGame_Implementation(){
+void AMainPlayerController::PauseGame(){
 	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
+
 	SetShowMouseCursor(!bShowMouseCursor);
+
+	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
 }
 
 #pragma endregion
