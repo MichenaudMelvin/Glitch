@@ -31,4 +31,5 @@ public:
 	UFUNCTION()
 	void BackToOwnerWidget();
 
+	void SetOwnerWidget(UUserWidget* NewOwnerWidget);
 };

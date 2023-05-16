@@ -30,3 +30,7 @@ void USubWidget::BackToOwnerWidget(){
 	RemoveFromParent();
 	OwnerWidget->AddToViewport();
 }
+
+void USubWidget::SetOwnerWidget(UUserWidget* NewOwnerWidget){
+	OwnerWidget = NewOwnerWidget;
+}

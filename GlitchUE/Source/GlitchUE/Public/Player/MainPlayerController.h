@@ -7,9 +7,11 @@
 #include "AbstractPlayerController.h"
 #include "GlitchUEGameMode.h"
 #include "UI/TimerWidget.h"
+#include "UI/Menu/PauseMenu.h"
 #include "UI/PlacableSelection/HotBar.h"
 #include "UI/PlacableSelection/Wheel.h"
 #include "UI/Player/PlayerStats.h"
+#include "UI/Player/PopUpWidget.h"
 #include "UI/Player/SightWidget.h"
 #include "UI/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
@@ -90,8 +92,6 @@ class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 
 protected:
 	virtual void BeginPlay() override;
-
-	virtual void SetupInputComponent() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void CreatePlayerWidgets();
@@ -191,10 +191,14 @@ public:
 	UFUNCTION()
 	void FastLoad();
 
+protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Saves")
 	bool bCanSave = true;
 
+public:
 	void SetCanSave(const bool bValue);
+
+	bool CanSave() const;
 
 	#pragma endregion
 
@@ -299,9 +303,8 @@ public:
 
 #pragma endregion
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Pause")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Pause")
 	void PauseGame();
-	virtual void PauseGame_Implementation();
 
 	FTimerHandle PreviewObjectTimerHandle;
 
@@ -352,6 +355,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UHotBar> HotBarWidgetWidgetClass;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UPauseMenu* PauseWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UPauseMenu> PauseWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UPopUpWidget* PopUpWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UPopUpWidget> PopUpWidgetClass;
+
 	UFUNCTION()
 	void StartOpenWheelTimer();
 
@@ -376,6 +391,4 @@ public:
 	UPlayerStats* GetPlayerStatsWidget() const;
 
 #pragma endregion
-
-	void SwitchThing(const int32 Int);
 };
