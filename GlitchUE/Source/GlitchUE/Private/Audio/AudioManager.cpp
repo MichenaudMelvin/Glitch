@@ -117,6 +117,9 @@ void AAudioManager::SwitchToTowerDefenseMusic(){
 
 void AAudioManager::UpdateTowerDefenseMusic() {
 	TowerDefenseLayer++;
+
+	UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), TowerDefenseLayer);
+
 	if (TowerDefenseLayer == 4)
 	{
 		TowerDefenseLayer = 0;
