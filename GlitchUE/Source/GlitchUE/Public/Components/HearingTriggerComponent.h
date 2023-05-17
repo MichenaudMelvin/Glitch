@@ -15,11 +15,13 @@ public:
 	UHearingTriggerComponent();
 
 protected:
-	virtual void BeginPlay() override;
-
 	UPROPERTY()
 	TArray<UHearingComponent*> HearingComponents;
 
 public:
 	void MakeNoise(AActor* Investigator, const FVector NoiseLocation, const float Radius);
+
+	void AddHearingComp(UHearingComponent* CompToAdd);
+
+	void RemoveHearingComp(UHearingComponent* CompToRemove);
 };

@@ -41,4 +41,7 @@ protected:
 	UFUNCTION()
 	virtual void ExitZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	UFUNCTION()
+	void OnSwitchPhases(EPhases NewPhase);
+
 };
