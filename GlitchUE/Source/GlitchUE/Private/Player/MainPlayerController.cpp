@@ -308,6 +308,7 @@ void AMainPlayerController::UnbindAll(){
 	UnbindOpenSelectionWheel();
 	UnbindMouseScroll();
 	UnbindFastSaveAndLoad();
+	UnbindPause();
 }
 
 void AMainPlayerController::PauseGame(){

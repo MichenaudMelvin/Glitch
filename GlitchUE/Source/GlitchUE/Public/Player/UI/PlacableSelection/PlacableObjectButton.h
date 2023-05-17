@@ -12,7 +12,7 @@ class GLITCHUE_API UPlacableObjectButton : public USelectionButton{
 
 protected:
 	virtual void NativeOnInitialized() override;
-	
+
 	UPROPERTY(EditAnywhere)
 	UPlacableActorData* Data;
 

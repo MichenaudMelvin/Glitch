@@ -55,6 +55,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UnoccupiedSlot();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsSlotOccupied() const;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Activable")
 	UActivableComponent* GetActivableComp();
 
