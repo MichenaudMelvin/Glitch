@@ -77,6 +77,11 @@ void AWaveManager::BeginPlay(){
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		PlayerTimerWidget = Player->GetMainPlayerController()->GetTimerWidget();
 	}, 0.1f, false);
+
+	TArray<AActor*> AudioManagerArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAudioManager::StaticClass(), AudioManagerArray);
+
+	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
 }
 
 void AWaveManager::EnableSpawners(){
@@ -211,6 +216,8 @@ void AWaveManager::NextWave(){
 	CurrentWaveNumber++;
 
 	AudioManager->UpdateTowerDefenseMusic();
+	
+	UE_LOG(LogTemp, Warning, TEXT("UpdateTowerDefenseMusic"));
 
 	if(CurrentWaveNumber >= NumberOfWaves){
 		GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Blue, TEXT("Les vagues sont terminées"));
