@@ -21,6 +21,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Tchat")
 	UListView* TchatList;
 
+	UPROPERTY()
 	UTchatLine* LastTchatLine;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Appearance")
@@ -52,6 +53,16 @@ protected:
 	void CloseTchat();
 
 	void AddTchatLineDelay();
+
+	void RebuildList();
+
+	UObject* LastItem;
+
+	FString CurrentSpeaker;
+
+	FString CurrentMessage;
+
+	FLinearColor CurrentSpeakerColor;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Tchat")

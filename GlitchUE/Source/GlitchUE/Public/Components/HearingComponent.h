@@ -17,6 +17,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
+
 	void HearSound() const;
 
 	UBlackboardComponent* BlackboardOwner;

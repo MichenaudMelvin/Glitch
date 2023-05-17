@@ -17,13 +17,35 @@ void UHearingComponent::BeginPlay(){
 	Super::BeginPlay();
 
 	BlackboardOwner = Cast<APawn>(GetOwner())->Controller->FindComponentByClass<UBlackboardComponent>();
+
+	TArray<AActor*> ActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), ActorList);
+
+	for(int i = 0; i < ActorList.Num(); i++){
+		UActorComponent* CurrentComp = ActorList[i]->GetComponentByClass(UHearingTriggerComponent::StaticClass());
+
+		if(IsValid(CurrentComp)){
+			Cast<UHearingTriggerComponent>(CurrentComp)->AddHearingComp(this);
+		}
+	}
+}
+
+void UHearingComponent::OnComponentDestroyed(bool bDestroyingHierarchy){
+	Super::OnComponentDestroyed(bDestroyingHierarchy);
+
+	TArray<AActor*> ActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), ActorList);
+
+	for(int i = 0; i < ActorList.Num(); i++){
+		UActorComponent* CurrentComp = ActorList[i]->GetComponentByClass(UHearingTriggerComponent::StaticClass());
+
+		if(IsValid(CurrentComp)){
+			Cast<UHearingTriggerComponent>(CurrentComp)->RemoveHearingComp(this);
+		}
+	}
 }
 
 void UHearingComponent::RegisterSound(AActor* Investigator, const FVector SoundLocation){
-	if(!IsClassValid(Investigator)){
-		return;
-	}
-
 	CurrentSoundLocation = SoundLocation;
 
 	TArray<AActor*> ActorsToIgnore;
@@ -69,7 +91,7 @@ void UHearingComponent::HearSound() const{
 }
 
 bool UHearingComponent::IsClassValid(const AActor* ActorToCheck) const{
-	return !ActorToCheck->IsA(AMainAICharacter::StaticClass());
+	//return !ActorToCheck->IsA(AMainAICharacter::StaticClass());
 
 	for(int i = 0; i < ClassToIgnore.Num(); i++){
 		if(!IsValid(ClassToIgnore[i])){

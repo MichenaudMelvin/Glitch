@@ -56,7 +56,30 @@ void UTchat::CloseTchat(){
 }
 
 void UTchat::AddTchatLineDelay(){
-	LastTchatLine = Cast<UTchatLine>(TchatList->GetDisplayedEntryWidgets()[TchatList->GetDisplayedEntryWidgets().Num() - 1]);
+	UTchatLineData* TchatLine = NewObject<UTchatLineData>();
+
+	TchatLine->Speaker = CurrentSpeaker + ": ";
+
+	const bool bIsSameSpeaker = LastSpeaker == CurrentSpeaker;
+
+	if(!bIsSameSpeaker){
+		LastSpeaker = CurrentSpeaker;
+	}
+
+	TchatLine->Message = CurrentMessage;
+
+	TchatLine->SpeakerColor = FSlateColor(CurrentSpeakerColor);
+
+	TchatList->AddItem(TchatLine);
+
+	TchatList->ScrollToBottom();
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TchatList, &UListView::ScrollToBottom, 0.001f, false);
+}
+
+void UTchat::RebuildList(){
+	TchatList->AddItem(LastItem);
 }
 
 void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
@@ -77,26 +100,23 @@ void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, co
 	const bool bIsSameSpeaker = LastSpeaker == NewSpeaker;
 
 	if(TchatList->GetNumItems() > 0){
-		LastTchatLine->SetLineAsRead(bIsSameSpeaker);
-
 		UTchatLineData* CurrentData = Cast<UTchatLineData>(TchatList->GetItemAt(TchatList->GetNumItems() - 1));
 		CurrentData->bIsMessageRead = true;
 		CurrentData->bShouldHideSpeaker = bIsSameSpeaker;
+
+		LastItem = TchatList->GetListItems()[TchatList->GetNumItems() - 1];
+
+		TchatList->RemoveItem(LastItem);
+
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::RebuildList, 0.001f, false);
 	}
 
-	if(!bIsSameSpeaker){
-		LastSpeaker = NewSpeaker;
-	}
-
-	TchatLine->Message = NewMessage;
-
-	TchatLine->SpeakerColor = FSlateColor(SpeakerColor);
-
-	TchatList->AddItem(TchatLine);
-
-	TchatList->ScrollToBottom();
+	CurrentSpeaker = NewSpeaker;
+	CurrentMessage = NewMessage;
+	CurrentSpeakerColor = SpeakerColor;
 
 	// forced to use a timer because the display entry list is not updated instantly
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::AddTchatLineDelay, 0.001f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::AddTchatLineDelay, 0.002f, false);
 }

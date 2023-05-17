@@ -116,7 +116,7 @@ void AAbstractDoor::OnAIReachLink(AActor* MovingActor, const FVector& Destinatio
 	FTimerHandle TimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		Cast<AMainAICharacter>(CurrentCharacterOpenningDoor)->GetBlackBoard()->SetValueAsBool("DoingExternalActions", true);
+		Cast<AMainAICharacter>(CurrentCharacterOpenningDoor)->GetBlackBoard()->SetValueAsBool("DoingExternalActions", false);
 
 		FTimerHandle ResetTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(ResetTimerHandle, this, &AAbstractDoor::ResetReachLink, 1.0f, false);
