@@ -48,6 +48,6 @@ protected:
 
 	AMainPlayer* MainPlayer;
 
-	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
+	UPROPERTY(EditDefaultsOnly, Category = "Post Process UI")
 	float GlitchFadeTime = 0.5;
 };

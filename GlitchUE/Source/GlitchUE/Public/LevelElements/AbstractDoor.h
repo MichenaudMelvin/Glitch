@@ -16,10 +16,10 @@ struct FBasicDoorData{
 
 public:
 	UPROPERTY()
-	bool bIsOpen;
+	bool bIsOpen = false;
 
 	UPROPERTY()
-	int RotationFactor;
+	int RotationFactor = 0;
 };
 
 class AMainPlayer;

@@ -105,7 +105,7 @@ protected:
 
 	FTimerDynamicDelegate InteractionTickDelegate;
 
-	EGameplayMode GameplayMode;
+	EGameplayMode GameplayMode = EGameplayMode::Normal;
 
 public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")

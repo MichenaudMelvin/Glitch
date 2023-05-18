@@ -42,7 +42,10 @@ void ACatalyseurZone::BeginPlay(){
 
 void ACatalyseurZone::EnterZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(true);
+		AMainPlayer* MainPlayer = Cast<AMainPlayer>(OtherActor);
+
+		MainPlayer->SetInGlitchZone(true);
+		MainPlayer->EnableSafeEffect(true, SafeFadeTime);
 
 		if(GameMode->GetLevelState() == ELevelState::Alerted){
 			GetWorld()->GetTimerManager().SetTimer(CatalyeurZoneTimer, [&]() {
@@ -54,7 +57,11 @@ void ACatalyseurZone::EnterZone(UPrimitiveComponent* OverlappedComp, AActor* Oth
 
 void ACatalyseurZone::ExitZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		Cast<AMainPlayer>(OtherActor)->SetInGlitchZone(false);
+		AMainPlayer* MainPlayer = Cast<AMainPlayer>(OtherActor);
+
+		MainPlayer->SetInGlitchZone(false);
+		MainPlayer->EnableSafeEffect(false, SafeFadeTime);
+
 
 		GetWorld()->GetTimerManager().ClearTimer(CatalyeurZoneTimer);
 	}

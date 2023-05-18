@@ -6,26 +6,38 @@
 #include "AI/MainAIController.h"
 #include "AI/Waves/WaveManager.h"
 #include "GlitchUEGameMode.h"
+#include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 
 ASpawner::ASpawner(){
 	PrimaryActorTick.bCanEverTick = false;
-	SpawnerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SpawnerMesh"));
 
-	SpawnerMesh->SetMobility(EComponentMobility::Static);
+	SpawnerFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Spawner FX"));
+	SetRootComponent(SpawnerFX);
 
-	SpawnerMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Enemies/Pk_Spawner"));
+	check(FX.Succeeded());
 
-	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("ActivableComp"));
+	SpawnerFX->SetEffect(FX.Object);
+	SpawnerFX->SetMobility(EComponentMobility::Static);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/BasicShapes/Sphere"));
-	check(Mesh.Succeeded());
+	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable Comp"));
 
-	SpawnerMesh->SetStaticMesh(Mesh.Object);
+	CompassIcon = CreateDefaultSubobject<UCompassIcon>(TEXT("Spawner Compass"));
+	CompassIcon->SetAllowDraw(false);
+
+	#if WITH_EDITORONLY_DATA
+
+		Billboard = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+		Billboard->SetupAttachment(RootComponent);
+		Billboard->bIsEditorOnly = true;
+
+	#endif
 }
 
 void ASpawner::BeginPlay(){
+	Super::BeginPlay();
+
 	TArray<AActor*> WaveManagerTemp;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaveManager::StaticClass(), WaveManagerTemp);
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
@@ -33,14 +45,21 @@ void ASpawner::BeginPlay(){
 
 	ActivableComp->OnActivated.AddDynamic(this, &ASpawner::ActivateSpawner);
 	ActivableComp->OnDesactivated.AddDynamic(this, &ASpawner::DesactivateSpawner);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		SpawnerFX->StopEmitter();
+	}, 0.001f, false);
 }
 
 void ASpawner::ActivateSpawner(){
-	UUsefullFunctions::OutlineComponent(true, SpawnerMesh);
+	SpawnerFX->StartEmitter();
+	CompassIcon->SetAllowDraw(true);
 }
 
 void ASpawner::DesactivateSpawner(){
-	UUsefullFunctions::OutlineComponent(false, SpawnerMesh);
+	SpawnerFX->StopEmitter();
+	CompassIcon->SetAllowDraw(false);
 }
 
 void ASpawner::BeginSpawn(const int NumberToSpawn, const TSubclassOf<AMainAICharacter> AIToSpawn, UMainAIData* AIData) {

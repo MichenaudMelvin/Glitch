@@ -162,6 +162,10 @@ void ACatalyseur::OnSwitchPhases(EPhases CurrentPhase){
 
 		if(ActivableComp->IsActivated()){
 			StartGeneratingMoney();
+		} else{
+			// for now it work, needs to be tested with saves
+			InteractableComp->RemoveInteractable(MeshObjectif);
+			InteractableComp->RemoveInteractable(TECHMesh);
 		}
 
 		break;

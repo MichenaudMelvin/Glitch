@@ -488,17 +488,24 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float MaxRewindList = 50;
 
-	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
+	UPROPERTY(EditDefaultsOnly, Category = "Post Process UI")
 	UMaterialParameterCollection* GlitchMPC;
 
-	UPROPERTY(EditDefaultsOnly, Category = "GlitchUI")
-	FWeightedBlendable PostProcessMaterialUI;
+	UPROPERTY(EditDefaultsOnly, Category = "Post Process UI")
+	FWeightedBlendable GlitchPostProcessMaterialUI;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Post Process UI")
+	FWeightedBlendable SafePostProcessMaterialUI;
 
 	void EnableGlitchEffect(const bool bEnable, const float EffectDuration, const float GlitchValue = 1);
 
-	float TargetGlitchUIValue;
+	void EnableSafeEffect(const bool bEnable, const float EffectDuration, const float SafeValue = 1);
+
+	float TargetPostProcessUIValue;
 
 protected:
+	void EnablePostProcessUIEffect(const bool bEnable, FWeightedBlendable PostProcessEffect, const float EffectDuration, const float PostProcessValue);
+
 	FTimeline FadeInGlitchEffectTimeline;
 
 	UFUNCTION()
@@ -507,11 +514,27 @@ protected:
 	UFUNCTION()
 	void EndFadeIn();
 
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UMaterialInterface*> GlitchedMaterialList;
+	/**
+	 * @brief Player start with appear materials
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Appear")
+	TArray<UMaterialInterface*> RealPlayerMaterialList;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Appear")
+	float AppearTime = 0.25f;
+
+	FTimeline AppearTimeline;
+
+	void MakeThePlayerAppear();
+
+	UFUNCTION()
+	void AppearUpdate(float Value);
+
+	UFUNCTION()
+	void EndAppear();
 
 public:
-	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue);
+	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue) const;
 
 	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value) const;
 

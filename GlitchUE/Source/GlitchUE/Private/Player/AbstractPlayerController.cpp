@@ -3,3 +3,7 @@
 
 #include "Player/AbstractPlayerController.h"
 
+void AAbstractPlayerController::ShowMouseCursor(const bool Show){
+	DefaultMouseCursor = Show ? EMouseCursor::Default : EMouseCursor::None;
+	bShowMouseCursor = Show;
+}

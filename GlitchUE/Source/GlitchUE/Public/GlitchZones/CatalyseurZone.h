@@ -35,6 +35,9 @@ protected:
 
 	AGlitchUEGameMode* GameMode;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Post Process UI")
+	float SafeFadeTime = 0.5;
+
 	UFUNCTION()
 	virtual void EnterZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -43,5 +46,4 @@ protected:
 
 	UFUNCTION()
 	void OnSwitchPhases(EPhases NewPhase);
-
 };

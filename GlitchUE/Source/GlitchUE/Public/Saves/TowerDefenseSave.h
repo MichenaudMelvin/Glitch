@@ -24,7 +24,7 @@ public:
 	UPlacableActorData* CurrentPlacableData = nullptr;
 
 	UPROPERTY()
-	bool bHasDrone;
+	bool bHasDrone = false;
 
 	UPROPERTY()
 	FString DroneName;
