@@ -15,7 +15,7 @@ void UPopUpWidget::NativeDestruct(){
 	Super::NativeDestruct();
 
 	MainPlayerController->SelectNewGameplayMode(MainPlayerController->GetGameplayMode());
-	MainPlayerController->bShowMouseCursor = false;
+	MainPlayerController->ShowMouseCursor(false);
 
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 }
@@ -26,7 +26,7 @@ void UPopUpWidget::InitWidget(){
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 
 	MainPlayerController->UnbindAll();
-	MainPlayerController->bShowMouseCursor = true;
+	MainPlayerController->ShowMouseCursor(true);
 	AddToViewport();
 }
 

@@ -115,6 +115,10 @@ void AConstructionZone::UnoccupiedSlot(){
 	NavObstacle->SetRelativeLocation(FVector(0, 0, 100));
 }
 
+bool AConstructionZone::IsSlotOccupied() const{
+	return IsValid(UnitInZone);
+}
+
 UActivableComponent* AConstructionZone::GetActivableComp(){
 	return ActivableComp;
 }

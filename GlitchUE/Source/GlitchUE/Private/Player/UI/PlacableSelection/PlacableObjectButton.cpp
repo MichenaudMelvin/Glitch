@@ -7,8 +7,9 @@
 
 void UPlacableObjectButton::NativeOnInitialized(){
 	Super::NativeOnInitialized();
-	
-	Name->SetText(FText::FromName(Data->Name));
+
+	const FString ShowName = Data->Name.ToString() + " (Cost: " + FString::FromInt(Data->Cost) + ")";
+	Name->SetText(FText::FromString(ShowName));
 }
 
 void UPlacableObjectButton::Select(){

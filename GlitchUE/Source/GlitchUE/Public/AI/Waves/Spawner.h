@@ -24,15 +24,22 @@ public:
 UCLASS()
 class GLITCHUE_API ASpawner : public AActor{
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASpawner();
 
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	UStaticMeshComponent* SpawnerMesh;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	UPopcornFXEmitterComponent* SpawnerFX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	UCompassIcon* CompassIcon;
+
+	#if WITH_EDITORONLY_DATA
+		UBillboardComponent* Billboard;
+	#endif
 
 	UPROPERTY(EditDefaultsOnly)
 	UActivableComponent* ActivableComp;

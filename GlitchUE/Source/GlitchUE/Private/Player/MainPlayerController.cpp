@@ -18,7 +18,10 @@ void AMainPlayerController::BeginPlay(){
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
-	SelectNewGameplayMode(EGameplayMode::Normal);
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		ShowMouseCursor(false);
+	}, 0.01f, false);
 }
 
 void AMainPlayerController::CreatePlayerWidgets_Implementation(){
@@ -308,12 +311,13 @@ void AMainPlayerController::UnbindAll(){
 	UnbindOpenSelectionWheel();
 	UnbindMouseScroll();
 	UnbindFastSaveAndLoad();
+	UnbindPause();
 }
 
 void AMainPlayerController::PauseGame(){
 	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
 
-	SetShowMouseCursor(!bShowMouseCursor);
+	ShowMouseCursor(!bShowMouseCursor);
 
 	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
 }
@@ -331,7 +335,7 @@ void AMainPlayerController::OpenWheel(){
 	UnbindCamera();
 	UnbindMouseScroll();
 
-	bShowMouseCursor = true;
+	ShowMouseCursor(true);
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WheelTimeDilation);
 }
 
@@ -347,7 +351,7 @@ void AMainPlayerController::CloseWheel(){
 	BindCamera();
 
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
-	bShowMouseCursor = false;
+	ShowMouseCursor(false);
 }
 
 void AMainPlayerController::ShowHotBar(float AxisValue){

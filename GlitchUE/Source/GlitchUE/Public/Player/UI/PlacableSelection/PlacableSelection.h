@@ -17,7 +17,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	USelectionButton* NormalModeButton;
-	
+
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UPlacableObjectButton* PlacableButton1;
 
@@ -55,4 +55,3 @@ protected:
 	AMainPlayer* MainPlayer;
 
 };
-	

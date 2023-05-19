@@ -135,6 +135,16 @@ void AMainPlayer::BeginPlay(){
 	FadeInGlitchEffectTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	FadeInGlitchEffectTimeline.SetTimelineFinishedFunc(FinishedEvent);
 
+	UpdateEvent.Unbind();
+	FinishedEvent.Unbind();
+
+	UpdateEvent.BindDynamic(this, &AMainPlayer::AppearUpdate);
+	FinishedEvent.BindDynamic(this, &AMainPlayer::EndAppear);
+
+	AppearTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	AppearTimeline.SetTimelineFinishedFunc(FinishedEvent);
+	AppearTimeline.SetPlayRate(1/AppearTime);
+
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 	Nexus = Cast<ANexus>(NexusArray[0]);
@@ -170,6 +180,8 @@ void AMainPlayer::BeginPlay(){
 	UPopcornFXAttributeFunctions::SetAttributeAsFloat(GlitchDashFXBackup, TargetIndex, GlitchDashDuration + 1, true);
 
 	#pragma endregion
+
+	MakeThePlayerAppear();
 }
 
 void AMainPlayer::Destroyed(){
@@ -671,6 +683,7 @@ void AMainPlayer::Tick(float deltaTime){
 	CameraZoomTransition.TickTimeline(deltaTime);
 	CameraFOVTransition.TickTimeline(deltaTime);
 	FadeInGlitchEffectTimeline.TickTimeline(deltaTime);
+	AppearTimeline.TickTimeline(deltaTime);
 
 	// Manage the run FX, disable it if the character is not on ground or not moving
 	const int LifeTimeIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "Lifetime");
@@ -853,22 +866,31 @@ void AMainPlayer::RecordRandomLocation(){
 }
 
 void AMainPlayer::EnableGlitchEffect(const bool bEnable, const float EffectDuration, const float GlitchValue){
+	EnablePostProcessUIEffect(bEnable, GlitchPostProcessMaterialUI, EffectDuration, GlitchValue);
+}
+
+void AMainPlayer::EnableSafeEffect(const bool bEnable, const float EffectDuration, const float SafeValue){
+	EnablePostProcessUIEffect(bEnable, SafePostProcessMaterialUI, EffectDuration, SafeValue);
+}
+
+void AMainPlayer::FadeInGlitchEffect(float Value){
+	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess", FMath::Lerp(0.0f, TargetPostProcessUIValue, Value));
+}
+
+void AMainPlayer::EnablePostProcessUIEffect(const bool bEnable, FWeightedBlendable PostProcessEffect, const float EffectDuration, const float PostProcessValue){
 	if(bEnable){
 		FPostProcessSettings NewSettings;
-		NewSettings.WeightedBlendables.Array.Add(PostProcessMaterialUI);
+		NewSettings.WeightedBlendables.Array.Add(PostProcessEffect);
 		GetFollowCamera()->PostProcessSettings = NewSettings;
 	}
 
-	TargetGlitchUIValue = GlitchValue;
+	TargetPostProcessUIValue = PostProcessValue;
 
 	FadeInGlitchEffectTimeline.SetPlayRate(1/EffectDuration);
 
 	bEnable ? FadeInGlitchEffectTimeline.Play() : FadeInGlitchEffectTimeline.Reverse();
 }
 
-void AMainPlayer::FadeInGlitchEffect(float Value){
-	UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess", FMath::Lerp(0.0f, TargetGlitchUIValue, Value));
-}
 
 void AMainPlayer::EndFadeIn(){
 	const float GlitchEffectValue = UKismetMaterialLibrary::GetScalarParameterValue(GetWorld(), GlitchMPC, "ApparitionPostProcess");
@@ -880,7 +902,25 @@ void AMainPlayer::EndFadeIn(){
 	}
 }
 
-void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue){
+void AMainPlayer::MakeThePlayerAppear(){
+	GetMesh()->SetScalarParameterValueOnMaterials("PercentageApparition", 0);
+
+	AppearTimeline.Play();
+}
+
+void AMainPlayer::AppearUpdate(float Value){
+	GetMesh()->SetScalarParameterValueOnMaterials("PercentageApparition", Value);
+}
+
+void AMainPlayer::EndAppear(){
+	MainPlayerController->SelectNewGameplayMode(MainPlayerController->GetGameplayMode());
+
+	for(int i = 0; i < RealPlayerMaterialList.Num(); i++){
+		GetMesh()->SetMaterial(i, RealPlayerMaterialList[i]);
+	}
+}
+
+void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue) const{
 	const float PercentValue = (GlitchValue * 100) / GlitchMaxValue;
 	constexpr float TierOne = 100/3;
 	constexpr float TierTwo = 200/3;

@@ -10,4 +10,6 @@ UCLASS(Abstract)
 class GLITCHUE_API ULooseScreen : public UUserWidget{
 	GENERATED_BODY()
 
+protected:
+	virtual void NativeConstruct() override;
 };

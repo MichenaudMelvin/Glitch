@@ -10,7 +10,7 @@
 #include "GlitchUEGameMode.h"
 #include "AudioManager.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GLITCHUE_API AAudioManager : public AActor{
 	GENERATED_BODY()
 

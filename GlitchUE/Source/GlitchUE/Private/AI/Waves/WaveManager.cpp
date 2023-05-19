@@ -20,7 +20,6 @@ AWaveManager::AWaveManager(){
 	check(DataTable.Succeeded());
 
 	WavesData = DataTable.Object;
-
 }
 
 void AWaveManager::BeginPlay(){
@@ -72,16 +71,23 @@ void AWaveManager::BeginPlay(){
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
+	TArray<AActor*> AudioManagerArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAudioManager::StaticClass(), AudioManagerArray);
+
+	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
+
+#if WITH_EDITOR
+	// for simulation mode 
+	if(!IsValid(Player)){
+		return;
+	}
+#endif
+
 	FTimerHandle TimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		PlayerTimerWidget = Player->GetMainPlayerController()->GetTimerWidget();
 	}, 0.1f, false);
-
-	TArray<AActor*> AudioManagerArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAudioManager::StaticClass(), AudioManagerArray);
-
-	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
 }
 
 void AWaveManager::EnableSpawners(){
@@ -216,11 +222,9 @@ void AWaveManager::NextWave(){
 	CurrentWaveNumber++;
 
 	AudioManager->UpdateTowerDefenseMusic();
-	
-	UE_LOG(LogTemp, Warning, TEXT("UpdateTowerDefenseMusic"));
 
 	if(CurrentWaveNumber >= NumberOfWaves){
-		GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Blue, TEXT("Les vagues sont terminées"));
+		//GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Blue, TEXT("Les vagues sont terminées"));
 		return;
 	}
 

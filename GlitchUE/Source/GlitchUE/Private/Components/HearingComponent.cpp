@@ -30,8 +30,8 @@ void UHearingComponent::BeginPlay(){
 	}
 }
 
-void UHearingComponent::OnComponentDestroyed(bool bDestroyingHierarchy){
-	Super::OnComponentDestroyed(bDestroyingHierarchy);
+void UHearingComponent::EndPlay(const EEndPlayReason::Type EndPlayReason){
+	Super::EndPlay(EndPlayReason);
 
 	TArray<AActor*> ActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), ActorList);
@@ -91,8 +91,6 @@ void UHearingComponent::HearSound() const{
 }
 
 bool UHearingComponent::IsClassValid(const AActor* ActorToCheck) const{
-	//return !ActorToCheck->IsA(AMainAICharacter::StaticClass());
-
 	for(int i = 0; i < ClassToIgnore.Num(); i++){
 		if(!IsValid(ClassToIgnore[i])){
 			continue;

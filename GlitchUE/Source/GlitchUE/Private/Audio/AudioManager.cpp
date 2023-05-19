@@ -9,6 +9,8 @@ AAudioManager::AAudioManager(){
 	FMODAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("FMOD Audio"));
 	SetRootComponent(FMODAudioComp);
 
+	FMODAudioComp->SetMobility(EComponentMobility::Static);
+
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> StMusic(TEXT("/Game/FMOD/Events/MUSIC/MUSIC_Infiltration"));
 	check(StMusic.Succeeded());
 
@@ -118,13 +120,11 @@ void AAudioManager::SwitchToTowerDefenseMusic(){
 void AAudioManager::UpdateTowerDefenseMusic() {
 	TowerDefenseLayer++;
 
-	UE_LOG(LogTemp, Warning, TEXT("The integer value is: %d"), TowerDefenseLayer);
-
-	if (TowerDefenseLayer == 4)
-	{
+	if (TowerDefenseLayer == 4){
 		TowerDefenseLayer = 0;
 		FMODAudioComp->Play();
 	}
+
 	FMODAudioComp->SetParameter("TowerDefense", TowerDefenseLayer);
 }
 
