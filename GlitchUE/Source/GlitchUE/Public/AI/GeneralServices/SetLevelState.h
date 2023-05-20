@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "SetLevelState.generated.h"
 
 UCLASS()

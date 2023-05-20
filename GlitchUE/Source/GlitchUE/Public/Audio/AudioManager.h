@@ -7,7 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "FMODEvent.h"
 #include "FMODAudioComponent.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "AudioManager.generated.h"
 
 UCLASS(Abstract)

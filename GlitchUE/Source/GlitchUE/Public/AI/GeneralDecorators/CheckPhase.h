@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CustomDecorator.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "CheckPhase.generated.h"
 
 UCLASS()

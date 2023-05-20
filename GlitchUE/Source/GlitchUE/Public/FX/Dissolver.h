@@ -7,7 +7,7 @@
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
 #include "FMODAudioComponent.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "Dissolver.generated.h"
 
 class AMainPlayer;

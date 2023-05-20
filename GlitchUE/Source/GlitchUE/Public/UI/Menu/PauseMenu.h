@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Player/UI/Saves/SaveSelection.h"
-#include "Player/UI/Settings/SettingsContainerMenu.h"
+#include "UI/Menu/Saves/SaveSelection.h"
+#include "UI/Menu/Settings/SettingsContainerMenu.h"
 #include "PauseMenu.generated.h"
 
 UCLASS(Abstract)

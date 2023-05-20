@@ -2,7 +2,7 @@
 
 
 #include "Player/MainPlayerController.h"
-
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
@@ -20,7 +20,7 @@ void AMainPlayerController::BeginPlay(){
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		ShowMouseCursor(false);
+		ShowMouseCursor(false, nullptr);
 	}, 0.01f, false);
 }
 
@@ -279,8 +279,7 @@ void AMainPlayerController::BindMouseScroll(){
 }
 
 void AMainPlayerController::UnbindMouseScroll(){
-	OnMouseScroll.Clear();
-}
+	OnMouseScroll.Clear();}
 
 void AMainPlayerController::BindOpenSelectionWheel(){
 	UnbindOpenSelectionWheel();
@@ -317,7 +316,7 @@ void AMainPlayerController::UnbindAll(){
 void AMainPlayerController::PauseGame(){
 	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
 
-	ShowMouseCursor(!bShowMouseCursor);
+	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
 
 	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
 }
@@ -330,12 +329,10 @@ void AMainPlayerController::StartOpenWheelTimer(){
 
 void AMainPlayerController::OpenWheel(){
 	WheelWidget->AddToViewport();
-	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, WheelWidget, EMouseLockMode::DoNotLock, false);
-
 	UnbindCamera();
 	UnbindMouseScroll();
 
-	ShowMouseCursor(true);
+	ShowMouseCursor(true, WheelWidget);
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WheelTimeDilation);
 }
 
@@ -350,8 +347,7 @@ void AMainPlayerController::CloseWheel(){
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 	BindCamera();
 
-	UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
-	ShowMouseCursor(false);
+	ShowMouseCursor(false, nullptr);
 }
 
 void AMainPlayerController::ShowHotBar(float AxisValue){

@@ -5,7 +5,7 @@
 #include "Engine/World.h"
 #include "AI/MainAIController.h"
 #include "AI/Waves/WaveManager.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 

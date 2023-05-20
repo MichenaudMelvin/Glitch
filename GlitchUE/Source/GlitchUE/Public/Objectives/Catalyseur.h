@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
 #include "Components/CompassIcon.h"

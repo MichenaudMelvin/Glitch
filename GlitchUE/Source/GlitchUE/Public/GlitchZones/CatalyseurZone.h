@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "NavModifierComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "CatalyseurZone.generated.h"
