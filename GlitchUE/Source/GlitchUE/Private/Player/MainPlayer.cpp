@@ -11,7 +11,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "NavigationSystem.h"
 #include "PopcornFXAttributeFunctions.h"
 #include "PopcornFXEmitterComponent.h"

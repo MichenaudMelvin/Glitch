@@ -2,7 +2,7 @@
 
 
 #include "Objectives/Inhibiteur.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "Engine/Selection.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Kismet/GameplayStatics.h"

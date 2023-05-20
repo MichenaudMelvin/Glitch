@@ -3,12 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GlitchUEGameMode.h"
 #include "AI/MainAIData.h"
 #include "Player/MainPlayer.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
-#include "Player/UI/TimerWidget.h"
+#include "UI/Gameplay/TimerWidget.h"
 #include "WaveManager.generated.h"
 
 class AMainAICharacter;

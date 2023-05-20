@@ -24,8 +24,9 @@ public:
 	// the player controller function is not virtual
 	/**
 	 * @brief This function is only used to fix when the cursor appears on the left side of the screen.
-	 * @param Show show the mouse cursor or not
+	 * @param bShow show the mouse cursor or not
+	 * @param WidgetToFocus if bShow is false it can be nullptr
 	 */
 	UFUNCTION(BlueprintCallable)
-	void ShowMouseCursor(const bool Show = true);
+	void ShowMouseCursor(const bool bShow = false, UUserWidget* WidgetToFocus = nullptr);
 };

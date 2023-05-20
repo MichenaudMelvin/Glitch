@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GlitchInterface.h"
+#include "Gamemodes/GlitchInterface.h"
 #include "GameFramework/Actor.h"
 #include "PlacableActorData.h"
 #include "Objectives/Nexus.h"

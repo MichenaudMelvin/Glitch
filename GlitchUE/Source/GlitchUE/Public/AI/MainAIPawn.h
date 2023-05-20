@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GlitchInterface.h"
+#include "Gamemodes/GlitchInterface.h"
 #include "GameFramework/Pawn.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "MainAIPawn.generated.h"

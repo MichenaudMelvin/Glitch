@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Saves/WorldSave.h"
-#include "GlitchUEGameMode.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "StealthSave.generated.h"
 
 USTRUCT(BlueprintType)
