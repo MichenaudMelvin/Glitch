@@ -3,13 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Gamemodes/GlitchUEGameMode.h"
-#include "NavModifierComponent.h"
-#include "Engine/StaticMeshActor.h"
+#include "PlayerZone.h"
 #include "GlitchZone.generated.h"
 
 UCLASS()
-class GLITCHUE_API AGlitchZone : public AStaticMeshActor{
+class GLITCHUE_API AGlitchZone : public APlayerZone{
 	GENERATED_BODY()
 
 public:
@@ -18,18 +16,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-#if WITH_EDITORONLY_DATA
-	UBillboardComponent* Billboard;
-#endif
+	virtual void OnPlayerEnterZone() override;
 
-	AGlitchUEGameMode* GameMode;
+	virtual void OnPlayerExitZone() override;
 
 	AAudioManager* AudioManager;
-
-	UPROPERTY(EditDefaultsOnly);
-	UNavModifierComponent* NavModifierComp;
-
-	FTimerHandle GlitchGaugeTimer;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
 	float GlitchGaugeTick = 0.2;
@@ -39,15 +30,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
 	float GlitchGaugeValueToAddEveryTick = 100;
-
-	UFUNCTION()
-	void EnterGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void ExitGlitchZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	AMainPlayer* MainPlayer;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Post Process UI")
-	float GlitchFadeTime = 0.5;
 };

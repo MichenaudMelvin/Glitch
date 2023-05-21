@@ -5,6 +5,7 @@
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Engine/Selection.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Components/CompassComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 AInhibiteur::AInhibiteur(){
@@ -14,6 +15,12 @@ AInhibiteur::AInhibiteur(){
 	check(ActivAnim.Succeeded());
 
 	ActivationAnim = ActivAnim.Object;
+
+	CompassIcon = CreateDefaultSubobject<UCompassIcon>(TEXT("Compass Icon"));
+	CompassIcon->SetupAuto(false);
+	CompassIcon->SetShouldUseTick(false);
+	CompassIcon->SetOwnerClass(ACatalyseur::StaticClass());
+	CompassIcon->SetDrawDistance(0);
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
@@ -57,7 +64,7 @@ void AInhibiteur::ActiveObjectif(){
 	if(GameMode->GetPhases() == EPhases::Infiltration){
 		GameMode->LaunchStealthTimer();
 
-		SpriteReference.DestroyComponents();
+		CompassIcon->DestroyComponent();
 	}
 }
 
@@ -82,12 +89,9 @@ void AInhibiteur::ActivateLinkedElements(const bool bActivate){
 	}
 }
 
-void AInhibiteur::SetSpriteReference(const FCompassSprite NewSprite){
-	SpriteReference = NewSprite;
-}
-
 void AInhibiteur::SetOwnerCatalyseur(ACatalyseur* NewOwner){
 	OwnerCatalyseur = NewOwner;
+	CompassIcon->SetCompassOwner(OwnerCatalyseur->GetCompass());
 }
 
 #if WITH_EDITORONLY_DATA

@@ -4,32 +4,13 @@
 #include "Objectives/Catalyseur.h"
 #include "AI/Waves/Spawner.h"
 #include "AI/Waves/WaveManager.h"
+#include "Components/CompassComponent.h"
 #include "Engine/Selection.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Objectives/Inhibiteur.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayer.h"
 #include "Kismet/KismetMathLibrary.h"
-
-FCompassSprite::FCompassSprite(){
-	SceneComponent = nullptr;
-	StaticMeshComponent = nullptr;
-}
-
-FCompassSprite::FCompassSprite(USceneComponent* SceneComp, UStaticMeshComponent* StaticMeshComp){
-	SceneComponent = SceneComp;
-	StaticMeshComponent = StaticMeshComp;
-}
-
-void FCompassSprite::DestroyComponents() const{
-	if(IsValid(SceneComponent)){
-		SceneComponent->DestroyComponent();
-	}
-
-	if(IsValid(StaticMeshComponent)){
-		StaticMeshComponent->DestroyComponent();
-	}
-}
 
 ACatalyseur::ACatalyseur(){
 	TECHMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TECHMesh"));
@@ -45,6 +26,9 @@ ACatalyseur::ACatalyseur(){
 	check(DesactivAnim.Succeeded());
 
 	DesactivationAnim = DesactivAnim.Object;
+
+	Compass = CreateDefaultSubobject<UCompassComponent>(TEXT("Compass"));
+	Compass->SetCompassOffset(FVector(0, 0, 50));
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
@@ -70,8 +54,6 @@ void ACatalyseur::BeginPlay(){
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaveManager::StaticClass(), WaveManagerTemp);
 
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
-
-	GenerateCompass();
 
 	GameMode->OnSwitchPhases.AddDynamic(this, &ACatalyseur::OnSwitchPhases);
 
@@ -158,7 +140,7 @@ void ACatalyseur::OnSwitchPhases(EPhases CurrentPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
-		DeleteCompass();
+		Compass->DestroyComponent();
 
 		if(ActivableComp->IsActivated()){
 			StartGeneratingMoney();
@@ -174,45 +156,6 @@ void ACatalyseur::OnSwitchPhases(EPhases CurrentPhase){
 
 void ACatalyseur::HealthNull(){
 	ActivableComp->DesactivateObject();
-}
-
-void ACatalyseur::GenerateCompass(){
-	const FAttachmentTransformRules AttachmentTransformRules = FAttachmentTransformRules::KeepWorldTransform;
-
-	const FVector ActorOffset = FVector(0, 0, 80);
-
-	const FTransform SpriteTransform = FTransform(FRotator::ZeroRotator, FVector(CompassRadius, 0, 0), FVector(InhibiteurIconScale, InhibiteurIconScale,  InhibiteurIconScale));
-
-	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
-		USceneComponent* CurrentSceneComp = Cast<USceneComponent>(AddComponentByClass(USceneComponent::StaticClass(), false, FTransform::Identity, false));
-
-		CurrentSceneComp->AttachToComponent(MeshObjectif, AttachmentTransformRules);
-
-		CurrentSceneComp->SetRelativeLocation(ActorOffset);
-
-		UStaticMeshComponent* CurrentStaticMeshComp = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), false, FTransform::Identity, false));
-
-		CurrentStaticMeshComp->AttachToComponent(CurrentSceneComp, AttachmentTransformRules);
-
-		CurrentStaticMeshComp->SetStaticMesh(InhibiteurMesh);
-		CurrentStaticMeshComp->SetRelativeTransform(SpriteTransform);
-		CurrentStaticMeshComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-
-		CurrentSceneComp->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(CurrentSceneComp->GetComponentLocation(), LinkedInhibiteur[i]->GetActorLocation()));
-
-		const FCompassSprite NewCompassSprite = FCompassSprite(CurrentSceneComp, CurrentStaticMeshComp);
-		CompassSpriteList.Add(NewCompassSprite);
-
-		LinkedInhibiteur[i]->SetSpriteReference(CompassSpriteList[i]);
-	}
-}
-
-void ACatalyseur::DeleteCompass(){
-	for(int i = 0; i < CompassSpriteList.Num(); i++){
-		CompassSpriteList[i].DestroyComponents();
-	}
-
-	CompassSpriteList.Empty();
 }
 
 void ACatalyseur::GenerateMoney(){
@@ -231,29 +174,21 @@ void ACatalyseur::AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd){
 	}
 }
 
+UCompassComponent* ACatalyseur::GetCompass() const{
+	return Compass;
+}
+
 #if WITH_EDITORONLY_DATA
 void ACatalyseur::PreEditChange(FProperty* PropertyAboutToChange){
 	Super::PreEditChange(PropertyAboutToChange);
 
 	OutlineLinkedObjects(false);
-
-	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
-		if(IsValid(LinkedInhibiteur[i])){
-			LinkedInhibiteur[i]->SetOwnerCatalyseur(nullptr);
-		}
-	}
 }
 
 void ACatalyseur::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent){
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	OutlineLinkedObjects(true);
-
-	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
-		if(IsValid(LinkedInhibiteur[i])){
-			LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
-		}
-	}
 }
 
 

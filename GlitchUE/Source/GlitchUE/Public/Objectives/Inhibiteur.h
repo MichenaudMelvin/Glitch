@@ -27,8 +27,8 @@ protected:
 
 	UAnimationAsset* ActivationAnim;
 
-	UPROPERTY()
-	FCompassSprite SpriteReference;
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	UCompassIcon* CompassIcon;
 
 	virtual void DesactivateObjectif() override;
 
@@ -40,8 +40,6 @@ protected:
 	ACatalyseur* OwnerCatalyseur;
 
 public:
-	void SetSpriteReference(const FCompassSprite NewSprite);
-
 	void SetOwnerCatalyseur(ACatalyseur* NewOwner);
 
 #if WITH_EDITORONLY_DATA
