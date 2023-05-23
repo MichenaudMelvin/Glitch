@@ -79,6 +79,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Nexus", meta = (ExposeOnSpawn = "true"))
 	ANexus* Nexus;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Player", meta = (ExposeOnSpawn = "true"))
+	AMainPlayer* Player;
+
 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	virtual void SetMesh();
 
@@ -86,7 +89,7 @@ protected:
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 	UFUNCTION()
-	void SellObject();
+	void SellDestroy();
 
 	float GlitchGaugeValueOnDestruct;
 
@@ -103,8 +106,9 @@ protected:
 public:
 	virtual void Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent);
 
-	// called for save
-	void SetNexus(ANexus* NewNexus);
+	void SellObject();
+
+	void SetMissingData(ANexus* NewNexus, AMainPlayer* MainPlayer);
 
 protected:
 	bool bIsAppearing = false;

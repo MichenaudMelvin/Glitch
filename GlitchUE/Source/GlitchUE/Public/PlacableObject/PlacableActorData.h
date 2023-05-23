@@ -23,6 +23,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Name")
 	FName Name;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Name")
+	FText Description;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Stats")
 	float AttackRange;
 

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SubMenuButton.h"
 #include "UI/Gameplay/PlacableSelection/PlacableSelection.h"
 #include "Wheel.generated.h"
 
@@ -16,17 +15,19 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	USubMenuButton* TurretSubMenuButton;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	USubMenuButton* TrapSubMenuButton;
-
 	TArray<USelectionButton*> MainButtonList;
 
 	USelectionButton* SelectedButton;
 
-	void RadialSelection();
+	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
+	UButton* DestructButton;
+
+	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
+	UTextBlock* PlacableDescription;
+
+public:
+	void ClickOnDestructButton();
+
+	void SetDescription(const FText NewDescription) const;
+
 };

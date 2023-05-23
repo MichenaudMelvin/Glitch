@@ -310,16 +310,12 @@ protected:
 	AConstructionZone* CurrentFocusedConstructionZone;
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Construction")
-	void PreviewPlacableObject();
-	virtual void PreviewPlacableObject_Implementation();
-
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Construction")
 	void PlacePlacableActor();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Construction")
-	void StopPreviewMovement();
-	virtual void StopPreviewMovement_Implementation();
+	AConstructionZone* GetCurrentConstructionZone() const;
+
+	void OpenConstructionZone(AConstructionZone* CurrentConstructionZone);
 
 	APreviewPlacableActor* GetPreviewPlacableActor() const;
 

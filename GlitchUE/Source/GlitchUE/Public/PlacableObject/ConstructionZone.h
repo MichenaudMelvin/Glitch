@@ -7,6 +7,7 @@
 #include "PlacableActor.h"
 #include "Animation/SkeletalMeshActor.h"
 #include "Components/BoxComponent.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "ConstructionZone.generated.h"
 
 UCLASS()
@@ -24,6 +25,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TechMesh;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	UInteractableComponent* InteractableComponent;
+
 	UAnimationAsset* ActivationAnim;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -34,6 +38,8 @@ protected:
 
 	UPROPERTY()
 	UPopcornFXEmitterComponent* ConstructionFXEmitter;
+
+	AGlitchUEGameMode* GameMode;
 
 	UPopcornFXEffect* ConstructionEffect;
 
@@ -46,7 +52,13 @@ protected:
 	UFUNCTION()
 	void DesactivateObjectif();
 
-	APlacableActor* UnitInZone;
+	UFUNCTION()
+	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
+	UFUNCTION()
+	void SwitchPhases(EPhases NewPhases);
+
+	APlacableActor* UnitInZone = nullptr;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -60,6 +72,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Activable")
 	UActivableComponent* GetActivableComp();
+
+	UFUNCTION()
+	void DestroyCurrentUnit();
 
 #if WITH_EDITORONLY_DATA
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

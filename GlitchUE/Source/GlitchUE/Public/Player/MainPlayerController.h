@@ -7,7 +7,6 @@
 #include "AbstractPlayerController.h"
 #include "UI/Gameplay/TimerWidget.h"
 #include "UI/Menu/PauseMenu.h"
-#include "UI/Gameplay/PlacableSelection/HotBar.h"
 #include "UI/Gameplay/PlacableSelection/Wheel.h"
 #include "UI/Gameplay/PlayerStats.h"
 #include "UI/Gameplay/PopUpWidget.h"
@@ -63,27 +62,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastLoad);
 
 #pragma endregion
 
-#pragma region UI
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnOpenSelectionWheelPressed);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnOpenSelectionWheelReleased);
-
-#pragma endregion
-
 #pragma endregion
 
 DECLARE_DELEGATE_OneParam(FInputSwitchInventoryDelegate, const int32);
-
-UENUM(BlueprintType)
-enum class EGameplayMode : uint8 {
-
-	Normal,
-
-	Construction,
-
-	Destruction,
-};
 
 UCLASS(Abstract)
 class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
@@ -104,14 +85,7 @@ protected:
 
 	FTimerDynamicDelegate InteractionTickDelegate;
 
-	EGameplayMode GameplayMode = EGameplayMode::Normal;
-
 public:
-	UFUNCTION(BlueprintCallable, Exec, Category = "Gameplay")
-	void SelectNewGameplayMode(const EGameplayMode NewGameplayMode);
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay")
-	EGameplayMode GetGameplayMode() const;
 
 #pragma region Deletages
 
@@ -201,16 +175,6 @@ public:
 
 	#pragma endregion
 
-	#pragma region UI
-
-	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|UI")
-	FKOnOpenSelectionWheelPressed OnOpenSelectionWheelPressed;
-
-	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|UI")
-	FKOnOpenSelectionWheelReleased OnOpenSelectionWheelReleased;
-
-	#pragma endregion
-
 #pragma endregion
 
 #pragma region DelegatesFunctions
@@ -245,12 +209,6 @@ public:
 	virtual void BindSprint();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	virtual void BindConstruction();
-
-	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void UnbindConstruction();
-
-	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindSprint();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
@@ -269,9 +227,6 @@ public:
 	void BindNormalMode();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void BindConstructionMode();
-
-	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void BindPause();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
@@ -282,12 +237,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
 	void UnbindMouseScroll();
-
-	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	virtual void BindOpenSelectionWheel();
-
-	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void UnbindOpenSelectionWheel();
 
 	/**
 	 * @brief this one should call by an external element and should not be called in the player controller. To unbind this movement use select GameplayMode();
@@ -343,17 +292,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets|Wheel")
 	float WheelTimeDilation = 0.2f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets|Wheel")
-	float OpenWheelTimer = 0.05f;
-
-	FTimerHandle OpenWheelTimerHandle;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
-	UHotBar* HotBarWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	TSubclassOf<UHotBar> HotBarWidgetWidgetClass;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
 	UPauseMenu* PauseWidget;
 
@@ -366,24 +304,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UPopUpWidget> PopUpWidgetClass;
 
-	UFUNCTION()
-	void StartOpenWheelTimer();
-
+public:
 	UFUNCTION()
 	void OpenWheel();
 
 	UFUNCTION()
 	void CloseWheel();
 
-	UFUNCTION()
-	void ShowHotBar(float AxisValue);
-
-	FTimerHandle HotBarTimerHandle;
-
-public:
 	UTchat* GetTchatWidget() const;
 
 	USightWidget* GetSightWidget() const;
+
+	UWheel* GetWheelWidget() const;
+
+	float GetWheelTimeDilation() const;
 
 	UTimerWidget* GetTimerWidget() const;
 

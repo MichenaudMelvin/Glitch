@@ -21,12 +21,7 @@ protected:
 
 	AMainPlayer* MainPlayer;
 
-	UFUNCTION(BlueprintCallable)
-	bool CheckSpotSpace();
-
 	FVector OriginalLocation;
-
-	bool bInConstructionZone;
 
 	UMaterial* HologramMaterial;
 
@@ -41,20 +36,17 @@ protected:
 public:
 	virtual void SetData(UPlacableActorData* NewData) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetInConstructionZone(bool bNewValue);
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
-	bool CanBePlaced();
+	bool CanBePlaced() const;
 
 	UFUNCTION(BlueprintCallable, Category = "PreviewPlacable")
-	void ChooseColor();
+	void ChooseColor() const;
 
 	UFUNCTION(BlueprintCallable, Category = "PreviewPlacable")
 	void ResetActor();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
-	FVector GetOriginalLocation();
+	FVector GetOriginalLocation() const;
 
 	UStaticMeshComponent* GetPreviewMesh() const;
 

@@ -3,13 +3,18 @@
 #include "PlacableObject/ConstructionZone.h"
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
+#include "Gamemodes/GlitchUEGameMode.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "NavAreas/NavArea_Obstacle.h"
+#include "Player/MainPlayerController.h"
 
 AConstructionZone::AConstructionZone() {
 	PrimaryActorTick.bCanEverTick = false;
 
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
+	ActivableComp->OnActivated.AddDynamic(this, &AConstructionZone::ActiveObjectif);
+	ActivableComp->OnDesactivated.AddDynamic(this, &AConstructionZone::DesactivateObjectif);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MedSkelMesh(TEXT("/Game/Meshs/Turrets/Socles/SK_MED_Socle"));
 	check(MedSkelMesh.Succeeded());
@@ -43,6 +48,9 @@ AConstructionZone::AConstructionZone() {
 
 	InitialState = EState::Desactivated;
 
+	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("ConstructionZone Interaction"));
+	InteractableComponent->OnInteract.AddDynamic(this, &AConstructionZone::Interact);
+
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_ConstructionZone"));
 	check(FX.Succeeded());
 
@@ -61,12 +69,12 @@ USkeletalMeshComponent* AConstructionZone::GetTechMesh() const{
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
 
-	ActivableComp->OnActivated.AddDynamic(this, &AConstructionZone::ActiveObjectif);
-	ActivableComp->OnDesactivated.AddDynamic(this, &AConstructionZone::DesactivateObjectif);
-
 	FVector FXLocation = GetActorLocation();
 	FXLocation.Z += 5;
 	ConstructionFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), ConstructionEffect, "PopcornFX_DefaultScene", FXLocation, FRotator::ZeroRotator, false, false);
+
+	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->OnSwitchPhases.AddDynamic(this, &AConstructionZone::SwitchPhases);
 
 	switch (InitialState){
 	case EState::Activated:
@@ -82,6 +90,11 @@ void AConstructionZone::ActiveObjectif(){
 	ConstructionFXEmitter->StartEmitter();
 	GetSkeletalMeshComponent()->PlayAnimation(ActivationAnim, false);
 	TechMesh->PlayAnimation(ActivationAnim, false);
+
+	if(GameMode->GetPhases() == EPhases::TowerDefense){
+		InteractableComponent->AddInteractable(GetSkeletalMeshComponent());
+		InteractableComponent->AddInteractable(TechMesh);
+	}
 }
 
 void AConstructionZone::DesactivateObjectif(){
@@ -96,6 +109,23 @@ void AConstructionZone::DesactivateObjectif(){
 		FOnTimelineEvent FinishEvent;
 		FinishEvent.BindDynamic(UnitInZone, &APlacableActor::CallDestroy);
 		UnitInZone->Appear(true, FinishEvent);
+	}
+
+	if(GameMode->GetPhases() == EPhases::TowerDefense){
+		InteractableComponent->RemoveInteractable(GetSkeletalMeshComponent());
+		InteractableComponent->RemoveInteractable(TechMesh);
+	}
+}
+
+void AConstructionZone::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
+	MainPlayer->OpenConstructionZone(this);
+	MainPlayerController->OpenWheel();
+}
+
+void AConstructionZone::SwitchPhases(EPhases NewPhases){
+	if(NewPhases == EPhases::TowerDefense && ActivableComp->IsActivated()){
+		InteractableComponent->AddInteractable(GetSkeletalMeshComponent());
+		InteractableComponent->AddInteractable(TechMesh);
 	}
 }
 
@@ -121,6 +151,10 @@ bool AConstructionZone::IsSlotOccupied() const{
 
 UActivableComponent* AConstructionZone::GetActivableComp(){
 	return ActivableComp;
+}
+
+void AConstructionZone::DestroyCurrentUnit(){
+	UnitInZone->SellObject();
 }
 
 #if WITH_EDITORONLY_DATA

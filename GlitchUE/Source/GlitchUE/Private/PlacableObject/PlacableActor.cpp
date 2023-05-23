@@ -52,7 +52,9 @@ void APlacableActor::Destroyed(){
 		CurrentDrone->DisableSpinBehavior();
 	}
 
-	AffectedConstructionZone->UnoccupiedSlot();
+	if(IsValid(AffectedConstructionZone)){
+		AffectedConstructionZone->UnoccupiedSlot();
+	}
 
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
@@ -67,24 +69,8 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 		return;
 	}
 
-	bool bIsSelling = false;
-
-	if (MainPlayerController->GetGameplayMode() == EGameplayMode::Destruction){
-		MainPlayer->UpdateGolds(CurrentData->Cost, EGoldsUpdateMethod::ReceiveGolds);
-
-		FOnTimelineEvent FinishEvent;
-		FinishEvent.BindDynamic(this, &APlacableActor::SellObject);
-
-		Appear(true, FinishEvent);
-		bIsSelling = true;
-	}
-
 	if(IsValid(CurrentDrone)){
 		RemoveDrone(MainPlayer);
-		return;
-	}
-
-	if(bIsSelling){
 		return;
 	}
 
@@ -93,10 +79,30 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 	}
 }
 
-void APlacableActor::SellObject(){
+void APlacableActor::SellDestroy(){
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchGaugeValueOnDestruct);
 
+	if(Player->GetMainPlayerController()->GetWheelWidget()->IsVisible()){
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), Player->GetMainPlayerController()->GetWheelTimeDilation());
+		Player->GetMainPlayerController()->GetWheelWidget()->ClickOnDestructButton();
+	}
+
 	Destroy();
+}
+
+void APlacableActor::SellObject(){
+	Player->UpdateGolds(CurrentData->Cost, EGoldsUpdateMethod::ReceiveGolds);
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
+
+	FOnTimelineEvent FinishEvent;
+	FinishEvent.BindDynamic(this, &APlacableActor::SellDestroy);
+
+	Appear(true, FinishEvent);
+}
+
+void APlacableActor::SetMissingData(ANexus* NewNexus, AMainPlayer* MainPlayer){
+	Nexus = NewNexus;
+	Player = MainPlayer;
 }
 
 void APlacableActor::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){
@@ -113,10 +119,6 @@ void APlacableActor::Appear(const bool ReverseEffect, const FOnTimelineEvent App
 	ReverseEffect ? FadeInAppearance.Reverse() : FadeInAppearance.Play();
 
 	FadeInAppearance.SetTimelineFinishedFunc(AppearFinishEvent);
-}
-
-void APlacableActor::SetNexus(ANexus* NewNexus){
-	Nexus = NewNexus;
 }
 
 void APlacableActor::FadeIn(float Alpha){}
