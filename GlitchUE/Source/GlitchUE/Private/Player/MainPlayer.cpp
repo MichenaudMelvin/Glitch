@@ -987,7 +987,6 @@ void AMainPlayer::EndTL(){
 	GlitchTrace();
 
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
-	UE_LOG(LogTemp, Warning, TEXT("AddedGlitchDashValue : %f"), GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 	ResetMovement();
 

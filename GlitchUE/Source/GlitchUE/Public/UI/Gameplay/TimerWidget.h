@@ -19,13 +19,19 @@ protected:
 	void RemoveWidget();
 
 	UPROPERTY(EditDefaultsOnly, Category = "TimerText",  meta = (BindWidget))
-	UTextBlock* Minutes;
-
-	UPROPERTY(EditDefaultsOnly, Category = "TimerText",  meta = (BindWidget))
-	UTextBlock* Seconds;
+	UTextBlock* TimerText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* Fade;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TimerText",  meta = (BindWidget))
+	UTextBlock* LooseTimeText;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* LooseTimeAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animations")
+	float LooseAnimSpeed = 1;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animations")
 	float FadeTime = 2;
@@ -37,6 +43,14 @@ protected:
 	void UpdateTimer();
 
 	FTimerHandle DisplayTimer;
+
+	void GetTimerInString(const float Timer, FString& Minutes, FString& Seconds);
+
+	int GetTimerInInt(const float Time) const;
+
+	int GetSeconds(const float Time) const;
+
+	int GetMinutes(const float Time) const;
 
 public:
 	UFUNCTION(BlueprintCallable)

@@ -62,8 +62,6 @@ void AInhibiteur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
 	if(GameMode->GetPhases() == EPhases::Infiltration){
-		GameMode->LaunchStealthTimer();
-
 		CompassIcon->DestroyComponent();
 	}
 }
