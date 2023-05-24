@@ -22,7 +22,7 @@ ANexus::ANexus() {
 
 	MedFX = MedEffect.Object;
 
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Nexus"));
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
 	check(SFX.Succeeded());
 
 	ActivationSFX = SFX.Object;

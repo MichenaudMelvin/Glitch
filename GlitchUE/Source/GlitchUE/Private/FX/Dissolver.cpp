@@ -22,7 +22,7 @@ ADissolver::ADissolver(){
 
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> BorderSFX(TEXT("/Game/FMOD/Events/SFX/SFX_border"));
 	check(BorderSFX.Succeeded());
-
+	
 	FMODAudio->Event = BorderSFX.Object;
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
