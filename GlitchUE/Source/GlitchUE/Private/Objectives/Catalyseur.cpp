@@ -71,6 +71,13 @@ void ACatalyseur::BeginPlay(){
 
 		LinkedInhibiteur[i]->SetOwnerCatalyseur(this);
 	}
+
+#if WITH_EDITOR
+	if(ConstructionZoneList.Num() == 0){
+		UE_LOG(LogTemp, Warning, TEXT("LE CATALYSEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("LE CATALYSEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName()));
+	}
+#endif
 }
 
 void ACatalyseur::Destroyed(){
@@ -84,6 +91,10 @@ void ACatalyseur::Destroyed(){
 void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);
+
+	for (int i = 0; i < ConstructionZoneList.Num(); i++){
+		ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
+	}
 
 	GameMode->UpdateActivatedCatalyseurAmount();
 
@@ -102,6 +113,10 @@ void ACatalyseur::ActiveObjectif(){
 void ACatalyseur::DesactivateObjectif(){
 	MeshObjectif->PlayAnimation(DesactivationAnim, false);
 	TECHMesh->PlayAnimation(DesactivationAnim, false);
+
+	for (int i = 0; i < ConstructionZoneList.Num(); i++){
+		ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
+	}
 
 	GameMode->UpdateActivatedCatalyseurAmount(false);
 
@@ -170,7 +185,7 @@ void ACatalyseur::AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd){
 	ActivatedInhibiteursList.Add(InhibiteurToAdd);
 
 	if(ActivatedInhibiteursList.Num() == LinkedInhibiteur.Num()){
-		Player->UpdateGolds(GoldsBonus, EGoldsUpdateMethod::ReceiveGolds);
+		ActivableComp->ActivateObject();
 	}
 }
 
@@ -204,6 +219,13 @@ void ACatalyseur::OnObjectSelected(UObject* Object){
 }
 
 void ACatalyseur::OutlineLinkedObjects(const bool bOutline){
+	for(int i = 0; i < ConstructionZoneList.Num(); i++){
+		if(IsValid(ConstructionZoneList[i])){
+			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			UUsefullFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
+		}
+	}
+
 	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
 		if(IsValid(LinkedInhibiteur[i])){
 			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(LinkedInhibiteur[i]->GetRootComponent()));

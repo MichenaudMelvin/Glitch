@@ -46,9 +46,15 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Activable")
 	EState GetState();
 
+	/**
+	 * @brief Use it for activate the owner // Activate() is from UE
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Activable")
 	void ActivateObject();
 
+	/**
+	 * @brief Use it for desactivate the owner
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Activable")
 	void DesactivateObject();
 

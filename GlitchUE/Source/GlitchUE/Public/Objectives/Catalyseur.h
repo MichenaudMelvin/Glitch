@@ -59,6 +59,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
 	TArray<AInhibiteur*> LinkedInhibiteur;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
+	TArray<AConstructionZone*> ConstructionZoneList;
+
 	TArray<AInhibiteur*> ActivatedInhibiteursList;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
@@ -72,9 +75,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Golds")
 	int GeneratedGolds = 100;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Golds")
-	int GoldsBonus = 500;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Golds")
 	int GoldsTick = 10;

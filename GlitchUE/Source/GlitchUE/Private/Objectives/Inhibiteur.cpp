@@ -33,10 +33,6 @@ void AInhibiteur::BeginPlay(){
 
 #if WITH_EDITOR
 
-	if(ConstructionZoneList.Num() == 0){
-		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
-	}
-
 	FTimerHandle TimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
@@ -57,33 +53,17 @@ void AInhibiteur::Destroyed(){
 }
 
 void AInhibiteur::ActiveObjectif(){
-	ActivateLinkedElements(true);
-
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
 	if(GameMode->GetPhases() == EPhases::Infiltration){
+		OwnerCatalyseur->AddInhibiteurToActivatedList(this);
 		CompassIcon->DestroyComponent();
 	}
-}
-
-void AInhibiteur::DesactivateObjectif(){
-	ActivateLinkedElements(false);
 }
 
 void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	if (GameMode->GetPhases() == EPhases::Infiltration && !ActivableComp->IsActivated()){
 		ActivableComp->ActivateObject();
-	}
-}
-
-void AInhibiteur::ActivateLinkedElements(const bool bActivate){
-	for (int i = 0; i < ConstructionZoneList.Num(); i++){
-		bActivate ? ConstructionZoneList[i]->GetActivableComp()->ActivateObject() : ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
-	}
-
-	if(GameMode->GetPhases() == EPhases::Infiltration){
-		bActivate ? OwnerCatalyseur->GetActivableComp()->ActivateObject() : OwnerCatalyseur->GetActivableComp()->DesactivateObject();
-		OwnerCatalyseur->AddInhibiteurToActivatedList(this);
 	}
 }
 
@@ -118,13 +98,6 @@ void AInhibiteur::OnObjectSelected(UObject* Object){
 }
 
 void AInhibiteur::OutlineLinkedObjects(const bool bOutline){
-	for(int i = 0; i < ConstructionZoneList.Num(); i++){
-		if(IsValid(ConstructionZoneList[i])){
-			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
-			UUsefullFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
-		}
-	}
-
 	if(IsValid(OwnerCatalyseur)){
 		UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(OwnerCatalyseur->GetRootComponent()));
 		UUsefullFunctions::OutlineComponent(bOutline, OwnerCatalyseur->GetTechMesh());
