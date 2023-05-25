@@ -54,6 +54,8 @@ void AInhibiteur::ActiveObjectif(){
 
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
+
 	if(GameMode->GetPhases() == EPhases::Infiltration){
 		GameMode->LaunchStealthTimer();
 

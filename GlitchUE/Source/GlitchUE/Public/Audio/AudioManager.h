@@ -49,8 +49,6 @@ protected:
 
 	UPROPERTY()
 	UFMODEvent* StealthAlarm;
-	
-	bool EndOfSong = false;
 
 	UPROPERTY()
 	UFMODEvent* TowerDefenseMusic;

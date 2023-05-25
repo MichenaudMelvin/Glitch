@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FMODEvent.h"
 #include "Objectives/AbstractObjectif.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.h"
@@ -26,6 +27,9 @@ protected:
 	virtual void ActiveObjectif() override;
 
 	UAnimationAsset* ActivationAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UFMODEvent* ActivationSFX;
 
 	UPROPERTY()
 	FCompassSprite SpriteReference;

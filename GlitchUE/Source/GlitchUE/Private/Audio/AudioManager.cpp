@@ -72,10 +72,10 @@ void AAudioManager::FadeParameterValue(float Alpha){
 
 void AAudioManager::SetStealthMusic(){
 	FMODAudioComp->SetEvent(StealthMusic);
-	EndOfSong = true;
+	FMODAudioComp->Play();
 }
 
-void AAudioManager::SetTowerDefenseMusic(){
+void AAudioManager::SetTowerDefenseMusic() {
 	FMODAudioComp->SetEvent(TowerDefenseMusic);
 
 	const FOnTimelineEvent EmptyEvent;
@@ -83,21 +83,17 @@ void AAudioManager::SetTowerDefenseMusic(){
 }
 
 void AAudioManager::SetStealthAudio(const ELevelState LevelState){
-	FMODAudioComp->SetEvent(StealthAlarm);
-	FMODAudioComp->Play();
 
-	FMODAudioComp->OnEventStopped.AddDynamic(this, &AAudioManager::SetStealthMusic);
-
-	if(EndOfSong == true){
-		FMODAudioComp->Play();
-		switch (LevelState){
-			case ELevelState::Normal:
-				FadeParameter("Stealth", false);
-				break;
-			case ELevelState::Alerted:
-				FadeParameter("Stealth");
-				break;
-		}
+	switch (LevelState){
+		case ELevelState::Normal:
+			FadeParameter("Stealth", false);
+			break;
+		case ELevelState::Alerted:
+			//FMODAudioComp->SetEvent(StealthAlarm);
+			//FMODAudioComp->Play();
+			//FMODAudioComp->OnEventStopped.AddDynamic(this, &AAudioManager::SetStealthMusic);
+			FadeParameter("Stealth");
+			break;
 	}
 }
 
