@@ -279,6 +279,12 @@ void AMainPlayer::OpenConstructionZone(AConstructionZone* CurrentConstructionZon
 	CurrentFocusedConstructionZone = CurrentConstructionZone;
 	TargetPreviewActorLocation = CurrentConstructionZone->GetActorLocation();
 	PreviewPlacableActor->SetActorLocation(TargetPreviewActorLocation);
+
+	if(CurrentFocusedConstructionZone->IsSlotOccupied()){
+		PreviewPlacableActor->SetRangeMesh(CurrentFocusedConstructionZone->GetUnit()->GetData());
+		PreviewPlacableActor->SetShouldRangeUpdate(false);
+	}
+
 }
 
 APreviewPlacableActor* AMainPlayer::GetPreviewPlacableActor() const{
@@ -291,7 +297,7 @@ void AMainPlayer::SetPlacableActorData(UPlacableActorData* Data){
 		PreviewPlacableActor->SetData(CurrentPlacableActorData);
 		PreviewPlacableActor->ChooseColor();
 	} else{
-		PreviewPlacableActor->GetPreviewMesh()->SetStaticMesh(nullptr);
+		PreviewPlacableActor->SetData(nullptr);
 	}
 }
 

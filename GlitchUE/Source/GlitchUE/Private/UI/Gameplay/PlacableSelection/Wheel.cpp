@@ -56,6 +56,8 @@ void UWheel::NativeConstruct(){
 
 void UWheel::ClickOnDestructButton(){
 	DestructButton->SetVisibility(ESlateVisibility::Hidden);
+	MainPlayer->GetPreviewPlacableActor()->SetShouldRangeUpdate(true);
+	MainPlayer->GetPreviewPlacableActor()->SetData(nullptr);
 
 	for(int i = 0; i < ButtonList.Num(); i++){
 		ButtonList[i]->BindButtons();

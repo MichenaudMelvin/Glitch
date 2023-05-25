@@ -121,6 +121,10 @@ void APlacableActor::Appear(const bool ReverseEffect, const FOnTimelineEvent App
 	FadeInAppearance.SetTimelineFinishedFunc(AppearFinishEvent);
 }
 
+UPlacableActorData* APlacableActor::GetData() const{
+	return CurrentData;
+}
+
 void APlacableActor::FadeIn(float Alpha){}
 
 void APlacableActor::EndAppearance(){

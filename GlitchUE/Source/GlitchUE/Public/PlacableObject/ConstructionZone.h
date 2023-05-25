@@ -8,6 +8,7 @@
 #include "Animation/SkeletalMeshActor.h"
 #include "Components/BoxComponent.h"
 #include "Gamemodes/GlitchUEGameMode.h"
+#include "Player/TargetCameraLocation.h"
 #include "ConstructionZone.generated.h"
 
 UCLASS()
@@ -24,6 +25,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TechMesh;
+
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	ATargetCameraLocation* CameraTargetLocation;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	UInteractableComponent* InteractableComponent;
@@ -60,9 +64,14 @@ protected:
 
 	APlacableActor* UnitInZone = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	float ConstructionZoneBlend = 0.1f;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void OccupiedSlot(APlacableActor* NewUnit);
+
+	APlacableActor* GetUnit() const;
 
 	UFUNCTION(BlueprintCallable)
 	void UnoccupiedSlot();
@@ -77,6 +86,9 @@ public:
 	void DestroyCurrentUnit();
 
 #if WITH_EDITORONLY_DATA
+	UFUNCTION(CallInEditor, Category = "Camera")
+	void SpawnCamera();
+
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 };

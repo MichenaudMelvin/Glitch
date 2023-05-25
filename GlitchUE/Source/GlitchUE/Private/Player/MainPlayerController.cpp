@@ -4,6 +4,7 @@
 #include "Player/MainPlayerController.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mark/Mark.h"
@@ -272,11 +273,16 @@ void AMainPlayerController::CloseWheel(){
 	OnUseGlitchReleased.AddDynamic(this, &AMainPlayerController::BindGlitch);
 
 	WheelWidget->RemoveFromParent();
+	CameraBlend(MainPlayer, CloseWheelBlend);
 	MainPlayer->GetPreviewPlacableActor()->ResetActor();
 
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 
 	ShowMouseCursor(false, nullptr);
+}
+
+void AMainPlayerController::CameraBlend(AActor* BlendTarget, const float BlendTime){
+	SetViewTargetWithBlend(BlendTarget, BlendTime, VTBlend_EaseInOut, 1);
 }
 
 UTchat* AMainPlayerController::GetTchatWidget() const{

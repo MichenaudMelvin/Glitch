@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "GameFramework/GameUserSettings.h"
 #include "FMODVCA.h"
 #include "Saves/Settings/AudioSettingsSave.h"
 #include "Saves/Settings/VideoSettingsSave.h"

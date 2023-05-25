@@ -304,12 +304,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UPopUpWidget> PopUpWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	float CloseWheelBlend = 0.5f;
+
 public:
 	UFUNCTION()
 	void OpenWheel();
 
 	UFUNCTION()
 	void CloseWheel();
+
+	void CameraBlend(AActor* BlendTarget, const float BlendTime);
 
 	UTchat* GetTchatWidget() const;
 

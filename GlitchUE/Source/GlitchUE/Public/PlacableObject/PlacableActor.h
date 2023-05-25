@@ -106,6 +106,8 @@ protected:
 public:
 	virtual void Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent);
 
+	UPlacableActorData* GetData() const;
+
 	void SellObject();
 
 	void SetMissingData(ANexus* NewNexus, AMainPlayer* MainPlayer);

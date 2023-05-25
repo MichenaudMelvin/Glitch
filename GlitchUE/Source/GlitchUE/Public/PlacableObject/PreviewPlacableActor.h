@@ -19,13 +19,20 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	UStaticMeshComponent* BaseMesh;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
+	UStaticMeshComponent* PlacableRange;
+
+	UStaticMesh* TurretRangeMesh;
+
+	UStaticMesh* TrapRangeMesh;
+
 	AMainPlayer* MainPlayer;
 
 	FVector OriginalLocation;
 
 	UMaterial* HologramMaterial;
 
-	void SetMesh() override;
+	virtual void SetMesh() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Color")
 	FVector CanPlaceColor = FVector(0, 0.247059, 1);
@@ -33,8 +40,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Color")
 	FVector CannotPlaceColor = FVector(1, 0,  0);
 
+	bool bShouldRangeUpdate = true;
+
 public:
 	virtual void SetData(UPlacableActorData* NewData) override;
+
+	void SetShouldRangeUpdate(const bool bNewValue);
+
+	void SetRangeMesh(const UPlacableActorData* DataToCheck) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
 	bool CanBePlaced() const;
