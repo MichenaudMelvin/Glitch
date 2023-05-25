@@ -303,7 +303,7 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
-	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent, true);
 }
 
 bool AGlitchUEGameMode::CanStartTowerDefense() const{
@@ -454,11 +454,12 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
-		MainPlayer->UpdateGolds(MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() * GoldTimerMultiplier, EGoldsUpdateMethod::ReceiveGolds);
-		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false);
+		const float RemainTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() : StealthTimer;
+		MainPlayer->UpdateGolds(RemainTime * GoldTimerMultiplier, EGoldsUpdateMethod::ReceiveGolds);
+		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false, false);
 
 		if(OptionsString == ""){
-			WaveManager->StartWave();
+			WaveManager->StartPrepareTimer();
 		}
 
 		MainPlayer->GetMainPlayerController()->SetCanSave(false);

@@ -40,6 +40,8 @@ protected:
 
 	float CurrentDisplayTime;
 
+	bool RemoveWidgetAtEnd;
+
 	void UpdateTimer();
 
 	FTimerHandle DisplayTimer;
@@ -54,16 +56,16 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartTimer(const float Timer, const FKOnFinishTimer FinishEvent);
+	void StartTimer(const float Timer, const FKOnFinishTimer FinishEvent, const bool RemoveTimerAtEnd = true);
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeTimerValue(const float NewValue);
 
 	UFUNCTION(BlueprintCallable)
-	void FinishTimer();
+	void FinishTimer(const bool RemoveTimer);
 
 	UFUNCTION(BlueprintCallable)
-	void ForceFinishTimer(const bool ExecuteFinishedEvent = true);
+	void ForceFinishTimer(const bool ExecuteFinishedEvent = true, const bool RemoveTimer = true);
 
 	FKOnFinishTimer OnFinishTimer;
 

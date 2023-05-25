@@ -127,6 +127,14 @@ void ACatalyseur::DesactivateObjectif(){
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
 			Nexus->UpdateDissolver();
 			ToggleActivatedInhibiteursState(false);
+
+			InteractableComp->RemoveInteractable(MeshObjectif);
+			InteractableComp->RemoveInteractable(TECHMesh);
+
+			GetWorld()->GetTimerManager().SetTimer(DesactivationTimerHandle, [&](){
+				InteractableComp->AddInteractable(MeshObjectif);
+				InteractableComp->AddInteractable(TECHMesh);
+			}, DesactivationTimer, false);
 			break;
 	}
 }

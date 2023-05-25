@@ -79,6 +79,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Golds")
 	int GoldsTick = 10;
 
+	/**
+	 * @brief Timer in seconds
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Time", meta = (ClampMin = 0))
+	float DesactivationTimer = 60.0f;
+
+	FTimerHandle DesactivationTimerHandle;
+
 #if WITH_EDITORONLY_DATA
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
 
