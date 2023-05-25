@@ -90,8 +90,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
 	float CompassRadius = 100;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 	UFMODEvent* ActivationSFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UFMODEvent* DeactivationSFX;
 
 	void GenerateCompass();
 
