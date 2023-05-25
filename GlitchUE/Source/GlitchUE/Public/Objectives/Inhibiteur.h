@@ -28,7 +28,7 @@ protected:
 
 	UAnimationAsset* ActivationAnim;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly)
 	UFMODEvent* ActivationSFX;
 
 	UPROPERTY()

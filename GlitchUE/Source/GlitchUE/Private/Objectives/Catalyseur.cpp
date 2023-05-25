@@ -41,6 +41,11 @@ ACatalyseur::ACatalyseur(){
 
 	ActivationAnim = ActivAnim.Object;
 
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
+	check(SFX.Succeeded());
+
+	ActivationSFX = SFX.Object;
+
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> DesactivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_Tech_Catalyser_Close"));
 	check(DesactivAnim.Succeeded());
 
@@ -142,6 +147,8 @@ void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs
 
 void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	Super::Interact(MainPlayerController, MainPlayer);
+
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
 	if(!ActivableComp->IsActivated() && GameMode->GetPhases() == EPhases::TowerDefense){
 		ActivableComp->ActivateObject();

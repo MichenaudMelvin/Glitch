@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FMODBlueprintStatics.h"
+#include "FMODEvent.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
@@ -87,6 +89,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
 	float CompassRadius = 100;
+
+	UPROPERTY(EditDefaultsOnly)
+	UFMODEvent* ActivationSFX;
 
 	void GenerateCompass();
 
