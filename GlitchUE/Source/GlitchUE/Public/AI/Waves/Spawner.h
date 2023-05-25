@@ -54,6 +54,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float SpawnDelay = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UFMODEvent* ActivationSFX;
+
 	int NumberOfAISpawn;
 
 	int CurrentNumberOfAISpawned;
