@@ -6,15 +6,8 @@
 #include "Kismet/KismetMathLibrary.h"
 
 UCompassPivotIcon::UCompassPivotIcon(){
-	PrimaryComponentTick.bCanEverTick = true;
-
 	ChildMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	ChildMesh->SetupAttachment(this);
-
-	FTransform TargetTransform = FTransform::Identity;
-	TargetTransform.SetLocation(FVector(SpriteOffset, 0, 0));
-
-	ChildMesh->SetRelativeTransform(TargetTransform);
 
 	ChildMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ChildMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -27,13 +20,13 @@ void UCompassPivotIcon::OnComponentDestroyed(bool bDestroyingHierarchy){
 }
 
 void UCompassPivotIcon::SelectorRotation(){
-	FRotator TargetLocation = UKismetMathLibrary::FindLookAtRotation(GetComponentLocation(), TargetToLookAt->GetActorLocation());
+	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetComponentLocation(), TargetToLookAt->GetActorLocation());
 
 	if(!Compass->UsesZAxis()){
-		TargetLocation.Pitch = 0;
+		TargetRotation.Pitch = 0;
 	}
 
-	SetWorldRotation(TargetLocation);
+	SetWorldRotation(TargetRotation);
 }
 
 void UCompassPivotIcon::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction){
@@ -51,9 +44,20 @@ void UCompassPivotIcon::InitPivotIcon(UCompassComponent* CompassComp, UCompassIc
 	Compass = CompassComp;
 
 	CurrentCompassIcon = TargetCompassIcon;
-	ChildMesh->SetRelativeScale3D(CurrentCompassIcon->GetTargetScale());
+
+	PrimaryComponentTick.bCanEverTick = CurrentCompassIcon->ShouldUseTick();
 
 	TargetToLookAt = CurrentCompassIcon->GetOwner();
 	ChildMesh->SetStaticMesh(CurrentCompassIcon->GetOwnerMesh());
+
+	FTransform TargetTransform = FTransform::Identity;
+	TargetTransform.SetScale3D(CurrentCompassIcon->GetTargetScale());
+	TargetTransform.SetLocation(FVector(Compass->GetCompassRadius(), 0, 0));
+
+	ChildMesh->SetRelativeTransform(TargetTransform);
+
+	if(!CurrentCompassIcon->ShouldUseTick() && CurrentCompassIcon->CanBeDrawn()){
+		SelectorRotation();
+	}
 }
 

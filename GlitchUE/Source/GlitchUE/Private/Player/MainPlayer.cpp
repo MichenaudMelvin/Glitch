@@ -259,8 +259,6 @@ void AMainPlayer::CameraFOVUpdate(float Alpha){
 	FollowCamera->FieldOfView = FMath::Lerp(CurrentFOVValue, TargetFOVValue, Alpha);
 }
 
-void AMainPlayer::PreviewPlacableObject_Implementation(){}
-
 void AMainPlayer::PlacePlacableActor(){
 	if(!PreviewPlacableActor->CanBePlaced()){
 		return;
@@ -268,20 +266,39 @@ void AMainPlayer::PlacePlacableActor(){
 
 	UpdateGolds(CurrentPlacableActorData->Cost, EGoldsUpdateMethod::BuyPlacable);
 	APlacableActor* NewPlacable = GetWorld()->SpawnActor<APlacableActor>(CurrentPlacableActorData->ClassToSpawn, TargetPreviewActorLocation, FRotator::ZeroRotator, FActorSpawnParameters());
-	NewPlacable->SetNexus(Nexus);
+	NewPlacable->SetMissingData(Nexus, this);
 	NewPlacable->SetData(CurrentPlacableActorData);
 	CurrentFocusedConstructionZone->OccupiedSlot(NewPlacable);
 }
 
-void AMainPlayer::StopPreviewMovement_Implementation(){}
+AConstructionZone* AMainPlayer::GetCurrentConstructionZone() const{
+	return CurrentFocusedConstructionZone;
+}
+
+void AMainPlayer::OpenConstructionZone(AConstructionZone* CurrentConstructionZone){
+	CurrentFocusedConstructionZone = CurrentConstructionZone;
+	TargetPreviewActorLocation = CurrentConstructionZone->GetActorLocation();
+	PreviewPlacableActor->SetActorLocation(TargetPreviewActorLocation);
+
+	if(CurrentFocusedConstructionZone->IsSlotOccupied()){
+		PreviewPlacableActor->SetRangeMesh(CurrentFocusedConstructionZone->GetUnit()->GetData());
+		PreviewPlacableActor->SetShouldRangeUpdate(false);
+	}
+
+}
 
 APreviewPlacableActor* AMainPlayer::GetPreviewPlacableActor() const{
 	return PreviewPlacableActor;
 }
 
 void AMainPlayer::SetPlacableActorData(UPlacableActorData* Data){
-	CurrentPlacableActorData = Data;
-	PreviewPlacableActor->SetData(CurrentPlacableActorData);
+	if(IsValid(Data)){
+		CurrentPlacableActorData = Data;
+		PreviewPlacableActor->SetData(CurrentPlacableActorData);
+		PreviewPlacableActor->ChooseColor();
+	} else{
+		PreviewPlacableActor->SetData(nullptr);
+	}
 }
 
 UPlacableActorData* AMainPlayer::GetCurrentPlacableActorData() const{
@@ -913,7 +930,7 @@ void AMainPlayer::AppearUpdate(float Value){
 }
 
 void AMainPlayer::EndAppear(){
-	MainPlayerController->SelectNewGameplayMode(MainPlayerController->GetGameplayMode());
+	MainPlayerController->BindNormalMode();
 
 	for(int i = 0; i < RealPlayerMaterialList.Num(); i++){
 		GetMesh()->SetMaterial(i, RealPlayerMaterialList[i]);
@@ -976,7 +993,6 @@ void AMainPlayer::EndTL(){
 	GlitchTrace();
 
 	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
-	UE_LOG(LogTemp, Warning, TEXT("AddedGlitchDashValue : %f"), GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 	ResetMovement();
 

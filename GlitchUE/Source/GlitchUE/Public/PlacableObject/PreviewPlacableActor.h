@@ -19,18 +19,20 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
 	UStaticMeshComponent* BaseMesh;
 
-	AMainPlayer* MainPlayer;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")
+	UStaticMeshComponent* PlacableRange;
 
-	UFUNCTION(BlueprintCallable)
-	bool CheckSpotSpace();
+	UStaticMesh* TurretRangeMesh;
+
+	UStaticMesh* TrapRangeMesh;
+
+	AMainPlayer* MainPlayer;
 
 	FVector OriginalLocation;
 
-	bool bInConstructionZone;
-
 	UMaterial* HologramMaterial;
 
-	void SetMesh() override;
+	virtual void SetMesh() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Color")
 	FVector CanPlaceColor = FVector(0, 0.247059, 1);
@@ -38,23 +40,26 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Color")
 	FVector CannotPlaceColor = FVector(1, 0,  0);
 
+	bool bShouldRangeUpdate = true;
+
 public:
 	virtual void SetData(UPlacableActorData* NewData) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetInConstructionZone(bool bNewValue);
+	void SetShouldRangeUpdate(const bool bNewValue);
+
+	void SetRangeMesh(const UPlacableActorData* DataToCheck) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
-	bool CanBePlaced();
+	bool CanBePlaced() const;
 
 	UFUNCTION(BlueprintCallable, Category = "PreviewPlacable")
-	void ChooseColor();
+	void ChooseColor() const;
 
 	UFUNCTION(BlueprintCallable, Category = "PreviewPlacable")
 	void ResetActor();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PreviewPlacable")
-	FVector GetOriginalLocation();
+	FVector GetOriginalLocation() const;
 
 	UStaticMeshComponent* GetPreviewMesh() const;
 

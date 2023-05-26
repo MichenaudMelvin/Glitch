@@ -2,6 +2,7 @@
 
 
 #include "UI/Menu/Settings/SettingsMenu.h"
+#include "GameFramework/GameUserSettings.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Kismet/GameplayStatics.h"
 

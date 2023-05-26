@@ -14,28 +14,24 @@ void USelectionButton::NativeOnInitialized(){
 	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-	if(bAllowHover){
-		Image->OnHovered.AddDynamic(this, &USelectionButton::Select);
-		Image->OnUnhovered.AddDynamic(this, &USelectionButton::UnSelect);
-	}
-}
-
-void USelectionButton::NativeDestruct(){
-	Super::NativeDestruct();
-
-	if(!bApplyWhenSelected && bIsSelectd){
-		bApplyWhenSelected = true;
-		Select();
-		bApplyWhenSelected = false;
-	}
+	BindButtons();
 }
 
 void USelectionButton::Select(){
-	bIsSelectd = true;
 	Image->SetBackgroundColor(FLinearColor::Green);
 }
 
 void USelectionButton::UnSelect(){
-	bIsSelectd = false;
 	Image->SetBackgroundColor(OriginalColor);
+}
+
+void USelectionButton::BindButtons(){
+	UnbindButtons();
+	Image->OnHovered.AddDynamic(this, &USelectionButton::Select);
+	Image->OnUnhovered.AddDynamic(this, &USelectionButton::UnSelect);
+}
+
+void USelectionButton::UnbindButtons(){
+	Image->OnHovered.Clear();
+	Image->OnUnhovered.Clear();
 }

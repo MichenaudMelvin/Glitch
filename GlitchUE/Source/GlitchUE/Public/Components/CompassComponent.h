@@ -15,6 +15,8 @@ class GLITCHUE_API UCompassComponent : public UActorComponent{
 public:
 	UCompassComponent();
 
+	virtual void DestroyComponent(bool bPromoteChildren = false) override;
+
 protected:
 	TArray<UCompassIcon*> CompassIcons;
 
@@ -23,10 +25,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	bool bUsesZAxis = true;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
+	float CompassRadius = 80;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
+	FVector OffsetIcon = FVector::ZeroVector;
+
 public:
 	void AddIconToOwnerList(UCompassIcon* IconToAdd);
 
 	void RemoveIconToOwnerList(UCompassIcon* IconToRemove);
 
 	bool UsesZAxis() const;
+
+	float GetCompassRadius() const;
+
+	void SetCompassOffset(const FVector NewOffset);
 };
