@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Gamemodes/GlitchUEGameMode.h"
-#include "NavModifierComponent.h"
-#include "Engine/StaticMeshActor.h"
+#include "PlayerZone.h"
 #include "CatalyseurZone.generated.h"
 
 UCLASS()
-class GLITCHUE_API ACatalyseurZone : public AStaticMeshActor{
+class GLITCHUE_API ACatalyseurZone : public APlayerZone{
 	GENERATED_BODY()
 
 public:
@@ -18,31 +17,15 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-#if WITH_EDITORONLY_DATA
-	UBillboardComponent* Billboard;
-#endif
+	virtual void OnPlayerEnterZone() override;
 
-	UPROPERTY(EditDefaultsOnly);
-	UNavModifierComponent* NavModifierComp;
+	virtual void OnPlayerExitZone() override;
 
 	/**
 	 * @brief Timer in seconds 
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Catalyseur Zone")
 	float ResetLevelStateDuration = 1;
-
-	FTimerHandle CatalyeurZoneTimer;
-
-	AGlitchUEGameMode* GameMode;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Post Process UI")
-	float SafeFadeTime = 0.5;
-
-	UFUNCTION()
-	virtual void EnterZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	virtual void ExitZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION()
 	void OnSwitchPhases(EPhases NewPhase);

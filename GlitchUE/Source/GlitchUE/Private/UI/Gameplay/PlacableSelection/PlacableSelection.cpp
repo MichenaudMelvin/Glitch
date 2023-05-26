@@ -11,7 +11,6 @@ void UPlacableSelection::NativeOnInitialized(){
 	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	MainPlayer = Cast<AMainPlayer>(MainPlayerController->GetCharacter());
 
-	ButtonList.Add(NormalModeButton);
 	ButtonList.Add(PlacableButton1);
 	ButtonList.Add(PlacableButton2);
 	ButtonList.Add(PlacableButton3);
@@ -20,5 +19,4 @@ void UPlacableSelection::NativeOnInitialized(){
 	ButtonList.Add(PlacableButton6);
 	ButtonList.Add(PlacableButton7);
 	ButtonList.Add(PlacableButton8);
-	ButtonList.Add(DestructionModeButton);
 }

@@ -303,7 +303,7 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
-	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent, true);
 }
 
 bool AGlitchUEGameMode::CanStartTowerDefense() const{
@@ -427,7 +427,7 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 
 		APlacableActor* CurrentPlacableActor = GetWorld()->SpawnActor<APlacableActor>(TargetClass, TargetLocation, TargetRotation, PlacableSpawnParam);
 		CurrentPlacableActor->InitializePlacable(CastedSave->PlacableDataList[i], PursuitDroneList);
-		CurrentPlacableActor->SetNexus(Nexus);
+		CurrentPlacableActor->SetMissingData(Nexus, MainPlayer);
 	}
 
 	return CastedSave;
@@ -454,11 +454,12 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
-		MainPlayer->UpdateGolds(MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() * GoldTimerMultiplier, EGoldsUpdateMethod::ReceiveGolds);
-		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false);
+		const float RemainTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() : StealthTimer;
+		MainPlayer->UpdateGolds(RemainTime * GoldTimerMultiplier, EGoldsUpdateMethod::ReceiveGolds);
+		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false, false);
 
 		if(OptionsString == ""){
-			WaveManager->StartWave();
+			WaveManager->StartPrepareTimer();
 		}
 
 		MainPlayer->GetMainPlayerController()->SetCanSave(false);
@@ -673,7 +674,7 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 		}
 
 		Cast<APawn>(ActorList[0])->Controller->Possess(MainPlayer);
-		MainPlayer->GetMainPlayerController()->SelectNewGameplayMode(MainPlayer->GetMainPlayerController()->GetGameplayMode());
+		MainPlayer->GetMainPlayerController()->BindNormalMode();
 
 		ActorList[0]->Destroy();
 	}

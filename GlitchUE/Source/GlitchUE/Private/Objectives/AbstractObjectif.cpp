@@ -3,7 +3,6 @@
 #include "Objectives/AbstractObjectif.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Kismet/GameplayStatics.h"
-#include "Perception/AIPerceptionStimuliSourceComponent.h"
 
 AAbstractObjectif::AAbstractObjectif(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -16,8 +15,6 @@ AAbstractObjectif::AAbstractObjectif(){
 	MeshObjectif->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	MeshObjectif->SetCanEverAffectNavigation(false);
-
-	AIPerceptionTarget = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AITarget"));
 
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 

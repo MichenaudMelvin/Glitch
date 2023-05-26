@@ -12,26 +12,6 @@
 class AInhibiteur;
 class AMainPlayer;
 
-USTRUCT()
-struct FCompassSprite{
-	GENERATED_BODY()
-
-	/**
-	 * @brief Do not use this constructor
-	 */
-	FCompassSprite();
-
-	FCompassSprite(USceneComponent* SceneComp, UStaticMeshComponent* StaticMeshComp);
-
-	UPROPERTY()
-	USceneComponent* SceneComponent;
-
-	UPROPERTY()
-	UStaticMeshComponent* StaticMeshComponent;
-
-	void DestroyComponents() const;
-};
-
 UCLASS()
 class GLITCHUE_API ACatalyseur : public AAbstractObjectif{
 	GENERATED_BODY()
@@ -42,6 +22,8 @@ public:
 	USkeletalMeshComponent* GetTechMesh() const;
 
 	void AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd);
+
+	UCompassComponent* GetCompass() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -77,23 +59,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
 	TArray<AInhibiteur*> LinkedInhibiteur;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
+	TArray<AConstructionZone*> ConstructionZoneList;
+
 	TArray<AInhibiteur*> ActivatedInhibiteursList;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
-	UStaticMesh* InhibiteurMesh;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
-	float InhibiteurIconScale = 0.5;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
-	float CompassRadius = 100;
-
-	void GenerateCompass();
-
-	void DeleteCompass();
-
-	UPROPERTY()
-	TArray<FCompassSprite> CompassSpriteList;
+	UCompassComponent* Compass;
 
 	FTimerHandle MoneyTimerHandle;
 
@@ -105,10 +77,15 @@ protected:
 	int GeneratedGolds = 100;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Golds")
-	int GoldsBonus = 500;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Golds")
 	int GoldsTick = 10;
+
+	/**
+	 * @brief Timer in seconds
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Time", meta = (ClampMin = 0))
+	float DesactivationTimer = 60.0f;
+
+	FTimerHandle DesactivationTimerHandle;
 
 #if WITH_EDITORONLY_DATA
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
