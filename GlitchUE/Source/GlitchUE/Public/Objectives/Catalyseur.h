@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FMODBlueprintStatics.h"
+#include "FMODEvent.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Nexus.h"
@@ -65,6 +67,14 @@ protected:
 	TArray<AInhibiteur*> ActivatedInhibiteursList;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
+	UStaticMesh* InhibiteurMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UFMODEvent* ActivationSFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UFMODEvent* DeactivationSFX;
+
 	UCompassComponent* Compass;
 
 	FTimerHandle MoneyTimerHandle;

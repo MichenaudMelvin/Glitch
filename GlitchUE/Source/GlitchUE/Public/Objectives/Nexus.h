@@ -54,7 +54,7 @@ protected:
 
 	UPopcornFXEffect* MedFX;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 	UFMODEvent* ActivationSFX;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;

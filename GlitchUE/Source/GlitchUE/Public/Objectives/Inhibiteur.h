@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FMODEvent.h"
 #include "Objectives/AbstractObjectif.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.h"
@@ -23,6 +24,9 @@ protected:
 	virtual void ActiveObjectif() override;
 
 	UAnimationAsset* ActivationAnim;
+
+	UPROPERTY(EditDefaultsOnly)
+	UFMODEvent* ActivationSFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Compass")
 	UCompassIcon* CompassIcon;

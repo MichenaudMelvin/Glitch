@@ -8,6 +8,7 @@
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "FMODBlueprintStatics.h"
 
 ASpawner::ASpawner(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -20,6 +21,11 @@ ASpawner::ASpawner(){
 
 	SpawnerFX->SetEffect(FX.Object);
 	SpawnerFX->SetMobility(EComponentMobility::Static);
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_spawner"));
+	check(SFX.Succeeded());
+
+	SpawnerSFX = SFX.Object;
 
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable Comp"));
 
@@ -42,6 +48,8 @@ void ASpawner::BeginPlay(){
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaveManager::StaticClass(), WaveManagerTemp);
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
 	Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this));
+
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), SpawnerSFX, GetActorTransform(), true);
 
 	ActivableComp->OnActivated.AddDynamic(this, &ASpawner::ActivateSpawner);
 	ActivableComp->OnDesactivated.AddDynamic(this, &ASpawner::DesactivateSpawner);
