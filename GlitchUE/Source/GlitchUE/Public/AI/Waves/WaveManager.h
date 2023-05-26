@@ -86,6 +86,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	int NumberOfWaves;
 
+	/**
+	 * @brief Timer in seconds
+	 */
+	UPROPERTY(EditAnywhere, Category = "Waves")
+	float PrepareTime = 60;
+
 	UPROPERTY(EditAnywhere, Category = "Waves")
 	UDataTable* WavesData;
 
@@ -108,6 +114,9 @@ protected:
 	bool bIsStopped = false;
 
 public:
+	void StartPrepareTimer();
+
+	UFUNCTION()
 	void StartWave();
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Waves")

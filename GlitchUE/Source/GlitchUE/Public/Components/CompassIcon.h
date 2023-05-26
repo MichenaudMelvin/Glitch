@@ -37,6 +37,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
 	float TargetScale = 0.25f;
 
+	/**
+	 * @brief Auto setup should be used if there only one compass owner for the target class (ig : a player)
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
+	bool bSetupAuto = true;
+
+	/**
+	 * @brief if the icon owner is static it can be unchecked to improve performances
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
+	bool bTickDraw = true;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Class")
 	TSubclassOf<AActor> TargetCompassOwnerClass = AMainPlayer::StaticClass();
 
@@ -52,4 +64,16 @@ public:
 	void SetAllowDraw(const bool bAllow);
 
 	FVector GetTargetScale() const;
+
+	void SetDrawDistance(const float NewDistance);
+
+	void SetOwnerClass(const TSubclassOf<AActor> NewOwnerClass);
+
+	void SetupAuto(const bool bAuto);
+
+	void SetShouldUseTick(const bool bShouldUseTick);
+
+	bool ShouldUseTick() const;
+
+	void SetCompassOwner(UCompassComponent* NewOwner);
 };

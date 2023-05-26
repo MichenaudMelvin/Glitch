@@ -5,6 +5,7 @@
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Engine/Selection.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Components/CompassComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "FMODBlueprintStatics.h"
 
@@ -21,6 +22,12 @@ AInhibiteur::AInhibiteur(){
 
 	ActivationAnim = ActivAnim.Object;
 
+	CompassIcon = CreateDefaultSubobject<UCompassIcon>(TEXT("Compass Icon"));
+	CompassIcon->SetupAuto(false);
+	CompassIcon->SetShouldUseTick(false);
+	CompassIcon->SetOwnerClass(ACatalyseur::StaticClass());
+	CompassIcon->SetDrawDistance(0);
+
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
 		USelection::SelectionChangedEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
@@ -31,10 +38,6 @@ void AInhibiteur::BeginPlay(){
 	Super::BeginPlay();
 
 #if WITH_EDITOR
-
-	if(ConstructionZoneList.Num() == 0){
-		UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName());
-	}
 
 	FTimerHandle TimerHandle;
 
@@ -56,21 +59,14 @@ void AInhibiteur::Destroyed(){
 }
 
 void AInhibiteur::ActiveObjectif(){
-	ActivateLinkedElements(true);
-
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
 	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
 	if(GameMode->GetPhases() == EPhases::Infiltration){
-		GameMode->LaunchStealthTimer();
-
-		SpriteReference.DestroyComponents();
+		OwnerCatalyseur->AddInhibiteurToActivatedList(this);
+		CompassIcon->DestroyComponent();
 	}
-}
-
-void AInhibiteur::DesactivateObjectif(){
-	ActivateLinkedElements(false);
 }
 
 void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
@@ -79,23 +75,9 @@ void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPla
 	}
 }
 
-void AInhibiteur::ActivateLinkedElements(const bool bActivate){
-	for (int i = 0; i < ConstructionZoneList.Num(); i++){
-		bActivate ? ConstructionZoneList[i]->GetActivableComp()->ActivateObject() : ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
-	}
-
-	if(GameMode->GetPhases() == EPhases::Infiltration){
-		bActivate ? OwnerCatalyseur->GetActivableComp()->ActivateObject() : OwnerCatalyseur->GetActivableComp()->DesactivateObject();
-		OwnerCatalyseur->AddInhibiteurToActivatedList(this);
-	}
-}
-
-void AInhibiteur::SetSpriteReference(const FCompassSprite NewSprite){
-	SpriteReference = NewSprite;
-}
-
 void AInhibiteur::SetOwnerCatalyseur(ACatalyseur* NewOwner){
 	OwnerCatalyseur = NewOwner;
+	CompassIcon->SetCompassOwner(OwnerCatalyseur->GetCompass());
 }
 
 #if WITH_EDITORONLY_DATA
@@ -124,13 +106,6 @@ void AInhibiteur::OnObjectSelected(UObject* Object){
 }
 
 void AInhibiteur::OutlineLinkedObjects(const bool bOutline){
-	for(int i = 0; i < ConstructionZoneList.Num(); i++){
-		if(IsValid(ConstructionZoneList[i])){
-			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
-			UUsefullFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
-		}
-	}
-
 	if(IsValid(OwnerCatalyseur)){
 		UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(OwnerCatalyseur->GetRootComponent()));
 		UUsefullFunctions::OutlineComponent(bOutline, OwnerCatalyseur->GetTechMesh());

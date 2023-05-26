@@ -2,6 +2,7 @@
 
 
 #include "UI/Menu/Settings/VideoSettingsMenu.h"
+#include "GameFramework/GameUserSettings.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Saves/Settings/VideoSettingsSave.h"
 

@@ -17,9 +17,6 @@ public:
 	AInhibiteur();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
-	TArray<AConstructionZone*> ConstructionZoneList;
-
 	virtual void BeginPlay() override;
 
 	virtual void Destroyed() override;
@@ -31,21 +28,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UFMODEvent* ActivationSFX;
 
-	UPROPERTY()
-	FCompassSprite SpriteReference;
-
-	virtual void DesactivateObjectif() override;
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	UCompassIcon* CompassIcon;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
-
-	void ActivateLinkedElements(const bool bActivate);
 
 	UPROPERTY(BlueprintReadOnly)
 	ACatalyseur* OwnerCatalyseur;
 
 public:
-	void SetSpriteReference(const FCompassSprite NewSprite);
-
 	void SetOwnerCatalyseur(ACatalyseur* NewOwner);
 
 #if WITH_EDITORONLY_DATA

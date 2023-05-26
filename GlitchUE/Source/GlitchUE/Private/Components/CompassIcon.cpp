@@ -14,6 +14,10 @@ void UCompassIcon::BeginPlay(){
 
 	OwnerLocation = GetOwner()->GetActorLocation();
 
+	if(!bSetupAuto){
+		return;
+	}
+
 	TArray<AActor*> ActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TargetCompassOwnerClass, ActorList);
 
@@ -24,8 +28,14 @@ void UCompassIcon::BeginPlay(){
 		}
 	#endif
 
-	CompassOwner = Cast<UCompassComponent>(ActorList[0]->GetComponentByClass(UCompassComponent::StaticClass()));
-	CompassOwner->AddIconToOwnerList(this);
+	UCompassComponent* CompassComp = Cast<UCompassComponent>(ActorList[0]->GetComponentByClass(UCompassComponent::StaticClass()));
+
+	if(!IsValid(CompassComp)){
+		UE_LOG(LogActorComponent, Warning, TEXT("Compass owner is not valid for %s"), *this->GetName());
+		return;
+	}
+
+	SetCompassOwner(CompassComp);
 }
 
 void UCompassIcon::OnComponentDestroyed(bool bDestroyingHierarchy){
@@ -62,4 +72,29 @@ void UCompassIcon::SetAllowDraw(const bool bAllow){
 
 FVector UCompassIcon::GetTargetScale() const{
 	return FVector(TargetScale, TargetScale, TargetScale);
+}
+
+void UCompassIcon::SetDrawDistance(const float NewDistance){
+	DrawDistance = NewDistance;
+}
+
+void UCompassIcon::SetOwnerClass(const TSubclassOf<AActor> NewOwnerClass){
+	TargetCompassOwnerClass = NewOwnerClass;
+}
+
+void UCompassIcon::SetupAuto(const bool bAuto){
+	bSetupAuto = bAuto;
+}
+
+void UCompassIcon::SetShouldUseTick(const bool bShouldUseTick){
+	bTickDraw = bShouldUseTick;
+}
+
+bool UCompassIcon::ShouldUseTick() const{
+	return bTickDraw;
+}
+
+void UCompassIcon::SetCompassOwner(UCompassComponent* NewOwner){
+	CompassOwner = NewOwner;
+	CompassOwner->AddIconToOwnerList(this);
 }

@@ -3,13 +3,20 @@
 #include "PlacableObject/ConstructionZone.h"
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
+#include "Engine/Selection.h"
+#include "Gamemodes/GlitchUEGameMode.h"
+#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "NavAreas/NavArea_Obstacle.h"
+#include "Player/MainPlayerController.h"
 
 AConstructionZone::AConstructionZone() {
 	PrimaryActorTick.bCanEverTick = false;
 
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
+	ActivableComp->OnActivated.AddDynamic(this, &AConstructionZone::ActiveObjectif);
+	ActivableComp->OnDesactivated.AddDynamic(this, &AConstructionZone::DesactivateObjectif);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MedSkelMesh(TEXT("/Game/Meshs/Turrets/Socles/SK_MED_Socle"));
 	check(MedSkelMesh.Succeeded());
@@ -43,6 +50,9 @@ AConstructionZone::AConstructionZone() {
 
 	InitialState = EState::Desactivated;
 
+	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("ConstructionZone Interaction"));
+	InteractableComponent->OnInteract.AddDynamic(this, &AConstructionZone::Interact);
+
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_ConstructionZone"));
 	check(FX.Succeeded());
 
@@ -61,12 +71,12 @@ USkeletalMeshComponent* AConstructionZone::GetTechMesh() const{
 void AConstructionZone::BeginPlay(){
 	Super::BeginPlay();
 
-	ActivableComp->OnActivated.AddDynamic(this, &AConstructionZone::ActiveObjectif);
-	ActivableComp->OnDesactivated.AddDynamic(this, &AConstructionZone::DesactivateObjectif);
-
 	FVector FXLocation = GetActorLocation();
 	FXLocation.Z += 5;
 	ConstructionFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), ConstructionEffect, "PopcornFX_DefaultScene", FXLocation, FRotator::ZeroRotator, false, false);
+
+	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->OnSwitchPhases.AddDynamic(this, &AConstructionZone::SwitchPhases);
 
 	switch (InitialState){
 	case EState::Activated:
@@ -76,12 +86,23 @@ void AConstructionZone::BeginPlay(){
 		ActivableComp->DesactivateObject();
 		break;
 	}
+
+#if WITH_EDITOR
+	if(!IsValid(CameraTargetLocation)){
+		UE_LOG(LogTemp, Warning, TEXT("LA %s NE POSSEDE AUCUN CAMERA LOCATION"), *this->GetName());
+	}
+#endif
 }
 
 void AConstructionZone::ActiveObjectif(){
 	ConstructionFXEmitter->StartEmitter();
 	GetSkeletalMeshComponent()->PlayAnimation(ActivationAnim, false);
 	TechMesh->PlayAnimation(ActivationAnim, false);
+
+	if(GameMode->GetPhases() == EPhases::TowerDefense){
+		InteractableComponent->AddInteractable(GetSkeletalMeshComponent());
+		InteractableComponent->AddInteractable(TechMesh);
+	}
 }
 
 void AConstructionZone::DesactivateObjectif(){
@@ -97,6 +118,24 @@ void AConstructionZone::DesactivateObjectif(){
 		FinishEvent.BindDynamic(UnitInZone, &APlacableActor::CallDestroy);
 		UnitInZone->Appear(true, FinishEvent);
 	}
+
+	if(GameMode->GetPhases() == EPhases::TowerDefense){
+		InteractableComponent->RemoveInteractable(GetSkeletalMeshComponent());
+		InteractableComponent->RemoveInteractable(TechMesh);
+	}
+}
+
+void AConstructionZone::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
+	MainPlayer->OpenConstructionZone(this);
+	MainPlayerController->OpenWheel();
+	MainPlayerController->CameraBlend(CameraTargetLocation, ConstructionZoneBlend);
+}
+
+void AConstructionZone::SwitchPhases(EPhases NewPhases){
+	if(NewPhases == EPhases::TowerDefense && ActivableComp->IsActivated()){
+		InteractableComponent->AddInteractable(GetSkeletalMeshComponent());
+		InteractableComponent->AddInteractable(TechMesh);
+	}
 }
 
 void AConstructionZone::OccupiedSlot(APlacableActor* NewUnit){
@@ -104,6 +143,10 @@ void AConstructionZone::OccupiedSlot(APlacableActor* NewUnit){
 	UnitInZone->SetConstructionZone(this);
 	ConstructionFXEmitter->StopEmitter();
 	NavObstacle->SetRelativeLocation(FVector(0, 0, 0));
+}
+
+APlacableActor* AConstructionZone::GetUnit() const{
+	return UnitInZone;
 }
 
 void AConstructionZone::UnoccupiedSlot(){
@@ -123,8 +166,21 @@ UActivableComponent* AConstructionZone::GetActivableComp(){
 	return ActivableComp;
 }
 
+void AConstructionZone::DestroyCurrentUnit(){
+	UnitInZone->SellObject();
+}
+
 #if WITH_EDITORONLY_DATA
-void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
+void AConstructionZone::SpawnCamera(){
+	if(!IsValid(CameraTargetLocation)){
+		FVector TargetLocation = GetActorLocation();
+		TargetLocation += FVector(0, 0, 500);
+
+		CameraTargetLocation = 	GetWorld()->SpawnActor<ATargetCameraLocation>(ATargetCameraLocation::StaticClass(), TargetLocation, FRotator(-90, 0, 0), FActorSpawnParameters());
+	}
+}
+
+void AConstructionZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent){
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	FVector SnappedLocation = UKismetMathLibrary::Vector_SnappedToGrid(GetActorLocation(), 200);

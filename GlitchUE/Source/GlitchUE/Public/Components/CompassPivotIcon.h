@@ -23,9 +23,6 @@ protected:
 
 	UCompassComponent* Compass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Offset")
-	float SpriteOffset = 80;
-
 	AActor* TargetToLookAt;
 
 	UCompassIcon* CurrentCompassIcon;

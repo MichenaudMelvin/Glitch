@@ -4,6 +4,7 @@
 #include "Player/MainPlayerController.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mark/Mark.h"
@@ -37,8 +38,6 @@ void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 
 	WheelWidget = Cast<UWheel>(CreateWidget(this, WheelWidgetWidgetClass));
 
-	HotBarWidget = Cast<UHotBar>(CreateWidget(this, HotBarWidgetWidgetClass));
-
 	PauseWidget = Cast<UPauseMenu>(CreateWidget(this, PauseWidgetClass));
 
 	PopUpWidget = Cast<UPopUpWidget>(CreateWidget(this, PopUpWidgetClass));
@@ -47,30 +46,6 @@ void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 #pragma region Bind
 
 #pragma region Movement
-
-void AMainPlayerController::SelectNewGameplayMode(const EGameplayMode NewGameplayMode){
-	GameplayMode = NewGameplayMode;
-	switch (GameplayMode){
-		case EGameplayMode::Normal:
-			BindNormalMode();
-			MainPlayer->CameraAimReverse();
-			break;
-
-		case EGameplayMode::Construction:
-			BindConstructionMode();
-			MainPlayer->CameraAim();
-			break;
-
-		case EGameplayMode::Destruction:
-			BindNormalMode();
-			MainPlayer->CameraAimReverse();
-			break;
-	}
-}
-
-EGameplayMode AMainPlayerController::GetGameplayMode() const{
-	return GameplayMode;
-}
 
 void AMainPlayerController::BindFastSaveAndLoad(){
 	UnbindFastSaveAndLoad();
@@ -167,22 +142,6 @@ void AMainPlayerController::BindSprint(){
 	}
 }
 
-void AMainPlayerController::BindConstruction(){
-	GetWorld()->GetTimerManager().SetTimer(PreviewObjectTimerHandle, MainPlayer, &AMainPlayer::PreviewPlacableObject, 0.1f, true);
-	OnPlaceObject.AddDynamic(MainPlayer, &AMainPlayer::PlacePlacableActor);
-	BindMouseScroll();
-}
-
-void AMainPlayerController::UnbindConstruction(){
-	GetWorld()->GetTimerManager().ClearTimer(PreviewObjectTimerHandle);
-	OnPlaceObject.Clear();
-
-	if(IsValid(MainPlayer->GetPreviewPlacableActor())){
-		MainPlayer->StopPreviewMovement();
-		MainPlayer->GetPreviewPlacableActor()->ResetActor();
-	}
-}
-
 void AMainPlayerController::UnbindSprint(){
 	OnSprint.Clear();
 }
@@ -245,21 +204,9 @@ void AMainPlayerController::BindNormalMode(){
 	BindCamera();
 	BindInteraction();
 	BindGlitch();
-	BindOpenSelectionWheel();
 	BindMouseScroll();
 	BindFastSaveAndLoad();
 }
-
-void AMainPlayerController::BindConstructionMode(){
-	UnbindAll();
-	BindMovement();
-	BindCamera();
-	BindConstruction();
-	BindOpenSelectionWheel();
-	BindMouseScroll();
-	BindFastSaveAndLoad();
-}
-
 
 #pragma endregion
 
@@ -274,22 +221,10 @@ void AMainPlayerController::UnbindPause(){
 
 void AMainPlayerController::BindMouseScroll(){
 	UnbindMouseScroll();
-	OnMouseScroll.AddDynamic(HotBarWidget, &UHotBar::Scroll);
-	OnMouseScroll.AddDynamic(this, &AMainPlayerController::ShowHotBar);
 }
 
 void AMainPlayerController::UnbindMouseScroll(){
-	OnMouseScroll.Clear();}
-
-void AMainPlayerController::BindOpenSelectionWheel(){
-	UnbindOpenSelectionWheel();
-	OnOpenSelectionWheelPressed.AddDynamic(this, &AMainPlayerController::StartOpenWheelTimer);
-	OnOpenSelectionWheelReleased.AddDynamic(this, &AMainPlayerController::CloseWheel);
-}
-
-void AMainPlayerController::UnbindOpenSelectionWheel(){
-	OnOpenSelectionWheelPressed.Clear();
-	OnOpenSelectionWheelReleased.Clear();
+	OnMouseScroll.Clear();
 }
 
 void AMainPlayerController::BindClingMovement(){
@@ -306,8 +241,6 @@ void AMainPlayerController::UnbindAll(){
 	UnbindCamera();
 	UnbindInteraction();
 	UnbindGlitch();
-	UnbindConstruction();
-	UnbindOpenSelectionWheel();
 	UnbindMouseScroll();
 	UnbindFastSaveAndLoad();
 	UnbindPause();
@@ -323,42 +256,33 @@ void AMainPlayerController::PauseGame(){
 
 #pragma endregion
 
-void AMainPlayerController::StartOpenWheelTimer(){
-	GetWorld()->GetTimerManager().SetTimer(OpenWheelTimerHandle, this, &AMainPlayerController::OpenWheel, OpenWheelTimer, false, OpenWheelTimer);
-}
-
 void AMainPlayerController::OpenWheel(){
+	UnbindAll();
 	WheelWidget->AddToViewport();
-	UnbindCamera();
-	UnbindMouseScroll();
+
+	OnPause.AddDynamic(this, &AMainPlayerController::CloseWheel);
+	OnUseGlitchPressed.AddDynamic(this, &AMainPlayerController::CloseWheel);
 
 	ShowMouseCursor(true, WheelWidget);
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WheelTimeDilation);
 }
 
 void AMainPlayerController::CloseWheel(){
-	if(GetWorld()->GetTimerManager().GetTimerElapsed(OpenWheelTimerHandle) > -1){
-		SelectNewGameplayMode(EGameplayMode::Normal);
-	}
+	BindNormalMode();
+	UnbindGlitch();
+	OnUseGlitchReleased.AddDynamic(this, &AMainPlayerController::BindGlitch);
 
-	GetWorld()->GetTimerManager().ClearTimer(OpenWheelTimerHandle);
 	WheelWidget->RemoveFromParent();
+	CameraBlend(MainPlayer, CloseWheelBlend);
+	MainPlayer->GetPreviewPlacableActor()->ResetActor();
 
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
-	BindCamera();
 
 	ShowMouseCursor(false, nullptr);
 }
 
-void AMainPlayerController::ShowHotBar(float AxisValue){
-	GetWorld()->GetTimerManager().ClearTimer(HotBarTimerHandle);
-
-	if(!HotBarWidget->IsInViewport()){
-		HotBarWidget->AddToViewport();
-	}
-
-	GetWorld()->GetTimerManager().SetTimer(HotBarTimerHandle, HotBarWidget, &UHotBar::PlayFadeOutAnimation, 0.1f, false, 2.0f);
-
+void AMainPlayerController::CameraBlend(AActor* BlendTarget, const float BlendTime){
+	SetViewTargetWithBlend(BlendTarget, BlendTime, VTBlend_EaseInOut, 1);
 }
 
 UTchat* AMainPlayerController::GetTchatWidget() const{
@@ -367,6 +291,14 @@ UTchat* AMainPlayerController::GetTchatWidget() const{
 
 USightWidget* AMainPlayerController::GetSightWidget() const{
 	return SightWidget;
+}
+
+UWheel* AMainPlayerController::GetWheelWidget() const{
+	return WheelWidget;
+}
+
+float AMainPlayerController::GetWheelTimeDilation() const{
+	return WheelTimeDilation;
 }
 
 UTimerWidget* AMainPlayerController::GetTimerWidget() const{

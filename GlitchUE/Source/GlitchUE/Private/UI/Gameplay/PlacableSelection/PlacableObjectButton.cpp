@@ -2,6 +2,7 @@
 
 
 #include "UI/Gameplay/PlacableSelection/PlacableObjectButton.h"
+#include "UI/Gameplay/PlacableSelection/Wheel.h"
 #include "Components/TextBlock.h"
 #include "Player/MainPlayerController.h"
 
@@ -10,27 +11,47 @@ void UPlacableObjectButton::NativeOnInitialized(){
 
 	const FString ShowName = Data->Name.ToString() + " (Cost: " + FString::FromInt(Data->Cost) + ")";
 	Name->SetText(FText::FromString(ShowName));
+
+	Wheel = MainPlayerController->GetWheelWidget();
+}
+
+void UPlacableObjectButton::OnClick(){
+	if(MainPlayer->GetPreviewPlacableActor()->CanBePlaced()){
+		MainPlayer->PlacePlacableActor();
+		MainPlayerController->CloseWheel();
+	}
 }
 
 void UPlacableObjectButton::Select(){
 	Super::Select();
 
-	if(bApplyWhenSelected){
-		MainPlayer->SetPlacableActorData(Data);
+	MainPlayer->SetPlacableActorData(Data);
+	Wheel->SetDescription(Data->Description);
+}
 
-		switch (MainPlayerController->GetGameplayMode()){
-		case EGameplayMode::Normal: 
-			MainPlayerController->SelectNewGameplayMode(EGameplayMode::Construction);
-			break;
-		case EGameplayMode::Construction: 
-			break;
-		case EGameplayMode::Destruction: 
-			MainPlayerController->SelectNewGameplayMode(EGameplayMode::Construction);
-			break;
-		}
-	}
+void UPlacableObjectButton::UnSelect(){
+	Super::UnSelect();
+
+	MainPlayer->SetPlacableActorData(nullptr);
+	Wheel->SetDescription(FText::FromString(""));
+}
+
+void UPlacableObjectButton::BindButtons(){
+	Super::BindButtons();
+
+	Image->OnClicked.AddDynamic(this, &UPlacableObjectButton::OnClick);
+}
+
+void UPlacableObjectButton::UnbindButtons(){
+	Super::UnbindButtons();
+
+	Image->OnClicked.Clear();
 }
 
 bool UPlacableObjectButton::CompareData(const UPlacableActorData* DataToCompare) const{
 	return DataToCompare->Name == Data->Name;
+}
+
+void UPlacableObjectButton::SetWheel(UWheel* NewWheel){
+	Wheel = NewWheel;
 }

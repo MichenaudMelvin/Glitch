@@ -44,21 +44,3 @@ void ATutorialPlayerController::BindInteraction(){
 		Super::BindInteraction();
 	}
 }
-
-void ATutorialPlayerController::BindConstruction(){
-	if(bShouldBindConstruction){
-		Super::BindConstruction();
-	}
-}
-
-void ATutorialPlayerController::BindOpenSelectionWheel(){
-	if(bShouldBindConstruction){
-		Super::BindOpenSelectionWheel();
-	}
-}
-
-void ATutorialPlayerController::BindMouseScroll(){
-	if(bShouldBindConstruction){
-		Super::BindMouseScroll();
-	}
-}
