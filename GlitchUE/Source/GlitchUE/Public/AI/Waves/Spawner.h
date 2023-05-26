@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/ActivableComponent.h"
+#include "FMODEvent.h"
 #include "AI/MainAICharacter.h"
 #include "Spawner.generated.h"
 
@@ -55,7 +56,7 @@ protected:
 	float SpawnDelay = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-	UFMODEvent* ActivationSFX;
+	UFMODEvent* SpawnerSFX;
 
 	int NumberOfAISpawn;
 
