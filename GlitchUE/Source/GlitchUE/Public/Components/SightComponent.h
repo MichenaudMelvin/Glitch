@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "SightComponent.generated.h"
@@ -26,6 +27,10 @@ protected:
 	void LooseSight();
 
 	UBlackboardComponent* OwnerBlackboard;
+
+	UPopcornFXEmitterComponent* SightFX;
+
+	UPopcornFXEffect* SightEffect;
 
 	float InvestigateTimeElapsed = 0;
 

@@ -8,6 +8,7 @@
 #include "Components/CompassComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "FMODBlueprintStatics.h"
+#include "PopcornFXAttributeFunctions.h"
 
 AInhibiteur::AInhibiteur(){
 	MeshObjectif->SetCanEverAffectNavigation(true);
@@ -27,6 +28,15 @@ AInhibiteur::AInhibiteur(){
 	CompassIcon->SetShouldUseTick(false);
 	CompassIcon->SetOwnerClass(ACatalyseur::StaticClass());
 	CompassIcon->SetDrawDistance(0);
+
+	LockerFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Locker FX"));
+	LockerFX->SetupAttachment(RootComponent);
+	LockerFX->SetRelativeLocation(FVector(0, 0, 150));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_Unlocking"));
+	check(FX.Succeeded());
+
+	LockerFX->Effect = FX.Object;
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
@@ -61,12 +71,17 @@ void AInhibiteur::Destroyed(){
 void AInhibiteur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(LockerFX, "Unlocking");
+	UPopcornFXAttributeFunctions::SetAttributeAsBool(LockerFX, TargetIndex, true);
+
 	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
-	if(GameMode->GetPhases() == EPhases::Infiltration){
-		OwnerCatalyseur->AddInhibiteurToActivatedList(this);
-		CompassIcon->DestroyComponent();
-	}
+	OwnerCatalyseur->AddInhibiteurToActivatedList(this);
+	CompassIcon->DestroyComponent();
+}
+
+void AInhibiteur::DestroyInhibteur(){
+	Destroy();
 }
 
 void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){

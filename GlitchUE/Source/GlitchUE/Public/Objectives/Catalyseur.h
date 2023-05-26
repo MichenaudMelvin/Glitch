@@ -69,12 +69,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
 	UStaticMesh* InhibiteurMesh;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-	UFMODEvent* ActivationSFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-	UFMODEvent* DeactivationSFX;
-
 	UCompassComponent* Compass;
 
 	FTimerHandle MoneyTimerHandle;

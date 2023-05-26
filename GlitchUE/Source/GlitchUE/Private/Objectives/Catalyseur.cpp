@@ -10,6 +10,7 @@
 #include "Objectives/Inhibiteur.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayer.h"
+#include "PlacableObject/ConstructionZone.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ACatalyseur::ACatalyseur(){
@@ -22,13 +23,15 @@ ACatalyseur::ACatalyseur(){
 
 	ActivationAnim = ActivAnim.Object;
 
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
-	check(SFX.Succeeded());
-	ActivationSFX = SFX.Object;
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXActivation(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
+	check(SFXActivation.Succeeded());
 
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX_Deactivation(TEXT("/Game/FMOD/Events/SFX/SFX_generator_deactivation"));
-	check(SFX.Succeeded());
-	DeactivationSFX = SFX_Deactivation.Object;
+	ActivationSFX = SFXActivation.Object;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXDeactivation(TEXT("/Game/FMOD/Events/SFX/SFX_generator_deactivation"));
+	check(SFXDeactivation.Succeeded());
+
+	DeactivationSFX = SFXDeactivation.Object;
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> DesactivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_Tech_Catalyser_Close"));
 	check(DesactivAnim.Succeeded());
@@ -105,6 +108,7 @@ void ACatalyseur::ActiveObjectif(){
 	}
 
 	GameMode->UpdateActivatedCatalyseurAmount();
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
@@ -155,8 +159,6 @@ void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs
 
 void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	Super::Interact(MainPlayerController, MainPlayer);
-
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
 	if(!ActivableComp->IsActivated() && GameMode->GetPhases() == EPhases::TowerDefense){
 		ActivableComp->ActivateObject();

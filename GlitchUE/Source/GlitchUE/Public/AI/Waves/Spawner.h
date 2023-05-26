@@ -31,11 +31,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UPopcornFXEmitterComponent* SpawnerFX;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UCompassIcon* CompassIcon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UFMODAudioComponent* SpawnerAudio;
 
 	#if WITH_EDITORONLY_DATA
 		UBillboardComponent* Billboard;

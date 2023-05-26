@@ -2,6 +2,7 @@
 
 
 #include "Components/SightComponent.h"
+#include "PopcornFXFunctions.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Player/MainPlayer.h"
@@ -9,6 +10,11 @@
 USightComponent::USightComponent(){
 	UPrimitiveComponent::SetCollisionResponseToAllChannels(ECR_Overlap);
 	bCanEverAffectNavigation = false;
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> SightEffectObject(TEXT("/Game/VFX/Particles/FX_Enemies/Pk_Surveillance"));
+	check(SightEffectObject.Succeeded());
+
+	SightEffect = SightEffectObject.Object;
 }
 
 void USightComponent::BeginPlay(){
@@ -18,6 +24,8 @@ void USightComponent::BeginPlay(){
 	OnComponentEndOverlap.AddDynamic(this, &USightComponent::ExitSight);
 
 	OwnerBlackboard = Cast<APawn>(GetOwner())->Controller->FindComponentByClass<UBlackboardComponent>();
+
+	SightFX = UPopcornFXFunctions::SpawnEmitterAttached(SightEffect, this, "PopcornFX_DefaultScene", "None", FVector::ZeroVector, FRotator(0, 90, 0),EAttachLocation::SnapToTarget, true, false);
 }
 
 void USightComponent::Check(){

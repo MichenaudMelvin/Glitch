@@ -405,7 +405,7 @@ void AMainPlayer::SetCurrentDrone(APursuitDrone* NewDrone){
 
 	CurrentDrone = NewDrone;
 
-	CurrentDrone->AttachDrone(this, "Bone012");
+	CurrentDrone->AttachDrone(this, "Head");
 
 	
 }
@@ -612,7 +612,7 @@ void AMainPlayer::SetInGlitchZone(const bool bNewValue){
 
 void AMainPlayer::LaunchMark(){
 	FTransform MarkTransform;
-	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Bone012"));
+	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Head"));
 
 	MarkTransform.SetRotation(FindMarkLaunchRotation());
 	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
@@ -639,7 +639,7 @@ FQuat AMainPlayer::FindMarkLaunchRotation() const{
 
 	Mark->SetTargetLocation(TargetLocation);
 
-	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Bone012"), TargetLocation).Quaternion();
+	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Head"), TargetLocation).Quaternion();
 }
 
 void AMainPlayer::TPToMark() {

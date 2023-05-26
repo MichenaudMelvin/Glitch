@@ -3,9 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FMODEvent.h"
 #include "Objectives/AbstractObjectif.h"
-#include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.h"
 #include "Inhibiteur.generated.h"
 
@@ -23,10 +21,12 @@ protected:
 
 	virtual void ActiveObjectif() override;
 
-	UAnimationAsset* ActivationAnim;
+	void DestroyInhibteur();
 
-	UPROPERTY(EditDefaultsOnly)
-	UFMODEvent* ActivationSFX;
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* LockerFX;
+
+	UAnimationAsset* ActivationAnim;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Compass")
 	UCompassIcon* CompassIcon;

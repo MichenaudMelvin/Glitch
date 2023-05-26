@@ -7,6 +7,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/ActivableComponent.h"
 #include "Components/InteractableComponent.h"
+#include "FMODEvent.h"
 #include "AbstractObjectif.generated.h"
 
 class AGlitchUEGameMode;
@@ -40,6 +41,12 @@ protected:
 
 	UFUNCTION()
 	virtual void DesactivateObjectif();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UFMODEvent* ActivationSFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UFMODEvent* DeactivationSFX;
 
 	UFUNCTION()
 	virtual void TakeDamages();
