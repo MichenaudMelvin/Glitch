@@ -48,10 +48,16 @@ protected:
 	UFMODEvent* StealthMusic;
 
 	UPROPERTY()
+	UFMODEvent* StealthAlarm;
+
+	UPROPERTY()
 	UFMODEvent* TowerDefenseMusic;
 
 	UFUNCTION()
 	void SetTowerDefenseMusic();
+	
+	UFUNCTION()
+	void SetStealthMusic();
 
 	UFUNCTION()
 	void SetStealthAudio(const ELevelState LevelState);

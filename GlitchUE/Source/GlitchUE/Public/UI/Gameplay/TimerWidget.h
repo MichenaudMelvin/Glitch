@@ -19,13 +19,19 @@ protected:
 	void RemoveWidget();
 
 	UPROPERTY(EditDefaultsOnly, Category = "TimerText",  meta = (BindWidget))
-	UTextBlock* Minutes;
-
-	UPROPERTY(EditDefaultsOnly, Category = "TimerText",  meta = (BindWidget))
-	UTextBlock* Seconds;
+	UTextBlock* TimerText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* Fade;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TimerText",  meta = (BindWidget))
+	UTextBlock* LooseTimeText;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* LooseTimeAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animations")
+	float LooseAnimSpeed = 1;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animations")
 	float FadeTime = 2;
@@ -34,22 +40,32 @@ protected:
 
 	float CurrentDisplayTime;
 
+	bool RemoveWidgetAtEnd;
+
 	void UpdateTimer();
 
 	FTimerHandle DisplayTimer;
 
+	void GetTimerInString(const float Timer, FString& Minutes, FString& Seconds);
+
+	int GetTimerInInt(const float Time) const;
+
+	int GetSeconds(const float Time) const;
+
+	int GetMinutes(const float Time) const;
+
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartTimer(const float Timer, const FKOnFinishTimer FinishEvent);
+	void StartTimer(const float Timer, const FKOnFinishTimer FinishEvent, const bool RemoveTimerAtEnd = true);
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeTimerValue(const float NewValue);
 
 	UFUNCTION(BlueprintCallable)
-	void FinishTimer();
+	void FinishTimer(const bool RemoveTimer);
 
 	UFUNCTION(BlueprintCallable)
-	void ForceFinishTimer(const bool ExecuteFinishedEvent = true);
+	void ForceFinishTimer(const bool ExecuteFinishedEvent = true, const bool RemoveTimer = true);
 
 	FKOnFinishTimer OnFinishTimer;
 

@@ -25,12 +25,6 @@ protected:
 
 	virtual void BindInteraction() override;
 
-	virtual void BindConstruction() override;
-
-	virtual void BindOpenSelectionWheel() override;
-
-	virtual void BindMouseScroll() override;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Binds")
 	bool bShouldBindMovement = true;
 
@@ -51,7 +45,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Binds")
 	bool bShouldBindInteraction = true;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Binds")
-	bool bShouldBindConstruction = false;
 };

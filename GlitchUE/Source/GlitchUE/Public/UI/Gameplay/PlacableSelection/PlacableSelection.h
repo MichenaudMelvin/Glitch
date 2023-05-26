@@ -16,9 +16,6 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	USelectionButton* NormalModeButton;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UPlacableObjectButton* PlacableButton1;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -42,9 +39,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UPlacableObjectButton* PlacableButton8;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	USelectionButton* DestructionModeButton;
-
 	UPROPERTY(BlueprintReadOnly)
 	TArray<USelectionButton*> ButtonList; 
 
@@ -53,5 +47,4 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	AMainPlayer* MainPlayer;
-
 };

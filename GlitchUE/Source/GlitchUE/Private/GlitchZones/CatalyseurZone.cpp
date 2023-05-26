@@ -2,9 +2,7 @@
 
 
 #include "GlitchZones/CatalyseurZone.h"
-#include "Components/BillboardComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "NavAreas/NavArea_Obstacle.h"
 #include "Player/MainPlayer.h"
 
 ACatalyseurZone::ACatalyseurZone(){
@@ -12,59 +10,30 @@ ACatalyseurZone::ACatalyseurZone(){
 	check(Mesh.Succeeded());
 
 	GetStaticMeshComponent()->SetStaticMesh(Mesh.Object);
-
-	GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetStaticMeshComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
-	GetStaticMeshComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	GetStaticMeshComponent()->SetGenerateOverlapEvents(true);
-
-	GetStaticMeshComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACatalyseurZone::EnterZone);
-	GetStaticMeshComponent()->OnComponentEndOverlap.AddDynamic(this, &ACatalyseurZone::ExitZone);
-
-	#if WITH_EDITORONLY_DATA
-
-		Billboard = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
-		Billboard->SetupAttachment(RootComponent);
-		Billboard->bIsEditorOnly = true;
-
-	#endif
-
-	NavModifierComp = CreateDefaultSubobject<UNavModifierComponent>(TEXT("NavModifier"));
-	NavModifierComp->AreaClass = UNavArea_Obstacle::StaticClass();
 }
 
 void ACatalyseurZone::BeginPlay(){
 	Super::BeginPlay();
 
-	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->OnSwitchPhases.AddDynamic(this, &ACatalyseurZone::OnSwitchPhases);
 }
 
-void ACatalyseurZone::EnterZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
-	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		AMainPlayer* MainPlayer = Cast<AMainPlayer>(OtherActor);
+void ACatalyseurZone::OnPlayerEnterZone(){
+	Super::OnPlayerEnterZone();
 
-		MainPlayer->SetInGlitchZone(true);
-		MainPlayer->EnableSafeEffect(true, SafeFadeTime);
+	MainPlayer->EnableSafeEffect(true, PostProcessFadeTime);
 
-		if(GameMode->GetLevelState() == ELevelState::Alerted){
-			GetWorld()->GetTimerManager().SetTimer(CatalyeurZoneTimer, [&]() {
-				GameMode->SetLevelState(ELevelState::Normal);
-			}, ResetLevelStateDuration, false);
-		}
+	if(GameMode->GetLevelState() == ELevelState::Alerted){
+		GetWorld()->GetTimerManager().SetTimer(ZoneTimer, [&]() {
+			GameMode->SetLevelState(ELevelState::Normal);
+		}, ResetLevelStateDuration, false);
 	}
 }
 
-void ACatalyseurZone::ExitZone(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
-	if(OtherActor->IsA(AMainPlayer::StaticClass())){
-		AMainPlayer* MainPlayer = Cast<AMainPlayer>(OtherActor);
+void ACatalyseurZone::OnPlayerExitZone(){
+	Super::OnPlayerExitZone();
 
-		MainPlayer->SetInGlitchZone(false);
-		MainPlayer->EnableSafeEffect(false, SafeFadeTime);
-
-
-		GetWorld()->GetTimerManager().ClearTimer(CatalyeurZoneTimer);
-	}
+	MainPlayer->EnableSafeEffect(false, PostProcessFadeTime);
 }
 
 void ACatalyseurZone::OnSwitchPhases(EPhases NewPhase){

@@ -32,27 +32,42 @@ FString UTimerWidget::SelectString(const int IntValue){
 void UTimerWidget::UpdateTimer(){
 	CurrentDisplayTime -= 0.1f;
 
-	const int IntTimerValue = FMath::RoundToInt(CurrentDisplayTime);
+	FString MinutesValue;
 
-	const int MinutesInt = IntTimerValue/60;
+	FString SecondsValue;
 
-	const int SecondsInt = IntTimerValue - (MinutesInt * 60);
+	GetTimerInString(CurrentDisplayTime, MinutesValue, SecondsValue);
 
-	const FString SecondsValue = SelectString(SecondsInt);
+	TimerText->SetText(FText::FromString(MinutesValue + ":" + SecondsValue));
 
-	const FString MinutesValue = SelectString(MinutesInt);
-
-	Seconds->SetText(FText::FromString(SecondsValue));
-	Minutes->SetText(FText::FromString(MinutesValue));
-
-	if(MinutesInt <= 0 && SecondsInt <= 0){
-		FinishTimer();
+	if(GetMinutes(CurrentDisplayTime) <= 0 && GetSeconds(CurrentDisplayTime) <= 0){
+		FinishTimer(RemoveWidgetAtEnd);
 	}
 }
 
-void UTimerWidget::StartTimer(const float Timer, const FKOnFinishTimer FinishEvent){
-	AddToViewport();
+void UTimerWidget::GetTimerInString(const float Timer, FString& Minutes, FString& Seconds){
+	Minutes = SelectString(GetMinutes(Timer));
+	Seconds = SelectString(GetSeconds(Timer));
+}
 
+int UTimerWidget::GetTimerInInt(const float Time) const{
+	return FMath::RoundToInt(Time);
+}
+
+int UTimerWidget::GetSeconds(const float Time) const{
+	return GetTimerInInt(Time) - (GetMinutes(Time) * 60);
+}
+
+int UTimerWidget::GetMinutes(const float Time) const{
+	return GetTimerInInt(Time)/60;
+}
+
+void UTimerWidget::StartTimer(const float Timer, const FKOnFinishTimer FinishEvent, const bool RemoveTimerAtEnd){
+	if(!IsVisible()){
+		AddToViewport();
+	}
+
+	RemoveWidgetAtEnd = RemoveTimerAtEnd;
 	CurrentDisplayTime = Timer;
 
 	GetWorld()->GetTimerManager().SetTimer(DisplayTimer, this, &UTimerWidget::UpdateTimer, 0.1f, true);
@@ -60,7 +75,20 @@ void UTimerWidget::StartTimer(const float Timer, const FKOnFinishTimer FinishEve
 }
 
 void UTimerWidget::ChangeTimerValue(const float NewValue){
+	const float LooseValue = CurrentDisplayTime - NewValue;
+
 	CurrentDisplayTime = NewValue;
+
+	FString SecondsValue;
+
+	FString MinutesValue;
+
+	GetTimerInString(LooseValue, MinutesValue, SecondsValue);
+
+	LooseTimeText->SetVisibility(ESlateVisibility::Visible);
+	LooseTimeText->SetText(FText::FromString(MinutesValue + ":" + SecondsValue));
+
+	PlayAnimation(LooseTimeAnim, 0, 1, EUMGSequencePlayMode::Forward, LooseAnimSpeed);
 }
 
 bool UTimerWidget::IsTimerRunning() const{
@@ -71,20 +99,22 @@ float UTimerWidget::GetTimerElapsed() const{
 	return CurrentDisplayTime;
 }
 
-void UTimerWidget::FinishTimer(){
+void UTimerWidget::FinishTimer(const bool RemoveTimer){
 	GetWorld()->GetTimerManager().ClearTimer(DisplayTimer);
 
 	if(OnFinishTimer.IsBound()){
 		OnFinishTimer.Execute();
 	}
 
-	RemoveWidget();
+	if(RemoveTimer){
+		RemoveFromParent();
+	}
 }
 
-void UTimerWidget::ForceFinishTimer(const bool ExecuteFinishedEvent){
+void UTimerWidget::ForceFinishTimer(const bool ExecuteFinishedEvent, const bool RemoveTimer){
 	if(!ExecuteFinishedEvent){
 		OnFinishTimer.Clear();
 	}
 
-	FinishTimer();
+	FinishTimer(RemoveTimer);
 }

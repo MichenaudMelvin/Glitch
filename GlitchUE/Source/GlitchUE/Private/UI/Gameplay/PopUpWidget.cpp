@@ -20,7 +20,7 @@ void UPopUpWidget::NativeDestruct(){
 	}
 #endif
 
-	MainPlayerController->SelectNewGameplayMode(MainPlayerController->GetGameplayMode());
+	MainPlayerController->BindNormalMode();
 	MainPlayerController->ShowMouseCursor(false, nullptr);
 
 	UGameplayStatics::SetGamePaused(GetWorld(), false);

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "Player/MainPlayer.h"
 #include "SelectionButton.generated.h"
 
@@ -14,21 +16,11 @@ class GLITCHUE_API USelectionButton : public UUserWidget{
 protected:
 	virtual void NativeOnInitialized() override;
 
-	virtual void NativeDestruct() override;
-	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* Image;
+	UButton* Image;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* Name;
-
-	UPROPERTY(EditAnywhere)
-	bool bAllowHover = true;
-
-	UPROPERTY(EditAnywhere)
-	bool bApplyWhenSelected = true;
-
-	bool bIsSelectd = false;
+	UTextBlock* Name;
 
 	FLinearColor OriginalColor;
 
@@ -42,4 +34,8 @@ public:
 
 	UFUNCTION()
 	virtual void UnSelect();
+
+	virtual void BindButtons();
+
+	virtual void UnbindButtons();
 };

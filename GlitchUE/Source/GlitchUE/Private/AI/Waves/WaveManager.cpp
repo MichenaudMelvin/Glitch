@@ -114,6 +114,12 @@ void AWaveManager::DisableSpawner(){
 	}
 }
 
+void AWaveManager::StartPrepareTimer(){
+	FKOnFinishTimer FinishEvent;
+	FinishEvent.BindDynamic(this, &AWaveManager::StartWave);
+	PlayerTimerWidget->StartTimer(PrepareTime, FinishEvent);
+}
+
 void AWaveManager::StartWave(){
 	GameMode->GlobalWorldSave(0);
 

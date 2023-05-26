@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FMODEvent.h"
 #include "Objectives/AbstractObjectif.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "Catalyseur.h"
@@ -16,9 +17,6 @@ public:
 	AInhibiteur();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
-	TArray<AConstructionZone*> ConstructionZoneList;
-
 	virtual void BeginPlay() override;
 
 	virtual void Destroyed() override;
@@ -27,21 +25,18 @@ protected:
 
 	UAnimationAsset* ActivationAnim;
 
-	UPROPERTY()
-	FCompassSprite SpriteReference;
+	UPROPERTY(EditDefaultsOnly)
+	UFMODEvent* ActivationSFX;
 
-	virtual void DesactivateObjectif() override;
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
+	UCompassIcon* CompassIcon;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
-
-	void ActivateLinkedElements(const bool bActivate);
 
 	UPROPERTY(BlueprintReadOnly)
 	ACatalyseur* OwnerCatalyseur;
 
 public:
-	void SetSpriteReference(const FCompassSprite NewSprite);
-
 	void SetOwnerCatalyseur(ACatalyseur* NewOwner);
 
 #if WITH_EDITORONLY_DATA

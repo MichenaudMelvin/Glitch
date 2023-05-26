@@ -22,7 +22,7 @@ ADissolver::ADissolver(){
 
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> BorderSFX(TEXT("/Game/FMOD/Events/SFX/SFX_border"));
 	check(BorderSFX.Succeeded());
-
+	
 	FMODAudio->Event = BorderSFX.Object;
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
@@ -145,8 +145,9 @@ float ADissolver::GetRadius() const{
 }
 
 void ADissolver::ForceDissolverValue(const float TargetRadius){
-	Radius = TargetRadius;
-	UpdateRadius();
+	DissolveTimeline.SetPlayRate(1/INFINITY);
+	DissolveTo(TargetRadius);
+	DissolveTimeline.SetPlayRate(1/FXDuration);
 }
 
 void ADissolver::LerpRadius(float Value){

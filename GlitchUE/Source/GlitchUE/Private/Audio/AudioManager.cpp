@@ -15,8 +15,13 @@ AAudioManager::AAudioManager(){
 	check(StMusic.Succeeded());
 
 	StealthMusic = StMusic.Object;
-
+	
 	FMODAudioComp->Event = StealthMusic;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> StAlarm(TEXT("/Game/FMOD/Events/SFX/SFX_detected_alarm"));
+	check(StAlarm.Succeeded());
+
+	StealthAlarm = StAlarm.Object;
 
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> TWDMusic(TEXT("/Game/FMOD/Events/MUSIC/MUSIC_TowerDefense"));
 	check(TWDMusic.Succeeded());
@@ -65,7 +70,12 @@ void AAudioManager::FadeParameterValue(float Alpha){
 	FMODAudioComp->SetParameter(CurrentParameter, Alpha);
 }
 
-void AAudioManager::SetTowerDefenseMusic(){
+void AAudioManager::SetStealthMusic(){
+	FMODAudioComp->SetEvent(StealthMusic);
+	FMODAudioComp->Play();
+}
+
+void AAudioManager::SetTowerDefenseMusic() {
 	FMODAudioComp->SetEvent(TowerDefenseMusic);
 
 	const FOnTimelineEvent EmptyEvent;
@@ -73,11 +83,15 @@ void AAudioManager::SetTowerDefenseMusic(){
 }
 
 void AAudioManager::SetStealthAudio(const ELevelState LevelState){
+
 	switch (LevelState){
 		case ELevelState::Normal:
 			FadeParameter("Stealth", false);
 			break;
 		case ELevelState::Alerted:
+			//FMODAudioComp->SetEvent(StealthAlarm);
+			//FMODAudioComp->Play();
+			//FMODAudioComp->OnEventStopped.AddDynamic(this, &AAudioManager::SetStealthMusic);
 			FadeParameter("Stealth");
 			break;
 	}
