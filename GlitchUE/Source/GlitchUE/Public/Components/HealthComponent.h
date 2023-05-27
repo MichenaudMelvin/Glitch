@@ -53,12 +53,16 @@ public:
 	FKOnHealthNull OnHealthNull;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health")
-	FKOnHealthNull OnHealthChange;
+	FKOnHealthChange OnHealthChange;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Damages")
 	bool GetCanTakeDamages() const;
 
 	float GetCurrentHealth() const;
+
+	float GetHealthPercentage() const;
+
+	float GetNormalizedHealth() const;
 
 	float GetMaxHealth() const;
 

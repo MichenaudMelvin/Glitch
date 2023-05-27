@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/TimelineComponent.h"
@@ -22,8 +23,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Spline")
 	USplineComponent* Spline;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
-	UStaticMeshComponent* Sphere;
+	UPROPERTY(EditDefaultsOnly, Category = "Wisp")
+	UPopcornFXEmitterComponent* Wisp;
 
 	UFUNCTION(BlueprintCallable, Category = "Spline")
 	void FollowSpline();

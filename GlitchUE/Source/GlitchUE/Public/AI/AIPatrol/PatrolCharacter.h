@@ -25,6 +25,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Hearing")
 	UHearingComponent* HearingComponent;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Sight")
+	UWidgetComponent* SightWidget;
+
 public:
 	TArray<APatrolPoint*> GetPatrolPointList() const;
 

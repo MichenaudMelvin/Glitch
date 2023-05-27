@@ -364,24 +364,25 @@ bool AMainPlayer::InteractionLineTrace(FHitResult& OutHit) const{
 void AMainPlayer::InteractionTick(){
 	FHitResult HitResult;
 
-	if (!InteractionLineTrace(HitResult)) {
+	if(!InteractionLineTrace(HitResult)) {
 		UnfeedbackCurrentCheckedObject();
 		return;
 	}
 
-	if (HitResult.Actor == nullptr) {
+	if(HitResult.Actor == nullptr) {
 		UnfeedbackCurrentCheckedObject();
 		return;
 	}
 
 	UInteractableComponent* HittedInteractable = Cast<UInteractableComponent>(HitResult.Actor->GetComponentByClass(UInteractableComponent::StaticClass()));
-	
-	if (HittedInteractable == nullptr) {
+
+	if(!IsValid(HittedInteractable)) {
 		UnfeedbackCurrentCheckedObject();
 		return;
 	}
 
 	if ((HittedInteractable != CurrentCheckedObject) && (HittedInteractable->CheckComponent(HitResult.GetComponent()))){
+		UnfeedbackCurrentCheckedObject();
 		CurrentCheckedObject = HittedInteractable;
 		CurrentCheckedObject->Feedback();
 	}
@@ -406,8 +407,6 @@ void AMainPlayer::SetCurrentDrone(APursuitDrone* NewDrone){
 	CurrentDrone = NewDrone;
 
 	CurrentDrone->AttachDrone(this, "Head");
-
-	
 }
 
 APursuitDrone* AMainPlayer::GetCurrentDrone() const{

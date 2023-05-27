@@ -19,7 +19,7 @@ void UCompassPivotIcon::OnComponentDestroyed(bool bDestroyingHierarchy){
 	ChildMesh->DestroyComponent();
 }
 
-void UCompassPivotIcon::SelectorRotation(){
+void UCompassPivotIcon::SelectRotation(){
 	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetComponentLocation(), TargetToLookAt->GetActorLocation());
 
 	if(!Compass->UsesZAxis()){
@@ -29,12 +29,24 @@ void UCompassPivotIcon::SelectorRotation(){
 	SetWorldRotation(TargetRotation);
 }
 
+void UCompassPivotIcon::SelectScale() const{
+	if(!CurrentCompassIcon->UseDynamicScale()){
+		return;
+	}
+
+	const float Alpha = UKismetMathLibrary::NormalizeToRange(CurrentCompassIcon->GetDistanceFromTarget(), Compass->GetCompassRadius(), CurrentCompassIcon->GetDrawDistance());
+
+	const FVector TargetScale = UKismetMathLibrary::VLerp(CurrentCompassIcon->GetTargetScale(), FVector::ZeroVector, Alpha);
+	ChildMesh->SetWorldScale3D(TargetScale);
+}
+
 void UCompassPivotIcon::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction){
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if(CurrentCompassIcon->CanBeDrawn()){
 		ChildMesh->SetVisibility(true);
-		SelectorRotation();
+		SelectRotation();
+		SelectScale();
 	} else if(ChildMesh->IsVisible()){
 		ChildMesh->SetVisibility(false);
 	}
@@ -57,7 +69,7 @@ void UCompassPivotIcon::InitPivotIcon(UCompassComponent* CompassComp, UCompassIc
 	ChildMesh->SetRelativeTransform(TargetTransform);
 
 	if(!CurrentCompassIcon->ShouldUseTick() && CurrentCompassIcon->CanBeDrawn()){
-		SelectorRotation();
+		SelectRotation();
 	}
 }
 

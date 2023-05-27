@@ -21,6 +21,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 
 	void Check();
 
@@ -36,6 +37,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float MaxInvestigateTime = 2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	bool bDrawFX = true;
 
 	// can only be the player
 	AActor* SightActor;

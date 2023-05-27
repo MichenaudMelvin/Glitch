@@ -13,6 +13,14 @@ void AMainPlayerController::BeginPlay(){
 	Super::BeginPlay();
 
 	MainPlayer = Cast<AMainPlayer>(GetPawn());
+
+	#if WITH_EDITOR
+		if(!IsValid(MainPlayer)){
+			UE_LOG(LogTemp, Warning, TEXT("Player not valid"));
+			return;
+		}
+	#endif
+
 	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
 
 	CreatePlayerWidgets();
@@ -39,6 +47,8 @@ void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	WheelWidget = Cast<UWheel>(CreateWidget(this, WheelWidgetWidgetClass));
 
 	PauseWidget = Cast<UPauseMenu>(CreateWidget(this, PauseWidgetClass));
+
+	AdditionalMessageWidget = Cast<UAdditionalMessage>(CreateWidget(this, AdditionalMessageWidgetClass));
 
 	PopUpWidget = Cast<UPopUpWidget>(CreateWidget(this, PopUpWidgetClass));
 }
@@ -307,6 +317,10 @@ UTimerWidget* AMainPlayerController::GetTimerWidget() const{
 
 UPlayerStats* AMainPlayerController::GetPlayerStatsWidget() const{
 	return PlayerStatsWidget;
+}
+
+UAdditionalMessage* AMainPlayerController::GetAdditionalMessageWidget() const{
+	return AdditionalMessageWidget;
 }
 
 

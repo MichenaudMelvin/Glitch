@@ -8,6 +8,7 @@
 #include "AI/Waves/Spawner.h"
 #include "EngineUtils.h"
 #include "Audio/AudioManager.h"
+#include "UI/Gameplay/PlayerStats.h"
 #include "Player/MainPlayerController.h"
 
 AWaveManager::AWaveManager(){
@@ -86,7 +87,11 @@ void AWaveManager::BeginPlay(){
 	FTimerHandle TimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		PlayerTimerWidget = Player->GetMainPlayerController()->GetTimerWidget();
+		const AMainPlayerController* PlayerController = Player->GetMainPlayerController();
+
+		PlayerTimerWidget = PlayerController->GetTimerWidget();
+		PlayerMessageWidget = PlayerController->GetAdditionalMessageWidget();
+		OnStartWave.AddDynamic(PlayerController->GetPlayerStatsWidget(), &UPlayerStats::UpdateWaveNumber);
 	}, 0.1f, false);
 }
 
@@ -129,6 +134,8 @@ void AWaveManager::StartWave(){
 
 	OnStartWave.Broadcast(CurrentWaveNumber);
 
+	PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
+
 	EnableSpawners();
 
 	SpawnEnemies();
@@ -143,9 +150,11 @@ void AWaveManager::EndWave(){
 	OnEndWave.Broadcast(CurrentWaveNumber);
 
 	if (CurrentWaveNumber == NumberOfWaves){
+		PlayerMessageWidget->AddMessageToScreen("Finish all Waves");
 		return;
 	}
 
+	PlayerMessageWidget->AddMessageToScreen("Finish Wave: " + FString::FromInt(CurrentWaveNumber));
 	if (GetCurrentWaveData().bStopAtEnd){
 		bIsStopped = true;
 		return;

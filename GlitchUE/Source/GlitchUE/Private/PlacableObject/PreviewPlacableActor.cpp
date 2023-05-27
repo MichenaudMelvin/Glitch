@@ -10,6 +10,8 @@ APreviewPlacableActor::APreviewPlacableActor(){
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	SetRootComponent(BaseMesh);
 
+	AudioComp->SetupAttachment(RootComponent);
+
 	BaseMesh->SetCollisionResponseToAllChannels(ECR_Overlap);
 	BaseMesh->CastShadow = false;
 

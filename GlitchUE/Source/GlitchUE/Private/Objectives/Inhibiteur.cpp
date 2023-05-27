@@ -16,11 +16,6 @@ AInhibiteur::AInhibiteur(){
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Inhibiteur/AS_Inhibiteur"));
 	check(ActivAnim.Succeeded());
 
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
-	check(SFX.Succeeded());
-
-	ActivationSFX = SFX.Object;
-
 	ActivationAnim = ActivAnim.Object;
 
 	CompassIcon = CreateDefaultSubobject<UCompassIcon>(TEXT("Compass Icon"));

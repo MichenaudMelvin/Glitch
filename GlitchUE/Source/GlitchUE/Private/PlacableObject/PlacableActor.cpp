@@ -17,8 +17,7 @@
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = true;
 
-	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
-	AudioComp->SetupAttachment(RootComponent);
+	AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 
@@ -208,6 +207,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	AttackAnimation = CurrentData->AttackAnimation;
 	IdleAnimation = CurrentData->IdleAnimation;
 	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
+	AudioComp->Event = CurrentData->AttackSFX;
 
 	FOnTimelineEvent FinishEvent;
 	FinishEvent.BindDynamic(this, &APlacableActor::EndAppearance);

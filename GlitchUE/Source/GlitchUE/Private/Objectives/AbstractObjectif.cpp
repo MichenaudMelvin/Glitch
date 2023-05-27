@@ -21,6 +21,11 @@ AAbstractObjectif::AAbstractObjectif(){
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXActivation(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
+	check(SFXActivation.Succeeded());
+
+	ActivationSFX = SFXActivation.Object;
 }
 
 void AAbstractObjectif::BeginPlay(){

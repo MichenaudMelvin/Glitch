@@ -12,6 +12,8 @@ ATrap::ATrap(){
 	TrapMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TrapMesh"));
 	SetRootComponent(TrapMesh);
 
+	AudioComp->SetupAttachment(RootComponent);
+
 	TrapMesh->SetCollisionResponseToAllChannels(ECR_Block);
 
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));

@@ -33,6 +33,7 @@ ASpawner::ASpawner(){
 	CompassIcon->SetAllowDraw(false);
 
 	SpawnerAudio = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Spawner Audio"));
+	SpawnerAudio->SetupAttachment(RootComponent);
 	SpawnerAudio->Event = SpawnerSFX;
 
 	#if WITH_EDITORONLY_DATA
@@ -54,6 +55,8 @@ void ASpawner::BeginPlay(){
 
 	ActivableComp->OnActivated.AddDynamic(this, &ASpawner::ActivateSpawner);
 	ActivableComp->OnDesactivated.AddDynamic(this, &ASpawner::DesactivateSpawner);
+
+	SpawnerAudio->Stop();
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){

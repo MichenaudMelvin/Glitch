@@ -25,7 +25,17 @@ void USightComponent::BeginPlay(){
 
 	OwnerBlackboard = Cast<APawn>(GetOwner())->Controller->FindComponentByClass<UBlackboardComponent>();
 
-	SightFX = UPopcornFXFunctions::SpawnEmitterAttached(SightEffect, this, "PopcornFX_DefaultScene", "None", FVector::ZeroVector, FRotator(0, 90, 0),EAttachLocation::SnapToTarget, true, false);
+	if(bDrawFX){
+		SightFX = UPopcornFXFunctions::SpawnEmitterAttached(SightEffect, this, "PopcornFX_DefaultScene", "None", FVector::ZeroVector, FRotator(0, 90, 0),EAttachLocation::SnapToTarget, true, false);
+	}
+}
+
+void USightComponent::OnComponentDestroyed(bool bDestroyingHierarchy){
+	Super::OnComponentDestroyed(bDestroyingHierarchy);
+
+	if(IsValid(SightFX)){
+		SightFX->DestroyComponent();
+	}
 }
 
 void USightComponent::Check(){

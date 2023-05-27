@@ -13,6 +13,8 @@ ATurret::ATurret() {
 	TurretBase = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretBase"));
 	SetRootComponent(TurretBase);
 
+	AudioComp->SetupAttachment(RootComponent);
+
 	TurretPillar = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pillar"));
 	TurretPillar->SetupAttachment(TurretBase);
 

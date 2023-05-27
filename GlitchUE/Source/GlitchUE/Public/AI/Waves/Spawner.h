@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/ActivableComponent.h"
 #include "FMODEvent.h"
+#include "FMODAudioComponent.h"
 #include "AI/MainAICharacter.h"
 #include "Spawner.generated.h"
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Assets/PopcornFXEffect.h"
 #include "Engine/DataAsset.h"
+#include "FMODEvent.h"
 #include "PlacableActorData.generated.h"
 
 class APlacableActor;
@@ -109,6 +110,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "FX")
 	UMaterialInstance* AppearanceMaterial;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "SFX")
+	UFMODEvent* AttackSFX;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;

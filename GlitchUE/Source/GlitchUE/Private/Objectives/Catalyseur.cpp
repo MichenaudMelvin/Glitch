@@ -2,6 +2,7 @@
 
 
 #include "Objectives/Catalyseur.h"
+#include "FMODBlueprintStatics.h"
 #include "AI/Waves/Spawner.h"
 #include "AI/Waves/WaveManager.h"
 #include "Components/CompassComponent.h"
@@ -22,11 +23,6 @@ ACatalyseur::ACatalyseur(){
 	check(ActivAnim.Succeeded());
 
 	ActivationAnim = ActivAnim.Object;
-
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXActivation(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
-	check(SFXActivation.Succeeded());
-
-	ActivationSFX = SFXActivation.Object;
 
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXDeactivation(TEXT("/Game/FMOD/Events/SFX/SFX_generator_deactivation"));
 	check(SFXDeactivation.Succeeded());
