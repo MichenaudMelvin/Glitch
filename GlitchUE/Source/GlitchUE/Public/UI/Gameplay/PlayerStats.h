@@ -21,6 +21,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
 	UTextBlock* WaveText;
 
+	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
+	UTextBlock* NexusHealth;
+
 	UFUNCTION()
 	void SwitchPhases(EPhases NewPhase);
 
@@ -29,4 +32,6 @@ public:
 
 	UFUNCTION()
 	void UpdateWaveNumber(int CurrentWave);
+
+	void UpdateNexusHealth(const float NewHealth)const;
 };

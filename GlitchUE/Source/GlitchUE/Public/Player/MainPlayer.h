@@ -521,6 +521,14 @@ protected:
 
 	FTimeline AppearTimeline;
 
+#if WITH_EDITORONLY_DATA
+	/**
+	 * @brief Even if the value is false it will play in a package game
+	 */
+	UPROPERTY(EditDefaultsOnly, Transient, Category = "Appear")
+	bool bPlayStartAnim = false;
+#endif
+
 	void MakeThePlayerAppear();
 
 	UFUNCTION()

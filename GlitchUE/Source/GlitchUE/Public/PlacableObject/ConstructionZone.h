@@ -85,10 +85,11 @@ public:
 	UFUNCTION()
 	void DestroyCurrentUnit();
 
-#if WITH_EDITORONLY_DATA
+	//Call in editor cannot be in WITH_EDITORONLY_DATA directive
 	UFUNCTION(CallInEditor, Category = "Camera")
 	void SpawnCamera();
 
+#if WITH_EDITORONLY_DATA
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 };

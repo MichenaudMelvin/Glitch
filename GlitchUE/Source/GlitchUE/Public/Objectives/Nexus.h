@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PopcornFXEmitterComponent.h"
 #include "Objectives/AbstractObjectif.h"
-#include "FMODEvent.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Nexus.generated.h"
 
 class AWaveManager;
 class ACatalyseur;
 class AAudioManager;
 class ADissolver;
+class UPlayerStats;
 
 UCLASS()
 class GLITCHUE_API ANexus : public AAbstractObjectif{
@@ -32,6 +32,8 @@ protected:
 	TArray<ACatalyseur*> CatalyseursList;
 
 	UAnimationAsset* IdleAnim;
+
+	UPlayerStats* PlayerStatsWidget;
 
 	virtual void TakeDamages() override;
 

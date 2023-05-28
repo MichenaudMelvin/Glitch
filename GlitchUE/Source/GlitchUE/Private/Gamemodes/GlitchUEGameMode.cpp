@@ -462,6 +462,13 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 			WaveManager->StartPrepareTimer();
 		}
 
+		#if !UE_BUILD_SHIPPING
+			// for launch game
+			else if(OptionsString == "?Name=Player"){
+				WaveManager->StartPrepareTimer();
+			}
+		#endif
+
 		MainPlayer->GetMainPlayerController()->SetCanSave(false);
 		break;
 	}

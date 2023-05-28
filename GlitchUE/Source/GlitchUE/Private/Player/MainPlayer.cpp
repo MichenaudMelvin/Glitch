@@ -181,6 +181,12 @@ void AMainPlayer::BeginPlay(){
 
 	#pragma endregion
 
+#if WITH_EDITORONLY_DATA
+	if(!bPlayStartAnim){
+		EndAppear();
+		return;
+	}
+#endif
 	MakeThePlayerAppear();
 }
 

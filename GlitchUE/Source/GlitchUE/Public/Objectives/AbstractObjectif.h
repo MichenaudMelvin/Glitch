@@ -8,9 +8,9 @@
 #include "Components/ActivableComponent.h"
 #include "Components/InteractableComponent.h"
 #include "FMODEvent.h"
+#include "Components/BoxComponent.h"
+#include "Gamemodes/GlitchUEGameMode.h"
 #include "AbstractObjectif.generated.h"
-
-class AGlitchUEGameMode;
 
 UCLASS(Abstract)
 class GLITCHUE_API AAbstractObjectif : public AActor{
@@ -36,11 +36,17 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Interaction")
 	UInteractableComponent* InteractableComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Navigation")
+	UBoxComponent* NavModifier;
+
 	UFUNCTION()
 	virtual void ActiveObjectif();
 
 	UFUNCTION()
 	virtual void DesactivateObjectif();
+
+	UFUNCTION()
+	virtual void OnSwitchPhases(EPhases CurrentPhase);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 	UFMODEvent* ActivationSFX;

@@ -3,6 +3,7 @@
 
 #include "Objectives/Catalyseur.h"
 #include "FMODBlueprintStatics.h"
+#include "PopcornFXAttributeFunctions.h"
 #include "AI/Waves/Spawner.h"
 #include "AI/Waves/WaveManager.h"
 #include "Components/CompassComponent.h"
@@ -19,6 +20,15 @@ ACatalyseur::ACatalyseur(){
 	TECHMesh->SetCanEverAffectNavigation(false);
 	TECHMesh->SetupAttachment(RootComponent);
 
+	DesactivationFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Desactivation FX"));
+	DesactivationFX->SetupAttachment(RootComponent);
+	DesactivationFX->bPlayOnLoad = false;
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> ShutDownFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_DeactivatingEffect_Generator"));
+	check(ShutDownFX.Succeeded());
+
+	DesactivationFX->SetEffect(ShutDownFX.Object);
+
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_MED_Catalyser_Open"));
 	check(ActivAnim.Succeeded());
 
@@ -33,6 +43,8 @@ ACatalyseur::ACatalyseur(){
 	check(DesactivAnim.Succeeded());
 
 	DesactivationAnim = DesactivAnim.Object;
+
+	NavModifier->SetBoxExtent(FVector(150, 150, 10));
 
 	Compass = CreateDefaultSubobject<UCompassComponent>(TEXT("Compass"));
 	Compass->SetCompassOffset(FVector(0, 0, 50));
@@ -61,8 +73,6 @@ void ACatalyseur::BeginPlay(){
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWaveManager::StaticClass(), WaveManagerTemp);
 
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
-
-	GameMode->OnSwitchPhases.AddDynamic(this, &ACatalyseur::OnSwitchPhases);
 
 	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
@@ -99,6 +109,10 @@ void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);
 
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color");
+	UPopcornFXAttributeFunctions::ResetToDefaultValue(DesactivationFX, TargetIndex);
+	DesactivationFX->StopEmitter();
+
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
 	}
@@ -122,6 +136,8 @@ void ACatalyseur::DesactivateObjectif(){
 	MeshObjectif->PlayAnimation(DesactivationAnim, false);
 	TECHMesh->PlayAnimation(DesactivationAnim, false);
 
+	DesactivationFX->StartEmitter();
+
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
 	}
@@ -142,6 +158,9 @@ void ACatalyseur::DesactivateObjectif(){
 			GetWorld()->GetTimerManager().SetTimer(DesactivationTimerHandle, [&](){
 				InteractableComp->AddInteractable(MeshObjectif);
 				InteractableComp->AddInteractable(TECHMesh);
+
+				const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color");
+				UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CanInteractWithColor, true);
 			}, DesactivationTimer, false);
 			break;
 	}
@@ -167,6 +186,8 @@ void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPla
 }
 
 void ACatalyseur::OnSwitchPhases(EPhases CurrentPhase){
+	Super::OnSwitchPhases(CurrentPhase);
+
 	switch (CurrentPhase){
 	case EPhases::Infiltration:
 		break;

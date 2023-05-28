@@ -97,7 +97,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Waves")
 	UDataTable* WavesData;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TSet<AMainAICharacter*> WaveAIList;
 
 	void EnableSpawners();

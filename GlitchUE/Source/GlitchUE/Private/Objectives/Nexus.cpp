@@ -10,6 +10,7 @@
 #include "Audio/AudioManager.h"
 #include "FX/Dissolver.h"
 #include "FMODBlueprintStatics.h"
+#include "Player/MainPlayerController.h"
 
 ANexus::ANexus() {
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> TechEffect(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusFromTechToMed"));
@@ -26,6 +27,8 @@ ANexus::ANexus() {
 	check(Idle.Succeeded());
 
 	IdleAnim = Idle.Object;
+
+	NavModifier->SetBoxExtent(FVector(125, 125, 10));
 }
 
 void ANexus::BeginPlay(){
@@ -60,17 +63,23 @@ void ANexus::BeginPlay(){
 
 	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
 
-	AMainPlayer* MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-	if(IsValid(MainPlayer)){
-		HealthComp->OnHealthNull.AddDynamic(MainPlayer, &AMainPlayer::Loose);
-	}
-
 	FVector SpawnFXLocation = GetActorLocation();
 	SpawnFXLocation.Z += 200;
 
 	TechFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), TechFX, "PopcornFX_DefaultScene", SpawnFXLocation, FRotator::ZeroRotator, true, false);
 	MedFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), MedFX, "PopcornFX_DefaultScene", SpawnFXLocation, FRotator::ZeroRotator, false, false);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		AMainPlayer* MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+		if(IsValid(MainPlayer)){
+			HealthComp->OnHealthNull.AddDynamic(MainPlayer, &AMainPlayer::Loose);
+
+			PlayerStatsWidget = MainPlayer->GetMainPlayerController()->GetPlayerStatsWidget();
+			PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
+		}
+	}, 0.01f, false);
 }
 
 void ANexus::OnConstruction(const FTransform& Transform){
@@ -93,10 +102,7 @@ void ANexus::OnConstruction(const FTransform& Transform){
 void ANexus::TakeDamages(){
 	Super::TakeDamages();
 
-	// nexus health in percent
-	const float NexusHealth = (HealthComp->GetCurrentHealth() * HealthComp->GetMaxHealth()) / 100.0f;
-
-	Dissolver->DissolveTo(NexusHealth * Dissolver->GetRadius() / 100.0f);
+	PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
 }
 
 void ANexus::UpdateDissolver(){

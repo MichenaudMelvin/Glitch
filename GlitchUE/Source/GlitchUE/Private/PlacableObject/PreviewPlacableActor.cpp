@@ -23,6 +23,7 @@ APreviewPlacableActor::APreviewPlacableActor(){
 	check(TurretMesh.Succeeded());
 
 	TurretRangeMesh = TurretMesh.Object;
+	PlacableRange->SetStaticMesh(TurretRangeMesh);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> TrapMesh(TEXT("/Game/Meshs/System/SM_Trap_Range"));
 	check(TrapMesh.Succeeded());

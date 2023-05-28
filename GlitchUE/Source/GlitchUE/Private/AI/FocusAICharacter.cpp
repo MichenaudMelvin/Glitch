@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "FocusAICharacter.h"
+#include "AI/FocusAICharacter.h"
 
 AFocusAICharacter::AFocusAICharacter(){
-	HealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Health Bar"));
+	HealthWidget = CreateDefaultSubobject<UBillboardWidgetComponent>(TEXT("Health Bar"));
 	HealthWidget->SetupAttachment(GetMesh());
 
 	HealthWidget->SetRelativeLocation(FVector(0, 0, 100));

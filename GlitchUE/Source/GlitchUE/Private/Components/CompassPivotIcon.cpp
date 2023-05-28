@@ -6,6 +6,8 @@
 #include "Kismet/KismetMathLibrary.h"
 
 UCompassPivotIcon::UCompassPivotIcon(){
+	PrimaryComponentTick.bCanEverTick = true;
+
 	ChildMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	ChildMesh->SetupAttachment(this);
 
@@ -43,6 +45,10 @@ void UCompassPivotIcon::SelectScale() const{
 void UCompassPivotIcon::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction){
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if(!CurrentCompassIcon->ShouldUseTick()){
+		return;
+	}
+
 	if(CurrentCompassIcon->CanBeDrawn()){
 		ChildMesh->SetVisibility(true);
 		SelectRotation();
@@ -56,8 +62,6 @@ void UCompassPivotIcon::InitPivotIcon(UCompassComponent* CompassComp, UCompassIc
 	Compass = CompassComp;
 
 	CurrentCompassIcon = TargetCompassIcon;
-
-	PrimaryComponentTick.bCanEverTick = CurrentCompassIcon->ShouldUseTick();
 
 	TargetToLookAt = CurrentCompassIcon->GetOwner();
 	ChildMesh->SetStaticMesh(CurrentCompassIcon->GetOwnerMesh());

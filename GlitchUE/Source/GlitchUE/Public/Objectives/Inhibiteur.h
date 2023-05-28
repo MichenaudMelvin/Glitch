@@ -21,6 +21,8 @@ protected:
 
 	virtual void ActiveObjectif() override;
 
+	virtual void OnSwitchPhases(EPhases CurrentPhase) override;
+
 	void DestroyInhibteur();
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AI/MainAICharacter.h"
+#include "Components/BillboardWidgetComponent.h"
 #include "UI/Gameplay/EnemyHealthBar.h"
 #include "FocusAICharacter.generated.h"
 
@@ -21,7 +22,7 @@ protected:
 	void UpdateWidgetHealth();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	UWidgetComponent* HealthWidget;
+	UBillboardWidgetComponent* HealthWidget;
 
 	UEnemyHealthBar* EnemyHealthBarWidget;
 };
