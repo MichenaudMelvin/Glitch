@@ -13,22 +13,31 @@
 #include "Player/MainPlayerController.h"
 
 ANexus::ANexus() {
-	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> TechEffect(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusFromTechToMed"));
-	check(TechEffect.Succeeded());
-
-	TechFX = TechEffect.Object;
-
-	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> MedEffect(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusMED"));
-	check(MedEffect.Succeeded());
-
-	MedFX = MedEffect.Object;
-
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Idle(TEXT("/Game/Meshs/Objectives/Nexus/AS_Nexus"));
 	check(Idle.Succeeded());
 
 	IdleAnim = Idle.Object;
 
 	NavModifier->SetBoxExtent(FVector(125, 125, 10));
+
+	TechFXEmitter = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Tech FX"));
+	TechFXEmitter->SetupAttachment(RootComponent);
+	TechFXEmitter->SetRelativeLocation(FVector(0, 0, 200));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> TechFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusFromTechToMed"));
+	check(TechFX.Succeeded());
+
+	TechFXEmitter->SetEffect(TechFX.Object);
+
+	MedFXEmitter = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Medival FX"));
+	MedFXEmitter->SetupAttachment(RootComponent);
+	MedFXEmitter->bPlayOnLoad = false;
+	MedFXEmitter->SetRelativeLocation(FVector(0, 0, 200));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> MedFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusMED"));
+	check(MedFX.Succeeded());;
+
+	MedFXEmitter->SetEffect(MedFX.Object);
 }
 
 void ANexus::BeginPlay(){
@@ -62,12 +71,6 @@ void ANexus::BeginPlay(){
 #endif
 
 	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
-
-	FVector SpawnFXLocation = GetActorLocation();
-	SpawnFXLocation.Z += 200;
-
-	TechFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), TechFX, "PopcornFX_DefaultScene", SpawnFXLocation, FRotator::ZeroRotator, true, false);
-	MedFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), MedFX, "PopcornFX_DefaultScene", SpawnFXLocation, FRotator::ZeroRotator, false, false);
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){

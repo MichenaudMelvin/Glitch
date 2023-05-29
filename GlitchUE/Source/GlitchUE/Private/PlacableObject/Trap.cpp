@@ -40,6 +40,10 @@ ATrap::ATrap(){
 
 	TrapDistance->SetCollisionResponseToAllChannels(ECR_Ignore);
 	TrapDistance->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	IdleFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Idle FX"));
+	IdleFX->SetupAttachment(TrapMesh);
+	IdleFX->bPlayOnLoad = false;
 }
 
 void ATrap::BeginPlay(){
@@ -65,14 +69,8 @@ void ATrap::OnDesactivateTrap(){
 	if(IsValid(IdleAnimation)){
 		TrapMesh->PlayAnimation(IdleAnimation, true);
 	}
-}
 
-void ATrap::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	Super::Interact(MainPlayerController, MainPlayer);
-
-	if (!ActivableComp->IsActivated()){
-		ActivableComp->ActivateObject();
-	}
+	GetWorld()->GetTimerManager().SetTimer(ReactivationTimerHandle, this, &ATrap::CheckCanAttack, ReactivationTimer, false);
 }
 
 void ATrap::ReceiveGlitchUpgrade(){
@@ -121,10 +119,9 @@ void ATrap::SetData(UPlacableActorData* NewData){
 	AttackRate = Data->AttackRate;
 	TrapEffect = Data->TrapEffect;
 	TrapEffectDuration = Data->TrapEffectDuration;
+	ReactivationTimer = Data->ReactivationTimer;
 
-	if(IdleFX == nullptr){
-		IdleFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), Data->IdleFX, "PopcornFX_DefaultScene", GetActorLocation(), FRotator::ZeroRotator, true, false);
-	}
+	IdleFX->SetEffect(Data->IdleFX, true);
 }
 
 void ATrap::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){
@@ -146,6 +143,12 @@ void ATrap::FadeIn(float Alpha){
 	TrapMesh->SetScalarParameterValueOnMaterials("PercentageApparition", Alpha);
 }
 
+void ATrap::CheckCanAttack(){
+	if(AIList.Num() >= 1) {
+		ActivableComp->ActivateObject();
+	}
+}
+
 void ATrap::Attack_Implementation(){
 	if(bIsAppearing){
 		return;
@@ -153,7 +156,7 @@ void ATrap::Attack_Implementation(){
 
 	Super::Attack_Implementation();
 
-	TArray<AMainAICharacter*>AIArray = AIList.Array();
+	TArray<AMainAICharacter*> AIArray = AIList.Array();
 	const UTrapData* Data = Cast<UTrapData>(CurrentData);
 
 	if(IsValid(AttackAnimation)){
@@ -176,8 +179,8 @@ void ATrap::Attack_Implementation(){
 
 void ATrap::OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
 	Super::OnReachVision(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-}
 
-void ATrap::OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex){
-	Super::OnLeaveVision(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
+	if (AIList.Num() >= 1 && !ActivableComp->IsActivated() && !GetWorld()->GetTimerManager().IsTimerActive(ReactivationTimerHandle)) {
+		ActivableComp->ActivateObject();
+	}
 }

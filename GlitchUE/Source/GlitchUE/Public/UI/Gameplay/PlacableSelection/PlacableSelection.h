@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "PlacableObjectButton.h"
-#include "SubMenuButton.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/Custom/CustomUserWidget.h"
 #include "PlacableSelection.generated.h"
 
 UCLASS(Abstract)
-class GLITCHUE_API UPlacableSelection : public UUserWidget{
+class GLITCHUE_API UPlacableSelection : public UCustomUserWidget{
 	GENERATED_BODY()
 
 protected:
@@ -40,10 +39,7 @@ protected:
 	UPlacableObjectButton* PlacableButton8;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<USelectionButton*> ButtonList; 
-
-	UPROPERTY(BlueprintReadOnly)
-	AMainPlayerController* MainPlayerController;
+	TArray<USelectionButton*> ButtonList;
 
 	UPROPERTY(BlueprintReadOnly)
 	AMainPlayer* MainPlayer;

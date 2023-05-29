@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UI/Custom/CustomButton.h"
 #include "UI/Gameplay/PlacableSelection/PlacableSelection.h"
 #include "Wheel.generated.h"
 
@@ -20,7 +21,7 @@ protected:
 	USelectionButton* SelectedButton;
 
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
-	UButton* DestructButton;
+	UCustomButton* DestructButton;
 
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
 	UTextBlock* PlacableDescription;
@@ -29,5 +30,4 @@ public:
 	void ClickOnDestructButton();
 
 	void SetDescription(const FText NewDescription) const;
-
 };

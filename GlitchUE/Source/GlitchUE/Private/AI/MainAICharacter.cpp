@@ -229,8 +229,6 @@ void AMainAICharacter::ResetTrapEffect(){
 		return;
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Reset status"));
-
 	// temporary check
 	if(IsValid(TrapEffectFX)){
 		TrapEffectFX->DestroyComponent();

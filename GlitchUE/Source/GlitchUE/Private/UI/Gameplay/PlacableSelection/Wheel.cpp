@@ -37,7 +37,7 @@ void UWheel::NativeConstruct(){
 
 	const FVector2D ViewportSize = UWidgetLayoutLibrary::GetViewportSize(GetWorld())/2;
 
-	MainPlayerController->SetMouseLocation(ViewportSize.X, ViewportSize.Y);
+	CurrentController->SetMouseLocation(ViewportSize.X, ViewportSize.Y);
 
 	const bool bIsCurrentSlotOccupied = MainPlayer->GetCurrentConstructionZone()->IsSlotOccupied();
 
@@ -50,11 +50,17 @@ void UWheel::NativeConstruct(){
 
 	DestructButton->SetVisibility(TargetVisibility);
 
+	if(bIsCurrentSlotOccupied){
+		AddWidgetToFocusList(DestructButton);
+	}
+
 	DestructButton->OnClicked.Clear();
 	DestructButton->OnClicked.AddDynamic(MainPlayer->GetCurrentConstructionZone(), &AConstructionZone::DestroyCurrentUnit);
 }
 
 void UWheel::ClickOnDestructButton(){
+	RemoveWidgetToFocusList(DestructButton);
+
 	DestructButton->SetVisibility(ESlateVisibility::Hidden);
 	MainPlayer->GetPreviewPlacableActor()->SetShouldRangeUpdate(true);
 	MainPlayer->GetPreviewPlacableActor()->SetData(nullptr);

@@ -55,6 +55,10 @@ void APlacableActor::Destroyed(){
 		AffectedConstructionZone->UnoccupiedSlot();
 	}
 
+	if(IsValid(AttackFX)){
+		AttackFX->StopEmitter(true);
+	}
+
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
 	Super::Destroyed();
@@ -75,7 +79,10 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 
 	if(IsValid(MainPlayer->GetCurrentDrone())){
 		AddDrone(MainPlayer);
+		return;
 	}
+
+	AffectedConstructionZone->Interact(MainPlayerController, MainPlayer);
 }
 
 void APlacableActor::SellDestroy(){

@@ -46,15 +46,11 @@ protected:
 
 	virtual void ActiveObjectif() override;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* TechFXEmitter;
 
-	UPopcornFXEffect* TechFX;
-
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* MedFXEmitter;
-
-	UPopcornFXEffect* MedFX;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 };

@@ -2,14 +2,12 @@
 
 
 #include "UI/Gameplay/PlacableSelection/PlacableSelection.h"
-#include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayerController.h"
 
 void UPlacableSelection::NativeOnInitialized(){
 	Super::NativeOnInitialized();
 
-	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	MainPlayer = Cast<AMainPlayer>(MainPlayerController->GetCharacter());
+	MainPlayer = Cast<AMainPlayer>(CurrentController->GetCharacter());
 
 	ButtonList.Add(PlacableButton1);
 	ButtonList.Add(PlacableButton2);
@@ -19,4 +17,13 @@ void UPlacableSelection::NativeOnInitialized(){
 	ButtonList.Add(PlacableButton6);
 	ButtonList.Add(PlacableButton7);
 	ButtonList.Add(PlacableButton8);
+
+	AddWidgetToFocusList(PlacableButton1);
+	AddWidgetToFocusList(PlacableButton2);
+	AddWidgetToFocusList(PlacableButton3);
+	AddWidgetToFocusList(PlacableButton4);
+	AddWidgetToFocusList(PlacableButton5);
+	AddWidgetToFocusList(PlacableButton6);
+	AddWidgetToFocusList(PlacableButton7);
+	AddWidgetToFocusList(PlacableButton8);
 }

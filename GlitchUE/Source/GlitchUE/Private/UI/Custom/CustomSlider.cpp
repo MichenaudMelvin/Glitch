@@ -18,6 +18,14 @@ void UCustomSlider::UpdateText(float Value){
 	SliderValue->SetText(UKismetTextLibrary::Conv_FloatToText(Value, HalfToEven, false, true, IntegralDigits, IntegralDigits, FractionalDigits, FractionalDigits));
 }
 
+void UCustomSlider::ReceiveFocus(){
+	IUIFocus::ReceiveFocus();
+}
+
+void UCustomSlider::UnReceiveFocus(){
+	IUIFocus::UnReceiveFocus();
+}
+
 void UCustomSlider::SetValue(const float Value){
 	Slider->SetValue(Value);
 	UpdateText(Value);

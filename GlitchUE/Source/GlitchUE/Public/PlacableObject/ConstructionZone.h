@@ -57,9 +57,6 @@ protected:
 	void DesactivateObjectif();
 
 	UFUNCTION()
-	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
-
-	UFUNCTION()
 	void SwitchPhases(EPhases NewPhases);
 
 	APlacableActor* UnitInZone = nullptr;
@@ -68,6 +65,9 @@ protected:
 	float ConstructionZoneBlend = 0.1f;
 
 public:
+	UFUNCTION()
+	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
 	UFUNCTION(BlueprintCallable)
 	void OccupiedSlot(APlacableActor* NewUnit);
 

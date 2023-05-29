@@ -6,6 +6,10 @@
 #include "Player/MainPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
+USelectionButton::USelectionButton(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer){
+	bIsFocusable = true;
+}
+
 void USelectionButton::NativeOnInitialized(){
 	Super::NativeOnInitialized();
 
@@ -15,6 +19,7 @@ void USelectionButton::NativeOnInitialized(){
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	BindButtons();
+
 }
 
 void USelectionButton::Select(){
@@ -34,4 +39,16 @@ void USelectionButton::BindButtons(){
 void USelectionButton::UnbindButtons(){
 	Image->OnHovered.Clear();
 	Image->OnUnhovered.Clear();
+}
+
+void USelectionButton::ReceiveFocus(){
+	//Super::ReceiveFocus();
+
+	Select();
+}
+
+void USelectionButton::UnReceiveFocus(){
+	//Super::UnReceiveFocus();
+
+	UnSelect();
 }

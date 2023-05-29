@@ -4,16 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Player/MainPlayer.h"
+#include "UI/Custom/CustomButton.h"
 #include "SelectionButton.generated.h"
 
 UCLASS(Abstract)
-class GLITCHUE_API USelectionButton : public UUserWidget{
+class GLITCHUE_API USelectionButton : public UUserWidget, public IUIFocus{
 	GENERATED_BODY()
 
 protected:
+	USelectionButton(const FObjectInitializer& ObjectInitializer);
+
 	virtual void NativeOnInitialized() override;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -38,4 +40,8 @@ public:
 	virtual void BindButtons();
 
 	virtual void UnbindButtons();
+
+	virtual void ReceiveFocus() override;
+
+	virtual void UnReceiveFocus() override;
 };

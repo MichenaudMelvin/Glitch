@@ -259,9 +259,10 @@ void AMainPlayerController::UnbindAll(){
 void AMainPlayerController::PauseGame(){
 	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
 
-	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
-
 	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
+
+	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
+	PrimaryActorTick;
 }
 
 #pragma endregion
