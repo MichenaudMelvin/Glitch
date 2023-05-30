@@ -29,3 +29,12 @@ void UPlayerStats::UpdateWaveNumber(int CurrentWave){
 void UPlayerStats::UpdateNexusHealth(const float NewHealth) const{
 	NexusHealth->SetText(FText::FromString("Nexus Health: " + FString::FromInt(NewHealth)));
 }
+
+void UPlayerStats::UpdateObjectivesText(const FString NewObjective) const{
+	ObjectiveText->SetText(FText::FromString(NewObjective));
+
+}
+
+void UPlayerStats::UpdateTutorialText(const FString NewTutorial) const{
+	TutorialText->SetText(FText::FromString(NewTutorial));
+}
