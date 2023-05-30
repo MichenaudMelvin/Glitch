@@ -24,7 +24,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* Fade;
 
-	UPROPERTY(EditDefaultsOnly, Category = "TimerText",  meta = (BindWidget))
+	UPROPERTY(EditDefaultsOnly, Category = "LooseTimeText",  meta = (BindWidget))
 	UTextBlock* LooseTimeText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))

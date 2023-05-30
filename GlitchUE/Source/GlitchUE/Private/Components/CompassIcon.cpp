@@ -63,7 +63,7 @@ bool UCompassIcon::CanBeDrawn() const{
 		return true;
 	}
 
-	return CompassOwner->GetOwner()->GetDistanceTo(GetOwner()) <= DrawDistance;
+	return GetDistanceFromTarget() <= DrawDistance;
 }
 
 void UCompassIcon::SetAllowDraw(const bool bAllow){
@@ -76,6 +76,10 @@ FVector UCompassIcon::GetTargetScale() const{
 
 void UCompassIcon::SetDrawDistance(const float NewDistance){
 	DrawDistance = NewDistance;
+}
+
+float UCompassIcon::GetDrawDistance() const{
+	return DrawDistance;
 }
 
 void UCompassIcon::SetOwnerClass(const TSubclassOf<AActor> NewOwnerClass){
@@ -97,4 +101,12 @@ bool UCompassIcon::ShouldUseTick() const{
 void UCompassIcon::SetCompassOwner(UCompassComponent* NewOwner){
 	CompassOwner = NewOwner;
 	CompassOwner->AddIconToOwnerList(this);
+}
+
+float UCompassIcon::GetDistanceFromTarget() const{
+	return CompassOwner->GetOwner()->GetDistanceTo(GetOwner());
+}
+
+bool UCompassIcon::UseDynamicScale() const{
+	return bUseDynamicScale;
 }

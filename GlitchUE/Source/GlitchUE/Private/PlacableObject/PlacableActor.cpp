@@ -17,8 +17,7 @@
 APlacableActor::APlacableActor(){
 	PrimaryActorTick.bCanEverTick = true;
 
-	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("Audio"));
-	AudioComp->SetupAttachment(RootComponent);
+	AudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Audio"));
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 
@@ -56,6 +55,10 @@ void APlacableActor::Destroyed(){
 		AffectedConstructionZone->UnoccupiedSlot();
 	}
 
+	if(IsValid(AttackFX)){
+		AttackFX->StopEmitter(true);
+	}
+
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
 	Super::Destroyed();
@@ -76,7 +79,10 @@ void APlacableActor::Interact(AMainPlayerController* MainPlayerController, AMain
 
 	if(IsValid(MainPlayer->GetCurrentDrone())){
 		AddDrone(MainPlayer);
+		return;
 	}
+
+	AffectedConstructionZone->Interact(MainPlayerController, MainPlayer);
 }
 
 void APlacableActor::SellDestroy(){
@@ -208,6 +214,7 @@ void APlacableActor::SetData(UPlacableActorData* NewData){
 	AttackAnimation = CurrentData->AttackAnimation;
 	IdleAnimation = CurrentData->IdleAnimation;
 	GlitchGaugeValueOnDestruct = CurrentData->GlitchGaugeValueOnDestruct;
+	AudioComp->Event = CurrentData->AttackSFX;
 
 	FOnTimelineEvent FinishEvent;
 	FinishEvent.BindDynamic(this, &APlacableActor::EndAppearance);

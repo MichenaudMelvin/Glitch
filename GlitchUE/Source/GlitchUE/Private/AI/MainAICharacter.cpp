@@ -2,6 +2,7 @@
 
 
 #include "AI/MainAICharacter.h"
+#include "FMODBlueprintStatics.h"
 #include "PopcornFXFunctions.h"
 #include "AI/UI/SightIndication.h"
 #include "AI/Waves/WaveManager.h"
@@ -21,19 +22,10 @@ AMainAICharacter::AMainAICharacter(){
 
 	SightComp->SetRelativeRotation(FRotator(0, 180, 0));
 
-	SightWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("SightWidget"));
-	SightWidget->SetupAttachment(GetMesh());
-
-	SightWidget->SetRelativeLocation(FVector(0, 0, 200));
-	SightWidget->SetRelativeRotation(FRotator(0, 90, 0));
-
-	SightWidget->SetWorldScale3D(FVector(0.25,0.05,0.05));
-	SightWidget->SetDrawSize(FVector2D(1920, 1080));
-
-	SightWidget->SetGenerateOverlapEvents(false);
-
 	IdleFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("IdleFX"));
 	IdleFX->SetupAttachment(GetMesh());
+
+	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
 }
 
 void AMainAICharacter::BeginPlay(){
@@ -51,12 +43,6 @@ void AMainAICharacter::BeginPlay(){
 
 	AIController = Cast<AMainAIController>(GetController());
 	Blackboard = AIController->GetBlackboardComponent();
-
-	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
-
-	// USightIndication* Widget = Cast<USightIndication>(SightWidget->GetWidget());
-	// SightComp->OnSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
-	// SightComp->OnLooseSightPlayer.AddDynamic(Widget, &USightIndication::UpdateSightIndication);
 }
 
 void AMainAICharacter::Destroyed(){
@@ -69,6 +55,7 @@ void AMainAICharacter::Destroyed(){
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(AIController);
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), CurrentData->DeathSound, GetActorTransform(), true);
 	UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->DeathFX, "PopcornFX_DefaultScene", GetActorLocation(), GetActorRotation());
 
 	Super::Destroyed();
@@ -241,8 +228,6 @@ void AMainAICharacter::ResetTrapEffect(){
 		GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
 		return;
 	}
-
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("Reset status"));
 
 	// temporary check
 	if(IsValid(TrapEffectFX)){

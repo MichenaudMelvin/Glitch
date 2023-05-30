@@ -8,25 +8,32 @@
 #include "Components/CompassComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "FMODBlueprintStatics.h"
+#include "PopcornFXAttributeFunctions.h"
 
 AInhibiteur::AInhibiteur(){
-	MeshObjectif->SetCanEverAffectNavigation(true);
+	MeshObjectif->SetCanEverAffectNavigation(false);
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Inhibiteur/AS_Inhibiteur"));
 	check(ActivAnim.Succeeded());
 
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
-	check(SFX.Succeeded());
-
-	ActivationSFX = SFX.Object;
-
 	ActivationAnim = ActivAnim.Object;
+
+	NavModifier->SetBoxExtent(FVector(75, 75, 10));
 
 	CompassIcon = CreateDefaultSubobject<UCompassIcon>(TEXT("Compass Icon"));
 	CompassIcon->SetupAuto(false);
 	CompassIcon->SetShouldUseTick(false);
 	CompassIcon->SetOwnerClass(ACatalyseur::StaticClass());
 	CompassIcon->SetDrawDistance(0);
+
+	LockerFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Locker FX"));
+	LockerFX->SetupAttachment(RootComponent);
+	LockerFX->SetRelativeLocation(FVector(0, 0, 150));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_Unlocking"));
+	check(FX.Succeeded());
+
+	LockerFX->Effect = FX.Object;
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &AInhibiteur::OnObjectSelected);
@@ -43,7 +50,8 @@ void AInhibiteur::BeginPlay(){
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		if(!IsValid(OwnerCatalyseur)){
-			UE_LOG(LogTemp, Fatal, TEXT("L'INHIBITEUR %s N'EST PAS AFFECTE A UN CATALYSEUR"), *this->GetName());
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,FString::Printf(TEXT("L'INHIBITEUR %s N'EST PAS AFFECTE A UN CATALYSEUR"), *this->GetName()));
+			UE_LOG(LogTemp, Warning, TEXT("L'INHIBITEUR %s N'EST PAS AFFECTE A UN CATALYSEUR"), *this->GetName());
 		}
 	}, 0.2f, false);
 
@@ -61,12 +69,28 @@ void AInhibiteur::Destroyed(){
 void AInhibiteur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(LockerFX, "Unlocking");
+	UPopcornFXAttributeFunctions::SetAttributeAsBool(LockerFX, TargetIndex, true);
+
 	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
-	if(GameMode->GetPhases() == EPhases::Infiltration){
-		OwnerCatalyseur->AddInhibiteurToActivatedList(this);
+	OwnerCatalyseur->AddInhibiteurToActivatedList(this);
+
+	if(IsValid(CompassIcon)){
 		CompassIcon->DestroyComponent();
 	}
+}
+
+void AInhibiteur::OnSwitchPhases(EPhases CurrentPhase){
+	Super::OnSwitchPhases(CurrentPhase);
+
+	if(CurrentPhase == EPhases::TowerDefense){
+		DestroyInhibteur();
+	}
+}
+
+void AInhibiteur::DestroyInhibteur(){
+	Destroy();
 }
 
 void AInhibiteur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){

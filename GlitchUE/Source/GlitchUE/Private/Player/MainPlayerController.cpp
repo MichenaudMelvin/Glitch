@@ -13,6 +13,14 @@ void AMainPlayerController::BeginPlay(){
 	Super::BeginPlay();
 
 	MainPlayer = Cast<AMainPlayer>(GetPawn());
+
+	#if WITH_EDITOR
+		if(!IsValid(MainPlayer)){
+			UE_LOG(LogTemp, Warning, TEXT("Player not valid"));
+			return;
+		}
+	#endif
+
 	InteractionTickDelegate.BindDynamic(MainPlayer, &AMainPlayer::InteractionTick);
 
 	CreatePlayerWidgets();
@@ -39,6 +47,8 @@ void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	WheelWidget = Cast<UWheel>(CreateWidget(this, WheelWidgetWidgetClass));
 
 	PauseWidget = Cast<UPauseMenu>(CreateWidget(this, PauseWidgetClass));
+
+	AdditionalMessageWidget = Cast<UAdditionalMessage>(CreateWidget(this, AdditionalMessageWidgetClass));
 
 	PopUpWidget = Cast<UPopUpWidget>(CreateWidget(this, PopUpWidgetClass));
 }
@@ -249,9 +259,10 @@ void AMainPlayerController::UnbindAll(){
 void AMainPlayerController::PauseGame(){
 	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
 
-	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
-
 	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
+
+	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
+	PrimaryActorTick;
 }
 
 #pragma endregion
@@ -281,6 +292,10 @@ void AMainPlayerController::CloseWheel(){
 	ShowMouseCursor(false, nullptr);
 }
 
+bool AMainPlayerController::IsWheelOpened() const{
+	return WheelWidget->IsInViewport();
+}
+
 void AMainPlayerController::CameraBlend(AActor* BlendTarget, const float BlendTime){
 	SetViewTargetWithBlend(BlendTarget, BlendTime, VTBlend_EaseInOut, 1);
 }
@@ -307,6 +322,10 @@ UTimerWidget* AMainPlayerController::GetTimerWidget() const{
 
 UPlayerStats* AMainPlayerController::GetPlayerStatsWidget() const{
 	return PlayerStatsWidget;
+}
+
+UAdditionalMessage* AMainPlayerController::GetAdditionalMessageWidget() const{
+	return AdditionalMessageWidget;
 }
 
 

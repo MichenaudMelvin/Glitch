@@ -7,6 +7,7 @@
 #include "Player/MainPlayer.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
+#include "UI/Gameplay/AdditionalMessage.h"
 #include "UI/Gameplay/TimerWidget.h"
 #include "WaveManager.generated.h"
 
@@ -69,10 +70,13 @@ protected:
 
 	AGlitchUEGameMode* GameMode;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY()
 	UTimerWidget* PlayerTimerWidget;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY()
+	UAdditionalMessage* PlayerMessageWidget;
+
+	UPROPERTY()
 	ANexus* Nexus;
 
 	UPROPERTY()
@@ -80,10 +84,8 @@ protected:
 
 	AMainPlayer* Player;
 
-	UPROPERTY(BlueprintReadOnly)
 	int CurrentWaveNumber = 1;
 
-	UPROPERTY(BlueprintReadOnly)
 	int NumberOfWaves;
 
 	/**

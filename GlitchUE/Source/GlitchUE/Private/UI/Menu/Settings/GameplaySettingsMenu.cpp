@@ -20,6 +20,10 @@ void UGameplaySettingsMenu::NativeOnInitialized(){
 
 	FOVSlider->GetSlider()->OnValueChanged.AddDynamic(this, &UGameplaySettingsMenu::UpdateFOVSlider);
 	SensitivitySlider->GetSlider()->OnValueChanged.AddDynamic(this, &UGameplaySettingsMenu::UpdateSensitivitySlider);
+
+	FocusableWidgets.Add(YAxisCheckBox);
+	FocusableWidgets.Add(FOVSlider);
+	FocusableWidgets.Add(SensitivitySlider);
 }
 
 void UGameplaySettingsMenu::ToggleYAxis(bool IsChecked){

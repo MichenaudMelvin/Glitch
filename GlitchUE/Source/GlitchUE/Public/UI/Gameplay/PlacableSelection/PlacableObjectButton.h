@@ -3,36 +3,54 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Gameplay/PlacableSelection/SelectionButton.h"
+#include "Components/TextBlock.h"
+#include "UI/Custom/CustomButton.h"
+#include "Player/MainPlayer.h"
 #include "PlacableObjectButton.generated.h"
 
 class UWheel;
 
-UCLASS(Abstract)
-class GLITCHUE_API UPlacableObjectButton : public USelectionButton{
+UCLASS()
+class GLITCHUE_API UPlacableObjectButton : public UCustomButton{
 	GENERATED_BODY()
 
+public:
+	UPlacableObjectButton();
+
 protected:
-	virtual void NativeOnInitialized() override;
+	virtual void SynchronizeProperties() override;
 
 	UPROPERTY(EditAnywhere)
 	UPlacableActorData* Data;
 
+	UPROPERTY()
+	UTextBlock* Name;
+
 	UWheel* Wheel;
+
+	AMainPlayer* MainPlayer;
+
+	AMainPlayerController* MainPlayerController;
 
 	UFUNCTION()
 	void OnClick();
 
 public:
-	virtual void Select() override;
+	UFUNCTION()
+	virtual void Select();
 
-	virtual void UnSelect() override;
+	UFUNCTION()
+	virtual void UnSelect();
 
-	virtual void BindButtons() override;
+	virtual void BindButtons();
 
-	virtual void UnbindButtons() override;
+	virtual void UnbindButtons();
 
 	bool CompareData(const UPlacableActorData* DataToCompare) const;
 
 	void SetWheel(UWheel* NewWheel);
+
+	virtual void ReceiveFocus() override;
+
+	virtual void UnReceiveFocus() override;
 };
