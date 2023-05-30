@@ -11,15 +11,14 @@ ATutorialPreview::ATutorialPreview(){
 	SetRootComponent(Spline);
 	Spline->SetMobility(EComponentMobility::Static);
 
-	Sphere = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Sphere->SetupAttachment(Spline);
-	Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Sphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+	Wisp = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Will-o'-the-wisp"));
+	Wisp->SetupAttachment(Spline);
+	Wisp->bPlayOnLoad = false;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMesh(TEXT("/Engine/EditorMeshes/EditorSphere"));
-	check(SphereMesh.Succeeded());
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> WispFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_FeuFollet"));
+	check(WispFX.Succeeded());
 
-	Sphere->SetStaticMesh(SphereMesh.Object);
+	Wisp->SetEffect(WispFX.Object);
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
@@ -58,7 +57,7 @@ void ATutorialPreview::BeginPlay(){
 	Super::BeginPlay();
 
 	FollowTimeline.SetPlayRate(1/SplineSpeed);
-	Sphere->SetWorldLocation(Spline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World));
+	Wisp->SetWorldLocation(Spline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World));
 }
 
 void ATutorialPreview::Tick(float DeltaSeconds){
@@ -79,7 +78,7 @@ void ATutorialPreview::FollowSplineUpdate(float Alpha){
 	const float Distance = FMath::Lerp(0.0f, Spline->GetSplineLength(), Alpha);
 
 	const FVector TargetLocation = Spline->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::Local);
-	Sphere->SetRelativeLocation(TargetLocation);
+	Wisp->SetRelativeLocation(TargetLocation);
 }
 
 void ATutorialPreview::FollowSplineFinish(){
@@ -90,7 +89,16 @@ void ATutorialPreview::FollowSplineFinish(){
 void ATutorialPreview::OverlapTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
 		OverlappedComp->DestroyComponent();
-		bLoopStarted ? StopFollow() : FollowSpline();
-		bLoopStarted = true;
+
+		if(!bLoopStarted){
+			Wisp->StartEmitter();
+			OnReachFirstBox.Broadcast();
+			FollowSpline();
+			bLoopStarted = true;
+		} else {
+			OnReachSecondBox.Broadcast();
+			StopFollow();
+		}
+
 	}
 }

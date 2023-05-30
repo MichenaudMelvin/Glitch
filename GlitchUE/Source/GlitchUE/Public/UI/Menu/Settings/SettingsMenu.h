@@ -26,6 +26,8 @@ protected:
 
 	TSubclassOf<USettingsSave> SettingClass;
 
+	TArray<UWidget*> FocusableWidgets;
+
 	UGameUserSettings* GameUserSettings;
 
 	AMainGamemode* Gamemode;
@@ -42,4 +44,6 @@ public:
 	virtual void ResetSettings();
 
 	FText GetSettingCategory() const;
+
+	TArray<UWidget*> GetFocusableWidgets() const;
 };

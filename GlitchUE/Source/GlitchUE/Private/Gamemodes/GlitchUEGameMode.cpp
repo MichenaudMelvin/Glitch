@@ -303,7 +303,7 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
-	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent, true);
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
 }
 
 bool AGlitchUEGameMode::CanStartTowerDefense() const{
@@ -461,6 +461,13 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 		if(OptionsString == ""){
 			WaveManager->StartPrepareTimer();
 		}
+
+		#if !UE_BUILD_SHIPPING
+			// for launch game
+			else if(OptionsString == "?Name=Player"){
+				WaveManager->StartPrepareTimer();
+			}
+		#endif
 
 		MainPlayer->GetMainPlayerController()->SetCanSave(false);
 		break;

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Assets/PopcornFXEffect.h"
 #include "Engine/DataAsset.h"
+#include "FMODEvent.h"
 #include "MainAIData.generated.h"
 
 UCLASS()
@@ -59,4 +60,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category =  "GlitchStats|Behavior")
 	float GlitchDamages = 5;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	UFMODEvent* DeathSound;
 };

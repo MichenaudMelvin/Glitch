@@ -20,6 +20,10 @@ void UVideoSettingsMenu::NativeOnInitialized(){
 	ResolutionBox->OnSelectionChanged.AddDynamic(this, &UVideoSettingsMenu::ChangeResolution);
 
 	WindowModeBox->OnSelectionChanged.AddDynamic(this, &UVideoSettingsMenu::ChangeWindowMode);
+
+	FocusableWidgets.Add(VSyncCheckBox);
+	FocusableWidgets.Add(ResolutionBox);
+	FocusableWidgets.Add(WindowModeBox);
 }
 
 void UVideoSettingsMenu::NativePreConstruct(){

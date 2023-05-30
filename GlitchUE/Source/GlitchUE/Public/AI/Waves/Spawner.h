@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/ActivableComponent.h"
 #include "FMODEvent.h"
+#include "FMODAudioComponent.h"
 #include "AI/MainAICharacter.h"
 #include "Spawner.generated.h"
 
@@ -31,11 +32,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UPopcornFXEmitterComponent* SpawnerFX;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UCompassIcon* CompassIcon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UFMODAudioComponent* SpawnerAudio;
 
 	#if WITH_EDITORONLY_DATA
 		UBillboardComponent* Billboard;

@@ -15,7 +15,7 @@ AAudioManager::AAudioManager(){
 	check(StMusic.Succeeded());
 
 	StealthMusic = StMusic.Object;
-	
+
 	FMODAudioComp->Event = StealthMusic;
 
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> StAlarm(TEXT("/Game/FMOD/Events/SFX/SFX_detected_alarm"));

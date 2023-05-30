@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Objectives/AbstractObjectif.h"
-#include "Gamemodes/GlitchUEGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavAreas/NavArea_Obstacle.h"
 
 AAbstractObjectif::AAbstractObjectif(){
 	PrimaryActorTick.bCanEverTick = false;
@@ -21,6 +21,19 @@ AAbstractObjectif::AAbstractObjectif(){
 	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable"));
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
+
+	NavModifier = CreateDefaultSubobject<UBoxComponent>(TEXT("Nav Modifier"));
+	NavModifier->SetupAttachment(RootComponent);
+
+	NavModifier->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	NavModifier->SetCollisionResponseToAllChannels(ECR_Ignore);
+	NavModifier->AreaClass = UNavArea_Obstacle::StaticClass();
+	NavModifier->bDynamicObstacle = true;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXActivation(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
+	check(SFXActivation.Succeeded());
+
+	ActivationSFX = SFXActivation.Object;
 }
 
 void AAbstractObjectif::BeginPlay(){
@@ -37,12 +50,15 @@ void AAbstractObjectif::BeginPlay(){
 
 	if(UGameplayStatics::GetGameMode(GetWorld())->IsA(AGlitchUEGameMode::StaticClass())){
 		GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		GameMode->OnSwitchPhases.AddDynamic(this, &AAbstractObjectif::OnSwitchPhases);
 	}
 }
 
 void AAbstractObjectif::ActiveObjectif(){}
 
 void AAbstractObjectif::DesactivateObjectif(){}
+
+void AAbstractObjectif::OnSwitchPhases(EPhases CurrentPhase){}
 
 void AAbstractObjectif::TakeDamages(){}
 

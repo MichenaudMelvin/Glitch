@@ -21,6 +21,9 @@ void USettingsContainerMenu::NativeOnInitialized(){
 
 		SettingsButtonCategories->AddItem(CurrentData);
 	}
+
+	AddWidgetToFocusList(ApplySettingsButton);
+	AddWidgetToFocusList(ResetToDefaultButton);
 }
 
 void USettingsContainerMenu::NativeConstruct(){
@@ -48,6 +51,7 @@ void USettingsContainerMenu::SetCurrentShownWidget(USettingsMenu* NewWidget){
 
 	if(IsValid(CurrentShownWidget)){
 		CurrentShownWidget->RemoveFromParent();
+		RemoveWidgetsToFocusList(CurrentShownWidget->GetFocusableWidgets());
 	}
 
 	CurrentShownWidget = NewWidget;
@@ -55,6 +59,8 @@ void USettingsContainerMenu::SetCurrentShownWidget(USettingsMenu* NewWidget){
 	BindButtons();
 
 	CurrentShownWidget->AddToViewport();
+
+	AddWidgetsToFocusList(CurrentShownWidget->GetFocusableWidgets());
 
 	SettingsWidgetContainer->AddChild(CurrentShownWidget);
 

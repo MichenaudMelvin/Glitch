@@ -10,6 +10,8 @@ APreviewPlacableActor::APreviewPlacableActor(){
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	SetRootComponent(BaseMesh);
 
+	AudioComp->SetupAttachment(RootComponent);
+
 	BaseMesh->SetCollisionResponseToAllChannels(ECR_Overlap);
 	BaseMesh->CastShadow = false;
 
@@ -21,6 +23,7 @@ APreviewPlacableActor::APreviewPlacableActor(){
 	check(TurretMesh.Succeeded());
 
 	TurretRangeMesh = TurretMesh.Object;
+	PlacableRange->SetStaticMesh(TurretRangeMesh);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> TrapMesh(TEXT("/Game/Meshs/System/SM_Trap_Range"));
 	check(TrapMesh.Succeeded());

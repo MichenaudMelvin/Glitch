@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Player/MainPlayer.h"
+#include "Components/TimelineComponent.h"
 #include "Engine/SceneCapture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Gamemodes/MainGamemode.h"
@@ -11,6 +11,11 @@
 #include "GlitchUEGameMode.generated.h"
 
 class AAudioManager;
+class AMainPlayer;
+class ANexus;
+class AWaveManager;
+class UWorldSave;
+class ADissolver;
 
 UENUM(BlueprintType)
 enum class EPhases : uint8 {

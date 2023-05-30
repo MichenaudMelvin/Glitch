@@ -21,6 +21,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Behavior")
 	float TrapEffectDuration;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Behavior")
+	float ReactivationTimer;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Behavior", meta = (EditCondition = "TrapEffect == ETrapEffect::Burned"))
 	float EffectTickRate;
 

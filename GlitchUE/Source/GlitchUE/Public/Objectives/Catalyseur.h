@@ -3,11 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FMODBlueprintStatics.h"
-#include "FMODEvent.h"
-#include "Gamemodes/GlitchUEGameMode.h"
 #include "Objectives/AbstractObjectif.h"
-#include "Nexus.h"
 #include "Components/CompassIcon.h"
 #include "Catalyseur.generated.h"
 
@@ -40,12 +36,17 @@ protected:
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
-	UFUNCTION()
-	void OnSwitchPhases(EPhases CurrentPhase);
+	virtual void OnSwitchPhases(EPhases CurrentPhase) override;
 
 	UAnimationAsset* ActivationAnim;
 
 	UAnimationAsset* DesactivationAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* DesactivationFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	FLinearColor CanInteractWithColor = FLinearColor::Green;
 
 	virtual void HealthNull() override;
 
@@ -68,12 +69,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
 	UStaticMesh* InhibiteurMesh;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-	UFMODEvent* ActivationSFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-	UFMODEvent* DeactivationSFX;
 
 	UCompassComponent* Compass;
 

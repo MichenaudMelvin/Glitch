@@ -181,6 +181,12 @@ void AMainPlayer::BeginPlay(){
 
 	#pragma endregion
 
+#if WITH_EDITORONLY_DATA
+	if(!bPlayStartAnim){
+		EndAppear();
+		return;
+	}
+#endif
 	MakeThePlayerAppear();
 }
 
@@ -364,24 +370,25 @@ bool AMainPlayer::InteractionLineTrace(FHitResult& OutHit) const{
 void AMainPlayer::InteractionTick(){
 	FHitResult HitResult;
 
-	if (!InteractionLineTrace(HitResult)) {
+	if(!InteractionLineTrace(HitResult)) {
 		UnfeedbackCurrentCheckedObject();
 		return;
 	}
 
-	if (HitResult.Actor == nullptr) {
+	if(HitResult.Actor == nullptr) {
 		UnfeedbackCurrentCheckedObject();
 		return;
 	}
 
 	UInteractableComponent* HittedInteractable = Cast<UInteractableComponent>(HitResult.Actor->GetComponentByClass(UInteractableComponent::StaticClass()));
-	
-	if (HittedInteractable == nullptr) {
+
+	if(!IsValid(HittedInteractable)) {
 		UnfeedbackCurrentCheckedObject();
 		return;
 	}
 
 	if ((HittedInteractable != CurrentCheckedObject) && (HittedInteractable->CheckComponent(HitResult.GetComponent()))){
+		UnfeedbackCurrentCheckedObject();
 		CurrentCheckedObject = HittedInteractable;
 		CurrentCheckedObject->Feedback();
 	}
@@ -405,9 +412,7 @@ void AMainPlayer::SetCurrentDrone(APursuitDrone* NewDrone){
 
 	CurrentDrone = NewDrone;
 
-	CurrentDrone->AttachDrone(this, "Bone012");
-
-	
+	CurrentDrone->AttachDrone(this, "Head");
 }
 
 APursuitDrone* AMainPlayer::GetCurrentDrone() const{
@@ -612,7 +617,7 @@ void AMainPlayer::SetInGlitchZone(const bool bNewValue){
 
 void AMainPlayer::LaunchMark(){
 	FTransform MarkTransform;
-	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Bone012"));
+	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Head"));
 
 	MarkTransform.SetRotation(FindMarkLaunchRotation());
 	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
@@ -639,7 +644,7 @@ FQuat AMainPlayer::FindMarkLaunchRotation() const{
 
 	Mark->SetTargetLocation(TargetLocation);
 
-	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Bone012"), TargetLocation).Quaternion();
+	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Head"), TargetLocation).Quaternion();
 }
 
 void AMainPlayer::TPToMark() {

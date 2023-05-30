@@ -13,13 +13,18 @@ void UPauseMenu::NativeOnInitialized(){
 	SettingsButton->OnClicked.AddDynamic(this, &UPauseMenu::OpenSettings);
 	BackButton->OnClicked.AddDynamic(this, &UPauseMenu::BackToMainMenu);
 
-	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	MainPlayerController = Cast<AMainPlayerController>(CurrentController);
 
 	SaveSelectionWidget = Cast<USaveSelection>(CreateWidget(this, SaveSelectionWidgetClass));
 	SaveSelectionWidget->SetOwnerWidget(this);
 
 	SettingsWidget = Cast<USettingsContainerMenu>(CreateWidget(this, SettingsWidgetClass));
 	SettingsWidget->SetOwnerWidget(this);
+
+	AddWidgetToFocusList(ContinueButton);
+	AddWidgetToFocusList(SaveAndLoadButton);
+	AddWidgetToFocusList(SettingsButton);
+	AddWidgetToFocusList(BackButton);
 }
 
 void UPauseMenu::NativeConstruct(){
