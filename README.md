@@ -1,5 +1,9 @@
 # Glitch
- 
+
+<p align="center">
+  <img id ="GameCover" src="Others/ReadMeFiles/GameCover.png"><br>
+</p>
+
 Glitch is a Tower Defense and Stealth PC game where the player controls a character in third person. The character evolves inside a medieval world corrupted by a strange void.
 Fighting this corruption generates singularities in the whole world.
 
