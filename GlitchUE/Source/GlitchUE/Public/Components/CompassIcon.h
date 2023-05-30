@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Distance")
 	float DrawDistance = 500;
 
+	/**
+	 * @brief if UseDynamicScale is set as true the icon scale will lerp from 0 to TargetScale
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Appearance")
 	float TargetScale = 0.25f;
 
@@ -48,6 +51,9 @@ protected:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	bool bTickDraw = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Behavior", meta = (EditCondition = "bTickDraw == true"))
+	bool bUseDynamicScale = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Class")
 	TSubclassOf<AActor> TargetCompassOwnerClass = AMainPlayer::StaticClass();
@@ -67,6 +73,8 @@ public:
 
 	void SetDrawDistance(const float NewDistance);
 
+	float GetDrawDistance() const;
+
 	void SetOwnerClass(const TSubclassOf<AActor> NewOwnerClass);
 
 	void SetupAuto(const bool bAuto);
@@ -76,4 +84,8 @@ public:
 	bool ShouldUseTick() const;
 
 	void SetCompassOwner(UCompassComponent* NewOwner);
+
+	float GetDistanceFromTarget() const;
+
+	bool UseDynamicScale() const;
 };

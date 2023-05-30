@@ -5,6 +5,7 @@
 #include "MainPlayer.h"
 #include "CoreMinimal.h"
 #include "AbstractPlayerController.h"
+#include "UI/Gameplay/AdditionalMessage.h"
 #include "UI/Gameplay/TimerWidget.h"
 #include "UI/Menu/PauseMenu.h"
 #include "UI/Gameplay/PlacableSelection/Wheel.h"
@@ -299,6 +300,12 @@ protected:
 	TSubclassOf<UPauseMenu> PauseWidgetClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UAdditionalMessage* AdditionalMessageWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UAdditionalMessage> AdditionalMessageWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
 	UPopUpWidget* PopUpWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
@@ -314,6 +321,8 @@ public:
 	UFUNCTION()
 	void CloseWheel();
 
+	bool IsWheelOpened() const;
+
 	void CameraBlend(AActor* BlendTarget, const float BlendTime);
 
 	UTchat* GetTchatWidget() const;
@@ -327,6 +336,8 @@ public:
 	UTimerWidget* GetTimerWidget() const;
 
 	UPlayerStats* GetPlayerStatsWidget() const;
+
+	UAdditionalMessage* GetAdditionalMessageWidget() const;
 
 #pragma endregion
 };

@@ -32,6 +32,10 @@ ASpawner::ASpawner(){
 	CompassIcon = CreateDefaultSubobject<UCompassIcon>(TEXT("Spawner Compass"));
 	CompassIcon->SetAllowDraw(false);
 
+	SpawnerAudio = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Spawner Audio"));
+	SpawnerAudio->SetupAttachment(RootComponent);
+	SpawnerAudio->Event = SpawnerSFX;
+
 	#if WITH_EDITORONLY_DATA
 
 		Billboard = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
@@ -49,10 +53,10 @@ void ASpawner::BeginPlay(){
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
 	Gamemode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(this));
 
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), SpawnerSFX, GetActorTransform(), true);
-
 	ActivableComp->OnActivated.AddDynamic(this, &ASpawner::ActivateSpawner);
 	ActivableComp->OnDesactivated.AddDynamic(this, &ASpawner::DesactivateSpawner);
+
+	SpawnerAudio->Stop();
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
@@ -63,11 +67,13 @@ void ASpawner::BeginPlay(){
 void ASpawner::ActivateSpawner(){
 	SpawnerFX->StartEmitter();
 	CompassIcon->SetAllowDraw(true);
+	SpawnerAudio->Play();
 }
 
 void ASpawner::DesactivateSpawner(){
 	SpawnerFX->StopEmitter();
 	CompassIcon->SetAllowDraw(false);
+	SpawnerAudio->Stop();
 }
 
 void ASpawner::BeginSpawn(const int NumberToSpawn, const TSubclassOf<AMainAICharacter> AIToSpawn, UMainAIData* AIData) {

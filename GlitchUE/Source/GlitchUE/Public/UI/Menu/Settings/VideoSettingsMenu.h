@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/CheckBox.h"
 #include "Components/ComboBoxString.h"
+#include "UI/Custom/CustomCheckbox.h"
 #include "UI/Menu/Settings/SettingsMenu.h"
 #include "VideoSettingsMenu.generated.h"
 
@@ -21,7 +21,7 @@ protected:
 	virtual void NativePreConstruct() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UCheckBox* VSyncCheckBox;
+	UCustomCheckbox* VSyncCheckBox;
 
 	UFUNCTION()
 	void ToggleVSync(bool IsChecked);

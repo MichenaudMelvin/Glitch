@@ -47,6 +47,8 @@ protected:
 
 	UPopcornFXEffect* ConstructionEffect;
 
+	AMainPlayerController* PlayerController;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	EState InitialState;
 
@@ -57,9 +59,6 @@ protected:
 	void DesactivateObjectif();
 
 	UFUNCTION()
-	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
-
-	UFUNCTION()
 	void SwitchPhases(EPhases NewPhases);
 
 	APlacableActor* UnitInZone = nullptr;
@@ -68,6 +67,9 @@ protected:
 	float ConstructionZoneBlend = 0.1f;
 
 public:
+	UFUNCTION()
+	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
 	UFUNCTION(BlueprintCallable)
 	void OccupiedSlot(APlacableActor* NewUnit);
 
@@ -85,10 +87,11 @@ public:
 	UFUNCTION()
 	void DestroyCurrentUnit();
 
-#if WITH_EDITORONLY_DATA
+	//Call in editor cannot be in WITH_EDITORONLY_DATA directive
 	UFUNCTION(CallInEditor, Category = "Camera")
 	void SpawnCamera();
 
+#if WITH_EDITORONLY_DATA
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 };

@@ -50,6 +50,13 @@ void AMainAIController::BeginPlay(){
 #if !UE_BUILD_SHIPPING
 	// for launch game
 	if(Settings == "?Name=Player"){
+		if(!IsValid(GetPawn()) || !IsValid(AIData)){
+			FTimerHandle TimerHandle;
+
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainAIController::InitializeAIFromStart,0.01f, false);
+			return;
+		}
+
 		InitializeAIFromStart();
 		return;
 	}

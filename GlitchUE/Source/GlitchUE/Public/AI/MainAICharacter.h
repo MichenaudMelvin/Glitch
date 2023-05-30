@@ -49,9 +49,6 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	USightComponent* SightComp;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Sight")
-	UWidgetComponent* SightWidget;
-
 	UFUNCTION()
 	void HealthNull();
 

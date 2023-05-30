@@ -10,6 +10,7 @@
 #include "Components/TimelineComponent.h"
 #include "PopcornFXEmitter.h"
 #include "Saves/TowerDefenseSave.h"
+#include "FMODAudioComponent.h"
 #include "PlacableActor.generated.h"
 
 class AMainPlayerController;
@@ -50,7 +51,7 @@ protected:
 	UInteractableComponent* InteractableComp;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Data")
-	UAudioComponent* AudioComp;
+	UFMODAudioComponent* AudioComp;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Name")
 	FName Name;

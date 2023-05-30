@@ -10,27 +10,34 @@
 #include "Audio/AudioManager.h"
 #include "FX/Dissolver.h"
 #include "FMODBlueprintStatics.h"
+#include "Player/MainPlayerController.h"
 
 ANexus::ANexus() {
-	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> TechEffect(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusFromTechToMed"));
-	check(TechEffect.Succeeded());
-
-	TechFX = TechEffect.Object;
-
-	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> MedEffect(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusMED"));
-	check(MedEffect.Succeeded());
-
-	MedFX = MedEffect.Object;
-
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFX(TEXT("/Game/FMOD/Events/SFX/SFX_Free_Interaction"));
-	check(SFX.Succeeded());
-
-	ActivationSFX = SFX.Object;
-
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> Idle(TEXT("/Game/Meshs/Objectives/Nexus/AS_Nexus"));
 	check(Idle.Succeeded());
 
 	IdleAnim = Idle.Object;
+
+	NavModifier->SetBoxExtent(FVector(125, 125, 10));
+
+	TechFXEmitter = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Tech FX"));
+	TechFXEmitter->SetupAttachment(RootComponent);
+	TechFXEmitter->SetRelativeLocation(FVector(0, 0, 200));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> TechFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusFromTechToMed"));
+	check(TechFX.Succeeded());
+
+	TechFXEmitter->SetEffect(TechFX.Object);
+
+	MedFXEmitter = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Medival FX"));
+	MedFXEmitter->SetupAttachment(RootComponent);
+	MedFXEmitter->bPlayOnLoad = false;
+	MedFXEmitter->SetRelativeLocation(FVector(0, 0, 200));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> MedFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_NexusMED"));
+	check(MedFX.Succeeded());;
+
+	MedFXEmitter->SetEffect(MedFX.Object);
 }
 
 void ANexus::BeginPlay(){
@@ -65,17 +72,17 @@ void ANexus::BeginPlay(){
 
 	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
 
-	AMainPlayer* MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		AMainPlayer* MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-	if(IsValid(MainPlayer)){
-		HealthComp->OnHealthNull.AddDynamic(MainPlayer, &AMainPlayer::Loose);
-	}
+		if(IsValid(MainPlayer)){
+			HealthComp->OnHealthNull.AddDynamic(MainPlayer, &AMainPlayer::Loose);
 
-	FVector SpawnFXLocation = GetActorLocation();
-	SpawnFXLocation.Z += 200;
-
-	TechFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), TechFX, "PopcornFX_DefaultScene", SpawnFXLocation, FRotator::ZeroRotator, true, false);
-	MedFXEmitter = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), MedFX, "PopcornFX_DefaultScene", SpawnFXLocation, FRotator::ZeroRotator, false, false);
+			PlayerStatsWidget = MainPlayer->GetMainPlayerController()->GetPlayerStatsWidget();
+			PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
+		}
+	}, 0.01f, false);
 }
 
 void ANexus::OnConstruction(const FTransform& Transform){
@@ -98,10 +105,7 @@ void ANexus::OnConstruction(const FTransform& Transform){
 void ANexus::TakeDamages(){
 	Super::TakeDamages();
 
-	// nexus health in percent
-	const float NexusHealth = (HealthComp->GetCurrentHealth() * HealthComp->GetMaxHealth()) / 100.0f;
-
-	Dissolver->DissolveTo(NexusHealth * Dissolver->GetRadius() / 100.0f);
+	PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
 }
 
 void ANexus::UpdateDissolver(){

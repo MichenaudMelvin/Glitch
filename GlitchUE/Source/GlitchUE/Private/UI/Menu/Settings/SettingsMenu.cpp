@@ -39,3 +39,7 @@ void USettingsMenu::ResetSettings(){
 FText USettingsMenu::GetSettingCategory() const{
 	return SettingCategory;
 }
+
+TArray<UWidget*> USettingsMenu::GetFocusableWidgets() const{
+	return FocusableWidgets;
+}

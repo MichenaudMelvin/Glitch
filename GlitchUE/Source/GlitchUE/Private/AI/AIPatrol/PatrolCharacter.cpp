@@ -15,6 +15,17 @@ APatrolCharacter::APatrolCharacter(){
 
 	HearingComponent = CreateDefaultSubobject<UHearingComponent>(TEXT("Hearing Comp"));
 
+	SightWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Sight Widget"));
+	SightWidget->SetupAttachment(GetMesh());
+
+	SightWidget->SetRelativeLocation(FVector(0, 0, 200));
+	SightWidget->SetRelativeRotation(FRotator(0, 90, 0));
+
+	SightWidget->SetWorldScale3D(FVector(0.25,0.05,0.05));
+	SightWidget->SetDrawSize(FVector2D(1920, 1080));
+
+	SightWidget->SetGenerateOverlapEvents(false);
+
 #if WITH_EDITORONLY_DATA
 	USelection::SelectObjectEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
 	USelection::SelectionChangedEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);

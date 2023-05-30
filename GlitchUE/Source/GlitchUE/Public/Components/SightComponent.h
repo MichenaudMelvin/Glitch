@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "SightComponent.generated.h"
@@ -20,6 +21,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 
 	void Check();
 
@@ -27,10 +29,17 @@ protected:
 
 	UBlackboardComponent* OwnerBlackboard;
 
+	UPopcornFXEmitterComponent* SightFX;
+
+	UPopcornFXEffect* SightEffect;
+
 	float InvestigateTimeElapsed = 0;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float MaxInvestigateTime = 2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	bool bDrawFX = true;
 
 	// can only be the player
 	AActor* SightActor;

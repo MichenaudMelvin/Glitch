@@ -43,7 +43,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 	UBoxComponent* TrapDistance;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* IdleFX;
 
 	float TrapDuration;
@@ -52,13 +52,15 @@ protected:
 
 	float TrapEffectDuration;
 
+	FTimerHandle ReactivationTimerHandle;
+
+	float ReactivationTimer;
+
 	UFUNCTION()
 	void OnActivateTrap();
 
 	UFUNCTION()
 	void OnDesactivateTrap();
-
-	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
 	virtual void ReceiveGlitchUpgrade() override;
 
@@ -76,9 +78,9 @@ protected:
 
 	virtual void FadeIn(float Alpha) override;
 
+	void CheckCanAttack();
+
 	virtual void Attack_Implementation() override;
 
 	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-
-	virtual void OnLeaveVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 };
