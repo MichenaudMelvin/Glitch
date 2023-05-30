@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PopcornFXEmitterComponent.h"
 #include "Objectives/AbstractObjectif.h"
-#include "FMODEvent.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Nexus.generated.h"
 
 class AWaveManager;
 class ACatalyseur;
 class AAudioManager;
 class ADissolver;
+class UPlayerStats;
 
 UCLASS()
 class GLITCHUE_API ANexus : public AAbstractObjectif{
@@ -33,6 +33,8 @@ protected:
 
 	UAnimationAsset* IdleAnim;
 
+	UPlayerStats* PlayerStatsWidget;
+
 	virtual void TakeDamages() override;
 
 public:
@@ -44,18 +46,11 @@ protected:
 
 	virtual void ActiveObjectif() override;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* TechFXEmitter;
 
-	UPopcornFXEffect* TechFX;
-
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* MedFXEmitter;
-
-	UPopcornFXEffect* MedFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-	UFMODEvent* ActivationSFX;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 };

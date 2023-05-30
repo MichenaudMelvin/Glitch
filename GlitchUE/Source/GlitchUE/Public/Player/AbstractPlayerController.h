@@ -8,6 +8,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnInteractPlayer);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnAnyKey, FKey, Key);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPause);
 
 UCLASS(Abstract)
@@ -20,6 +22,9 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Pause")
 	FKOnPause OnPause;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|AnyKey")
+	FKOnAnyKey OnAnyKey;
 
 	// the player controller function is not virtual
 	/**

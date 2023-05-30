@@ -3,13 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "Components/Button.h"
-#include "Player/AbstractPlayerController.h"
+#include "CustomButton.h"
+#include "CustomUserWidget.h"
 #include "SubWidget.generated.h"
 
 UCLASS(Abstract)
-class GLITCHUE_API USubWidget : public UUserWidget{
+class GLITCHUE_API USubWidget : public UCustomUserWidget{
 	GENERATED_BODY()
 
 protected:
@@ -17,13 +16,11 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-	AAbstractPlayerController* CurrentController;
-
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn = "true"))
 	UUserWidget* OwnerWidget;
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	UButton* BackButton;
+	UCustomButton* BackButton;
 
 public:
 	virtual void AddToScreen(ULocalPlayer* LocalPlayer, int32 ZOrder) override;

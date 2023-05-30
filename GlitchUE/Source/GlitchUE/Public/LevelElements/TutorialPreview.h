@@ -3,10 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/TimelineComponent.h"
 #include "TutorialPreview.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnReachFirstBox);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnReachSecondBox);
 
 UCLASS()
 class GLITCHUE_API ATutorialPreview : public AActor{
@@ -22,8 +27,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Spline")
 	USplineComponent* Spline;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
-	UStaticMeshComponent* Sphere;
+	UPROPERTY(EditDefaultsOnly, Category = "Wisp")
+	UPopcornFXEmitterComponent* Wisp;
 
 	UFUNCTION(BlueprintCallable, Category = "Spline")
 	void FollowSpline();
@@ -36,6 +41,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "TriggerBox")
 	UBoxComponent* SecondBoxComp;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnReachFirstBox OnReachFirstBox;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnReachSecondBox OnReachSecondBox;
 
 	UFUNCTION()
 	void FollowSplineUpdate(float Alpha);

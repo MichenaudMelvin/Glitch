@@ -7,10 +7,11 @@
 #include "Components/HorizontalBox.h"
 #include "Components/Slider.h"
 #include "Components/TextBlock.h"
+#include "UI/UIFocus.h"
 #include "CustomSlider.generated.h"
 
 UCLASS(Abstract)
-class GLITCHUE_API UCustomSlider : public UUserWidget{
+class GLITCHUE_API UCustomSlider : public UUserWidget, public IUIFocus{
 	GENERATED_BODY()
 
 protected:
@@ -41,6 +42,10 @@ protected:
 	void UpdateText(float Value);
 
 public:
+	virtual void ReceiveFocus() override;
+
+	virtual void UnReceiveFocus() override;
+
 	void SetValue(const float Value);
 
 	USlider* GetSlider() const;

@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UI/Custom/SubWidget.h"
-#include "Kismet/GameplayStatics.h"
 #include "Player/AbstractPlayerController.h"
 
 void USubWidget::NativeOnInitialized(){
 	Super::NativeOnInitialized();
 
 	BackButton->OnClicked.AddDynamic(this, &USubWidget::BackToOwnerWidget);
-	CurrentController = Cast<AAbstractPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	AddWidgetToFocusList(BackButton);
 }
 
 void USubWidget::NativeConstruct(){

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/CheckBox.h"
+#include "UI/Custom/CustomCheckbox.h"
 #include "UI/Menu/Settings/SettingsMenu.h"
 #include "UI/Custom/CustomSlider.h"
 #include "GameplaySettingsMenu.generated.h"
@@ -21,7 +21,7 @@ protected:
 #pragma region CheckBox
 
 	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UCheckBox* YAxisCheckBox;
+	UCustomCheckbox* YAxisCheckBox;
 
 	UFUNCTION()
 	void ToggleYAxis(bool IsChecked);

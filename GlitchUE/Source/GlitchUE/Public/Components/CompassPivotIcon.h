@@ -27,7 +27,9 @@ protected:
 
 	UCompassIcon* CurrentCompassIcon;
 
-	void SelectorRotation();
+	void SelectRotation();
+
+	void SelectScale() const;
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

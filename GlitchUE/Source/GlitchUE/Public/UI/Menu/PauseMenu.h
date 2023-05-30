@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/Custom/CustomUserWidget.h"
 #include "UI/Menu/Saves/SaveSelection.h"
 #include "UI/Menu/Settings/SettingsContainerMenu.h"
 #include "PauseMenu.generated.h"
 
 UCLASS(Abstract)
-class GLITCHUE_API UPauseMenu : public UUserWidget{
+class GLITCHUE_API UPauseMenu : public UCustomUserWidget{
 	GENERATED_BODY()
 
 protected:
@@ -31,17 +31,17 @@ protected:
 
 	AMainPlayerController* MainPlayerController;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Buttons", meta = (BindWidget))
-	UButton* ContinueButton;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
+	UCustomButton* ContinueButton;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Buttons", meta = (BindWidget))
-	UButton* SaveAndLoadButton;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
+	UCustomButton* SaveAndLoadButton;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Buttons", meta = (BindWidget))
-	UButton* SettingsButton;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
+	UCustomButton* SettingsButton;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Buttons", meta = (BindWidget))
-	UButton* BackButton;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
+	UCustomButton* BackButton;
 
 	UPROPERTY(EditDefaultsOnly, Category = "MainMenu")
 	TSoftObjectPtr<UWorld> MainMenu;

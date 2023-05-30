@@ -2,6 +2,8 @@
 
 #include "Components/HealthComponent.h"
 
+#include "Kismet/KismetMathLibrary.h"
+
 UHealthComponent::UHealthComponent(){
 	PrimaryComponentTick.bCanEverTick = false;
 }
@@ -46,6 +48,14 @@ bool UHealthComponent::GetCanTakeDamages() const{
 
 float UHealthComponent::GetCurrentHealth() const{
 	return CurrentHealth;
+}
+
+float UHealthComponent::GetHealthPercentage() const{
+	return GetCurrentHealth() * 100 / GetMaxHealth();
+}
+
+float UHealthComponent::GetNormalizedHealth() const{
+	return UKismetMathLibrary::NormalizeToRange(CurrentHealth, 0, GetMaxHealth());
 }
 
 float UHealthComponent::GetMaxHealth() const{
