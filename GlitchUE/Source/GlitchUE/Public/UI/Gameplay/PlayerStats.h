@@ -24,6 +24,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
 	UTextBlock* NexusHealth;
 
+	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
+	UTextBlock* ObjectiveText;
+
+	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
+	UTextBlock* TutorialText;
+
 	UFUNCTION()
 	void SwitchPhases(EPhases NewPhase);
 
@@ -34,4 +40,10 @@ public:
 	void UpdateWaveNumber(int CurrentWave);
 
 	void UpdateNexusHealth(const float NewHealth)const;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateObjectivesText(const FString NewObjective) const;
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateTutorialText(const FString NewTutorial) const;
 };
