@@ -321,6 +321,8 @@ public:
 	UFUNCTION()
 	void CloseWheel();
 
+	bool IsWheelOpened() const;
+
 	void CameraBlend(AActor* BlendTarget, const float BlendTime);
 
 	UTchat* GetTchatWidget() const;

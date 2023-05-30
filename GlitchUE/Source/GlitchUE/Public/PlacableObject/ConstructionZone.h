@@ -47,6 +47,8 @@ protected:
 
 	UPopcornFXEffect* ConstructionEffect;
 
+	AMainPlayerController* PlayerController;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	EState InitialState;
 

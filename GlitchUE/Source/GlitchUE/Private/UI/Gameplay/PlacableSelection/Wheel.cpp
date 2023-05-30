@@ -9,23 +9,21 @@
 void UWheel::NativeOnInitialized(){
 	Super::NativeOnInitialized();
 
-	TArray<USelectionButton*> TurretsList;
-	TurretsList.Add(PlacableButton1);
-	TurretsList.Add(PlacableButton2);
-	TurretsList.Add(PlacableButton3);
-	TurretsList.Add(PlacableButton4);
+	MainPlayer = Cast<AMainPlayer>(CurrentController->GetCharacter());
+
+	ButtonList.Add(PlacableButton1);
+	ButtonList.Add(PlacableButton2);
+	ButtonList.Add(PlacableButton3);
+	ButtonList.Add(PlacableButton4);
+	ButtonList.Add(PlacableButton5);
+	ButtonList.Add(PlacableButton6);
+	ButtonList.Add(PlacableButton7);
+	ButtonList.Add(PlacableButton8);
 
 	PlacableButton1->SetWheel(this);
 	PlacableButton2->SetWheel(this);
 	PlacableButton3->SetWheel(this);
 	PlacableButton4->SetWheel(this);
-
-	TArray<USelectionButton*> TrapsList;
-	TrapsList.Add(PlacableButton5);
-	TrapsList.Add(PlacableButton6);
-	TrapsList.Add(PlacableButton7);
-	TrapsList.Add(PlacableButton8);
-
 	PlacableButton5->SetWheel(this);
 	PlacableButton6->SetWheel(this);
 	PlacableButton7->SetWheel(this);
@@ -44,6 +42,10 @@ void UWheel::NativeConstruct(){
 	for(int i = 0; i < ButtonList.Num(); i++){
 		ButtonList[i]->UnSelect();
 		bIsCurrentSlotOccupied ? ButtonList[i]->UnbindButtons() : ButtonList[i]->BindButtons();
+
+		if(!bIsCurrentSlotOccupied){
+			AddWidgetToFocusList(ButtonList[i]);
+		}
 	}
 
 	const ESlateVisibility TargetVisibility = bIsCurrentSlotOccupied ? ESlateVisibility::Visible : ESlateVisibility::Hidden; 
@@ -58,6 +60,43 @@ void UWheel::NativeConstruct(){
 	DestructButton->OnClicked.AddDynamic(MainPlayer->GetCurrentConstructionZone(), &AConstructionZone::DestroyCurrentUnit);
 }
 
+void UWheel::FocusWidgets(){
+	if(!bIsFocusNeeded){
+		return;
+	}
+
+	for(int i = 0; i < FocusList.Num(); i++){
+		#if WITH_EDITOR
+			if(!FocusList[i]->GetClass()->ImplementsInterface(UUIFocus::StaticClass())){
+				const auto ClassName = FocusList[i]->GetClass()->GetName();
+
+				GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,FString::Printf(TEXT("%s does not implement UIFocus interface"), *ClassName));
+				UE_LOG(LogTemp, Warning, TEXT("%s does not implement UIFocus interface"), *ClassName);
+				continue;
+			}
+		#endif
+
+		Cast<IUIFocus>(FocusList[i])->UnReceiveFocus();
+	}
+
+	for(int i = 0; i < FocusList.Num(); i++){
+		#if WITH_EDITOR
+		if(!FocusList[i]->GetClass()->ImplementsInterface(UUIFocus::StaticClass())){
+			const auto ClassName = FocusList[i]->GetClass()->GetName();
+
+			GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,FString::Printf(TEXT("%s does not implement UIFocus interface"), *ClassName));
+			UE_LOG(LogTemp, Warning, TEXT("%s does not implement UIFocus interface"), *ClassName);
+			continue;
+		}
+		#endif
+
+		if(FocusList[i]->HasKeyboardFocus()){
+			Cast<IUIFocus>(FocusList[i])->ReceiveFocus();
+			LastFocusWidgetIndex = i;
+		}
+	}
+}
+
 void UWheel::ClickOnDestructButton(){
 	RemoveWidgetToFocusList(DestructButton);
 
@@ -67,6 +106,7 @@ void UWheel::ClickOnDestructButton(){
 
 	for(int i = 0; i < ButtonList.Num(); i++){
 		ButtonList[i]->BindButtons();
+		AddWidgetToFocusList(ButtonList[i]);
 	}
 }
 

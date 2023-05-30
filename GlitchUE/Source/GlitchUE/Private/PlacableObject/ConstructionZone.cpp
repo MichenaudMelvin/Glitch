@@ -78,6 +78,8 @@ void AConstructionZone::BeginPlay(){
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->OnSwitchPhases.AddDynamic(this, &AConstructionZone::SwitchPhases);
 
+	PlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
 	switch (InitialState){
 	case EState::Activated:
 		ActivableComp->ActivateObject();
@@ -112,6 +114,12 @@ void AConstructionZone::DesactivateObjectif(){
 	GetSkeletalMeshComponent()->Play(false);
 	TechMesh->SetPlayRate(-1);
 	TechMesh->Play(false);
+
+	if(PlayerController->IsWheelOpened()){
+		UUsefullFunctions::OutlineComponent(false, GetSkeletalMeshComponent());
+		UUsefullFunctions::OutlineComponent(false, TechMesh);
+		PlayerController->CloseWheel();
+	}
 
 	if(IsValid(UnitInZone)){
 		FOnTimelineEvent FinishEvent;

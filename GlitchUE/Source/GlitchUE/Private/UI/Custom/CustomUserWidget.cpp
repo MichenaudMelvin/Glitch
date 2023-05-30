@@ -2,6 +2,8 @@
 
 
 #include "UI/Custom/CustomUserWidget.h"
+
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/UIFocus.h"
 
@@ -50,6 +52,13 @@ void UCustomUserWidget::NativeDestruct(){
 
 void UCustomUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime){
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	const FVector2D CurrentMousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
+
+	if(bIsFocusNeeded && LastedMousePosition != CurrentMousePosition){
+		LastedMousePosition = CurrentMousePosition;
+		UnFocusAll();
+	}
 
 	FocusWidgets();
 }
@@ -100,6 +109,10 @@ void UCustomUserWidget::UnFocusAll(){
 }
 
 void UCustomUserWidget::Refocus(){
+	if(!FocusList.IsValidIndex(LastFocusWidgetIndex) || !IsValid(FocusList[LastFocusWidgetIndex])){
+		return;
+	}
+
 	bIsFocusNeeded = true;
 
 	FocusList[LastFocusWidgetIndex]->SetKeyboardFocus();

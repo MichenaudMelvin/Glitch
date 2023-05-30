@@ -89,12 +89,16 @@ void ATutorialPreview::FollowSplineFinish(){
 void ATutorialPreview::OverlapTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
 		OverlappedComp->DestroyComponent();
-		bLoopStarted ? StopFollow() : FollowSpline();
 
 		if(!bLoopStarted){
 			Wisp->StartEmitter();
+			OnReachFirstBox.Broadcast();
+			FollowSpline();
+			bLoopStarted = true;
+		} else {
+			OnReachSecondBox.Broadcast();
+			StopFollow();
 		}
 
-		bLoopStarted = true;
 	}
 }

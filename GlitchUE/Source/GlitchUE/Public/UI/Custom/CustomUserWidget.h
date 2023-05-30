@@ -20,7 +20,7 @@ protected:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	void FocusWidgets();
+	virtual void FocusWidgets();
 
 	void UnFocusAll();
 
@@ -29,6 +29,8 @@ protected:
 
 	UFUNCTION()
 	void OnAnyKey(FKey KeyMap);
+
+	FVector2D LastedMousePosition;
 
 	AAbstractPlayerController* CurrentController;
 

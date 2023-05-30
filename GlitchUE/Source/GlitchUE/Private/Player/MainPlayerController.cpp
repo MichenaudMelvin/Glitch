@@ -292,6 +292,10 @@ void AMainPlayerController::CloseWheel(){
 	ShowMouseCursor(false, nullptr);
 }
 
+bool AMainPlayerController::IsWheelOpened() const{
+	return WheelWidget->IsInViewport();
+}
+
 void AMainPlayerController::CameraBlend(AActor* BlendTarget, const float BlendTime){
 	SetViewTargetWithBlend(BlendTarget, BlendTime, VTBlend_EaseInOut, 1);
 }

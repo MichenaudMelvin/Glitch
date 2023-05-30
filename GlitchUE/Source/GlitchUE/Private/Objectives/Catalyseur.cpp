@@ -150,7 +150,6 @@ void ACatalyseur::DesactivateObjectif(){
 		case EPhases::TowerDefense:
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
 			Nexus->UpdateDissolver();
-			ToggleActivatedInhibiteursState(false);
 
 			InteractableComp->RemoveInteractable(MeshObjectif);
 			InteractableComp->RemoveInteractable(TECHMesh);

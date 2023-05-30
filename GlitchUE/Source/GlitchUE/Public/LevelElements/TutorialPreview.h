@@ -9,6 +9,10 @@
 #include "Components/TimelineComponent.h"
 #include "TutorialPreview.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnReachFirstBox);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnReachSecondBox);
+
 UCLASS()
 class GLITCHUE_API ATutorialPreview : public AActor{
 	GENERATED_BODY()
@@ -37,6 +41,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "TriggerBox")
 	UBoxComponent* SecondBoxComp;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnReachFirstBox OnReachFirstBox;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnReachSecondBox OnReachSecondBox;
 
 	UFUNCTION()
 	void FollowSplineUpdate(float Alpha);

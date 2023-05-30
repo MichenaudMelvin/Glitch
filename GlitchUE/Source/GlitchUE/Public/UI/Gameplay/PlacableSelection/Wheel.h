@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlacableObjectButton.h"
 #include "UI/Custom/CustomButton.h"
-#include "UI/Gameplay/PlacableSelection/PlacableSelection.h"
+#include "UI/Custom/CustomUserWidget.h"
 #include "Wheel.generated.h"
 
 UCLASS(Abstract)
-class GLITCHUE_API UWheel : public UPlacableSelection{
+class GLITCHUE_API UWheel : public UCustomUserWidget{
 	GENERATED_BODY()
 
 protected:
@@ -16,15 +17,43 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-	TArray<USelectionButton*> MainButtonList;
-
-	USelectionButton* SelectedButton;
+	virtual void FocusWidgets() override;
 
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
 	UCustomButton* DestructButton;
 
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
 	UTextBlock* PlacableDescription;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPlacableObjectButton* PlacableButton1;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPlacableObjectButton* PlacableButton2;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPlacableObjectButton* PlacableButton3;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPlacableObjectButton* PlacableButton4;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPlacableObjectButton* PlacableButton5;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPlacableObjectButton* PlacableButton6;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPlacableObjectButton* PlacableButton7;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPlacableObjectButton* PlacableButton8;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<UPlacableObjectButton*> ButtonList;
+
+	UPROPERTY(BlueprintReadOnly)
+	AMainPlayer* MainPlayer;
 
 public:
 	void ClickOnDestructButton();
