@@ -46,6 +46,12 @@ protected:
 	UPopcornFXEmitterComponent* DesactivationFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* GoldsGenerationFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	FLinearColor CannotInteractWithColor = FLinearColor::Red;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	FLinearColor CanInteractWithColor = FLinearColor::Green;
 
 	virtual void HealthNull() override;
@@ -66,9 +72,6 @@ protected:
 	TArray<AConstructionZone*> ConstructionZoneList;
 
 	TArray<AInhibiteur*> ActivatedInhibiteursList;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
-	UStaticMesh* InhibiteurMesh;
 
 	UCompassComponent* Compass;
 

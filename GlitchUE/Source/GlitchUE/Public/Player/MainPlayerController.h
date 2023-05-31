@@ -31,7 +31,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSneakPressed);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSneakReleased);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSprint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSprintPressed);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSprintReleased);
 
 #pragma endregion
 
@@ -111,7 +113,10 @@ public:
 	FKOnSneakReleased OnSneakReleased;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Movement")
-	FKOnSprint OnSprint;
+	FKOnSprintPressed OnSprintPressed;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Movement")
+	FKOnSprintReleased OnSprintReleased;
 
 	#pragma endregion
 

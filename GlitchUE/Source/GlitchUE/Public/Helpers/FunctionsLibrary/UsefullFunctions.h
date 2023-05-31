@@ -68,4 +68,7 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 
 		UFUNCTION(BlueprintCallable, Category = "Debug")
 		static void Print(const FString StringToPrint = "Hello World", const bool bPrintToScreen = true, const bool bPrintToLog = false, const FLinearColor TextColor = FLinearColor::Yellow, const float Duration = 0);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "KeyMaps")
+		static bool IsEventActionPressed(const FName ActionName, const APlayerController* PlayerController);
 };

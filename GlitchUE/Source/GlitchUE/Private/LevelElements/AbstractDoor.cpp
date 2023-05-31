@@ -13,14 +13,17 @@ AAbstractDoor::AAbstractDoor(){
 
 	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(RootComp);
+	RootComp->SetMobility(EComponentMobility::Static);
 
 	MedFrame = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Med Frame"));
 	MedFrame->SetupAttachment(RootComp);
 	MedFrame->SetCanEverAffectNavigation(false);
+	MedFrame->SetMobility(EComponentMobility::Static);
 
 	TechFrame = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tech Frame"));
 	TechFrame->SetupAttachment(RootComp);
 	TechFrame->SetCanEverAffectNavigation(false);
+	TechFrame->SetMobility(EComponentMobility::Static);
 
 	MedDoor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Med Door"));
 	MedDoor->SetupAttachment(MedFrame);
@@ -32,6 +35,7 @@ AAbstractDoor::AAbstractDoor(){
 
 	NavLinkProxy = CreateDefaultSubobject<UChildActorComponent>(TEXT("Nav Link Proxy"));
 	NavLinkProxy->SetupAttachment(RootComp);
+	NavLinkProxy->SetMobility(EComponentMobility::Static);
 	// make the game crash, needs to be set in blueprint
 	//NavLinkProxy->SetChildActorClass(ANavLinkProxy::StaticClass());
 

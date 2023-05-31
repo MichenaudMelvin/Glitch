@@ -29,6 +29,15 @@ ACatalyseur::ACatalyseur(){
 
 	DesactivationFX->SetEffect(ShutDownFX.Object);
 
+	GoldsGenerationFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Gold Generation FX"));
+	GoldsGenerationFX->SetupAttachment(RootComponent);
+	GoldsGenerationFX->bPlayOnLoad = false;
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> GoldsFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_GoldGeneration"));
+	check(GoldsFX.Succeeded());
+
+	GoldsGenerationFX->SetEffect(GoldsFX.Object);
+
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_MED_Catalyser_Open"));
 	check(ActivAnim.Succeeded());
 
@@ -109,8 +118,6 @@ void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);
 
-	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color");
-	UPopcornFXAttributeFunctions::ResetToDefaultValue(DesactivationFX, TargetIndex);
 	DesactivationFX->StopEmitter();
 
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
@@ -137,6 +144,8 @@ void ACatalyseur::DesactivateObjectif(){
 	TECHMesh->PlayAnimation(DesactivationAnim, false);
 
 	DesactivationFX->StartEmitter();
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
+	UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CannotInteractWithColor, true);
 
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
@@ -158,7 +167,7 @@ void ACatalyseur::DesactivateObjectif(){
 				InteractableComp->AddInteractable(MeshObjectif);
 				InteractableComp->AddInteractable(TECHMesh);
 
-				const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color");
+				const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
 				UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CanInteractWithColor, true);
 			}, DesactivationTimer, false);
 			break;
@@ -211,6 +220,7 @@ void ACatalyseur::HealthNull(){
 
 void ACatalyseur::GenerateMoney(){
 	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteursList.Num(), EGoldsUpdateMethod::ReceiveGolds);
+	GoldsGenerationFX->StartEmitter();
 }
 
 void ACatalyseur::StartGeneratingMoney(){

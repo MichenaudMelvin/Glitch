@@ -239,6 +239,10 @@ public:
 	void Dash_Implementation();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void SprintRelease();
+	void SprintRelease_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SneakPressed();
 	void SneakPressed_Implementation();
 

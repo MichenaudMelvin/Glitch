@@ -493,6 +493,8 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 
 void AMainPlayer::Dash_Implementation(){}
 
+void AMainPlayer::SprintRelease_Implementation(){}
+
 void AMainPlayer::SneakPressed_Implementation(){}
 
 void AMainPlayer::SneakReleased_Implementation(){}

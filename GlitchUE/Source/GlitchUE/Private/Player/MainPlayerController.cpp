@@ -141,19 +141,22 @@ void AMainPlayerController::BindSprint(){
 	UnbindSprint();
 	switch (MainPlayer->GetMovementMode()){
 		case EPlayerMovementMode::Normal:
-			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			OnSprintPressed.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			OnSprintReleased.AddDynamic(MainPlayer, &AMainPlayer::SprintRelease);
 			break;
 	case EPlayerMovementMode::Sneaking:
-			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::SneakToSprint);
+			OnSprintPressed.AddDynamic(MainPlayer, &AMainPlayer::SneakToSprint);
 			break;
 		case EPlayerMovementMode::Sprinting:
-			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			OnSprintPressed.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			OnSprintReleased.AddDynamic(MainPlayer, &AMainPlayer::SprintRelease);
 			break;
 	}
 }
 
 void AMainPlayerController::UnbindSprint(){
-	OnSprint.Clear();
+	OnSprintPressed.Clear();
+	OnSprintReleased.Clear();
 }
 
 void AMainPlayerController::BindGlitch(){

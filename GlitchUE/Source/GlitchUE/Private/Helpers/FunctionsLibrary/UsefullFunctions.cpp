@@ -3,6 +3,7 @@
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/InputSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Perception/AISense_Hearing.h"
@@ -168,4 +169,18 @@ void UUsefullFunctions::Print(const FString StringToPrint, const bool bPrintToSc
 	if(bPrintToLog){
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *StringToPrint);
 	}
+}
+
+bool UUsefullFunctions::IsEventActionPressed(const FName ActionName, const APlayerController* PlayerController){
+	TArray<FInputActionKeyMapping> Inputs;
+	UInputSettings::GetInputSettings()->GetActionMappingByName(ActionName, Inputs);
+
+	for(int i = 0; i < Inputs.Num(); i++){
+		if(PlayerController->IsInputKeyDown(Inputs[i].Key)){
+			return true;
+		}
+
+	}
+
+	return false;
 }
