@@ -184,3 +184,7 @@ bool UUsefullFunctions::IsEventActionPressed(const FName ActionName, const APlay
 
 	return false;
 }
+
+float UUsefullFunctions::GetAnimLength(UAnimSequenceBase* Anim){
+	return Anim->GetPlayLength() * Anim->RateScale;
+}

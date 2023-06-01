@@ -85,6 +85,11 @@ void ACatalyseur::BeginPlay(){
 
 	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
+	MeshObjectif->PlayAnimation(DesactivationAnim, false);
+	TECHMesh->PlayAnimation(DesactivationAnim, false);
+	MeshObjectif->SetPosition(1);
+	TECHMesh->SetPosition(1);
+
 	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
 
 		#if WITH_EDITOR

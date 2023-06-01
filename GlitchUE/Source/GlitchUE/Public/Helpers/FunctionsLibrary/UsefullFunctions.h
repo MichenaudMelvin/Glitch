@@ -71,4 +71,7 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 
 		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "KeyMaps")
 		static bool IsEventActionPressed(const FName ActionName, const APlayerController* PlayerController);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Animation")
+		static float GetAnimLength(UAnimSequenceBase* Anim);
 };
