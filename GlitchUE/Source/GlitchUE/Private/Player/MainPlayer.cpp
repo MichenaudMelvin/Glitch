@@ -632,7 +632,7 @@ void AMainPlayer::LaunchMark(){
 FQuat AMainPlayer::FindMarkLaunchRotation() const{
 	FHitResult HitResult;
 	const FVector StartLocation = FollowCamera->GetComponentLocation();
-	const FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxDistance()) + StartLocation;
+	const FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxLaunchDistance()) + StartLocation;
 
 	FCollisionQueryParams QueryParams;
 	FCollisionResponseParams ResponseParam;

@@ -323,9 +323,10 @@ public:
 	UFUNCTION()
 	void OpenWheel();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
 	void CloseWheel();
 
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
 	bool IsWheelOpened() const;
 
 	void CameraBlend(AActor* BlendTarget, const float BlendTime);

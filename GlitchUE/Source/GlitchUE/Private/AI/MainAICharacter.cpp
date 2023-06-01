@@ -26,6 +26,8 @@ AMainAICharacter::AMainAICharacter(){
 	IdleFX->SetupAttachment(GetMesh());
 
 	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
+
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 void AMainAICharacter::BeginPlay(){

@@ -5,6 +5,7 @@
 
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetInputLibrary.h"
 #include "UI/UIFocus.h"
 
 void UCustomUserWidget::NativeOnInitialized(){
@@ -17,14 +18,6 @@ void UCustomUserWidget::NativeConstruct(){
 	Super::NativeConstruct();
 
 	CurrentController->OnAnyKey.AddDynamic(this, &UCustomUserWidget::OnAnyKey);
-
-	if(FocusList.Num() > 0 && IsValid(FocusList[LastFocusWidgetIndex])){
-		// for some reasons a timer is needed
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-			Refocus();
-		}, 0.1f, false);
-	}
 }
 
 void UCustomUserWidget::NativeDestruct(){
@@ -37,15 +30,12 @@ void UCustomUserWidget::NativeDestruct(){
 	}
 
 	#if WITH_EDITOR
-	if(!FocusList[LastFocusWidgetIndex]->GetClass()->ImplementsInterface(UUIFocus::StaticClass())){
-		const auto ClassName = FocusList[LastFocusWidgetIndex]->GetClass()->GetName();
-
-		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,FString::Printf(TEXT("%s does not implement UIFocus interface"), *ClassName));
-		UE_LOG(LogTemp, Warning, TEXT("%s does not implement UIFocus interface"), *ClassName);
+	if(!CheckValidity(FocusList[LastFocusWidgetIndex])){
+		return;
 	}
 	#endif
 
-	//Cast<IUIFocus>(FocusList[LastFocusWidgetIndex])->UnReceiveFocus();
+	Cast<IUIFocus>(FocusList[LastFocusWidgetIndex])->UnReceiveFocus();
 
 	Super::NativeDestruct();
 }
@@ -71,11 +61,7 @@ void UCustomUserWidget::FocusWidgets(){
 	for(int i = 0; i < FocusList.Num(); i++){
 
 		#if WITH_EDITOR
-		if(!FocusList[i]->GetClass()->ImplementsInterface(UUIFocus::StaticClass())){
-			const auto ClassName = FocusList[i]->GetClass()->GetName();
-
-			GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,FString::Printf(TEXT("%s does not implement UIFocus interface"), *ClassName));
-			UE_LOG(LogTemp, Warning, TEXT("%s does not implement UIFocus interface"), *ClassName);
+		if(!CheckValidity(FocusList[i])){
 			continue;
 		}
 		#endif
@@ -90,16 +76,28 @@ void UCustomUserWidget::FocusWidgets(){
 	}
 }
 
+#if WITH_EDITOR
+bool UCustomUserWidget::CheckValidity(const UWidget* WidgetToCheck) const{
+	const bool bIsValid = WidgetToCheck->GetClass()->ImplementsInterface(UUIFocus::StaticClass());
+
+	if(!bIsValid){
+		const auto ClassName = WidgetToCheck->GetClass()->GetName();
+
+		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,FString::Printf(TEXT("%s does not implement UIFocus interface"), *ClassName));
+		UE_LOG(LogTemp, Warning, TEXT("%s does not implement UIFocus interface"), *ClassName);
+	}
+
+	return bIsValid;
+}
+#endif
+
 void UCustomUserWidget::UnFocusAll(){
 	bIsFocusNeeded = false;
 
 	for(int i = 0; i < FocusList.Num(); i++){
-		#if WITH_EDITOR
-		if(!FocusList[i]->GetClass()->ImplementsInterface(UUIFocus::StaticClass())){
-			const auto ClassName = FocusList[i]->GetClass()->GetName();
 
-			GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,FString::Printf(TEXT("%s does not implement UIFocus interface"), *ClassName));
-			UE_LOG(LogTemp, Warning, TEXT("%s does not implement UIFocus interface"), *ClassName);
+		#if WITH_EDITOR
+		if(!CheckValidity(FocusList[i])){
 			continue;
 		}
 		#endif
@@ -109,10 +107,6 @@ void UCustomUserWidget::UnFocusAll(){
 }
 
 void UCustomUserWidget::Refocus(){
-	if(!FocusList.IsValidIndex(LastFocusWidgetIndex) || !IsValid(FocusList[LastFocusWidgetIndex])){
-		return;
-	}
-
 	bIsFocusNeeded = true;
 
 	FocusList[LastFocusWidgetIndex]->SetKeyboardFocus();
@@ -120,17 +114,17 @@ void UCustomUserWidget::Refocus(){
 }
 
 void UCustomUserWidget::OnAnyKey(FKey KeyMap){
-	if(KeyMap.IsGamepadKey()){
+	// keyboard or gamepad key
+	if((KeyMap.IsGamepadKey() && !LastPressedKey.IsGamepadKey()) || (UKismetInputLibrary::Key_IsKeyboardKey(KeyMap) && !UKismetInputLibrary::Key_IsKeyboardKey(LastPressedKey))){
 		Refocus();
 	}
 
-	else if(KeyMap.IsMouseButton()){
+	// mouse key
+	else if(KeyMap.IsMouseButton() && !LastPressedKey.IsMouseButton()){
 		UnFocusAll();
 	}
 
-	else{
-		Refocus();
-	}
+	LastPressedKey = KeyMap;
 }
 
 void UCustomUserWidget::AddWidgetToFocusList(UWidget* WidgetToAdd){

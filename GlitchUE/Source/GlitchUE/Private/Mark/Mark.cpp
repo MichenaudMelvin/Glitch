@@ -5,10 +5,12 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Player/MainPlayerController.h"
 
 AMark::AMark() {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+
 	MarkMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MarkMesh"));
 	SetRootComponent(MarkMesh);
 
@@ -20,6 +22,18 @@ AMark::AMark() {
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("MarkInteraction"));
 
 	MarkMesh->OnComponentHit.AddDynamic(this, &AMark::OnCompHit);
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
+	check(Curve.Succeeded());
+
+	FOnTimelineFloat UpdateEvent;
+	FOnTimelineEvent FinishedEvent;
+
+	UpdateEvent.BindDynamic(this, &AMark::DistanceFromMark);
+	FinishedEvent.BindDynamic(this, &AMark::ResetMark);
+
+	DistanceFromTheMarkTimeline.AddInterpFloat(Curve.Object, UpdateEvent);
+	DistanceFromTheMarkTimeline.SetTimelineFinishedFunc(FinishedEvent);
 }
 
 void AMark::BeginPlay(){
@@ -28,6 +42,7 @@ void AMark::BeginPlay(){
 	StopProjectile();
 
 	OriginalLocation = GetActorLocation();
+	DistanceFromTheMarkTimeline.SetPlayRate(1/GoBackToPlayerDuration);
 
 #if WITH_EDITOR
 	// Check pour le mode simulation
@@ -43,8 +58,10 @@ void AMark::BeginPlay(){
 	InteractableComp->OnInteract.AddDynamic(this, &AMark::Interact);
 }
 
-void AMark::SwitchMesh(){
-	MarkMesh->SetStaticMesh(PossibleMeshList[FMath::RandRange(0, PossibleMeshList.Num() - 1)]);
+void AMark::Tick(float DeltaSeconds){
+	Super::Tick(DeltaSeconds);
+
+	DistanceFromTheMarkTimeline.TickTimeline(DeltaSeconds);
 }
 
 void AMark::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
@@ -115,6 +132,7 @@ void AMark::PlaceMark(){
 	StopProjectile();
 	bIsMarkPlaced = true;
 	GetWorldTimerManager().ClearTimer(LaunchTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(DistanceFromTheMarkTimerHandle, this, &AMark::CheckDistanceFromMark, 0.1f, true);
 }
 
 void AMark::ResetMark(){
@@ -122,7 +140,6 @@ void AMark::ResetMark(){
 	bShouldMarkHitSomething = false;
 	Player->GetMainPlayerController()->BindGlitch();
 	GetWorldTimerManager().ClearTimer(LaunchTimerHandle);
-	//GetWorldTimerManager().ClearTimer(SwitchMeshTimer);
 
 	SetActorLocation(OriginalLocation);
 	StopProjectile();
@@ -133,7 +150,6 @@ void AMark::Launch(const FTransform StartTransform){
 	LaunchLocation = StartTransform.GetLocation();
 	StartProjectile();
 	GetWorldTimerManager().SetTimer(LaunchTimerHandle, this, &AMark::LaunchTimer, 0.001f, true);
-	//GetWorldTimerManager().SetTimer(SwitchMeshTimer, this, &AMark::SwitchMesh, SwitchMeshTime, true);
 }
 
 float AMark::GetDistanceToLaunchPoint() const{
@@ -141,16 +157,27 @@ float AMark::GetDistanceToLaunchPoint() const{
 }
 
 void AMark::LaunchTimer(){
-	// if(GetActorLocation().Equals(TargetLocation, EqualTolerance) && bShouldMarkHitSomething){
-	// 	SetActorLocation(TargetLocation);
-	// 	PlaceMark();
-	// }
-
-	if ((GetDistanceToLaunchPoint() >= MaxDistance) && !bIsMarkPlaced){
+	if ((GetDistanceToLaunchPoint() >= MaxLaunchDistance) && !bIsMarkPlaced){
 		ResetMark();
 	}
 }
 
-float AMark::GetMaxDistance() const{
-	return MaxDistance;
+void AMark::CheckDistanceFromMark(){
+	if(GetDistanceTo(Player) >= MaxDistanceFromTheMark){
+		GetWorldTimerManager().ClearTimer(DistanceFromTheMarkTimerHandle);
+
+		Player->GetMainPlayerController()->OnUseGlitchPressed.Clear();
+
+		LastPosition = GetActorLocation();
+
+		DistanceFromTheMarkTimeline.PlayFromStart();
+	}
+}
+
+void AMark::DistanceFromMark(float Value){
+	SetActorLocation(UKismetMathLibrary::VLerp(LastPosition, Player->GetActorLocation(), Value));
+}
+
+float AMark::GetMaxLaunchDistance() const{
+	return MaxLaunchDistance;
 }
