@@ -5,7 +5,7 @@
 #include "PopcornFXFunctions.h"
 #include "Engine/Selection.h"
 #include "Gamemodes/GlitchUEGameMode.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "NavAreas/NavArea_Obstacle.h"
@@ -116,8 +116,8 @@ void AConstructionZone::DesactivateObjectif(){
 	TechMesh->Play(false);
 
 	if(PlayerController->IsWheelOpened()){
-		UUsefullFunctions::OutlineComponent(false, GetSkeletalMeshComponent());
-		UUsefullFunctions::OutlineComponent(false, TechMesh);
+		UUsefulFunctions::OutlineComponent(false, GetSkeletalMeshComponent());
+		UUsefulFunctions::OutlineComponent(false, TechMesh);
 		PlayerController->CloseWheel();
 	}
 

@@ -17,7 +17,7 @@
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
@@ -94,7 +94,7 @@ AMainPlayer::AMainPlayer(){
 void AMainPlayer::BeginPlay(){
 	Super::BeginPlay();
 
-	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefullFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
+	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefulFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
 	FollowCamera->FieldOfView = GameplaySettingsSaveSave->CameraFOV;
 	Sensitivity = GameplaySettingsSaveSave->CameraSensitivity;
 	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
@@ -440,6 +440,11 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 #pragma endregion
 
+void AMainPlayer::DetachFromEdge_Implementation(){
+	GetCharacterMovement()->GravityScale = OriginalGravityScale;
+	MainPlayerController->BindNormalMode();
+}
+
 void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensitivity);
@@ -514,7 +519,7 @@ void AMainPlayer::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 Pr
 }
 
 void AMainPlayer::MakeMovementNoise(){
-	if(!UUsefullFunctions::IsCharacterMovingOnGround(this)){
+	if(!UUsefulFunctions::IsCharacterMovingOnGround(this)){
 		return;
 	}
 
@@ -567,20 +572,16 @@ void AMainPlayer::MoveRight(const float Value){
 	}
 }
 
-void AMainPlayer::ClingUp(float AxisValue){
-	switch (FMath::TruncToInt(AxisValue)) {
+void AMainPlayer::ClingUpDirection(float AxisValue){
+	switch (FMath::TruncToInt(AxisValue)){
 		case -1:
-			VerticalCling(EDirection::Down);
-			break;
-		case 1:
-			VerticalCling(EDirection::Up);
+			DetachFromEdge();
 			break;
 	}
-
 }
 
 void AMainPlayer::ClingRight(float AxisValue){
-	switch (FMath::TruncToInt(AxisValue)) {
+	switch (FMath::TruncToInt(AxisValue)){
 		case -1:
 			HorizontalCling(EDirection::Left);
 			break;
@@ -588,12 +589,11 @@ void AMainPlayer::ClingRight(float AxisValue){
 			HorizontalCling(EDirection::Right);
 			break;
 	}
-
 }
 
 void AMainPlayer::HorizontalCling_Implementation(const EDirection Direction){}
 
-void AMainPlayer::VerticalCling_Implementation(const EDirection Direction){}
+void AMainPlayer::ClingUp_Implementation(){}
 
 void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;

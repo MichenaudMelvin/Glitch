@@ -5,7 +5,7 @@
 #include "GameFramework/GameUserSettings.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "FMODBlueprintStatics.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 
 AMainGamemode::AMainGamemode(){
@@ -33,10 +33,10 @@ void AMainGamemode::BeginPlay(){
 }
 
 void AMainGamemode::UpdateGlobalSettings() const{
-	const UVideoSettingsSave* VideoSettings = Cast<UVideoSettingsSave>(UUsefullFunctions::LoadSave(UVideoSettingsSave::StaticClass(), 0));
+	const UVideoSettingsSave* VideoSettings = Cast<UVideoSettingsSave>(UUsefulFunctions::LoadSave(UVideoSettingsSave::StaticClass(), 0));
 	UpdateVideoSettings(VideoSettings);
 
-	const UAudioSettingsSave* AudioSettings = Cast<UAudioSettingsSave>(UUsefullFunctions::LoadSave(UAudioSettingsSave::StaticClass(), 0));
+	const UAudioSettingsSave* AudioSettings = Cast<UAudioSettingsSave>(UUsefulFunctions::LoadSave(UAudioSettingsSave::StaticClass(), 0));
 	UpdateAudioSettings(AudioSettings);
 }
 

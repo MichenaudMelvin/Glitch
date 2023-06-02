@@ -6,10 +6,10 @@
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "UsefullFunctions.generated.h"
+#include "UsefulFunctions.generated.h"
 
 UCLASS()
-class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
+class GLITCHUE_API UUsefulFunctions : public UBlueprintFunctionLibrary{
 	GENERATED_BODY()
 
 	public:

@@ -4,7 +4,7 @@
 #include "LevelElements/AbstractDoor.h"
 #include "Player/MainPlayer.h"
 #include "AI/MainAICharacter.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "NavAreas/NavArea_Default.h"
 #include "NavAreas/NavArea_Null.h"
 
@@ -96,7 +96,7 @@ void AAbstractDoor::OpenDoorFinished(){
 
 	UpdateNavModiferParameters();
 
-	UUsefullFunctions::MakeNoise(CurrentCharacterOpenningDoor, GetActorLocation(), OpenDoorNoiseRadius);
+	UUsefulFunctions::MakeNoise(CurrentCharacterOpenningDoor, GetActorLocation(), OpenDoorNoiseRadius);
 }
 
 void AAbstractDoor::OnAIReachLink(AActor* MovingActor, const FVector& DestinationPoint){

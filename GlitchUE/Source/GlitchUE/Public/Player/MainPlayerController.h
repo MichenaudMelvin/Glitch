@@ -76,9 +76,7 @@ class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void CreatePlayerWidgets();
-	virtual void CreatePlayerWidgets_Implementation();
 
 	UPROPERTY(BlueprintReadOnly)
 	AGlitchUEGameMode* GameMode;
@@ -251,7 +249,7 @@ public:
 	void BindClingMovement();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void UnbindAll();
+	void UnbindAll(bool bUnbindPause = false);
 
 	#pragma endregion
 

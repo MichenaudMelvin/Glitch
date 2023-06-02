@@ -7,7 +7,7 @@
 #include "PlacableObject/PlacableActor.h"
 #include "UObject/ConstructorHelpers.h"
 #include "AI/Waves/WaveManager.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
@@ -129,7 +129,7 @@ void AGlitchUEGameMode::InitializeWorld(){
 void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	const int SlotIndex = FCString::Atoi(*LevelSettings[1]);
 
-	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
+	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
 
 	MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation, CurrentSave->MarkTransform, CurrentSave->bIsMarkPlaced);
 	MainPlayer->SetGolds(CurrentSave->PlayerGolds);
@@ -183,12 +183,12 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	CurrentSave->LoadedTime++;
 
 	if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
-		UUsefullFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
+		UUsefulFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
 		return;
 	}
 
 	OptionsString = "";
-	UUsefullFunctions::SaveToSlot(CurrentSave, SlotIndex);
+	UUsefulFunctions::SaveToSlot(CurrentSave, SlotIndex);
 }
 
 void AGlitchUEGameMode::GlobalWorldSave(const int Index){
@@ -207,14 +207,14 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 			break;
 	}
 
-	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(TargetSaveClass, Index, false));
+	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefulFunctions::LoadSave(TargetSaveClass, Index, false));
 
 	if(!IsValid(CurrentSave)){
-		CurrentSave = Cast<UWorldSave>(UUsefullFunctions::CreateSave(TargetSaveClass, Index));
+		CurrentSave = Cast<UWorldSave>(UUsefulFunctions::CreateSave(TargetSaveClass, Index));
 	}
 
 	else if(!CurrentSave->IsA(TargetSaveClass)){
-		CurrentSave = Cast<UWorldSave>(UUsefullFunctions::CreateSave(TargetSaveClass, Index));
+		CurrentSave = Cast<UWorldSave>(UUsefulFunctions::CreateSave(TargetSaveClass, Index));
 	}
 
 	CurrentSave->LoadedTime = 0;
@@ -272,13 +272,13 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 		break;
 	}
 
-	UUsefullFunctions::SaveToSlot(CurrentSave, Index);
+	UUsefulFunctions::SaveToSlot(CurrentSave, Index);
 }
 
 void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
 	ISaveInterface::GlobalWorldLoad(Index);
 
-	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
+	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
 
 	if(CurrentSave == nullptr){
 		return;
@@ -585,7 +585,7 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
 
-	PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
+	PlacableActorList = UUsefulFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
 
 	int Count = 0;
 
@@ -617,7 +617,7 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 	}
 
 	if (AIList.Num() > 0) {
-		AIList = UUsefullFunctions::SortActorsByDistanceToActor(AIList, MainPlayer);
+		AIList = UUsefulFunctions::SortActorsByDistanceToActor(AIList, MainPlayer);
 
 		const int LoopNumber = AIList.Num() < NumberOfEnemiesToAffect ? AIList.Num() : NumberOfEnemiesToAffect;
 

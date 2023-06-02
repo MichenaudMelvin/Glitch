@@ -2,14 +2,14 @@
 
 
 #include "Player/MenuGamemode.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Saves/WorldSave.h"
 
 void AMenuGamemode::GlobalWorldLoad(const int Index){
 	ISaveInterface::GlobalWorldLoad(Index);
 
-	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
+	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
 
 	if(CurrentSave == nullptr){
 		return;

@@ -5,7 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PopcornFXAttributeFunctions.h"
 #include "PopcornFXFunctions.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Objectives/Catalyseur.h"
 #include "Audio/AudioManager.h"
 #include "FX/Dissolver.h"
@@ -123,7 +123,7 @@ AActor* ANexus::GetFarestActivatedCatalyseur(){
 		}
 	}
 
-	TArray<AActor*> SortedCatalyseurs = UUsefullFunctions::SortActorsByDistanceToActor(ActivatedCatalyseurList, this);
+	TArray<AActor*> SortedCatalyseurs = UUsefulFunctions::SortActorsByDistanceToActor(ActivatedCatalyseurList, this);
 
 	return SortedCatalyseurs[SortedCatalyseurs.Num() - 1];
 }

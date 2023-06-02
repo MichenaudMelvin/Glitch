@@ -10,4 +10,5 @@ enum class EDirection : uint8{
 	Down,
 	Left,
 	Right,
+	None,
 };

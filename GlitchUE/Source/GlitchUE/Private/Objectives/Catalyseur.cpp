@@ -8,7 +8,7 @@
 #include "AI/Waves/WaveManager.h"
 #include "Components/CompassComponent.h"
 #include "Engine/Selection.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Objectives/Inhibiteur.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayer.h"
@@ -272,14 +272,14 @@ void ACatalyseur::OnObjectSelected(UObject* Object){
 void ACatalyseur::OutlineLinkedObjects(const bool bOutline){
 	for(int i = 0; i < ConstructionZoneList.Num(); i++){
 		if(IsValid(ConstructionZoneList[i])){
-			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
-			UUsefullFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
+			UUsefulFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			UUsefulFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
 		}
 	}
 
 	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
 		if(IsValid(LinkedInhibiteur[i])){
-			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(LinkedInhibiteur[i]->GetRootComponent()));
+			UUsefulFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(LinkedInhibiteur[i]->GetRootComponent()));
 		}
 	}
 }

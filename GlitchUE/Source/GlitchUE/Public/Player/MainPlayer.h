@@ -8,7 +8,7 @@
 #include "Components/InteractableComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
-#include "Helpers/UsefullEnums.h"
+#include "Helpers/UsefulEnums.h"
 #include "Saves/Settings/GameplaySettingsSave.h"
 #include "MainPlayer.generated.h"
 
@@ -194,7 +194,7 @@ public:
 	void MoveRight(const float Value);
 
 	UFUNCTION()
-	void ClingUp(float AxisValue);
+	void ClingUpDirection(float AxisValue);
 
 	UFUNCTION()
 	void ClingRight(float AxisValue);
@@ -204,8 +204,12 @@ public:
 	virtual void HorizontalCling_Implementation(const EDirection Direction);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movevement|Cling")
-	void VerticalCling(const EDirection Direction);
-	virtual void VerticalCling_Implementation(const EDirection Direction);
+	void ClingUp();
+	virtual void ClingUp_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movevement|Cling")
+	void DetachFromEdge();
+	virtual void DetachFromEdge_Implementation();
 
 	/** 
 	 * Called via input to turn at a given rate. 

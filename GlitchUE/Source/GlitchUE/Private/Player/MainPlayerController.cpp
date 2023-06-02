@@ -33,7 +33,7 @@ void AMainPlayerController::BeginPlay(){
 	}, 0.01f, false);
 }
 
-void AMainPlayerController::CreatePlayerWidgets_Implementation(){
+void AMainPlayerController::CreatePlayerWidgets(){
 	Tchat = Cast<UTchat>(CreateWidget(this, TchatWidgetClass));
 
 	SightWidget = Cast<USightWidget>(CreateWidget(this, SightWidgetClass));
@@ -245,18 +245,22 @@ void AMainPlayerController::BindClingMovement(){
 	UnbindInteraction();
 	UnbindGlitch();
 
-	OnMoveForward.AddDynamic(MainPlayer, &AMainPlayer::ClingUp);
+	OnJumpPressed.AddDynamic(MainPlayer, &AMainPlayer::ClingUp);
+	OnMoveForward.AddDynamic(MainPlayer, &AMainPlayer::ClingUpDirection);
 	OnMoveRight.AddDynamic(MainPlayer, &AMainPlayer::ClingRight);
 }
 
-void AMainPlayerController::UnbindAll(){
+void AMainPlayerController::UnbindAll(const bool bUnbindPause){
 	UnbindMovement();
 	UnbindCamera();
 	UnbindInteraction();
 	UnbindGlitch();
 	UnbindMouseScroll();
 	UnbindFastSaveAndLoad();
-	UnbindPause();
+
+	if(bUnbindPause){
+		UnbindPause();
+	}
 }
 
 void AMainPlayerController::PauseGame(){
