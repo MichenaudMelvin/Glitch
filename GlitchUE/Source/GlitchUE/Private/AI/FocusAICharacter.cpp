@@ -12,6 +12,15 @@ AFocusAICharacter::AFocusAICharacter(){
 	HealthWidget->SetDrawSize(FVector2D(100, 30));
 
 	HealthComp->OnHealthChange.AddDynamic(this, &AFocusAICharacter::UpdateWidgetHealth);
+
+	AttackFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Attack FX"));
+	AttackFX->SetupAttachment(GetMesh());
+	AttackFX->bPlayOnLoad = false;
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> AttackEffect(TEXT("/Game/VFX/Particles/FX_Enemies/Drones/Pk_AttackingDrone_Attack"));
+	check(AttackEffect.Succeeded());
+
+	AttackFX->SetEffect(AttackEffect.Object);
 }
 
 void AFocusAICharacter::BeginPlay(){
@@ -25,4 +34,8 @@ void AFocusAICharacter::UpdateWidgetHealth(){
 	if(IsValid(EnemyHealthBarWidget)){
 		EnemyHealthBarWidget->UpdateHealth(HealthComp->GetNormalizedHealth());
 	}
+}
+
+UPopcornFXEmitterComponent* AFocusAICharacter::GetAttackFX() const{
+	return AttackFX;
 }

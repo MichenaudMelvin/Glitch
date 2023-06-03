@@ -3,27 +3,18 @@
 
 #include "AI/GeneralTasks/AttackPlayer.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "AIController.h"
-#include "AI/MainAIController.h"
 #include "Player/MainPlayer.h"
 
-EBTNodeResult::Type UAttackPlayer::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory){
-	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
-
-	const AMainAIController* AIController = Cast<AMainAIController>(OwnerComp.GetAIOwner());
-	APawn* AIPawn = Cast<APawn>(OwnerComp.GetAIOwner()->GetPawn());
-
-	AMainPlayer* Player = Cast<AMainPlayer>(CurrentBlackboard->GetValue<UBlackboardKeyType_Object>(TargetToAttack.GetSelectedKeyID()));
+void UAttackPlayer::Attack(APawn* AIPawn, AMainAIController* AIController, AActor* Target){
+	PlayAttackFX(AIPawn, Target);
 
 	CurrentBlackboard->SetValue<UBlackboardKeyType_Bool>(AttackKey.SelectedKeyName, true);
 
+	AMainPlayer* Player = Cast<AMainPlayer>(Target);
 	Player->UpdateGolds(AIController->GetDamages(), EGoldsUpdateMethod::TakeDamages);
 
 	const FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(AIPawn->GetActorLocation(), Player->GetActorLocation());
 
 	AIPawn->SetActorRotation(TargetRotation);
-
-	return EBTNodeResult::Succeeded;
 }

@@ -306,6 +306,14 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
 }
 
+float AGlitchUEGameMode::GetStealthTimer() const{
+	return StealthTimer;
+}
+
+float AGlitchUEGameMode::GetGoldTimerMultiplier() const{
+	return GoldTimerMultiplier;
+}
+
 bool AGlitchUEGameMode::CanStartTowerDefense() const{
 	return CurrentActivatedCatalyseurs >= MaxCatalyseurToActivate;
 }
@@ -454,9 +462,6 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
-		const float RemainTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() : StealthTimer;
-		MainPlayer->UpdateGolds(RemainTime * GoldTimerMultiplier, EGoldsUpdateMethod::ReceiveGolds);
-		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false, false);
 
 		if(OptionsString == ""){
 			WaveManager->StartPrepareTimer();
@@ -469,7 +474,6 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 			}
 		#endif
 
-		MainPlayer->GetMainPlayerController()->SetCanSave(false);
 		break;
 	}
 }

@@ -61,7 +61,7 @@ protected:
 	virtual void Destroyed() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	UPopcornFXEmitterComponent* RunFX;
+	UPopcornFXEmitterComponent* SoundFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Compass")
 	UCompassComponent* Compass;
@@ -98,7 +98,7 @@ protected:
 	FVector AimOffset = FVector(75, 75, 60);
 
 	FTimeline CameraAimTransition;
-	
+
 	ETimelineDirection::Type CameraAimTimelineDirection;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Camera")
@@ -161,20 +161,23 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float OriginalBrakingDecelerationWalking = 2048;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float NormalSpeedNoiseRange = 500;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float SprintSpeedNoiseRange = 1000;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float CrouchSpeedNoiseRange = 50;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float GlitchDashNoiseRange = 750;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
-	float JumpNoiseRange = 500;
+	/**
+	 * @brief OnLandedEvent: FallingVelocity / JumpNoiseRangeFactor
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
+	float JumpNoiseRangeFactor = 2;
 
 	void MakeMovementNoise();
 
@@ -227,11 +230,13 @@ public:
 
 	virtual void Jump() override;
 
+protected:
 	bool bUseCoyoteTime = false;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float CoyoteTime = 0.15f;
 
+public:
 	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
 
 	virtual void AddControllerYawInput(float Val) override;
@@ -266,7 +271,10 @@ public:
 	void ResetMovement();
 	void ResetMovement_Implementation();
 
-	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+	virtual void Landed(const FHitResult& Hit) override;
+
+	UFUNCTION()
+	void OnSwitchPhases(EPhases NewPhase);
 
 protected:
 	#pragma endregion
@@ -283,6 +291,8 @@ protected:
 	FVector PlacableActorLocation;
 
 	AMainPlayerController* MainPlayerController;
+
+	AGlitchUEGameMode* GameMode;
 
 public:
 	AMainPlayerController* GetMainPlayerController() const;

@@ -77,13 +77,14 @@ AMainPlayer::AMainPlayer(){
 
 	#pragma endregion
 
-	RunFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Run FX"));
+	SoundFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Run FX"));
 
-	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> RunEffect(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_RunFX"));
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> RunEffect(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_SoundDetection"));
 	check(RunEffect.Succeeded());
 
-	RunFX->SetEffect(RunEffect.Object);
-	RunFX->SetupAttachment(GetMesh());
+	SoundFX->SetEffect(RunEffect.Object);
+	SoundFX->SetupAttachment(GetMesh());
+	SoundFX->bPlayOnLoad = false;
 
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
 	check(FX.Succeeded());
@@ -100,6 +101,8 @@ void AMainPlayer::BeginPlay(){
 	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
+	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->OnSwitchPhases.AddDynamic(this, &AMainPlayer::OnSwitchPhases);
 
 	FOnTimelineFloat UpdateEvent;
 	FOnTimelineEvent FinishedEvent;
@@ -164,12 +167,6 @@ void AMainPlayer::BeginPlay(){
 	StartRecord();
 
 	#pragma region FXCreation
-
-	const int LifeTimeIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "Lifetime");
-	const int LifeTimeDeviationIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "LifeTimeDeviation");
-
-	UPopcornFXAttributeFunctions::GetAttributeAsFloat(RunFX, LifeTimeIndex, RunFXLifeTime, true);
-	UPopcornFXAttributeFunctions::GetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, RunFXLifeTimeDeviation, true);
 
 	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
 	GlitchDashFXBackup = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
@@ -459,7 +456,6 @@ void AMainPlayer::Jump(){
 	Super::Jump();
 
 	MainPlayerController->UnbindSneak();
-	HearingTrigger->MakeNoise(this, GetActorLocation(), JumpNoiseRange);
 
 	if(bUseCoyoteTime){
 		bUseCoyoteTime = false;
@@ -510,11 +506,26 @@ void AMainPlayer::SneakToSprint_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
 
-void AMainPlayer::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode){
-	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+void AMainPlayer::Landed(const FHitResult& Hit){
+	Super::Landed(Hit);
 
-	if(PrevMovementMode == MOVE_Falling){
-		MainPlayerController->BindSneak();
+	MainPlayerController->BindSneak();
+
+	const float FallingVelocity = GetCharacterMovement()->Velocity.Z;
+	HearingTrigger->MakeNoise(this, GetActorLocation(), FMath::Abs(FallingVelocity / JumpNoiseRangeFactor), SoundFX);
+}
+
+void AMainPlayer::OnSwitchPhases(EPhases NewPhase){
+	if(NewPhase == EPhases::TowerDefense){
+
+		const float RemainTime = GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() : GameMode->GetStealthTimer();
+
+		UpdateGolds(RemainTime * GameMode->GetGoldTimerMultiplier(), EGoldsUpdateMethod::ReceiveGolds);
+
+		GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false, false);
+		GetMainPlayerController()->SetCanSave(false);
+
+		SoundFX->DestroyComponent();
 	}
 }
 
@@ -537,7 +548,7 @@ void AMainPlayer::MakeMovementNoise(){
 		break;
 	}
 
-	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius, SoundFX);
 }
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
@@ -708,19 +719,6 @@ void AMainPlayer::Tick(float deltaTime){
 	CameraFOVTransition.TickTimeline(deltaTime);
 	FadeInGlitchEffectTimeline.TickTimeline(deltaTime);
 	AppearTimeline.TickTimeline(deltaTime);
-
-	// Manage the run FX, disable it if the character is not on ground or not moving
-	const int LifeTimeIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "Lifetime");
-	const int LifeTimeDeviationIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "LifeTimeDeviation");
-
-	if(GetVelocity().Size() > 0 && GetCharacterMovement()->IsMovingOnGround()){
-		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeIndex, RunFXLifeTime, true);
-		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, RunFXLifeTimeDeviation, true);
-
-	} else if((GetVelocity().Size() <= 0 || !GetCharacterMovement()->IsMovingOnGround())){
-		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeIndex, 0, true);
-		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, 0, true);
-	}
 }
 
 void AMainPlayer::SetMark(AMark* NewMark){
@@ -999,7 +997,7 @@ void AMainPlayer::EndTL(){
 
 	GlitchTrace();
 
-	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
+	GameMode->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 	ResetMovement();
 
@@ -1028,7 +1026,7 @@ void AMainPlayer::EndTL(){
 
 		bGoldsCanBeUpdated = true;
 
-		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
+		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange, SoundFX);
 	}, 0.2f, false);
 }
 

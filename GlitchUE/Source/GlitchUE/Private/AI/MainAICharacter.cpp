@@ -8,6 +8,7 @@
 #include "AI/Waves/WaveManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "PlacableObject/TrapData.h"
 #include "Kismet/GameplayStatics.h"
 
 AMainAICharacter::AMainAICharacter(){

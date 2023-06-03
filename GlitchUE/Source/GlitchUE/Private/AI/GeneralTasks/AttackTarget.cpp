@@ -2,6 +2,8 @@
 
 
 #include "AI/GeneralTasks/AttackTarget.h"
+#include "PopcornFXAttributeFunctions.h"
+#include "AI/FocusAICharacter.h"
 #include "AI/MainAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
@@ -24,27 +26,57 @@ void UAttackTarget::InitializeFromAsset(UBehaviorTree& Asset){
 }
 
 EBTNodeResult::Type UAttackTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory){
-	UBlackboardComponent* CurrentBlackboard = OwnerComp.GetBlackboardComponent();
+	CurrentOwnerComp = &OwnerComp;
+	CurrentBlackboard = CurrentOwnerComp->GetBlackboardComponent();
 
-	APawn* AIPawn = OwnerComp.GetAIOwner()->GetPawn();
+	AMainAIController* AIController = Cast<AMainAIController>(OwnerComp.GetAIOwner());
+	APawn* AIPawn = AIController->GetPawn();
 
-	const AActor* Target = Cast<AActor>(CurrentBlackboard->GetValue<UBlackboardKeyType_Object>(TargetToAttack.GetSelectedKeyID()));
+	AActor* Target = Cast<AActor>(CurrentBlackboard->GetValue<UBlackboardKeyType_Object>(TargetToAttack.GetSelectedKeyID()));
 
+	Attack(AIPawn, AIController, Target);
+
+	return EBTNodeResult::InProgress;
+}
+
+void UAttackTarget::OnFinishAttackFX(UPopcornFXEmitterComponent* EmitterComponent, FVector Location, FVector Rotation){
+	EmitterComponent->OnEmissionStops.AddDynamic(this, &UAttackTarget::OnFinishAttackFX);
+
+	CurrentBlackboard->SetValue<UBlackboardKeyType_Bool>(AttackKey.SelectedKeyName, false);
+
+	FinishLatentTask(*CurrentOwnerComp, EBTNodeResult::Succeeded);
+}
+
+void UAttackTarget::Attack(APawn* AIPawn, AMainAIController* AIController, AActor* Target){
 	if(IsValid(Target->GetComponentByClass(UHealthComponent::StaticClass()))){
 		UHealthComponent* TargetHealthComp = Cast<UHealthComponent>(Target->GetComponentByClass(UHealthComponent::StaticClass()));
 
 		if(TargetHealthComp->GetCanTakeDamages()){
+			PlayAttackFX(AIPawn, Target);
+
 			CurrentBlackboard->SetValue<UBlackboardKeyType_Bool>(AttackKey.SelectedKeyName, true);
 			const FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(AIPawn->GetActorLocation(), Target->GetActorLocation());
 
 			AIPawn->SetActorRotation(TargetRotation);
 
-			TargetHealthComp->TakeDamages(Cast<AMainAIController>(OwnerComp.GetAIOwner())->GetDamages());
-			return EBTNodeResult::Succeeded;
+			TargetHealthComp->TakeDamages(AIController->GetDamages());
+			return;
 		}
-
-		return EBTNodeResult::Failed;
 	}
 
-	return EBTNodeResult::Failed;
+	FinishLatentTask(*CurrentOwnerComp, EBTNodeResult::Failed);
+}
+
+void UAttackTarget::PlayAttackFX(APawn* AIPawn, const AActor* Target){
+	UPopcornFXEmitterComponent* AttackFX = Cast<AFocusAICharacter>(AIPawn)->GetAttackFX();
+
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(AttackFX, "Target");
+
+	UPopcornFXAttributeFunctions::SetAttributeAsVector(AttackFX, TargetIndex, Target->GetActorLocation(), true);
+
+	if(!AttackFX->OnEmissionStops.IsAlreadyBound(this, &UAttackTarget::OnFinishAttackFX)){
+		AttackFX->OnEmissionStops.AddDynamic(this, &UAttackTarget::OnFinishAttackFX);
+	}
+
+	AttackFX->StartEmitter();
 }

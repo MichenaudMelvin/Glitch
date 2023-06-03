@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "HearingComponent.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Components/ActorComponent.h"
 #include "HearingTriggerComponent.generated.h"
 
@@ -19,7 +20,7 @@ protected:
 	TArray<UHearingComponent*> HearingComponents;
 
 public:
-	void MakeNoise(AActor* Investigator, const FVector NoiseLocation, const float Radius);
+	void MakeNoise(AActor* Investigator, const FVector NoiseLocation, const float Radius, UPopcornFXEmitterComponent* SoundFX = nullptr);
 
 	void AddHearingComp(UHearingComponent* CompToAdd);
 
