@@ -6,7 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "BillboardWidgetComponent.generated.h"
 
-UCLASS()
+UCLASS(ClassGroup= "UserInterface", meta = (BlueprintSpawnableComponent))
 class GLITCHUE_API UBillboardWidgetComponent : public UWidgetComponent{
 	GENERATED_BODY()
 

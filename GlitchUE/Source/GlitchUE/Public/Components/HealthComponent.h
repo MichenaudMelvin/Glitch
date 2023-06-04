@@ -16,7 +16,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnHealthNull);
 
 #pragma endregion
 
-UCLASS( ClassGroup=(Health), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup= "Health", meta=(BlueprintSpawnableComponent))
 class GLITCHUE_API UHealthComponent : public UActorComponent{
 	GENERATED_BODY()
 

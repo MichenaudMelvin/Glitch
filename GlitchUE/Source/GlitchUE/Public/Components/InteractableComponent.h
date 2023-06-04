@@ -16,7 +16,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUnfeedback);
 
 #pragma endregion
 
-UCLASS( ClassGroup=(Interactable), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = "Interactable", meta=(BlueprintSpawnableComponent))
 class GLITCHUE_API UInteractableComponent : public UActorComponent{
 	GENERATED_BODY()
 

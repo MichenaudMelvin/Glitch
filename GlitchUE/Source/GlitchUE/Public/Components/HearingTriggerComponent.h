@@ -8,7 +8,7 @@
 #include "Components/ActorComponent.h"
 #include "HearingTriggerComponent.generated.h"
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup= "Sound", meta=(BlueprintSpawnableComponent))
 class GLITCHUE_API UHearingTriggerComponent : public UActorComponent{
 	GENERATED_BODY()
 

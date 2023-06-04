@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Objectives/AbstractObjectif.h"
-#include "Components/CompassIcon.h"
+#include "Components/Waypoint.h"
+#include "Components/WidgetComponent.h"
 #include "Catalyseur.generated.h"
 
 class AInhibiteur;
@@ -44,6 +45,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* DesactivationFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Feedback")
+	UWaypoint* DesactivationBillboard;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* GoldsGenerationFX;

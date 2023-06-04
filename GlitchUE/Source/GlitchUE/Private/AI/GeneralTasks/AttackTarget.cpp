@@ -40,7 +40,7 @@ EBTNodeResult::Type UAttackTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 }
 
 void UAttackTarget::OnFinishAttackFX(UPopcornFXEmitterComponent* EmitterComponent, FVector Location, FVector Rotation){
-	EmitterComponent->OnEmissionStops.AddDynamic(this, &UAttackTarget::OnFinishAttackFX);
+	EmitterComponent->OnEmissionStops.Clear();
 
 	CurrentBlackboard->SetValue<UBlackboardKeyType_Bool>(AttackKey.SelectedKeyName, false);
 
@@ -74,9 +74,8 @@ void UAttackTarget::PlayAttackFX(APawn* AIPawn, const AActor* Target){
 
 	UPopcornFXAttributeFunctions::SetAttributeAsVector(AttackFX, TargetIndex, Target->GetActorLocation(), true);
 
-	if(!AttackFX->OnEmissionStops.IsAlreadyBound(this, &UAttackTarget::OnFinishAttackFX)){
-		AttackFX->OnEmissionStops.AddDynamic(this, &UAttackTarget::OnFinishAttackFX);
-	}
+	AttackFX->OnEmissionStops.Clear();
+	AttackFX->OnEmissionStops.AddDynamic(this, &UAttackTarget::OnFinishAttackFX);
 
 	AttackFX->StartEmitter();
 }

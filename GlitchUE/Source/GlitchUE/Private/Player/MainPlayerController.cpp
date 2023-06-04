@@ -51,6 +51,8 @@ void AMainPlayerController::CreatePlayerWidgets(){
 	AdditionalMessageWidget = Cast<UAdditionalMessage>(CreateWidget(this, AdditionalMessageWidgetClass));
 
 	PopUpWidget = Cast<UPopUpWidget>(CreateWidget(this, PopUpWidgetClass));
+
+	WaypointIndicationWidget = Cast<UWaypointIndication>(CreateWidget(this, WaypointIndicationWidgetClass));
 }
 
 #pragma region Bind
@@ -333,6 +335,10 @@ UPlayerStats* AMainPlayerController::GetPlayerStatsWidget() const{
 
 UAdditionalMessage* AMainPlayerController::GetAdditionalMessageWidget() const{
 	return AdditionalMessageWidget;
+}
+
+UWaypointIndication* AMainPlayerController::GetWaypointIndicationWidget() const{
+	return WaypointIndicationWidget;
 }
 
 

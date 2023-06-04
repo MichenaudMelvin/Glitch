@@ -58,6 +58,16 @@ ACatalyseur::ACatalyseur(){
 	Compass = CreateDefaultSubobject<UCompassComponent>(TEXT("Compass"));
 	Compass->SetCompassOffset(FVector(0, 0, 50));
 
+	DesactivationBillboard = CreateDefaultSubobject<UWaypoint>(TEXT("Desactivation Billboard"));
+	DesactivationBillboard->SetupAttachment(RootComponent);
+	DesactivationBillboard->SetRelativeLocation(FVector(0, 0, 50));
+
+	static ConstructorHelpers::FObjectFinder<UMaterial> DesactivationMaterial(TEXT("/Game/Meshs/Materials/Objectives/M_CatalyseurDesactivation"));
+	check(DesactivationMaterial.Succeeded());
+
+	DesactivationBillboard->AddElement(DesactivationMaterial.Object, nullptr, true, 0.03f, 0.05f,nullptr);
+	DesactivationBillboard->DrawWaypoint(false);
+
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
 		USelection::SelectionChangedEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
@@ -140,6 +150,7 @@ void ACatalyseur::ActiveObjectif(){
 			Nexus->UpdateDissolver();
 			HealthComp->ResetHealth();
 			ToggleActivatedInhibiteursState(true);
+			DesactivationBillboard->DrawWaypoint(false);
 			break;
 	}
 }
@@ -168,12 +179,14 @@ void ACatalyseur::DesactivateObjectif(){
 			InteractableComp->RemoveInteractable(MeshObjectif);
 			InteractableComp->RemoveInteractable(TECHMesh);
 
+			DesactivationBillboard->DrawWaypoint(true);
+
 			GetWorld()->GetTimerManager().SetTimer(DesactivationTimerHandle, [&](){
 				InteractableComp->AddInteractable(MeshObjectif);
 				InteractableComp->AddInteractable(TECHMesh);
 
-				const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
-				UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CanInteractWithColor, true);
+				const int ColorIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
+				UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, true);
 			}, DesactivationTimer, false);
 			break;
 	}

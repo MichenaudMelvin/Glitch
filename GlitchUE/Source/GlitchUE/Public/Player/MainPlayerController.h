@@ -12,6 +12,7 @@
 #include "UI/Gameplay/PlayerStats.h"
 #include "UI/Gameplay/PopUpWidget.h"
 #include "UI/Gameplay/SightWidget.h"
+#include "UI/Gameplay/WaypointIndication.h"
 #include "UI/Gameplay/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -317,6 +318,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")
 	float CloseWheelBlend = 0.5f;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UWaypointIndication* WaypointIndicationWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UWaypointIndication> WaypointIndicationWidgetClass;
+
 public:
 	UFUNCTION()
 	void OpenWheel();
@@ -342,6 +349,8 @@ public:
 	UPlayerStats* GetPlayerStatsWidget() const;
 
 	UAdditionalMessage* GetAdditionalMessageWidget() const;
+
+	UWaypointIndication* GetWaypointIndicationWidget() const;
 
 #pragma endregion
 };
