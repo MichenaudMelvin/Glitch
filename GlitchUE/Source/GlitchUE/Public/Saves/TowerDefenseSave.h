@@ -30,18 +30,41 @@ public:
 	FString DroneName;
 };
 
+USTRUCT(BlueprintType)
+struct FCatalyseurData{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	bool bIsActivated = false;
+
+	UPROPERTY()
+	bool bWasActivatedInStealthPhase = false;
+
+	UPROPERTY()
+	float DesactivationTimer = 0;
+
+	UPROPERTY()
+	float Health = 0;
+};
+
 UCLASS()
 class GLITCHUE_API UTowerDefenseSave : public UWorldSave{
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite, Category = "Dissolver")
-	float DissolverRadius;
-
 	UPROPERTY(BlueprintReadWrite, Category = "Waves")
 	int CurrentWave;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Placables")
 	TArray<FPlacableActorSaveData> PlacableDataList;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Catalyseur")
+	TMap<FString, FCatalyseurData> CatalyseurDataList;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Catalyseur")
+	int CurrentActivatedCatalyseurNumber;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Nexus")
+	float NexusHealth;
 };

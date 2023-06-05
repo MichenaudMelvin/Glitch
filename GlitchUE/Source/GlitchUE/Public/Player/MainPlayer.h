@@ -231,6 +231,9 @@ public:
 	virtual void Jump() override;
 
 protected:
+	UPROPERTY(BlueprintReadOnly, Category = "Movement|Cling")
+	bool bCanBeAttachedToEdge = true;
+
 	bool bUseCoyoteTime = false;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")

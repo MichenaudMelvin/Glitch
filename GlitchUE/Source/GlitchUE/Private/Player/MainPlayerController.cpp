@@ -4,7 +4,6 @@
 #include "Player/MainPlayerController.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mark/Mark.h"
@@ -220,7 +219,7 @@ void AMainPlayerController::BindNormalMode(){
 	BindInteraction();
 	BindGlitch();
 	BindMouseScroll();
-	BindFastSaveAndLoad();
+	SetCanSave(bCanSave);
 }
 
 #pragma endregion
@@ -271,7 +270,6 @@ void AMainPlayerController::PauseGame(){
 	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
 
 	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
-	PrimaryActorTick;
 }
 
 #pragma endregion

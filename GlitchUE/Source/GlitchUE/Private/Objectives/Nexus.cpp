@@ -43,6 +43,9 @@ ANexus::ANexus() {
 void ANexus::BeginPlay(){
 	Super::BeginPlay();
 
+	HealthComp->OnReciveDamages.RemoveDynamic(this, &ANexus::TakeDamages);
+	HealthComp->OnHealthChange.AddDynamic(this, &ANexus::TakeDamages);
+
 	TArray<AActor*> DissolverArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
@@ -105,7 +108,9 @@ void ANexus::OnConstruction(const FTransform& Transform){
 void ANexus::TakeDamages(){
 	Super::TakeDamages();
 
-	PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
+	if(IsValid(PlayerStatsWidget)){
+		PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
+	}
 }
 
 void ANexus::UpdateDissolver(){

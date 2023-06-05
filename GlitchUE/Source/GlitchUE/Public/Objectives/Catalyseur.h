@@ -24,6 +24,10 @@ public:
 
 	UCompassComponent* GetCompass() const;
 
+	FCatalyseurData SaveCatalyseur();
+
+	void LoadCatalyseur(const FCatalyseurData NewData);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -33,11 +37,15 @@ protected:
 
 	virtual void DesactivateObjectif() override;
 
+	void StartDesactivationTimer(const float Timer);
+
 	void ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs = true);
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
 	virtual void OnSwitchPhases(EPhases CurrentPhase) override;
+
+	bool bWasActivatedInStealthPhase = false;
 
 	UAnimationAsset* ActivationAnim;
 

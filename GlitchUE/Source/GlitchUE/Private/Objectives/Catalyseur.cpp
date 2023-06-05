@@ -144,6 +144,7 @@ void ACatalyseur::ActiveObjectif(){
 
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
+			bWasActivatedInStealthPhase = true;
 			break;
 		case EPhases::TowerDefense:
 			StartGeneratingMoney();
@@ -171,6 +172,8 @@ void ACatalyseur::DesactivateObjectif(){
 	UFMODBlueprintStatics::PlayEvent2D(GetWorld(), DeactivationSFX,true);
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
+			// not supposed to happen but anyway
+			bWasActivatedInStealthPhase = false;
 			break;
 		case EPhases::TowerDefense:
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
@@ -180,16 +183,19 @@ void ACatalyseur::DesactivateObjectif(){
 			InteractableComp->RemoveInteractable(TECHMesh);
 
 			DesactivationBillboard->DrawWaypoint(true);
-
-			GetWorld()->GetTimerManager().SetTimer(DesactivationTimerHandle, [&](){
-				InteractableComp->AddInteractable(MeshObjectif);
-				InteractableComp->AddInteractable(TECHMesh);
-
-				const int ColorIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
-				UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, true);
-			}, DesactivationTimer, false);
+			StartDesactivationTimer(DesactivationTimer);
 			break;
 	}
+}
+
+void ACatalyseur::StartDesactivationTimer(const float Timer){
+	GetWorld()->GetTimerManager().SetTimer(DesactivationTimerHandle, [&](){
+		InteractableComp->AddInteractable(MeshObjectif);
+		InteractableComp->AddInteractable(TECHMesh);
+
+		const int ColorIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
+		UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, true);
+	}, Timer, false);
 }
 
 void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs){
@@ -255,6 +261,29 @@ void ACatalyseur::AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd){
 
 UCompassComponent* ACatalyseur::GetCompass() const{
 	return Compass;
+}
+
+FCatalyseurData ACatalyseur::SaveCatalyseur(){
+	FCatalyseurData Data;
+
+	Data.bIsActivated = GetActivableComp()->IsActivated();
+	Data.bWasActivatedInStealthPhase = bWasActivatedInStealthPhase;
+	Data.DesactivationTimer = GetWorld()->GetTimerManager().GetTimerRemaining(DesactivationTimerHandle);
+	Data.Health = GetHealthComp()->GetCurrentHealth();
+
+	return Data;
+}
+
+void ACatalyseur::LoadCatalyseur(const FCatalyseurData NewData){
+	if(NewData.bIsActivated){
+		GetActivableComp()->ActivateObject();
+	}
+
+	else if(bWasActivatedInStealthPhase){
+		StartDesactivationTimer(NewData.DesactivationTimer);
+	}
+
+	GetHealthComp()->SetHealth(NewData.Health);
 }
 
 #if WITH_EDITORONLY_DATA

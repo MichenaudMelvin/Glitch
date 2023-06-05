@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Player/MenuGamemode.h"
+#include "Gamemodes/MenuGamemode.h"
 #include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Saves/WorldSave.h"
@@ -19,5 +19,5 @@ void AMenuGamemode::GlobalWorldLoad(const int Index){
 
 	LoadOptions += FString::FromInt(Index);
 
-	UGameplayStatics::OpenLevel(this, FName("Level_1"), true, LoadOptions);
+	UGameplayStatics::OpenLevel(this, FName(*CurrentSave->WorldName), true, LoadOptions);
 }

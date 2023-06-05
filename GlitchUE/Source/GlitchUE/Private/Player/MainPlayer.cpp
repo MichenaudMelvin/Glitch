@@ -666,6 +666,7 @@ void AMainPlayer::TPToMark() {
 	MainPlayerController->UnbindCamera();
 	MainPlayerController->UnbindGlitch();
 	MainPlayerController->SetCanSave(false);
+	bCanBeAttachedToEdge = false;
 
 	StopJumping();
 	Mark->PlaceMark();
@@ -1012,6 +1013,7 @@ void AMainPlayer::EndTL(){
 		MainPlayerController->BindMovement();
 		MainPlayerController->BindCamera();
 		MainPlayerController->SetCanSave(true);
+		bCanBeAttachedToEdge = true;
 
 		ResetOverlappedMeshes();
 

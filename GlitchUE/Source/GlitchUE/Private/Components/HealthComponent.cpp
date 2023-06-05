@@ -38,8 +38,9 @@ void UHealthComponent::TakeMaxDamages(){
 	TakeDamages(CurrentHealth);
 }
 
-void UHealthComponent::AddHealth(float HealthAmount){
-	// à faire
+void UHealthComponent::SetHealth(const float NewHealthValue){
+	CurrentHealth = FMath::Clamp(NewHealthValue, 0.0f, MaxHealth);
+	OnHealthChange.Broadcast();
 }
 
 bool UHealthComponent::GetCanTakeDamages() const{
