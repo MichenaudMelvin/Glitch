@@ -37,6 +37,8 @@ void UCustomUserWidget::NativeDestruct(){
 
 	Cast<IUIFocus>(FocusList[LastFocusWidgetIndex])->UnReceiveFocus();
 
+	LastPressedKey = FKey();
+
 	Super::NativeDestruct();
 }
 

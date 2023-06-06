@@ -166,7 +166,7 @@ void AMainPlayerController::BindGlitch(){
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::TPToMark);
 	} else{
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchPressed);
-		OnUseGlitchReleased.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchReleassed);
+		//OnUseGlitchReleased.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchReleassed);
 	}
 }
 

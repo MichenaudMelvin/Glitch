@@ -89,7 +89,7 @@ AMainPlayer::AMainPlayer(){
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
 	check(FX.Succeeded());
 
-	GlichDashFXReference = FX.Object;
+	GlitchDashFXReference = FX.Object;
 }
 
 void AMainPlayer::BeginPlay(){
@@ -103,6 +103,8 @@ void AMainPlayer::BeginPlay(){
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->OnSwitchPhases.AddDynamic(this, &AMainPlayer::OnSwitchPhases);
+
+	HalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 
 	FOnTimelineFloat UpdateEvent;
 	FOnTimelineEvent FinishedEvent;
@@ -118,6 +120,7 @@ void AMainPlayer::BeginPlay(){
 
 	CameraAimTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	CameraAimTransition.SetTimelineFinishedFunc(FinishedEvent);
+	CameraAimTransition.SetPlayRate(1/CameraAimTime);
 
 	UpdateEvent.Unbind();
 	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraZoomUpdate);
@@ -168,8 +171,8 @@ void AMainPlayer::BeginPlay(){
 
 	#pragma region FXCreation
 
-	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
-	GlitchDashFXBackup = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlitchDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+	GlitchDashFXBackup = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlitchDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
 
 	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(GlitchDashFX, "TeleportLifetime");
 
@@ -230,7 +233,8 @@ void AMainPlayer::CameraAimUpdate(float Alpha){
 
 void AMainPlayer::CameraAimFinished(){
 	switch (CameraAimTimelineDirection){
-		case ETimelineDirection::Forward:
+	case ETimelineDirection::Forward:
+			GetWorld()->GetTimerManager().SetTimer(CanLaunchMarkTimerHandle, this, &AMainPlayer::CanLaunchMark, 0.1f, true);
 			break;
 		case ETimelineDirection::Backward:
 			MainPlayerController->GetSightWidget()->RemoveFromParent();
@@ -453,6 +457,10 @@ void AMainPlayer::LookUpAtRate(const float Rate){
 }
 
 void AMainPlayer::Jump(){
+	if(!CanStandUp()){
+		return;
+	}
+
 	Super::Jump();
 
 	MainPlayerController->UnbindSneak();
@@ -505,6 +513,18 @@ void AMainPlayer::SprintToSneak_Implementation(){}
 void AMainPlayer::SneakToSprint_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
+
+bool AMainPlayer::CanStandUp(){
+	FVector TraceLocation = GetMesh()->GetComponentLocation();
+	TraceLocation.Z += HalfHeight;
+
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(Mark);
+
+	FHitResult HitResult;
+	return !UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), TraceLocation, TraceLocation, GetCapsuleComponent()->GetUnscaledCapsuleRadius(), HalfHeight, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
+}
 
 void AMainPlayer::Landed(const FHitResult& Hit){
 	Super::Landed(Hit);
@@ -702,13 +722,12 @@ void AMainPlayer::UseGlitchPressed(){
 	CameraAim();
 }
 
-void AMainPlayer::UseGlitchReleassed(){
-	CameraStopAim();
-	LaunchMark();
-
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::CameraAimReverse, 1.0f, false);
+void AMainPlayer::CanLaunchMark(){
+	if(!UUsefulFunctions::IsEventActionPressed("UseGlitch", MainPlayerController)){
+		GetWorldTimerManager().ClearTimer(CanLaunchMarkTimerHandle);
+		CameraAimReverse();
+		LaunchMark();
+	}
 }
 
 void AMainPlayer::Tick(float deltaTime){
@@ -1005,7 +1024,7 @@ void AMainPlayer::EndTL(){
 	FLatentActionInfo LatentInfo;
 	LatentInfo.CallbackTarget = this;
 
-	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, 0.2f, false, EMoveComponentAction::Type::Move, LatentInfo);
+	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, GlitchDashDuration, false, EMoveComponentAction::Type::Move, LatentInfo);
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
@@ -1017,8 +1036,8 @@ void AMainPlayer::EndTL(){
 
 		ResetOverlappedMeshes();
 
-		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
+		Mark->ResetMark();
 
 		if(IsValid(CurrentDrone)){
 			CurrentDrone->GetMesh()->SetVisibility(true, true);

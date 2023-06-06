@@ -65,7 +65,7 @@ ACatalyseur::ACatalyseur(){
 	static ConstructorHelpers::FObjectFinder<UMaterial> DesactivationMaterial(TEXT("/Game/Meshs/Materials/Objectives/M_CatalyseurDesactivation"));
 	check(DesactivationMaterial.Succeeded());
 
-	DesactivationBillboard->AddElement(DesactivationMaterial.Object, nullptr, true, 0.03f, 0.05f,nullptr);
+	DesactivationBillboard->AddElement(DesactivationMaterial.Object, nullptr, true, 0.05f, 0.1f,nullptr);
 	DesactivationBillboard->DrawWaypoint(false);
 
 	#if WITH_EDITORONLY_DATA

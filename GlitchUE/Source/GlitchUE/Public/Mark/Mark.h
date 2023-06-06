@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PopcornFXEmitterComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/InteractableComponent.h"
@@ -21,8 +22,18 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	void AttachToPlayer();
+
+	void DetachToPlayer();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Location")
+	FVector RelativeLocation = FVector(-50, 0, 130);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	UStaticMeshComponent* MarkMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	UPopcornFXEmitterComponent* MarkFX;
 
 	FTimerHandle SwitchMeshTimer;
 
@@ -93,13 +104,9 @@ public:
 protected:
 	float GetDistanceToLaunchPoint() const;
 
-	void LaunchTimer();
+	void DistanceTimer();
 
-	FTimerHandle LaunchTimerHandle;
-
-	FTimerHandle DistanceFromTheMarkTimerHandle;
-
-	void CheckDistanceFromMark();
+	FTimerHandle DistanceTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Distance")
 	float GoBackToPlayerDuration = 0.5f;
@@ -113,9 +120,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Distance")
 	float MaxLaunchDistance = 5000;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Distance")
-	float MaxDistanceFromTheMark = 5000;
 
 public:
 	float GetMaxLaunchDistance() const;

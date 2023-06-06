@@ -157,7 +157,6 @@ void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor
 }
 
 void APursuitDrone::StopPursuitBehavior(){
-	UE_LOG(LogTemp, Warning, TEXT("stop"));
 	GetCapsuleComponent()->OnComponentBeginOverlap.Clear();
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APursuitDrone::DroneMeshBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APursuitDrone::DroneMeshEndOverlap);

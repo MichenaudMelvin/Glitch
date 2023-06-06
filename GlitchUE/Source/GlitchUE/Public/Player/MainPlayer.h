@@ -94,10 +94,13 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void CameraAimFinished();
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	FVector AimOffset = FVector(75, 75, 60);
 
 	FTimeline CameraAimTransition;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Aim")
+	float CameraAimTime = 0.5;
 
 	ETimelineDirection::Type CameraAimTimelineDirection;
 
@@ -274,6 +277,9 @@ public:
 	void ResetMovement();
 	void ResetMovement_Implementation();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
+	bool CanStandUp();
+
 	virtual void Landed(const FHitResult& Hit) override;
 
 	UFUNCTION()
@@ -281,6 +287,9 @@ public:
 
 protected:
 	#pragma endregion
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float HalfHeight;
 
 	UPROPERTY(BlueprintReadOnly)
 	ANexus* Nexus;
@@ -428,8 +437,10 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void UseGlitchPressed();
 
-	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
-	void UseGlitchReleassed();
+	UFUNCTION()
+	void CanLaunchMark();
+
+	FTimerHandle CanLaunchMarkTimerHandle;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
 	AMark* GetMark() const { return Mark; }
@@ -460,7 +471,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
 	float GlitchDashDuration = 0.15f;
 
-	UPopcornFXEffect* GlichDashFXReference;
+	UPopcornFXEffect* GlitchDashFXReference;
 
 	UPROPERTY()
 	UPopcornFXEmitterComponent* GlitchDashFX;

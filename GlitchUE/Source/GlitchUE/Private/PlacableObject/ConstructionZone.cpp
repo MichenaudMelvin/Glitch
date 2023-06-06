@@ -23,6 +23,7 @@ AConstructionZone::AConstructionZone() {
 
 	GetSkeletalMeshComponent()->SetSkeletalMesh(MedSkelMesh.Object);
 	GetSkeletalMeshComponent()->SetCanEverAffectNavigation(true);
+	GetSkeletalMeshComponent()->bComponentUseFixedSkelBounds = true;
 
 	TechMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TechMesh"));
 	TechMesh->SetupAttachment(GetSkeletalMeshComponent());
@@ -32,6 +33,7 @@ AConstructionZone::AConstructionZone() {
 
 	TechMesh->SetSkeletalMesh(TechSkelMesh.Object);
 	TechMesh->SetCanEverAffectNavigation(true);
+	TechMesh->bComponentUseFixedSkelBounds = true;
 
 	NavObstacle = CreateDefaultSubobject<UBoxComponent>("Nav Obstacle");
 	NavObstacle->SetupAttachment(RootComponent);
