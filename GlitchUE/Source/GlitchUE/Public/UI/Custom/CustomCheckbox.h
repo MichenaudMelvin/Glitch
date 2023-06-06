@@ -19,6 +19,8 @@ protected:
 
 	FCheckBoxStyle SavedStyle;
 
+	float CheckBoxSize = 92.0f;
+
 public:
 	virtual void ReceiveFocus() override;
 

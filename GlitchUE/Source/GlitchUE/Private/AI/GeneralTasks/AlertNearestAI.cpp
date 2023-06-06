@@ -6,7 +6,7 @@
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "AI/AIPursuitDrone/PursuitDroneController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 
 EBTNodeResult::Type UAlertNearestAI::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory){
@@ -19,7 +19,7 @@ EBTNodeResult::Type UAlertNearestAI::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		AIList.Add(Cast<APursuitDroneController>(MainAIControllerArray[i])->GetPawn());
 	}
 
-	AIList = UUsefullFunctions::SortActorsByDistanceToActor(AIList, OwnerComp.GetAIOwner()->GetPawn());
+	AIList = UUsefulFunctions::SortActorsByDistanceToActor(AIList, OwnerComp.GetAIOwner()->GetPawn());
 
 	for(int i = 0; i < NumberOfAIToCall; i++){
 		if(i > AIList.Num() - 1){

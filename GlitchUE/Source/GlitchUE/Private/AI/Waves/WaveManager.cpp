@@ -134,7 +134,19 @@ void AWaveManager::StartWave(){
 
 	OnStartWave.Broadcast(CurrentWaveNumber);
 
-	PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
+	// only useful on load save
+	if(IsValid(PlayerMessageWidget)){
+		PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
+	} else{
+		FTimerHandle TimerHandle;
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+			// should be valid after a short delay
+			if(IsValid(PlayerMessageWidget)){
+				PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
+			}
+		}, 0.1f, false);
+	}
 
 	EnableSpawners();
 

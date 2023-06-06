@@ -8,7 +8,7 @@
 #include "Components/ActorComponent.h"
 #include "CompassComponent.generated.h"
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup= "Compass", meta=(BlueprintSpawnableComponent))
 class GLITCHUE_API UCompassComponent : public UActorComponent{
 	GENERATED_BODY()
 

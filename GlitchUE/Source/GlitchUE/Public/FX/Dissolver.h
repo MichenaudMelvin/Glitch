@@ -59,6 +59,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ForceDissolverValue(const float TargetRadius);
 
+	UFUNCTION(BlueprintCallable)
+	void ResetDissolveDuration();
+
 protected:
 	void PlayFX();
 

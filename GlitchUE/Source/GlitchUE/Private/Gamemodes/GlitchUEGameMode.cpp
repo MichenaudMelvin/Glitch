@@ -7,7 +7,7 @@
 #include "PlacableObject/PlacableActor.h"
 #include "UObject/ConstructorHelpers.h"
 #include "AI/Waves/WaveManager.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
@@ -129,38 +129,18 @@ void AGlitchUEGameMode::InitializeWorld(){
 void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	const int SlotIndex = FCString::Atoi(*LevelSettings[1]);
 
-	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
+	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), SlotIndex, false));
 
 	MainPlayer->InitializePlayer(CurrentSave->PlayerTransform, CurrentSave->PlayerCameraRotation, CurrentSave->MarkTransform, CurrentSave->bIsMarkPlaced);
 	MainPlayer->SetGolds(CurrentSave->PlayerGolds);
 
 	AddGlitch(CurrentSave->GlitchValue);
 
-	//Inhibiteur
-	TArray<AActor*> InhibiteurList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
-
-	TArray<FString> FStringArray;
-	CurrentSave->InhibiteurStateList.GetKeys(FStringArray);
-
-	for(int i = 0; i < InhibiteurList.Num(); i++){
-		for(int j = 0; j < FStringArray.Num(); j++){
-			if(InhibiteurList[i]->GetName() == FStringArray[j]){
-
-				AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
-
-				if(CurrentSave->InhibiteurStateList.FindRef(InhibiteurList[i]->GetName())){
-					CurrentInhibiteur->GetActivableComp()->ActivateObject();
-				}
-
-			}
-		}
-	}
-
 	// Doors
 	TArray<AActor*> DoorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABasicDoor::StaticClass(), DoorList);
 
+	TArray<FString> FStringArray;
 	CurrentSave->DoorDataList.GetKeys(FStringArray);
 
 	for(int i = 0; i < DoorList.Num(); i++){
@@ -183,12 +163,12 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	CurrentSave->LoadedTime++;
 
 	if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
-		UUsefullFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
+		UUsefulFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
 		return;
 	}
 
 	OptionsString = "";
-	UUsefullFunctions::SaveToSlot(CurrentSave, SlotIndex);
+	UUsefulFunctions::SaveToSlot(CurrentSave, SlotIndex);
 }
 
 void AGlitchUEGameMode::GlobalWorldSave(const int Index){
@@ -207,15 +187,17 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 			break;
 	}
 
-	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(TargetSaveClass, Index, false));
+	UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefulFunctions::LoadSave(TargetSaveClass, Index, false));
 
 	if(!IsValid(CurrentSave)){
-		CurrentSave = Cast<UWorldSave>(UUsefullFunctions::CreateSave(TargetSaveClass, Index));
+		CurrentSave = Cast<UWorldSave>(UUsefulFunctions::CreateSave(TargetSaveClass, Index));
 	}
 
 	else if(!CurrentSave->IsA(TargetSaveClass)){
-		CurrentSave = Cast<UWorldSave>(UUsefullFunctions::CreateSave(TargetSaveClass, Index));
+		CurrentSave = Cast<UWorldSave>(UUsefulFunctions::CreateSave(TargetSaveClass, Index));
 	}
+
+	CurrentSave->WorldName = GetWorld()->GetName();
 
 	CurrentSave->LoadedTime = 0;
 
@@ -237,17 +219,6 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 		CurrentSave->bIsMarkPlaced = true;
 	} else{
 		CurrentSave->bIsMarkPlaced = false;
-	}
-
-	// Inhibiteurs
-	TArray<AActor*> InhibiteurList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
-
-	CurrentSave->InhibiteurStateList.Empty();
-	for(int i = 0; i < InhibiteurList.Num(); i++){
-		AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
-
-		CurrentSave->InhibiteurStateList.Add(CurrentInhibiteur->GetName(), CurrentInhibiteur->GetActivableComp()->IsActivated());
 	}
 
 	//Doors
@@ -272,13 +243,13 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 		break;
 	}
 
-	UUsefullFunctions::SaveToSlot(CurrentSave, Index);
+	UUsefulFunctions::SaveToSlot(CurrentSave, Index);
 }
 
 void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
 	ISaveInterface::GlobalWorldLoad(Index);
 
-	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
+	const UWorldSave* CurrentSave = Cast<UWorldSave>(UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), Index, false));
 
 	if(CurrentSave == nullptr){
 		return;
@@ -288,7 +259,7 @@ void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
 
 	LoadOptions += FString::FromInt(Index);
 
-	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), true, LoadOptions);
+	UGameplayStatics::OpenLevel(this, FName(*CurrentSave->WorldName), true, LoadOptions);
 }
 
 void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
@@ -304,6 +275,14 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
 	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
+}
+
+float AGlitchUEGameMode::GetStealthTimer() const{
+	return StealthTimer;
+}
+
+float AGlitchUEGameMode::GetGoldTimerMultiplier() const{
+	return GoldTimerMultiplier;
 }
 
 bool AGlitchUEGameMode::CanStartTowerDefense() const{
@@ -324,6 +303,17 @@ int AGlitchUEGameMode::GetActivatedCatalyseurNum() const{
 
 UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 	UStealthSave* CastedSave = Cast<UStealthSave>(CurrentSave);
+
+	// Inhibiteurs
+	TArray<AActor*> InhibiteurList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
+
+	CastedSave->InhibiteurStateList.Empty();
+	for(int i = 0; i < InhibiteurList.Num(); i++){
+		AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
+
+		CastedSave->InhibiteurStateList.Add(CurrentInhibiteur->GetName(), CurrentInhibiteur->GetActivableComp()->IsActivated());
+	}
 
 	TArray<AActor*> AIList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIList);
@@ -349,7 +339,7 @@ UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 	UTowerDefenseSave* CastedSave = Cast<UTowerDefenseSave>(CurrentSave);
 
-	CastedSave->DissolverRadius = Dissolver->GetRadius();
+	CastedSave->CurrentActivatedCatalyseurNumber = CurrentActivatedCatalyseurs;
 
 	TArray<AActor*> PlacableList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableList);
@@ -367,6 +357,19 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 		CastedSave->PlacableDataList.Add(CurrentPlacable->SavePlacable());
 	}
 
+	TArray<AActor*> CatalyseurList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACatalyseur::StaticClass(), CatalyseurList);
+
+	CastedSave->CatalyseurDataList.Empty();
+	for(int i = 0; i < CatalyseurList.Num(); i++){
+
+		ACatalyseur* CurrentCatalyseur = Cast<ACatalyseur>(CatalyseurList[i]);
+
+		CastedSave->CatalyseurDataList.Add(CurrentCatalyseur->GetName(), CurrentCatalyseur->SaveCatalyseur());
+	}
+
+	CastedSave->NexusHealth = Nexus->GetHealthComp()->GetCurrentHealth();
+
 	CastedSave->CurrentWave = WaveManager->GetCurrentWaveNumber();
 
 	return CastedSave;
@@ -375,10 +378,30 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 UWorldSave* AGlitchUEGameMode::StealthWorldLoad(UWorldSave* CurrentSave){
 	UStealthSave* CastedSave = Cast<UStealthSave>(CurrentSave);
 
+	//Inhibiteur
+	TArray<AActor*> InhibiteurList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AInhibiteur::StaticClass(), InhibiteurList);
+
+	TArray<FString> FStringArray;
+	CastedSave->InhibiteurStateList.GetKeys(FStringArray);
+
+	for(int i = 0; i < InhibiteurList.Num(); i++){
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(InhibiteurList[i]->GetName() == FStringArray[j]){
+
+				AInhibiteur* CurrentInhibiteur = Cast<AInhibiteur>(InhibiteurList[i]);
+
+				if(CastedSave->InhibiteurStateList.FindRef(InhibiteurList[i]->GetName())){
+					CurrentInhibiteur->GetActivableComp()->ActivateObject();
+				}
+
+			}
+		}
+	}
+
 	TArray<AActor*> AIList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAIController::StaticClass(), AIList);
 
-	TArray<FString> FStringArray;
 	CastedSave->AIDataList.GetKeys(FStringArray);
 
 	for(int i = 0; i < AIList.Num(); i++){
@@ -409,12 +432,13 @@ UWorldSave* AGlitchUEGameMode::StealthWorldLoad(UWorldSave* CurrentSave){
 UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 	UTowerDefenseSave* CastedSave = Cast<UTowerDefenseSave>(CurrentSave);
 
-	FActorSpawnParameters PlacableSpawnParam;
+	Nexus->GetHealthComp()->SetHealth(CastedSave->NexusHealth);
 
-	Dissolver->ForceDissolverValue(CastedSave->DissolverRadius);
+	CurrentActivatedCatalyseurs = CastedSave->CurrentActivatedCatalyseurNumber;
 
 	ForceEndStealthPhase();
 
+	// this skip the preparation time
 	WaveManager->SetWave(CastedSave->CurrentWave);
 
 	TArray<AActor*> PursuitDroneList;
@@ -425,9 +449,30 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 		const FVector TargetLocation = CastedSave->PlacableDataList[i].ActorTransform.GetLocation();
 		const FRotator TargetRotation = CastedSave->PlacableDataList[i].ActorTransform.Rotator();
 
-		APlacableActor* CurrentPlacableActor = GetWorld()->SpawnActor<APlacableActor>(TargetClass, TargetLocation, TargetRotation, PlacableSpawnParam);
+		APlacableActor* CurrentPlacableActor = GetWorld()->SpawnActor<APlacableActor>(TargetClass, TargetLocation, TargetRotation, FActorSpawnParameters());
 		CurrentPlacableActor->InitializePlacable(CastedSave->PlacableDataList[i], PursuitDroneList);
 		CurrentPlacableActor->SetMissingData(Nexus, MainPlayer);
+	}
+
+	TArray<AActor*> CatalyseurList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACatalyseur::StaticClass(), CatalyseurList);
+
+	const float CatalyseurCompletionPercent = 100.0f/CatalyseurList.Num() * GetActivatedCatalyseurNum();
+
+	Dissolver->ForceDissolverValue(CatalyseurCompletionPercent * Dissolver->GetMaxRadius() / 100.0f);
+
+	TArray<FString> FStringArray;
+	CastedSave->CatalyseurDataList.GetKeys(FStringArray);
+
+	for(int i = 0; i < CatalyseurList.Num(); i++){
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(CatalyseurList[i]->GetName() == FStringArray[j]){
+
+				ACatalyseur* CurrentCatalyseur = Cast<ACatalyseur>(CatalyseurList[i]);
+
+				CurrentCatalyseur->LoadCatalyseur(CastedSave->CatalyseurDataList.FindRef(CatalyseurList[i]->GetName()));
+			}
+		}
 	}
 
 	return CastedSave;
@@ -454,9 +499,6 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 	case EPhases::Infiltration:
 		break;
 	case EPhases::TowerDefense:
-		const float RemainTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() : StealthTimer;
-		MainPlayer->UpdateGolds(RemainTime * GoldTimerMultiplier, EGoldsUpdateMethod::ReceiveGolds);
-		MainPlayer->GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false, false);
 
 		if(OptionsString == ""){
 			WaveManager->StartPrepareTimer();
@@ -469,7 +511,6 @@ void AGlitchUEGameMode::SetNewPhase(const EPhases NewPhase){
 			}
 		#endif
 
-		MainPlayer->GetMainPlayerController()->SetCanSave(false);
 		break;
 	}
 }
@@ -585,7 +626,7 @@ void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
 	TArray<AActor*> PlacableActorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
 
-	PlacableActorList = UUsefullFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
+	PlacableActorList = UUsefulFunctions::SortActorsByDistanceToActor(PlacableActorList, MainPlayer);
 
 	int Count = 0;
 
@@ -617,7 +658,7 @@ void AGlitchUEGameMode::GlitchUpgradeEnemiesAI() const{
 	}
 
 	if (AIList.Num() > 0) {
-		AIList = UUsefullFunctions::SortActorsByDistanceToActor(AIList, MainPlayer);
+		AIList = UUsefulFunctions::SortActorsByDistanceToActor(AIList, MainPlayer);
 
 		const int LoopNumber = AIList.Num() < NumberOfEnemiesToAffect ? AIList.Num() : NumberOfEnemiesToAffect;
 

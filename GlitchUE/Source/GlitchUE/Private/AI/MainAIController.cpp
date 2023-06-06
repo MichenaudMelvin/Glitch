@@ -7,7 +7,7 @@
 #include "AI/MainAIPawn.h"
 #include "Navigation/CrowdFollowingComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionSystem.h"
 
@@ -66,7 +66,7 @@ void AMainAIController::BeginPlay(){
 		TArray<FString> LevelSettings;
 		Settings.ParseIntoArray(LevelSettings, TEXT("|"), true);
 
-		const UAbstractSave* LoadedSave = UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), FCString::Atoi(*LevelSettings[1]), false);
+		const UAbstractSave* LoadedSave = UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), FCString::Atoi(*LevelSettings[1]), false);
 
 		if(!IsValid(LoadedSave)){
 			return;

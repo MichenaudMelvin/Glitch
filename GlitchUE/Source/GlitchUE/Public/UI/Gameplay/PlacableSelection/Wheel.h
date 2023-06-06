@@ -55,8 +55,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	AMainPlayer* MainPlayer;
 
-public:
+	UFUNCTION()
 	void ClickOnDestructButton();
+
+public:
+
+	void ClickOnDestructButtonDelay();
 
 	void SetDescription(const FText NewDescription) const;
 };

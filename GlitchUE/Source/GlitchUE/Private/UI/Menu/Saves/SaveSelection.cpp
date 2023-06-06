@@ -4,7 +4,7 @@
 #include "UI/Menu/Saves/SaveSelection.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "UI/Menu/Saves/SaveButton.h"
 #include "UI/Menu/Saves/SaveAction.h"
 #include "Saves/WorldSave.h"
@@ -13,7 +13,7 @@ void USaveSelection::NativeConstruct(){
 	Super::NativeConstruct();
 
 	for(int i = 0; i < WorldSaveSlot; i++){
-		UAbstractSave* CurrentSave = UUsefullFunctions::LoadSave(UWorldSave::StaticClass(), i);
+		UAbstractSave* CurrentSave = UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), i);
 
 		SaveListView->AddItem(CurrentSave);
 	}

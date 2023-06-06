@@ -15,6 +15,7 @@ ABasicDoor::ABasicDoor(){
 	AIObstacle->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AIObstacle->SetCollisionResponseToAllChannels(ECR_Ignore);
 	AIObstacle->SetGenerateOverlapEvents(false);
+	AIObstacle->SetMobility(EComponentMobility::Static);
 
 	AIObstacle->AreaClass = UNavArea_Obstacle::StaticClass();
 	AIObstacle->bDynamicObstacle = true;
@@ -38,6 +39,73 @@ ABasicDoor::ABasicDoor(){
 	check(TechDoorStaticMesh.Succeeded());
 
 	TechDoor->SetStaticMesh(TechDoorStaticMesh.Object);
+
+	UpDoorFrameMed = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Up Door Frame Med"));
+	UpDoorFrameMed->SetupAttachment(MedFrame);
+	UpDoorFrameMed->SetMobility(EComponentMobility::Static);
+
+	UpDoorFrameTech = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Up Door Frame Tech"));
+	UpDoorFrameTech->SetupAttachment(TechFrame);
+	UpDoorFrameTech->SetMobility(EComponentMobility::Static);
+
+#pragma region MeshAndMaterials
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> UpDoorMed1(TEXT("/Game/Meshs/ModuilarKit/Door/SM_Up_Door_Frame_1"));
+	check(UpDoorMed1.Succeeded());
+
+	UpDoorFrameMedMeshes.Add(UpDoorMed1.Object);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> UpDoorMed2(TEXT("/Game/Meshs/ModuilarKit/Door/SM_Up_Door_Frame_2"));
+	check(UpDoorMed2.Succeeded());
+
+	UpDoorFrameMedMeshes.Add(UpDoorMed2.Object);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> UpDoorMed3(TEXT("/Game/Meshs/ModuilarKit/Door/SM_Up_Door_Frame_3"));
+	check(UpDoorMed3.Succeeded());
+
+	UpDoorFrameMedMeshes.Add(UpDoorMed3.Object);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> UpDoorMed4(TEXT("/Game/Meshs/ModuilarKit/Door/SM_Up_Door_Frame_4"));
+	check(UpDoorMed4.Succeeded());
+
+	UpDoorFrameMedMeshes.Add(UpDoorMed4.Object);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> UpDoorMed5(TEXT("/Game/Meshs/ModuilarKit/Door/SM_Up_Door_Frame_5"));
+	check(UpDoorMed5.Succeeded());
+
+	UpDoorFrameMedMeshes.Add(UpDoorMed5.Object);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> UpDoorMesh(TEXT("/Game/Meshs/ModuilarKit/Door/SM_Up_Door_Frame_Tech"));
+	check(UpDoorMesh.Succeeded());
+
+	UpDoorFrameTech->SetStaticMesh(UpDoorMesh.Object);
+
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> UpDoorTech1(TEXT("/Game/Meshs/Materials/ModularKit/Walls/MI_TECH_Wall_1"));
+	check(UpDoorTech1.Succeeded());
+
+	UpDoorFrameTechMaterial.Add(UpDoorTech1.Object);
+
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> UpDoorTech2(TEXT("/Game/Meshs/Materials/ModularKit/Walls/MI_TECH_Wall_2"));
+	check(UpDoorTech2.Succeeded());
+
+	UpDoorFrameTechMaterial.Add(UpDoorTech2.Object);
+
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> UpDoorTech3(TEXT("/Game/Meshs/Materials/ModularKit/Walls/MI_TECH_Wall_3"));
+	check(UpDoorTech3.Succeeded());
+
+	UpDoorFrameTechMaterial.Add(UpDoorTech3.Object);
+
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> UpDoorTech4(TEXT("/Game/Meshs/Materials/ModularKit/Walls/MI_TECH_Wall_4"));
+	check(UpDoorTech4.Succeeded());
+
+	UpDoorFrameTechMaterial.Add(UpDoorTech4.Object);
+
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> UpDoorTech5(TEXT("/Game/Meshs/Materials/ModularKit/Walls/MI_TECH_Wall_5"));
+	check(UpDoorTech5.Succeeded());
+
+	UpDoorFrameTechMaterial.Add(UpDoorTech5.Object);
+
+#pragma endregion
 }
 
 void ABasicDoor::BeginPlay(){
@@ -50,6 +118,13 @@ void ABasicDoor::BeginPlay(){
 	RotationFactor = MedDoor->GetRelativeRotation().Equals(TargetOpenRotation) && bIsOpen ? 1 : -1;
 
 	OpenDoorTimeline.SetPlaybackPosition(bIsOpen ? 1 : 0, false, true);
+}
+
+void ABasicDoor::OnConstruction(const FTransform& Transform){
+	Super::OnConstruction(Transform);
+
+	UpDoorFrameMed->SetStaticMesh(UpDoorFrameMedMeshes[UpDoorFrameIndex]);
+	UpDoorFrameTech->SetMaterial(0, UpDoorFrameTechMaterial[UpDoorFrameIndex]);
 }
 
 void ABasicDoor::InitializeDoor(const FBasicDoorData Data){

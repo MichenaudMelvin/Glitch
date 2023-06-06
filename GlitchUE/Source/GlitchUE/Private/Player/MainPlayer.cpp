@@ -17,7 +17,7 @@
 #include "PopcornFXEmitterComponent.h"
 #include "PopcornFXFunctions.h"
 #include "AI/MainAICharacter.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
 #include "Mark/Mark.h"
@@ -77,29 +77,34 @@ AMainPlayer::AMainPlayer(){
 
 	#pragma endregion
 
-	RunFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Run FX"));
+	SoundFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Run FX"));
 
-	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> RunEffect(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_RunFX"));
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> RunEffect(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_SoundDetection"));
 	check(RunEffect.Succeeded());
 
-	RunFX->SetEffect(RunEffect.Object);
-	RunFX->SetupAttachment(GetMesh());
+	SoundFX->SetEffect(RunEffect.Object);
+	SoundFX->SetupAttachment(GetMesh());
+	SoundFX->bPlayOnLoad = false;
 
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
 	check(FX.Succeeded());
 
-	GlichDashFXReference = FX.Object;
+	GlitchDashFXReference = FX.Object;
 }
 
 void AMainPlayer::BeginPlay(){
 	Super::BeginPlay();
 
-	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefullFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
+	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefulFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
 	FollowCamera->FieldOfView = GameplaySettingsSaveSave->CameraFOV;
 	Sensitivity = GameplaySettingsSaveSave->CameraSensitivity;
 	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
+	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameMode->OnSwitchPhases.AddDynamic(this, &AMainPlayer::OnSwitchPhases);
+
+	HalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 
 	FOnTimelineFloat UpdateEvent;
 	FOnTimelineEvent FinishedEvent;
@@ -115,6 +120,7 @@ void AMainPlayer::BeginPlay(){
 
 	CameraAimTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	CameraAimTransition.SetTimelineFinishedFunc(FinishedEvent);
+	CameraAimTransition.SetPlayRate(1/CameraAimTime);
 
 	UpdateEvent.Unbind();
 	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraZoomUpdate);
@@ -165,14 +171,8 @@ void AMainPlayer::BeginPlay(){
 
 	#pragma region FXCreation
 
-	const int LifeTimeIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "Lifetime");
-	const int LifeTimeDeviationIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "LifeTimeDeviation");
-
-	UPopcornFXAttributeFunctions::GetAttributeAsFloat(RunFX, LifeTimeIndex, RunFXLifeTime, true);
-	UPopcornFXAttributeFunctions::GetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, RunFXLifeTimeDeviation, true);
-
-	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
-	GlitchDashFXBackup = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlichDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+	GlitchDashFX = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlitchDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
+	GlitchDashFXBackup = UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), GlitchDashFXReference, "PopcornFX_DefaultScene", FVector::ZeroVector, FRotator::ZeroRotator, false, false);
 
 	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(GlitchDashFX, "TeleportLifetime");
 
@@ -233,7 +233,8 @@ void AMainPlayer::CameraAimUpdate(float Alpha){
 
 void AMainPlayer::CameraAimFinished(){
 	switch (CameraAimTimelineDirection){
-		case ETimelineDirection::Forward:
+	case ETimelineDirection::Forward:
+			GetWorld()->GetTimerManager().SetTimer(CanLaunchMarkTimerHandle, this, &AMainPlayer::CanLaunchMark, 0.1f, true);
 			break;
 		case ETimelineDirection::Backward:
 			MainPlayerController->GetSightWidget()->RemoveFromParent();
@@ -440,6 +441,11 @@ void AMainPlayer::UnfeedbackCurrentCheckedObject() {
 
 #pragma endregion
 
+void AMainPlayer::DetachFromEdge_Implementation(){
+	GetCharacterMovement()->GravityScale = OriginalGravityScale;
+	MainPlayerController->BindNormalMode();
+}
+
 void AMainPlayer::TurnAtRate(const float Rate){
 	// calculate delta for this frame from the rate 
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds() * Sensitivity);
@@ -451,10 +457,13 @@ void AMainPlayer::LookUpAtRate(const float Rate){
 }
 
 void AMainPlayer::Jump(){
+	if(!CanStandUp()){
+		return;
+	}
+
 	Super::Jump();
 
 	MainPlayerController->UnbindSneak();
-	HearingTrigger->MakeNoise(this, GetActorLocation(), JumpNoiseRange);
 
 	if(bUseCoyoteTime){
 		bUseCoyoteTime = false;
@@ -493,6 +502,8 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 
 void AMainPlayer::Dash_Implementation(){}
 
+void AMainPlayer::SprintRelease_Implementation(){}
+
 void AMainPlayer::SneakPressed_Implementation(){}
 
 void AMainPlayer::SneakReleased_Implementation(){}
@@ -503,16 +514,43 @@ void AMainPlayer::SneakToSprint_Implementation(){}
 
 void AMainPlayer::ResetMovement_Implementation(){}
 
-void AMainPlayer::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode){
-	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+bool AMainPlayer::CanStandUp(){
+	FVector TraceLocation = GetMesh()->GetComponentLocation();
+	TraceLocation.Z += HalfHeight;
 
-	if(PrevMovementMode == MOVE_Falling){
-		MainPlayerController->BindSneak();
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(Mark);
+
+	FHitResult HitResult;
+	return !UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(), TraceLocation, TraceLocation, GetCapsuleComponent()->GetUnscaledCapsuleRadius(), HalfHeight, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
+}
+
+void AMainPlayer::Landed(const FHitResult& Hit){
+	Super::Landed(Hit);
+
+	MainPlayerController->BindSneak();
+
+	const float FallingVelocity = GetCharacterMovement()->Velocity.Z;
+	HearingTrigger->MakeNoise(this, GetActorLocation(), FMath::Abs(FallingVelocity / JumpNoiseRangeFactor), SoundFX);
+}
+
+void AMainPlayer::OnSwitchPhases(EPhases NewPhase){
+	if(NewPhase == EPhases::TowerDefense){
+
+		const float RemainTime = GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() : GameMode->GetStealthTimer();
+
+		UpdateGolds(RemainTime * GameMode->GetGoldTimerMultiplier(), EGoldsUpdateMethod::ReceiveGolds);
+
+		GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false, false);
+		GetMainPlayerController()->SetCanSave(false);
+
+		SoundFX->DestroyComponent();
 	}
 }
 
 void AMainPlayer::MakeMovementNoise(){
-	if(!UUsefullFunctions::IsCharacterMovingOnGround(this)){
+	if(!UUsefulFunctions::IsCharacterMovingOnGround(this)){
 		return;
 	}
 
@@ -530,7 +568,7 @@ void AMainPlayer::MakeMovementNoise(){
 		break;
 	}
 
-	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius, SoundFX);
 }
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
@@ -565,20 +603,16 @@ void AMainPlayer::MoveRight(const float Value){
 	}
 }
 
-void AMainPlayer::ClingUp(float AxisValue){
-	switch (FMath::TruncToInt(AxisValue)) {
+void AMainPlayer::ClingUpDirection(float AxisValue){
+	switch (FMath::TruncToInt(AxisValue)){
 		case -1:
-			VerticalCling(EDirection::Down);
-			break;
-		case 1:
-			VerticalCling(EDirection::Up);
+			DetachFromEdge();
 			break;
 	}
-
 }
 
 void AMainPlayer::ClingRight(float AxisValue){
-	switch (FMath::TruncToInt(AxisValue)) {
+	switch (FMath::TruncToInt(AxisValue)){
 		case -1:
 			HorizontalCling(EDirection::Left);
 			break;
@@ -586,12 +620,11 @@ void AMainPlayer::ClingRight(float AxisValue){
 			HorizontalCling(EDirection::Right);
 			break;
 	}
-
 }
 
 void AMainPlayer::HorizontalCling_Implementation(const EDirection Direction){}
 
-void AMainPlayer::VerticalCling_Implementation(const EDirection Direction){}
+void AMainPlayer::ClingUp_Implementation(){}
 
 void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;
@@ -630,7 +663,7 @@ void AMainPlayer::LaunchMark(){
 FQuat AMainPlayer::FindMarkLaunchRotation() const{
 	FHitResult HitResult;
 	const FVector StartLocation = FollowCamera->GetComponentLocation();
-	const FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxDistance()) + StartLocation;
+	const FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxLaunchDistance()) + StartLocation;
 
 	FCollisionQueryParams QueryParams;
 	FCollisionResponseParams ResponseParam;
@@ -653,6 +686,7 @@ void AMainPlayer::TPToMark() {
 	MainPlayerController->UnbindCamera();
 	MainPlayerController->UnbindGlitch();
 	MainPlayerController->SetCanSave(false);
+	bCanBeAttachedToEdge = false;
 
 	StopJumping();
 	Mark->PlaceMark();
@@ -688,13 +722,12 @@ void AMainPlayer::UseGlitchPressed(){
 	CameraAim();
 }
 
-void AMainPlayer::UseGlitchReleassed(){
-	CameraStopAim();
-	LaunchMark();
-
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::CameraAimReverse, 1.0f, false);
+void AMainPlayer::CanLaunchMark(){
+	if(!UUsefulFunctions::IsEventActionPressed("UseGlitch", MainPlayerController)){
+		GetWorldTimerManager().ClearTimer(CanLaunchMarkTimerHandle);
+		CameraAimReverse();
+		LaunchMark();
+	}
 }
 
 void AMainPlayer::Tick(float deltaTime){
@@ -706,19 +739,6 @@ void AMainPlayer::Tick(float deltaTime){
 	CameraFOVTransition.TickTimeline(deltaTime);
 	FadeInGlitchEffectTimeline.TickTimeline(deltaTime);
 	AppearTimeline.TickTimeline(deltaTime);
-
-	// Manage the run FX, disable it if the character is not on ground or not moving
-	const int LifeTimeIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "Lifetime");
-	const int LifeTimeDeviationIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(RunFX, "LifeTimeDeviation");
-
-	if(GetVelocity().Size() > 0 && GetCharacterMovement()->IsMovingOnGround()){
-		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeIndex, RunFXLifeTime, true);
-		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, RunFXLifeTimeDeviation, true);
-
-	} else if((GetVelocity().Size() <= 0 || !GetCharacterMovement()->IsMovingOnGround())){
-		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeIndex, 0, true);
-		UPopcornFXAttributeFunctions::SetAttributeAsFloat(RunFX, LifeTimeDeviationIndex, 0, true);
-	}
 }
 
 void AMainPlayer::SetMark(AMark* NewMark){
@@ -997,14 +1017,14 @@ void AMainPlayer::EndTL(){
 
 	GlitchTrace();
 
-	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
+	GameMode->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 	ResetMovement();
 
 	FLatentActionInfo LatentInfo;
 	LatentInfo.CallbackTarget = this;
 
-	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, 0.2f, false, EMoveComponentAction::Type::Move, LatentInfo);
+	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, GlitchDashDuration, false, EMoveComponentAction::Type::Move, LatentInfo);
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
@@ -1012,11 +1032,12 @@ void AMainPlayer::EndTL(){
 		MainPlayerController->BindMovement();
 		MainPlayerController->BindCamera();
 		MainPlayerController->SetCanSave(true);
+		bCanBeAttachedToEdge = true;
 
 		ResetOverlappedMeshes();
 
-		Mark->ResetMark();
 		GetMesh()->SetVisibility(true, true);
+		Mark->ResetMark();
 
 		if(IsValid(CurrentDrone)){
 			CurrentDrone->GetMesh()->SetVisibility(true, true);
@@ -1026,7 +1047,7 @@ void AMainPlayer::EndTL(){
 
 		bGoldsCanBeUpdated = true;
 
-		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange);
+		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange, SoundFX);
 	}, 0.2f, false);
 }
 

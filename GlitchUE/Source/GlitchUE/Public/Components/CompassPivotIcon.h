@@ -9,7 +9,7 @@
 
 class UCompassComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup= "Compass", meta=(BlueprintSpawnableComponent))
 class GLITCHUE_API UCompassPivotIcon : public USceneComponent{
 	GENERATED_BODY()
 

@@ -4,7 +4,7 @@
 #include "AI/AIPatrol/PatrolCharacter.h"
 #include "Components/SplineMeshComponent.h"
 #include "Engine/Selection.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 
 APatrolCharacter::APatrolCharacter(){
@@ -89,7 +89,7 @@ void APatrolCharacter::OnObjectSelected(UObject* Object){
 void APatrolCharacter::OutlineLinkedObjects(const bool bOutline){
 	for(int i = 0; i < PatrolPointsList.Num(); i++){
 		if(IsValid(PatrolPointsList[i])){
-			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(PatrolPointsList[i]->GetRootComponent()));
+			UUsefulFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(PatrolPointsList[i]->GetRootComponent()));
 		}
 	}
 

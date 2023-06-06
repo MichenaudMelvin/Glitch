@@ -22,6 +22,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
 	AGlitchUEGameMode* GameMode;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Mesh")

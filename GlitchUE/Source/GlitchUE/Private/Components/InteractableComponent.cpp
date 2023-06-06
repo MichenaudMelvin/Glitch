@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Components/InteractableComponent.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 
 UInteractableComponent::UInteractableComponent(){
 	PrimaryComponentTick.bCanEverTick = false;
@@ -62,7 +62,7 @@ void UInteractableComponent::OutlineFeedback(const bool bOutline) const{
 	TArray<UPrimitiveComponent*> InteractableList = InteractableComponentSet.Array();
 
 	for (int i = 0; i < InteractableList.Num(); i++) {
-		UUsefullFunctions::OutlineComponent(bOutline, InteractableList[i]);
+		UUsefulFunctions::OutlineComponent(bOutline, InteractableList[i]);
 	}
 }
 

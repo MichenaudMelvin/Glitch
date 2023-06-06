@@ -14,7 +14,10 @@ public:
 	UVideoSettingsSave();
 
 	UPROPERTY(BlueprintReadWrite)
-	bool VSyncEnable = false;
+	bool bVSyncEnable = false;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bVolumetricLighting = false;
 
 	UPROPERTY()
 	TEnumAsByte<EWindowMode::Type> WindowMode = EWindowMode::WindowedFullscreen;

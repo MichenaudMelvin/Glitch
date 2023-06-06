@@ -6,10 +6,10 @@
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "UsefullFunctions.generated.h"
+#include "UsefulFunctions.generated.h"
 
 UCLASS()
-class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
+class GLITCHUE_API UUsefulFunctions : public UBlueprintFunctionLibrary{
 	GENERATED_BODY()
 
 	public:
@@ -68,4 +68,10 @@ class GLITCHUE_API UUsefullFunctions : public UBlueprintFunctionLibrary{
 
 		UFUNCTION(BlueprintCallable, Category = "Debug")
 		static void Print(const FString StringToPrint = "Hello World", const bool bPrintToScreen = true, const bool bPrintToLog = false, const FLinearColor TextColor = FLinearColor::Yellow, const float Duration = 0);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "KeyMaps")
+		static bool IsEventActionPressed(const FName ActionName, const APlayerController* PlayerController);
+
+		UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Animation")
+		static float GetAnimLength(UAnimSequenceBase* Anim);
 };

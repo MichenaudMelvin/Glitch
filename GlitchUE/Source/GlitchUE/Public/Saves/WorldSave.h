@@ -14,6 +14,9 @@ class GLITCHUE_API UWorldSave : public UAbstractSave{
 public:
 	UWorldSave();
 
+	UPROPERTY(BlueprintReadWrite, Category = "World")
+	FString WorldName;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Player")
 	int PlayerGolds;
 
@@ -37,9 +40,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "World")
 	float GlitchValue;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Inhibiteur")
-	TMap<FString, bool> InhibiteurStateList;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Door")
 	TMap<FString, FBasicDoorData> DoorDataList;

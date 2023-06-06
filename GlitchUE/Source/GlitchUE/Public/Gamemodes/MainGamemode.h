@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "FMODVCA.h"
+#include "Engine/ExponentialHeightFog.h"
 #include "Saves/Settings/AudioSettingsSave.h"
 #include "Saves/Settings/VideoSettingsSave.h"
 #include "MainGamemode.generated.h"
@@ -27,7 +28,11 @@ public:
 	void UpdateAudioSettings(const UAudioSettingsSave* AudioSettings) const;
 
 protected:
+	UPROPERTY()
 	UGameUserSettings* GameUserSettings;
+
+	UPROPERTY()
+	AExponentialHeightFog* ExponentialFog;
 
 	UPROPERTY()
 	UFMODVCA* MasterBank;

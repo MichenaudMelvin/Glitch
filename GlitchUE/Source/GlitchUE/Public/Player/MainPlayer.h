@@ -8,7 +8,7 @@
 #include "Components/InteractableComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
-#include "Helpers/UsefullEnums.h"
+#include "Helpers/UsefulEnums.h"
 #include "Saves/Settings/GameplaySettingsSave.h"
 #include "MainPlayer.generated.h"
 
@@ -61,7 +61,7 @@ protected:
 	virtual void Destroyed() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	UPopcornFXEmitterComponent* RunFX;
+	UPopcornFXEmitterComponent* SoundFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Compass")
 	UCompassComponent* Compass;
@@ -94,11 +94,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void CameraAimFinished();
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	FVector AimOffset = FVector(75, 75, 60);
 
 	FTimeline CameraAimTransition;
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = "Aim")
+	float CameraAimTime = 0.5;
+
 	ETimelineDirection::Type CameraAimTimelineDirection;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Camera")
@@ -161,20 +164,23 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float OriginalBrakingDecelerationWalking = 2048;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float NormalSpeedNoiseRange = 500;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float SprintSpeedNoiseRange = 1000;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float CrouchSpeedNoiseRange = 50;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float GlitchDashNoiseRange = 750;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Noise")
-	float JumpNoiseRange = 500;
+	/**
+	 * @brief OnLandedEvent: FallingVelocity / JumpNoiseRangeFactor
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
+	float JumpNoiseRangeFactor = 2;
 
 	void MakeMovementNoise();
 
@@ -194,7 +200,7 @@ public:
 	void MoveRight(const float Value);
 
 	UFUNCTION()
-	void ClingUp(float AxisValue);
+	void ClingUpDirection(float AxisValue);
 
 	UFUNCTION()
 	void ClingRight(float AxisValue);
@@ -204,8 +210,12 @@ public:
 	virtual void HorizontalCling_Implementation(const EDirection Direction);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movevement|Cling")
-	void VerticalCling(const EDirection Direction);
-	virtual void VerticalCling_Implementation(const EDirection Direction);
+	void ClingUp();
+	virtual void ClingUp_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Movevement|Cling")
+	void DetachFromEdge();
+	virtual void DetachFromEdge_Implementation();
 
 	/** 
 	 * Called via input to turn at a given rate. 
@@ -223,11 +233,16 @@ public:
 
 	virtual void Jump() override;
 
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = "Movement|Cling")
+	bool bCanBeAttachedToEdge = true;
+
 	bool bUseCoyoteTime = false;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float CoyoteTime = 0.15f;
 
+public:
 	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
 
 	virtual void AddControllerYawInput(float Val) override;
@@ -237,6 +252,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void Dash();
 	void Dash_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
+	void SprintRelease();
+	void SprintRelease_Implementation();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Exec, Category = "Movement")
 	void SneakPressed();
@@ -258,10 +277,19 @@ public:
 	void ResetMovement();
 	void ResetMovement_Implementation();
 
-	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
+	bool CanStandUp();
+
+	virtual void Landed(const FHitResult& Hit) override;
+
+	UFUNCTION()
+	void OnSwitchPhases(EPhases NewPhase);
 
 protected:
 	#pragma endregion
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float HalfHeight;
 
 	UPROPERTY(BlueprintReadOnly)
 	ANexus* Nexus;
@@ -275,6 +303,8 @@ protected:
 	FVector PlacableActorLocation;
 
 	AMainPlayerController* MainPlayerController;
+
+	AGlitchUEGameMode* GameMode;
 
 public:
 	AMainPlayerController* GetMainPlayerController() const;
@@ -407,8 +437,10 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void UseGlitchPressed();
 
-	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
-	void UseGlitchReleassed();
+	UFUNCTION()
+	void CanLaunchMark();
+
+	FTimerHandle CanLaunchMarkTimerHandle;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
 	AMark* GetMark() const { return Mark; }
@@ -439,7 +471,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
 	float GlitchDashDuration = 0.15f;
 
-	UPopcornFXEffect* GlichDashFXReference;
+	UPopcornFXEffect* GlitchDashFXReference;
 
 	UPROPERTY()
 	UPopcornFXEmitterComponent* GlitchDashFX;

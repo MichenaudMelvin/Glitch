@@ -8,6 +8,7 @@
 #include "FMODEvent.h"
 #include "FMODAudioComponent.h"
 #include "AI/MainAICharacter.h"
+#include "Components/CompassIcon.h"
 #include "Spawner.generated.h"
 
 USTRUCT(BlueprintType)

@@ -3,6 +3,7 @@
 
 #include "UI/Menu/Settings/VideoSettingsMenu.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Saves/Settings/VideoSettingsSave.h"
 
@@ -16,6 +17,8 @@ void UVideoSettingsMenu::NativeOnInitialized(){
 	Super::NativeOnInitialized();
 
 	VSyncCheckBox->OnCheckStateChanged.AddDynamic(this, &UVideoSettingsMenu::ToggleVSync);
+
+	VolumetricLightingCheckBox->OnCheckStateChanged.AddDynamic(this, &UVideoSettingsMenu::ToggleVolumetricLightingCheckBox);
 
 	ResolutionBox->OnSelectionChanged.AddDynamic(this, &UVideoSettingsMenu::ChangeResolution);
 
@@ -53,7 +56,11 @@ void UVideoSettingsMenu::NativePreConstruct(){
 }
 
 void UVideoSettingsMenu::ToggleVSync(bool IsChecked){
-	Cast<UVideoSettingsSave>(Settings)->VSyncEnable = IsChecked;
+	Cast<UVideoSettingsSave>(Settings)->bVSyncEnable = IsChecked;
+}
+
+void UVideoSettingsMenu::ToggleVolumetricLightingCheckBox(bool IsChecked){
+	Cast<UVideoSettingsSave>(Settings)->bVolumetricLighting = IsChecked;
 }
 
 void UVideoSettingsMenu::ChangeResolution(FString SelectedItem, ESelectInfo::Type SelectionType){
@@ -85,7 +92,8 @@ void UVideoSettingsMenu::InitializeSettings(){
 
 	const UVideoSettingsSave* CastedSettings = Cast<UVideoSettingsSave>(Settings);
 
-	CastedSettings->VSyncEnable ? VSyncCheckBox->SetCheckedState(ECheckBoxState::Checked) : VSyncCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
+	CastedSettings->bVSyncEnable ? VSyncCheckBox->SetCheckedState(ECheckBoxState::Checked) : VSyncCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
+	CastedSettings->bVolumetricLighting ? VolumetricLightingCheckBox->SetCheckedState(ECheckBoxState::Checked) : VolumetricLightingCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
 
 	const FString Res = FString::FromInt(CastedSettings->Resolution.X) + "x" + FString::FromInt(CastedSettings->Resolution.Y);
 	ResolutionBox->SetSelectedOption(Res);

@@ -83,4 +83,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "World")
 	float RemainingStealthTime;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Inhibiteur")
+	TMap<FString, bool> InhibiteurStateList;
 };
