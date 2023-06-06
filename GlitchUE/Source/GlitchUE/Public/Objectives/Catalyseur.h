@@ -62,6 +62,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
 	TArray<AInhibiteur*> LinkedInhibiteur;
 
+	UFMODEvent* GenerateGoldsounds;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;
 

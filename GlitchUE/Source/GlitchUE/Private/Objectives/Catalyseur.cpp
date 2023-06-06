@@ -37,6 +37,9 @@ ACatalyseur::ACatalyseur(){
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXDeactivation(TEXT("/Game/FMOD/Events/SFX/SFX_generator_deactivation"));
 	check(SFXDeactivation.Succeeded());
 
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> GenerateGoldsounds(TEXT("/Game/FMOD/Events/SFX/SFX_gold_drop"));
+	check(GenerateGoldsounds.Succeeded());
+
 	DeactivationSFX = SFXDeactivation.Object;
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> DesactivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_Tech_Catalyser_Close"));
@@ -210,6 +213,7 @@ void ACatalyseur::HealthNull(){
 }
 
 void ACatalyseur::GenerateMoney(){
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), GenerateGoldsounds, GetActorTransform(), true);
 	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteursList.Num(), EGoldsUpdateMethod::ReceiveGolds);
 }
 
