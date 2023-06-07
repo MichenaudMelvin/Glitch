@@ -22,6 +22,10 @@ protected:
 
 	virtual void FocusWidgets();
 
+#if WITH_EDITOR
+	bool CheckValidity(const UWidget* WidgetToCheck) const;
+#endif
+
 	void UnFocusAll();
 
 	UFUNCTION(BlueprintCallable, Category = "Focus")
@@ -29,6 +33,8 @@ protected:
 
 	UFUNCTION()
 	void OnAnyKey(FKey KeyMap);
+
+	FKey LastPressedKey;
 
 	FVector2D LastedMousePosition;
 

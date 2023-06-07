@@ -5,7 +5,8 @@
 #include "GameFramework/GameUserSettings.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "FMODBlueprintStatics.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Components/ExponentialHeightFogComponent.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 
 AMainGamemode::AMainGamemode(){
@@ -28,22 +29,28 @@ AMainGamemode::AMainGamemode(){
 void AMainGamemode::BeginPlay(){
 	Super::BeginPlay();
 
+	ExponentialFog = Cast<AExponentialHeightFog>(UGameplayStatics::GetActorOfClass(GetWorld(), AExponentialHeightFog::StaticClass()));
+
 	GameUserSettings = UGameUserSettings::GetGameUserSettings();
 	UpdateGlobalSettings();
 }
 
 void AMainGamemode::UpdateGlobalSettings() const{
-	const UVideoSettingsSave* VideoSettings = Cast<UVideoSettingsSave>(UUsefullFunctions::LoadSave(UVideoSettingsSave::StaticClass(), 0));
+	const UVideoSettingsSave* VideoSettings = Cast<UVideoSettingsSave>(UUsefulFunctions::LoadSave(UVideoSettingsSave::StaticClass(), 0));
 	UpdateVideoSettings(VideoSettings);
 
-	const UAudioSettingsSave* AudioSettings = Cast<UAudioSettingsSave>(UUsefullFunctions::LoadSave(UAudioSettingsSave::StaticClass(), 0));
+	const UAudioSettingsSave* AudioSettings = Cast<UAudioSettingsSave>(UUsefulFunctions::LoadSave(UAudioSettingsSave::StaticClass(), 0));
 	UpdateAudioSettings(AudioSettings);
 }
 
 void AMainGamemode::UpdateVideoSettings(const UVideoSettingsSave* VideoSettings) const{
-	GameUserSettings->SetVSyncEnabled(VideoSettings->VSyncEnable);
+	GameUserSettings->SetVSyncEnabled(VideoSettings->bVSyncEnable);
 	GameUserSettings->SetScreenResolution(VideoSettings->Resolution);
 	GameUserSettings->ApplySettings(false);
+
+	if(IsValid(ExponentialFog)){
+		ExponentialFog->GetComponent()->SetVisibility(VideoSettings->bVolumetricLighting);
+	}
 }
 
 void AMainGamemode::UpdateAudioSettings(const UAudioSettingsSave* AudioSettings) const{

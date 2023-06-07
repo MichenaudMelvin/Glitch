@@ -6,6 +6,7 @@
 #include "PatrolPoint.h"
 #include "AI/MainAICharacter.h"
 #include "Components/HearingComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Engine/SplineMeshActor.h"
 #include "PatrolCharacter.generated.h"
 

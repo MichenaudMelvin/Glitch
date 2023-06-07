@@ -24,5 +24,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	UBillboardWidgetComponent* HealthWidget;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX")
+	UPopcornFXEmitterComponent* AttackFX;
+
 	UEnemyHealthBar* EnemyHealthBarWidget;
+
+public:
+	UPopcornFXEmitterComponent* GetAttackFX() const;
 };

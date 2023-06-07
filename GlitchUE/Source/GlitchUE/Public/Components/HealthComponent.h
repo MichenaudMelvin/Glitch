@@ -16,7 +16,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnHealthNull);
 
 #pragma endregion
 
-UCLASS( ClassGroup=(Health), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup= "Health", meta=(BlueprintSpawnableComponent))
 class GLITCHUE_API UHealthComponent : public UActorComponent{
 	GENERATED_BODY()
 
@@ -44,7 +44,7 @@ public:
 	void TakeMaxDamages();
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void AddHealth(float HealthAmount);
+	void SetHealth(const float NewHealthValue);
 
 	UPROPERTY(BlueprintAssignable, Category = "Damages")
 	FKOnReciveDamages OnReciveDamages;

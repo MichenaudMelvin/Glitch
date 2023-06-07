@@ -4,7 +4,7 @@
 #include "Objectives/Inhibiteur.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Engine/Selection.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Components/CompassComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "FMODBlueprintStatics.h"
@@ -131,8 +131,8 @@ void AInhibiteur::OnObjectSelected(UObject* Object){
 
 void AInhibiteur::OutlineLinkedObjects(const bool bOutline){
 	if(IsValid(OwnerCatalyseur)){
-		UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(OwnerCatalyseur->GetRootComponent()));
-		UUsefullFunctions::OutlineComponent(bOutline, OwnerCatalyseur->GetTechMesh());
+		UUsefulFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(OwnerCatalyseur->GetRootComponent()));
+		UUsefulFunctions::OutlineComponent(bOutline, OwnerCatalyseur->GetTechMesh());
 	}
 }
 

@@ -8,7 +8,7 @@
 #include "AI/Waves/WaveManager.h"
 #include "Components/CompassComponent.h"
 #include "Engine/Selection.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Objectives/Inhibiteur.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayer.h"
@@ -29,6 +29,15 @@ ACatalyseur::ACatalyseur(){
 
 	DesactivationFX->SetEffect(ShutDownFX.Object);
 
+	GoldsGenerationFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Gold Generation FX"));
+	GoldsGenerationFX->SetupAttachment(RootComponent);
+	GoldsGenerationFX->bPlayOnLoad = false;
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> GoldsFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_GoldGeneration"));
+	check(GoldsFX.Succeeded());
+
+	GoldsGenerationFX->SetEffect(GoldsFX.Object);
+
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> ActivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_MED_Catalyser_Open"));
 	check(ActivAnim.Succeeded());
 
@@ -48,6 +57,16 @@ ACatalyseur::ACatalyseur(){
 
 	Compass = CreateDefaultSubobject<UCompassComponent>(TEXT("Compass"));
 	Compass->SetCompassOffset(FVector(0, 0, 50));
+
+	DesactivationBillboard = CreateDefaultSubobject<UWaypoint>(TEXT("Desactivation Billboard"));
+	DesactivationBillboard->SetupAttachment(RootComponent);
+	DesactivationBillboard->SetRelativeLocation(FVector(0, 0, 50));
+
+	static ConstructorHelpers::FObjectFinder<UMaterial> DesactivationMaterial(TEXT("/Game/Meshs/Materials/Objectives/M_CatalyseurDesactivation"));
+	check(DesactivationMaterial.Succeeded());
+
+	DesactivationBillboard->AddElement(DesactivationMaterial.Object, nullptr, true, 0.05f, 0.1f,nullptr);
+	DesactivationBillboard->DrawWaypoint(false);
 
 	#if WITH_EDITORONLY_DATA
 		USelection::SelectObjectEvent.AddUObject(this, &ACatalyseur::OnObjectSelected);
@@ -75,6 +94,11 @@ void ACatalyseur::BeginPlay(){
 	WaveManager = Cast<AWaveManager>(WaveManagerTemp[0]);
 
 	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	MeshObjectif->PlayAnimation(DesactivationAnim, false);
+	TECHMesh->PlayAnimation(DesactivationAnim, false);
+	MeshObjectif->SetPosition(1);
+	TECHMesh->SetPosition(1);
 
 	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
 
@@ -109,8 +133,6 @@ void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);
 
-	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color");
-	UPopcornFXAttributeFunctions::ResetToDefaultValue(DesactivationFX, TargetIndex);
 	DesactivationFX->StopEmitter();
 
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
@@ -122,12 +144,14 @@ void ACatalyseur::ActiveObjectif(){
 
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
+			bWasActivatedInStealthPhase = true;
 			break;
 		case EPhases::TowerDefense:
 			StartGeneratingMoney();
 			Nexus->UpdateDissolver();
 			HealthComp->ResetHealth();
 			ToggleActivatedInhibiteursState(true);
+			DesactivationBillboard->DrawWaypoint(false);
 			break;
 	}
 }
@@ -137,6 +161,8 @@ void ACatalyseur::DesactivateObjectif(){
 	TECHMesh->PlayAnimation(DesactivationAnim, false);
 
 	DesactivationFX->StartEmitter();
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
+	UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CannotInteractWithColor, true);
 
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
@@ -146,6 +172,8 @@ void ACatalyseur::DesactivateObjectif(){
 	UFMODBlueprintStatics::PlayEvent2D(GetWorld(), DeactivationSFX,true);
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
+			// not supposed to happen but anyway
+			bWasActivatedInStealthPhase = false;
 			break;
 		case EPhases::TowerDefense:
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
@@ -154,15 +182,20 @@ void ACatalyseur::DesactivateObjectif(){
 			InteractableComp->RemoveInteractable(MeshObjectif);
 			InteractableComp->RemoveInteractable(TECHMesh);
 
-			GetWorld()->GetTimerManager().SetTimer(DesactivationTimerHandle, [&](){
-				InteractableComp->AddInteractable(MeshObjectif);
-				InteractableComp->AddInteractable(TECHMesh);
-
-				const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color");
-				UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CanInteractWithColor, true);
-			}, DesactivationTimer, false);
+			DesactivationBillboard->DrawWaypoint(true);
+			StartDesactivationTimer(DesactivationTimer);
 			break;
 	}
+}
+
+void ACatalyseur::StartDesactivationTimer(const float Timer){
+	GetWorld()->GetTimerManager().SetTimer(DesactivationTimerHandle, [&](){
+		InteractableComp->AddInteractable(MeshObjectif);
+		InteractableComp->AddInteractable(TECHMesh);
+
+		const int ColorIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
+		UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, true);
+	}, Timer, false);
 }
 
 void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs){
@@ -211,6 +244,7 @@ void ACatalyseur::HealthNull(){
 
 void ACatalyseur::GenerateMoney(){
 	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteursList.Num(), EGoldsUpdateMethod::ReceiveGolds);
+	GoldsGenerationFX->StartEmitter();
 }
 
 void ACatalyseur::StartGeneratingMoney(){
@@ -227,6 +261,29 @@ void ACatalyseur::AddInhibiteurToActivatedList(AInhibiteur* InhibiteurToAdd){
 
 UCompassComponent* ACatalyseur::GetCompass() const{
 	return Compass;
+}
+
+FCatalyseurData ACatalyseur::SaveCatalyseur(){
+	FCatalyseurData Data;
+
+	Data.bIsActivated = GetActivableComp()->IsActivated();
+	Data.bWasActivatedInStealthPhase = bWasActivatedInStealthPhase;
+	Data.DesactivationTimer = GetWorld()->GetTimerManager().GetTimerRemaining(DesactivationTimerHandle);
+	Data.Health = GetHealthComp()->GetCurrentHealth();
+
+	return Data;
+}
+
+void ACatalyseur::LoadCatalyseur(const FCatalyseurData NewData){
+	if(NewData.bIsActivated){
+		GetActivableComp()->ActivateObject();
+	}
+
+	else if(bWasActivatedInStealthPhase){
+		StartDesactivationTimer(NewData.DesactivationTimer);
+	}
+
+	GetHealthComp()->SetHealth(NewData.Health);
 }
 
 #if WITH_EDITORONLY_DATA
@@ -257,14 +314,14 @@ void ACatalyseur::OnObjectSelected(UObject* Object){
 void ACatalyseur::OutlineLinkedObjects(const bool bOutline){
 	for(int i = 0; i < ConstructionZoneList.Num(); i++){
 		if(IsValid(ConstructionZoneList[i])){
-			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
-			UUsefullFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
+			UUsefulFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(ConstructionZoneList[i]->GetRootComponent()));
+			UUsefulFunctions::OutlineComponent(bOutline, ConstructionZoneList[i]->GetTechMesh());
 		}
 	}
 
 	for(int i = 0; i < LinkedInhibiteur.Num(); i++){
 		if(IsValid(LinkedInhibiteur[i])){
-			UUsefullFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(LinkedInhibiteur[i]->GetRootComponent()));
+			UUsefulFunctions::OutlineComponent(bOutline, Cast<UPrimitiveComponent>(LinkedInhibiteur[i]->GetRootComponent()));
 		}
 	}
 }

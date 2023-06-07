@@ -27,6 +27,12 @@ protected:
 	void ToggleVSync(bool IsChecked);
 
 	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
+	UCustomCheckbox* VolumetricLightingCheckBox;
+
+	UFUNCTION()
+	void ToggleVolumetricLightingCheckBox(bool IsChecked);
+
+	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
 	UComboBoxString* ResolutionBox;
 
 	UFUNCTION()

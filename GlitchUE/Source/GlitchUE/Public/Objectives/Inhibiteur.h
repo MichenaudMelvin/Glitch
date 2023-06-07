@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Objectives/AbstractObjectif.h"
 #include "Catalyseur.h"
+#include "Components/CompassIcon.h"
 #include "Inhibiteur.generated.h"
 
 UCLASS()

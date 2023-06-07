@@ -58,6 +58,7 @@ void UWheel::NativeConstruct(){
 
 	DestructButton->OnClicked.Clear();
 	DestructButton->OnClicked.AddDynamic(MainPlayer->GetCurrentConstructionZone(), &AConstructionZone::DestroyCurrentUnit);
+	DestructButton->OnClicked.AddDynamic(this, &UWheel::ClickOnDestructButton);
 }
 
 void UWheel::FocusWidgets(){
@@ -66,14 +67,11 @@ void UWheel::FocusWidgets(){
 	}
 
 	for(int i = 0; i < FocusList.Num(); i++){
-		#if WITH_EDITOR
-			if(!FocusList[i]->GetClass()->ImplementsInterface(UUIFocus::StaticClass())){
-				const auto ClassName = FocusList[i]->GetClass()->GetName();
 
-				GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,FString::Printf(TEXT("%s does not implement UIFocus interface"), *ClassName));
-				UE_LOG(LogTemp, Warning, TEXT("%s does not implement UIFocus interface"), *ClassName);
-				continue;
-			}
+		#if WITH_EDITOR
+		if(!CheckValidity(FocusList[i])){
+			continue;
+		}
 		#endif
 
 		Cast<IUIFocus>(FocusList[i])->UnReceiveFocus();
@@ -81,11 +79,7 @@ void UWheel::FocusWidgets(){
 
 	for(int i = 0; i < FocusList.Num(); i++){
 		#if WITH_EDITOR
-		if(!FocusList[i]->GetClass()->ImplementsInterface(UUIFocus::StaticClass())){
-			const auto ClassName = FocusList[i]->GetClass()->GetName();
-
-			GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,FString::Printf(TEXT("%s does not implement UIFocus interface"), *ClassName));
-			UE_LOG(LogTemp, Warning, TEXT("%s does not implement UIFocus interface"), *ClassName);
+		if(!CheckValidity(FocusList[i])){
 			continue;
 		}
 		#endif
@@ -101,6 +95,9 @@ void UWheel::ClickOnDestructButton(){
 	RemoveWidgetToFocusList(DestructButton);
 
 	DestructButton->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UWheel::ClickOnDestructButtonDelay(){
 	MainPlayer->GetPreviewPlacableActor()->SetShouldRangeUpdate(true);
 	MainPlayer->GetPreviewPlacableActor()->SetData(nullptr);
 

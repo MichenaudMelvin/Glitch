@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PopcornFXEmitterComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/InteractableComponent.h"
+#include "Components/TimelineComponent.h"
 #include "Mark.generated.h"
 
 UCLASS()
@@ -18,16 +20,20 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
+	virtual void Tick(float DeltaSeconds) override;
+
+	void AttachToPlayer();
+
+	void DetachToPlayer();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Location")
+	FVector RelativeLocation = FVector(-50, 0, 130);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	UStaticMeshComponent* MarkMesh;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
-	TArray<UStaticMesh*> PossibleMeshList;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
-	float SwitchMeshTime = 0.2f;
-
-	void SwitchMesh();
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	UPopcornFXEmitterComponent* MarkFX;
 
 	FTimerHandle SwitchMeshTimer;
 
@@ -35,7 +41,7 @@ protected:
 
 	FVector OriginalLocation;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Interaction")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Interaction")
 	UInteractableComponent* InteractableComp;
 
 	UFUNCTION()
@@ -43,15 +49,14 @@ protected:
 
 #pragma region Projectile
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Projectile")
-	UProjectileMovementComponent* ProjectileMovement;	
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	UProjectileMovementComponent* ProjectileMovement;
 
 	void StartProjectile() const;
 
 	void StopProjectile() const;
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Projectile")
 	FVector GetTPLocation();
 
 	void SetTargetLocation(const FVector NewTargetLocation);
@@ -99,16 +104,25 @@ public:
 protected:
 	float GetDistanceToLaunchPoint() const;
 
-	void LaunchTimer();
+	void DistanceTimer();
 
-	FTimerHandle LaunchTimerHandle;
+	FTimerHandle DistanceTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Distance")
-	float MaxDistance;
+	float GoBackToPlayerDuration = 0.5f;
+
+	FTimeline DistanceFromTheMarkTimeline;
+
+	FVector LastPosition;
+
+	UFUNCTION()
+	void DistanceFromMark(float Value);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Distance")
+	float MaxLaunchDistance = 5000;
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Distance")
-	float GetMaxDistance() const;
+	float GetMaxLaunchDistance() const;
 
 #pragma endregion
 };

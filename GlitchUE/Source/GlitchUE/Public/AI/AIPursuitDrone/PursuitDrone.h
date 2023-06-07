@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PursuitDronePad.h"
 #include "AI/MainAICharacter.h"
+#include "Components/CompassIcon.h"
 #include "PursuitDrone.generated.h"
 
 UCLASS(Abstract)

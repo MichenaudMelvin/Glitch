@@ -23,7 +23,7 @@ enum class EState : uint8 {
 	Desactivated,
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = "Common", meta=(BlueprintSpawnableComponent))
 class GLITCHUE_API UActivableComponent : public UActorComponent{
 	GENERATED_BODY()
 

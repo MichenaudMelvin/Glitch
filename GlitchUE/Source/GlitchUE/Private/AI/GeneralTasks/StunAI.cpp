@@ -33,7 +33,7 @@ void UStunAI::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, flo
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	RemainingWaitTime -= DeltaSeconds;
-	
+
 	if(RemainingWaitTime <= 0){
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

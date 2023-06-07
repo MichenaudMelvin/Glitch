@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLooseSightPlayer, float, Investig
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSightPlayer, float, InvestigateTimePercent);
 
-UCLASS(meta = (BlueprintSpawnableComponent))
+UCLASS(ClassGroup = "AI", meta = (BlueprintSpawnableComponent))
 class GLITCHUE_API USightComponent : public UStaticMeshComponent{
 	GENERATED_BODY()
 

@@ -8,6 +8,7 @@
 #include "AI/Waves/WaveManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "PlacableObject/TrapData.h"
 #include "Kismet/GameplayStatics.h"
 
 AMainAICharacter::AMainAICharacter(){
@@ -26,6 +27,8 @@ AMainAICharacter::AMainAICharacter(){
 	IdleFX->SetupAttachment(GetMesh());
 
 	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
+
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 void AMainAICharacter::BeginPlay(){

@@ -10,6 +10,6 @@ UCLASS()
 class GLITCHUE_API UAttackPlayer : public UAttackTarget{
 	GENERATED_BODY()
 
-private:
-	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+protected:
+	virtual void Attack(APawn* AIPawn, AMainAIController* AIController, AActor* Target) override;
 };

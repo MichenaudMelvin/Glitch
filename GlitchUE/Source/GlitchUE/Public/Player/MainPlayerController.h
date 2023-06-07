@@ -12,6 +12,7 @@
 #include "UI/Gameplay/PlayerStats.h"
 #include "UI/Gameplay/PopUpWidget.h"
 #include "UI/Gameplay/SightWidget.h"
+#include "UI/Gameplay/WaypointIndication.h"
 #include "UI/Gameplay/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -31,7 +32,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSneakPressed);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSneakReleased);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSprint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSprintPressed);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSprintReleased);
 
 #pragma endregion
 
@@ -74,9 +77,7 @@ class GLITCHUE_API AMainPlayerController : public AAbstractPlayerController{
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void CreatePlayerWidgets();
-	virtual void CreatePlayerWidgets_Implementation();
 
 	UPROPERTY(BlueprintReadOnly)
 	AGlitchUEGameMode* GameMode;
@@ -111,7 +112,10 @@ public:
 	FKOnSneakReleased OnSneakReleased;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Movement")
-	FKOnSprint OnSprint;
+	FKOnSprintPressed OnSprintPressed;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Movement")
+	FKOnSprintReleased OnSprintReleased;
 
 	#pragma endregion
 
@@ -246,7 +250,7 @@ public:
 	void BindClingMovement();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Delegates")
-	void UnbindAll();
+	void UnbindAll(bool bUnbindPause = false);
 
 	#pragma endregion
 
@@ -314,13 +318,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")
 	float CloseWheelBlend = 0.5f;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UWaypointIndication* WaypointIndicationWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UWaypointIndication> WaypointIndicationWidgetClass;
+
 public:
 	UFUNCTION()
 	void OpenWheel();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
 	void CloseWheel();
 
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
 	bool IsWheelOpened() const;
 
 	void CameraBlend(AActor* BlendTarget, const float BlendTime);
@@ -338,6 +349,8 @@ public:
 	UPlayerStats* GetPlayerStatsWidget() const;
 
 	UAdditionalMessage* GetAdditionalMessageWidget() const;
+
+	UWaypointIndication* GetWaypointIndicationWidget() const;
 
 #pragma endregion
 };

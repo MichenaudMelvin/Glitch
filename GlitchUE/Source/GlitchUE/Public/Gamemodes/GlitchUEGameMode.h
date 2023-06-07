@@ -107,6 +107,10 @@ public:
 	UFUNCTION(Exec)
 	virtual void LaunchStealthTimer(float TimerValue = 0);
 
+	float GetStealthTimer() const;
+
+	float GetGoldTimerMultiplier() const;
+
 	bool CanStartTowerDefense() const;
 
 	UFUNCTION(Exec)

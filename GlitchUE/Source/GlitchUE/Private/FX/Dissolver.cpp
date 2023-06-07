@@ -145,9 +145,20 @@ float ADissolver::GetRadius() const{
 }
 
 void ADissolver::ForceDissolverValue(const float TargetRadius){
-	DissolveTimeline.SetPlayRate(1/INFINITY);
+	DissolveTimeline.SetPlayRate(1/0.00001f);
+
+	FOnTimelineEvent FinishEvent;
+	FinishEvent.BindDynamic(this, &ADissolver::ResetDissolveDuration);
+
+	DissolveTimeline.SetTimelineFinishedFunc(FinishEvent);
 	DissolveTo(TargetRadius);
+}
+
+void ADissolver::ResetDissolveDuration(){
 	DissolveTimeline.SetPlayRate(1/FXDuration);
+
+	const FOnTimelineEvent EmptyEvent;
+	DissolveTimeline.SetTimelineFinishedFunc(EmptyEvent);
 }
 
 void ADissolver::LerpRadius(float Value){

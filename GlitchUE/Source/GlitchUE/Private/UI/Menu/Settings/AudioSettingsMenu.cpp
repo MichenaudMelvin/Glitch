@@ -2,7 +2,7 @@
 
 
 #include "UI/Menu//Settings/AudioSettingsMenu.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Saves/Settings/AudioSettingsSave.h"
 
 UAudioSettingsMenu::UAudioSettingsMenu(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer){
