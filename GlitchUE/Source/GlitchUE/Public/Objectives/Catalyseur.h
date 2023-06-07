@@ -39,8 +39,6 @@ protected:
 
 	void StartDesactivationTimer(const float Timer);
 
-	void ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs = true);
-
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
 	virtual void OnSwitchPhases(EPhases CurrentPhase) override;

@@ -275,7 +275,7 @@ void AMainPlayerController::PauseGame(){
 #pragma endregion
 
 void AMainPlayerController::OpenWheel(){
-	UnbindAll();
+	UnbindAll(true);
 	WheelWidget->AddToViewport();
 
 	OnPause.AddDynamic(this, &AMainPlayerController::CloseWheel);

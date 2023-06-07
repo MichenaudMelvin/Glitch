@@ -4,7 +4,6 @@
 #include "Objectives/Nexus.h"
 #include "Kismet/GameplayStatics.h"
 #include "PopcornFXAttributeFunctions.h"
-#include "PopcornFXFunctions.h"
 #include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Objectives/Catalyseur.h"
 #include "Audio/AudioManager.h"
@@ -147,12 +146,6 @@ void ANexus::ActiveObjectif(){
 	UPopcornFXAttributeFunctions::SetAttributeAsBool(TechFXEmitter, Index, true);
 
 	MedFXEmitter->StartEmitter();
-
-	FTimerHandle TimerHandle;
-
-	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		TechFXEmitter->StopEmitter(true);
-	}, 2, false);
 }
 
 void ANexus::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){

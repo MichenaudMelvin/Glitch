@@ -117,6 +117,10 @@ bool USightComponent::IsSomethingInSight() const{
 }
 
 bool USightComponent::IsPlayerInSight() const{
+	if(!IsValid(SightActor)){
+		return false;
+	}
+
 	return bIsPlayerInSight;
 }
 

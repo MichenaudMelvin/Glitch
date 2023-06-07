@@ -150,7 +150,6 @@ void ACatalyseur::ActiveObjectif(){
 			StartGeneratingMoney();
 			Nexus->UpdateDissolver();
 			HealthComp->ResetHealth();
-			ToggleActivatedInhibiteursState(true);
 			DesactivationBillboard->DrawWaypoint(false);
 			break;
 	}
@@ -196,12 +195,6 @@ void ACatalyseur::StartDesactivationTimer(const float Timer){
 		const int ColorIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
 		UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, true);
 	}, Timer, false);
-}
-
-void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs){
-	for(int i = 0; i < ActivatedInhibiteursList.Num(); i++){
-		ActivateInhibiteurs ? ActivatedInhibiteursList[i]->GetActivableComp()->ActivateObject() : ActivatedInhibiteursList[i]->GetActivableComp()->DesactivateObject();
-	}
 }
 
 void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){

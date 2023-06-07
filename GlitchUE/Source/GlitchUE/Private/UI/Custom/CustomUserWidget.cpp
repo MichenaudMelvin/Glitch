@@ -49,7 +49,9 @@ void UCustomUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 	if(bIsFocusNeeded && LastedMousePosition != CurrentMousePosition){
 		LastedMousePosition = CurrentMousePosition;
+		LastPressedKey = EKeys::LeftMouseButton;
 		UnFocusAll();
+		return;
 	}
 
 	FocusWidgets();

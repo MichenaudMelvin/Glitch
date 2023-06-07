@@ -12,6 +12,8 @@ void UCustomSlider::NativeOnInitialized(){
 	Slider->SetMinValue(SliderMinValue);
 
 	Slider->SetMaxValue(SliderMaxValue);
+
+	Slider->SetStepSize(StepSize);
 }
 
 void UCustomSlider::UpdateText(float Value){
