@@ -170,13 +170,8 @@ void AMark::ResetMark(){
 void AMark::Launch(const FTransform StartTransform){
 	DetachToPlayer();
 	SetActorRotation(StartTransform.Rotator());
-	LaunchLocation = GetActorLocation();
 	StartProjectile();
-	GetWorldTimerManager().SetTimer(DistanceTimerHandle, this, &AMark::DistanceTimer, 0.001f, true);
-}
-
-float AMark::GetDistanceToLaunchPoint() const{
-	return FVector::Dist(LaunchLocation, GetActorLocation());
+	GetWorldTimerManager().SetTimer(DistanceTimerHandle, this, &AMark::DistanceTimer, 0.1f, true);
 }
 
 void AMark::DistanceTimer(){

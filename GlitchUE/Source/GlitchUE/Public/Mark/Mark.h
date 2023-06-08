@@ -66,8 +66,6 @@ public:
 protected:
 	bool LocationTrace(const float UpTraceValue, FVector& OutImpactPoint);
 
-	FVector LaunchLocation;
-
 	UFUNCTION()
 	void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
@@ -102,8 +100,6 @@ public:
 #pragma region Distance
 
 protected:
-	float GetDistanceToLaunchPoint() const;
-
 	void DistanceTimer();
 
 	FTimerHandle DistanceTimerHandle;

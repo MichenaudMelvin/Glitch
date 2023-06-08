@@ -653,7 +653,6 @@ void AMainPlayer::LaunchMark(){
 	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Head"));
 
 	MarkTransform.SetRotation(FindMarkLaunchRotation());
-	MarkTransform.SetScale3D(FVector::OneVector * 0.1f);
 	Mark->Launch(MarkTransform);
 
 	MainPlayerController->UnbindGlitch();
