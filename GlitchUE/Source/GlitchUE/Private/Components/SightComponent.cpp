@@ -3,7 +3,7 @@
 
 #include "Components/SightComponent.h"
 #include "PopcornFXFunctions.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Player/MainPlayer.h"
 
@@ -43,7 +43,7 @@ void USightComponent::Check(){
 	OwnerBlackboard->SetValueAsVector("InvestigationLocation", SightActor->GetActorLocation());
 
 	if(bPlayerInCollision && !Cast<AMainPlayer>(SightActor)->IsInGlitchZone()){
-		if(UUsefullFunctions::CanSee(GetOwner(), GetComponentLocation(), SightActor, ECC_EngineTraceChannel3)){
+		if(UUsefulFunctions::CanSee(GetOwner(), GetComponentLocation(), SightActor, ECC_EngineTraceChannel3)){
 			InvestigateTimeElapsed += 0.1f;
 
 			OwnerBlackboard->SetValueAsBool("Investigate", true);

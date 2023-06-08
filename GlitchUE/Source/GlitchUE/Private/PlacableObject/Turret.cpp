@@ -7,7 +7,7 @@
 #include "AI/MainAICharacter.h"
 #include "PlacableObject/TurretData.h"
 #include "Kismet/GameplayStatics.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 
 ATurret::ATurret() {
 	TurretBase = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretBase"));
@@ -221,7 +221,7 @@ void ATurret::FinishAttacking_Implementation(){}
 void ATurret::Shoot_Implementation(){}
 
 AActor* ATurret::GetFirstAI() const{
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[0];
+	return UUsefulFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[0];
 }
 
 AActor* ATurret::GetMidAI() const{
@@ -229,7 +229,7 @@ AActor* ATurret::GetMidAI() const{
 		return nullptr;
 	}
 
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[GetSortedAIList().Num() / 2];
+	return UUsefulFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[GetSortedAIList().Num() / 2];
 }
 
 AActor* ATurret::GetLastAI() const{
@@ -237,7 +237,7 @@ AActor* ATurret::GetLastAI() const{
 		return nullptr;
 	}
 
-	return UUsefullFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[GetSortedAIList().Num() - 1];
+	return UUsefulFunctions::SortActorsByDistanceToActor(GetSortedAIList(), Nexus)[GetSortedAIList().Num() - 1];
 }
 
 void ATurret::SelectTarget(){

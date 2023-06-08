@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Objectives/AbstractObjectif.h"
-#include "Components/CompassIcon.h"
+#include "Components/Waypoint.h"
+#include "Components/WidgetComponent.h"
 #include "Catalyseur.generated.h"
 
 class AInhibiteur;
@@ -23,6 +24,10 @@ public:
 
 	UCompassComponent* GetCompass() const;
 
+	FCatalyseurData SaveCatalyseur();
+
+	void LoadCatalyseur(const FCatalyseurData NewData);
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -33,11 +38,15 @@ protected:
 
 	virtual void DesactivateObjectif() override;
 
+	void StartDesactivationTimer(const float Timer);
+
 	void ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs = true);
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
 	virtual void OnSwitchPhases(EPhases CurrentPhase) override;
+
+	bool bWasActivatedInStealthPhase = false;
 
 	UAnimationAsset* ActivationAnim;
 
@@ -45,6 +54,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* DesactivationFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Feedback")
+	UWaypoint* DesactivationBillboard;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* GoldsGenerationFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	FLinearColor CannotInteractWithColor = FLinearColor::Red;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	FLinearColor CanInteractWithColor = FLinearColor::Green;
@@ -70,9 +88,6 @@ protected:
 	TArray<AConstructionZone*> ConstructionZoneList;
 
 	TArray<AInhibiteur*> ActivatedInhibiteursList;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Inhibiteur")
-	UStaticMesh* InhibiteurMesh;
 
 	UCompassComponent* Compass;
 

@@ -4,7 +4,6 @@
 #include "Player/MainPlayerController.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Mark/Mark.h"
@@ -33,7 +32,7 @@ void AMainPlayerController::BeginPlay(){
 	}, 0.01f, false);
 }
 
-void AMainPlayerController::CreatePlayerWidgets_Implementation(){
+void AMainPlayerController::CreatePlayerWidgets(){
 	Tchat = Cast<UTchat>(CreateWidget(this, TchatWidgetClass));
 
 	SightWidget = Cast<USightWidget>(CreateWidget(this, SightWidgetClass));
@@ -51,6 +50,8 @@ void AMainPlayerController::CreatePlayerWidgets_Implementation(){
 	AdditionalMessageWidget = Cast<UAdditionalMessage>(CreateWidget(this, AdditionalMessageWidgetClass));
 
 	PopUpWidget = Cast<UPopUpWidget>(CreateWidget(this, PopUpWidgetClass));
+
+	WaypointIndicationWidget = Cast<UWaypointIndication>(CreateWidget(this, WaypointIndicationWidgetClass));
 }
 
 #pragma region Bind
@@ -141,19 +142,22 @@ void AMainPlayerController::BindSprint(){
 	UnbindSprint();
 	switch (MainPlayer->GetMovementMode()){
 		case EPlayerMovementMode::Normal:
-			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			OnSprintPressed.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			OnSprintReleased.AddDynamic(MainPlayer, &AMainPlayer::SprintRelease);
 			break;
 	case EPlayerMovementMode::Sneaking:
-			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::SneakToSprint);
+			OnSprintPressed.AddDynamic(MainPlayer, &AMainPlayer::SneakToSprint);
 			break;
 		case EPlayerMovementMode::Sprinting:
-			OnSprint.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			OnSprintPressed.AddDynamic(MainPlayer, &AMainPlayer::Dash);
+			OnSprintReleased.AddDynamic(MainPlayer, &AMainPlayer::SprintRelease);
 			break;
 	}
 }
 
 void AMainPlayerController::UnbindSprint(){
-	OnSprint.Clear();
+	OnSprintPressed.Clear();
+	OnSprintReleased.Clear();
 }
 
 void AMainPlayerController::BindGlitch(){
@@ -162,7 +166,7 @@ void AMainPlayerController::BindGlitch(){
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::TPToMark);
 	} else{
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchPressed);
-		OnUseGlitchReleased.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchReleassed);
+		//OnUseGlitchReleased.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchReleassed);
 	}
 }
 
@@ -215,7 +219,7 @@ void AMainPlayerController::BindNormalMode(){
 	BindInteraction();
 	BindGlitch();
 	BindMouseScroll();
-	BindFastSaveAndLoad();
+	SetCanSave(bCanSave);
 }
 
 #pragma endregion
@@ -242,18 +246,22 @@ void AMainPlayerController::BindClingMovement(){
 	UnbindInteraction();
 	UnbindGlitch();
 
-	OnMoveForward.AddDynamic(MainPlayer, &AMainPlayer::ClingUp);
+	OnJumpPressed.AddDynamic(MainPlayer, &AMainPlayer::ClingUp);
+	OnMoveForward.AddDynamic(MainPlayer, &AMainPlayer::ClingUpDirection);
 	OnMoveRight.AddDynamic(MainPlayer, &AMainPlayer::ClingRight);
 }
 
-void AMainPlayerController::UnbindAll(){
+void AMainPlayerController::UnbindAll(const bool bUnbindPause){
 	UnbindMovement();
 	UnbindCamera();
 	UnbindInteraction();
 	UnbindGlitch();
 	UnbindMouseScroll();
 	UnbindFastSaveAndLoad();
-	UnbindPause();
+
+	if(bUnbindPause){
+		UnbindPause();
+	}
 }
 
 void AMainPlayerController::PauseGame(){
@@ -262,7 +270,6 @@ void AMainPlayerController::PauseGame(){
 	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
 
 	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
-	PrimaryActorTick;
 }
 
 #pragma endregion
@@ -326,6 +333,10 @@ UPlayerStats* AMainPlayerController::GetPlayerStatsWidget() const{
 
 UAdditionalMessage* AMainPlayerController::GetAdditionalMessageWidget() const{
 	return AdditionalMessageWidget;
+}
+
+UWaypointIndication* AMainPlayerController::GetWaypointIndicationWidget() const{
+	return WaypointIndicationWidget;
 }
 
 

@@ -7,9 +7,7 @@
 #include "MainAIController.h"
 #include "Components/HealthComponent.h"
 #include "Components/SightComponent.h"
-#include "Components/WidgetComponent.h"
 #include "PlacableObject/Trap.h"
-#include "PlacableObject/TrapData.h"
 #include "MainAICharacter.generated.h"
 
 class AWaveManager;

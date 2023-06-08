@@ -3,7 +3,7 @@
 
 #include "UI/Menu/Settings/SettingsMenu.h"
 #include "GameFramework/GameUserSettings.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 
 void USettingsMenu::NativeOnInitialized(){
@@ -19,7 +19,7 @@ void USettingsMenu::NativeOnInitialized(){
 void USettingsMenu::NativeConstruct(){
 	Super::NativeConstruct();
 
-	Settings = Cast<USettingsSave>(UUsefullFunctions::LoadSave(SettingClass, 0));
+	Settings = Cast<USettingsSave>(UUsefulFunctions::LoadSave(SettingClass, 0));
 
 	InitializeSettings();
 }
@@ -27,11 +27,11 @@ void USettingsMenu::NativeConstruct(){
 void USettingsMenu::InitializeSettings(){}
 
 void USettingsMenu::UpdateSettings(){
-	Settings = Cast<USettingsSave>(UUsefullFunctions::SaveToSlot(Settings, 0));
+	Settings = Cast<USettingsSave>(UUsefulFunctions::SaveToSlot(Settings, 0));
 }
 
 void USettingsMenu::ResetSettings(){
-	Settings = Cast<USettingsSave>(UUsefullFunctions::CreateSave(SettingClass, 0));
+	Settings = Cast<USettingsSave>(UUsefulFunctions::CreateSave(SettingClass, 0));
 	InitializeSettings();
 	UpdateSettings();
 }

@@ -90,7 +90,7 @@ void APlacableActor::SellDestroy(){
 
 	if(Player->GetMainPlayerController()->GetWheelWidget()->IsVisible()){
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), Player->GetMainPlayerController()->GetWheelTimeDilation());
-		Player->GetMainPlayerController()->GetWheelWidget()->ClickOnDestructButton();
+		Player->GetMainPlayerController()->GetWheelWidget()->ClickOnDestructButtonDelay();
 	}
 
 	Destroy();
@@ -292,6 +292,7 @@ void APlacableActor::InitializePlacable(const FPlacableActorSaveData NewData, TA
 	for(int i = 0; i < PursuitDroneList.Num(); i++){
 		if(PursuitDroneList[i]->GetName() == NewData.DroneName){
 			AttachDroneToPlacable(Cast<APursuitDrone>(PursuitDroneList[i]));
+			CurrentDrone->EnableSpinBehavior();
 			break;
 		}
 	}

@@ -35,6 +35,9 @@ protected:
 
 	UPlayerStats* PlayerStatsWidget;
 
+	/**
+	 * @brief considered as an health update 
+	 */
 	virtual void TakeDamages() override;
 
 public:

@@ -17,8 +17,25 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Navigation")
 	UBoxComponent* AIObstacle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Door")
+	UStaticMeshComponent* UpDoorFrameMed;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Door")
+	UStaticMeshComponent* UpDoorFrameTech;
+
+	UPROPERTY(EditAnywhere, Category = "Door", meta = (ClampMin = 0, ClampMax = 4))
+	int UpDoorFrameIndex = 0;
+
+	UPROPERTY(VisibleAnywhere, Category = "Door")
+	TArray<UStaticMesh*> UpDoorFrameMedMeshes;
+
+	UPROPERTY(VisibleAnywhere, Category = "Door")
+	TArray<UMaterialInstance*> UpDoorFrameTechMaterial;
 
 	int RotationFactor = 1;
 

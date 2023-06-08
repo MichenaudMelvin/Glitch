@@ -4,11 +4,10 @@
 #include "Objectives/Nexus.h"
 #include "Kismet/GameplayStatics.h"
 #include "PopcornFXAttributeFunctions.h"
-#include "Helpers/FunctionsLibrary/UsefullFunctions.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Objectives/Catalyseur.h"
 #include "Audio/AudioManager.h"
 #include "FX/Dissolver.h"
-#include "FMODBlueprintStatics.h"
 #include "Player/MainPlayerController.h"
 
 ANexus::ANexus() {
@@ -41,6 +40,9 @@ ANexus::ANexus() {
 
 void ANexus::BeginPlay(){
 	Super::BeginPlay();
+
+	HealthComp->OnReciveDamages.RemoveDynamic(this, &ANexus::TakeDamages);
+	HealthComp->OnHealthChange.AddDynamic(this, &ANexus::TakeDamages);
 
 	TArray<AActor*> DissolverArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
@@ -104,7 +106,9 @@ void ANexus::OnConstruction(const FTransform& Transform){
 void ANexus::TakeDamages(){
 	Super::TakeDamages();
 
-	PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
+	if(IsValid(PlayerStatsWidget)){
+		PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
+	}
 }
 
 void ANexus::UpdateDissolver(){
@@ -122,7 +126,7 @@ AActor* ANexus::GetFarestActivatedCatalyseur(){
 		}
 	}
 
-	TArray<AActor*> SortedCatalyseurs = UUsefullFunctions::SortActorsByDistanceToActor(ActivatedCatalyseurList, this);
+	TArray<AActor*> SortedCatalyseurs = UUsefulFunctions::SortActorsByDistanceToActor(ActivatedCatalyseurList, this);
 
 	return SortedCatalyseurs[SortedCatalyseurs.Num() - 1];
 }
