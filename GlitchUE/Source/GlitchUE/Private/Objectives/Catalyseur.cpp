@@ -34,13 +34,18 @@ ACatalyseur::ACatalyseur(){
 
 	ActivationAnim = ActivAnim.Object;
 
+	FMODAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("FMOD Audio"));
+	SetRootComponent(FMODAudioComp);
+	
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXDeactivation(TEXT("/Game/FMOD/Events/SFX/SFX_generator_deactivation"));
 	check(SFXDeactivation.Succeeded());
-
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> GenerateGoldsounds(TEXT("/Game/FMOD/Events/SFX/SFX_gold_drop"));
-	check(GenerateGoldsounds.Succeeded());
-
+	
 	DeactivationSFX = SFXDeactivation.Object;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> Goldsounds(TEXT("/Game/FMOD/Events/SFX/SFX_gold_drop"));
+	check(Goldsounds.Succeeded());
+
+	SoundsGolds = Goldsounds.Object;
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> DesactivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_Tech_Catalyser_Close"));
 	check(DesactivAnim.Succeeded());
@@ -213,7 +218,8 @@ void ACatalyseur::HealthNull(){
 }
 
 void ACatalyseur::GenerateMoney(){
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), GenerateGoldsounds, GetActorTransform(), true);
+	FMODAudioComp->SetEvent(SoundsGolds);
+	FMODAudioComp->Play();
 	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteursList.Num(), EGoldsUpdateMethod::ReceiveGolds);
 }
 

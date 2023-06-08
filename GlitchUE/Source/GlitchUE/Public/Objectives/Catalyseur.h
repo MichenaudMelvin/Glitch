@@ -24,6 +24,7 @@ public:
 	UCompassComponent* GetCompass() const;
 
 protected:
+	
 	virtual void BeginPlay() override;
 
 	virtual void Destroyed() override;
@@ -37,6 +38,9 @@ protected:
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
 	virtual void OnSwitchPhases(EPhases CurrentPhase) override;
+	
+	UPROPERTY()
+	UFMODAudioComponent* FMODAudioComp;
 
 	UAnimationAsset* ActivationAnim;
 
@@ -62,7 +66,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
 	TArray<AInhibiteur*> LinkedInhibiteur;
 
-	UFMODEvent* GenerateGoldsounds;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Golds")
+	UFMODEvent* SoundsGolds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;
