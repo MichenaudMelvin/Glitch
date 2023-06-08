@@ -34,18 +34,15 @@ ACatalyseur::ACatalyseur(){
 
 	ActivationAnim = ActivAnim.Object;
 
-	FMODAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("FMOD Audio"));
-	SetRootComponent(FMODAudioComp);
-	
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> SFXDeactivation(TEXT("/Game/FMOD/Events/SFX/SFX_generator_deactivation"));
 	check(SFXDeactivation.Succeeded());
-	
+
 	DeactivationSFX = SFXDeactivation.Object;
 
-	static ConstructorHelpers::FObjectFinder<UFMODEvent> Goldsounds(TEXT("/Game/FMOD/Events/SFX/SFX_gold_drop"));
-	check(Goldsounds.Succeeded());
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> GoldSFX(TEXT("/Game/FMOD/Events/SFX/SFX_gold_drop"));
+	check(GoldSFX.Succeeded());
 
-	SoundsGolds = Goldsounds.Object;
+	SoundsGolds = GoldSFX.Object;
 
 	static ConstructorHelpers::FObjectFinder<UAnimationAsset> DesactivAnim(TEXT("/Game/Meshs/Objectives/Catalyseur/AS_Tech_Catalyser_Close"));
 	check(DesactivAnim.Succeeded());
@@ -126,7 +123,9 @@ void ACatalyseur::ActiveObjectif(){
 	}
 
 	GameMode->UpdateActivatedCatalyseurAmount();
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
+
+	FMODAudioComp->SetEvent(ActivationSFX);
+	FMODAudioComp->Play();
 
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
@@ -151,7 +150,10 @@ void ACatalyseur::DesactivateObjectif(){
 	}
 
 	GameMode->UpdateActivatedCatalyseurAmount(false);
-	UFMODBlueprintStatics::PlayEvent2D(GetWorld(), DeactivationSFX,true);
+
+	FMODAudioComp->SetEvent(DeactivationSFX);
+	FMODAudioComp->Play();
+
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
 			break;

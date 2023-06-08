@@ -4,7 +4,6 @@
 #include "Objectives/Nexus.h"
 #include "Kismet/GameplayStatics.h"
 #include "PopcornFXAttributeFunctions.h"
-#include "PopcornFXFunctions.h"
 #include "Helpers/FunctionsLibrary/UsefullFunctions.h"
 #include "Objectives/Catalyseur.h"
 #include "Audio/AudioManager.h"
@@ -133,7 +132,8 @@ void ANexus::ActiveObjectif(){
 
 	UpdateDissolver();
 
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
+	FMODAudioComp->SetEvent(ActivationSFX);
+	FMODAudioComp->Play();
 
 	AudioManager->SwitchToTowerDefenseMusic();
 
