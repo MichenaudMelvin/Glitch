@@ -28,6 +28,8 @@ void UWheel::NativeOnInitialized(){
 	PlacableButton6->SetWheel(this);
 	PlacableButton7->SetWheel(this);
 	PlacableButton8->SetWheel(this);
+
+	bIsDynamicFocusList = true;
 }
 
 void UWheel::NativeConstruct(){
@@ -104,6 +106,10 @@ void UWheel::ClickOnDestructButtonDelay(){
 	for(int i = 0; i < ButtonList.Num(); i++){
 		ButtonList[i]->BindButtons();
 		AddWidgetToFocusList(ButtonList[i]);
+	}
+
+	if(CurrentController->IsUsingGamepad()){
+		Refocus();
 	}
 }
 

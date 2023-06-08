@@ -9,7 +9,7 @@ AFocusAICharacter::AFocusAICharacter(){
 
 	HealthWidget->SetRelativeLocation(FVector(0, 0, 100));
 	HealthWidget->SetRelativeRotation(FRotator(0, 180, 0));
-	HealthWidget->SetDrawSize(FVector2D(100, 30));
+	HealthWidget->SetDrawSize(FVector2D(100, 20));
 
 	HealthComp->OnHealthChange.AddDynamic(this, &AFocusAICharacter::UpdateWidgetHealth);
 

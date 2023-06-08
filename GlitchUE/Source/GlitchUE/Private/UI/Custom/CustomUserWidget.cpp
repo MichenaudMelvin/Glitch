@@ -2,10 +2,9 @@
 
 
 #include "UI/Custom/CustomUserWidget.h"
-
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetInputLibrary.h"
 #include "UI/UIFocus.h"
 
 void UCustomUserWidget::NativeOnInitialized(){
@@ -17,11 +16,30 @@ void UCustomUserWidget::NativeOnInitialized(){
 void UCustomUserWidget::NativeConstruct(){
 	Super::NativeConstruct();
 
-	CurrentController->OnAnyKey.AddDynamic(this, &UCustomUserWidget::OnAnyKey);
+	CurrentController->OnSwitchToKeyboard.AddDynamic(this, &UCustomUserWidget::UnFocusAll);
+	CurrentController->OnSwitchToGamepad.AddDynamic(this, &UCustomUserWidget::Refocus);
+
+	//CheckFocusAtStart();
+	if(CurrentController->IsGameplaySaveValid()){
+		bIsFocusNeeded = CurrentController->IsUsingGamepad();
+	} else {
+		bIsFocusNeeded = Cast<UGameplaySave>(UUsefulFunctions::LoadSave(UGameplaySave::StaticClass(), 0, true))->IsUsingGamepad();
+	}
+
+	if(!bIsFocusNeeded){
+		return;
+	}
+
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		Refocus();
+	}, 0.1f, false);
 }
 
 void UCustomUserWidget::NativeDestruct(){
-	CurrentController->OnAnyKey.RemoveDynamic(this, &UCustomUserWidget::OnAnyKey);
+	CurrentController->OnSwitchToKeyboard.RemoveDynamic(this, &UCustomUserWidget::UnFocusAll);
+	CurrentController->OnSwitchToGamepad.RemoveDynamic(this, &UCustomUserWidget::Refocus);
 
 	// if the last focused widget was remove from the focus list
 	if(!FocusList.IsValidIndex(LastFocusWidgetIndex)){
@@ -37,22 +55,15 @@ void UCustomUserWidget::NativeDestruct(){
 
 	Cast<IUIFocus>(FocusList[LastFocusWidgetIndex])->UnReceiveFocus();
 
-	LastPressedKey = FKey();
+	if(bIsDynamicFocusList){
+		FocusList.Empty();
+	}
 
 	Super::NativeDestruct();
 }
 
 void UCustomUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime){
 	Super::NativeTick(MyGeometry, InDeltaTime);
-
-	const FVector2D CurrentMousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
-
-	if(bIsFocusNeeded && LastedMousePosition != CurrentMousePosition){
-		LastedMousePosition = CurrentMousePosition;
-		LastPressedKey = EKeys::LeftMouseButton;
-		UnFocusAll();
-		return;
-	}
 
 	FocusWidgets();
 }
@@ -117,20 +128,6 @@ void UCustomUserWidget::Refocus(){
 	FocusWidgets();
 }
 
-void UCustomUserWidget::OnAnyKey(FKey KeyMap){
-	// keyboard or gamepad key
-	if((KeyMap.IsGamepadKey() && !LastPressedKey.IsGamepadKey()) || (UKismetInputLibrary::Key_IsKeyboardKey(KeyMap) && !UKismetInputLibrary::Key_IsKeyboardKey(LastPressedKey))){
-		Refocus();
-	}
-
-	// mouse key
-	else if(KeyMap.IsMouseButton() && !LastPressedKey.IsMouseButton()){
-		UnFocusAll();
-	}
-
-	LastPressedKey = KeyMap;
-}
-
 void UCustomUserWidget::AddWidgetToFocusList(UWidget* WidgetToAdd){
 	FocusList.Add(WidgetToAdd);
 }
@@ -153,4 +150,8 @@ void UCustomUserWidget::RemoveWidgetsToFocusList(TArray<UWidget*> WidgetsToRemov
 
 TArray<UWidget*> UCustomUserWidget::GetFocusList() const{
 	return FocusList;
+}
+
+void UCustomUserWidget::ResetLastFocusWidgetIndex(){
+	LastFocusWidgetIndex = 0;
 }

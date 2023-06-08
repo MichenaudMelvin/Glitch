@@ -26,24 +26,21 @@ protected:
 	bool CheckValidity(const UWidget* WidgetToCheck) const;
 #endif
 
+	UFUNCTION()
 	void UnFocusAll();
 
 	UFUNCTION(BlueprintCallable, Category = "Focus")
 	void Refocus();
 
-	UFUNCTION()
-	void OnAnyKey(FKey KeyMap);
-
-	FKey LastPressedKey;
-
-	FVector2D LastedMousePosition;
-
+	UPROPERTY(BlueprintReadOnly)
 	AAbstractPlayerController* CurrentController;
 
 	UPROPERTY()
 	TArray<UWidget*> FocusList;
 
 	int LastFocusWidgetIndex = 0;
+
+	bool bIsDynamicFocusList = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Focus")
 	bool bIsFocusNeeded = true;
@@ -63,4 +60,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Focus")
 	TArray<UWidget*> GetFocusList() const;
+
+	void ResetLastFocusWidgetIndex();
 };

@@ -30,5 +30,5 @@ void ATchatTriggerBox::WriteMessages(){
 
 	FTimerHandle TimerHandle;
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATchatTriggerBox::WriteMessages, DelayBetweenEachMessage, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATchatTriggerBox::WriteMessages, TchatMessageList[Index - 1].DelayForNextMessage, false);
 }
