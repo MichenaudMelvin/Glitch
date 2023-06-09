@@ -44,6 +44,8 @@ AInhibiteur::AInhibiteur(){
 void AInhibiteur::BeginPlay(){
 	Super::BeginPlay();
 
+	LockerFX->OnEmissionStops.AddDynamic(this, &AInhibiteur::DestroyFX);
+
 #if WITH_EDITOR
 
 	FTimerHandle TimerHandle;

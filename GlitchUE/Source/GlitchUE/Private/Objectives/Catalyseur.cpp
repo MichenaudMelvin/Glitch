@@ -29,6 +29,15 @@ ACatalyseur::ACatalyseur(){
 
 	DesactivationFX->SetEffect(ShutDownFX.Object);
 
+	IdleFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Idle FX"));
+	IdleFX->SetupAttachment(RootComponent);
+	IdleFX->SetRelativeLocation(FVector(0, 0, 90));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> CatalyseurFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_Catalyseur"));
+	check(CatalyseurFX.Succeeded());
+
+	IdleFX->SetEffect(CatalyseurFX.Object);
+
 	GoldsGenerationFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Gold Generation FX"));
 	GoldsGenerationFX->SetupAttachment(RootComponent);
 	GoldsGenerationFX->bPlayOnLoad = false;
@@ -82,6 +91,8 @@ void ACatalyseur::BeginPlay(){
 	Super::BeginPlay();
 
 	InteractableComp->AddInteractable(TECHMesh);
+
+	IdleFX->OnEmissionStops.AddDynamic(this, &ACatalyseur::DestroyFX);
 
 	TArray<AActor*> NexusTemp;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusTemp);
@@ -145,6 +156,9 @@ void ACatalyseur::ActiveObjectif(){
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
 			bWasActivatedInStealthPhase = true;
+
+			UPopcornFXAttributeFunctions::SetAttributeAsBool(IdleFX, UPopcornFXAttributeFunctions::FindAttributeIndex(IdleFX, "FreePseudos"), true);
+
 			break;
 		case EPhases::TowerDefense:
 			StartGeneratingMoney();

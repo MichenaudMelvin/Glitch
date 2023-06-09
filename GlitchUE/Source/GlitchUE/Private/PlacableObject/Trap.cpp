@@ -13,6 +13,7 @@ ATrap::ATrap(){
 	SetRootComponent(TrapMesh);
 
 	AudioComp->SetupAttachment(RootComponent);
+	CrystalUpgradeFX->SetupAttachment(RootComponent);
 
 	TrapMesh->SetCollisionResponseToAllChannels(ECR_Block);
 

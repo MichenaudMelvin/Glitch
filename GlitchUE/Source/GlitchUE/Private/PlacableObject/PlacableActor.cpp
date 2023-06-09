@@ -21,6 +21,14 @@ APlacableActor::APlacableActor(){
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interactable"));
 
+	CrystalUpgradeFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Upgrade FX"));
+	CrystalUpgradeFX->bPlayOnLoad = false;
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> UpgradeFX(TEXT("/Game/VFX/Particles/FX_Towers/Pk_CristalAugment"));
+	check(UpgradeFX.Succeeded());
+
+	CrystalUpgradeFX->SetEffect(UpgradeFX.Object);
+
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
 
@@ -154,6 +162,8 @@ void APlacableActor::AttachDroneToPlacable(APursuitDrone* NewDrone){
 	TargetLocation.Z += 100;
 
 	CurrentDrone->SetActorLocation(TargetLocation);
+
+	CrystalUpgradeFX->StartEmitter();
 }
 
 

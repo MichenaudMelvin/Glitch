@@ -152,9 +152,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Speed")
 	float SlideSpeed = 1000;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|Speed")
-	float GlitchSpeed = 1500;
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement|Gravity")
 	float OriginalGravityScale = 2;
 
@@ -370,7 +367,7 @@ public:
 	void Loose();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
-	int RemovedGlitchGolds = -100;
+	int RemovedGlitchGolds = 100;
 
 protected:
 	#pragma region Interaction

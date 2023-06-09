@@ -64,6 +64,9 @@ protected:
 	UFUNCTION()
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
+	UFUNCTION()
+	void DestroyFX(UPopcornFXEmitterComponent* EmitterComponent, FVector Location, FVector Rotation);
+
 public:
 	UActivableComponent* GetActivableComp() const;
 

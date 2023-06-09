@@ -52,6 +52,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* DesactivationFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* IdleFX;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Feedback")
 	UWaypoint* DesactivationBillboard;
 

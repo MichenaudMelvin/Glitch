@@ -271,6 +271,8 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 		TimerValue = StealthTimer;
 	}
 
+	OnStartStealthTimer.Broadcast();
+
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 

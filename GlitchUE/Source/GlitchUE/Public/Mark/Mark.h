@@ -26,6 +26,9 @@ protected:
 
 	void DetachToPlayer();
 
+	UPROPERTY(EditAnywhere, Category = "Behavior")
+	bool bCanBeAttached = true;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Location")
 	FVector RelativeLocation = FVector(-50, 0, 130);
 
@@ -34,8 +37,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	UPopcornFXEmitterComponent* MarkFX;
-
-	FTimerHandle SwitchMeshTimer;
 
 	AMainPlayer* Player;
 
@@ -46,6 +47,9 @@ protected:
 
 	UFUNCTION()
 	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
+	UFUNCTION(BlueprintCallable, Category = "Behavior")
+	void ReattachToPlayer();
 
 #pragma region Projectile
 

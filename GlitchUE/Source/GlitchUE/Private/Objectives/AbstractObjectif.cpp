@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Objectives/AbstractObjectif.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavAreas/NavArea_Obstacle.h"
 
@@ -65,6 +66,10 @@ void AAbstractObjectif::TakeDamages(){}
 void AAbstractObjectif::HealthNull(){}
 
 void AAbstractObjectif::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){}
+
+void AAbstractObjectif::DestroyFX(UPopcornFXEmitterComponent* EmitterComponent, FVector Location, FVector Rotation){
+	EmitterComponent->DestroyComponent();
+}
 
 UActivableComponent* AAbstractObjectif::GetActivableComp()  const{
 	return ActivableComp;

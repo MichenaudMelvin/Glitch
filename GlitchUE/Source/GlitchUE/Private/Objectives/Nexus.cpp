@@ -45,6 +45,8 @@ void ANexus::BeginPlay(){
 	HealthComp->OnReciveDamages.RemoveDynamic(this, &ANexus::TakeDamages);
 	HealthComp->OnHealthChange.AddDynamic(this, &ANexus::TakeDamages);
 
+	TechFXEmitter->OnEmissionStops.AddDynamic(this, &ANexus::DestroyFX);
+
 	TArray<AActor*> DissolverArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
