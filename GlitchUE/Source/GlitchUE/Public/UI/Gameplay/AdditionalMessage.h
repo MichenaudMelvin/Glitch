@@ -21,8 +21,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animations")
 	float AdditionalMessageAnimSpeed = 0.5f;
 
-	FTimerHandle AnimTimerHandle;
-
 public:
 	void AddMessageToScreen(const FString NewMessage);
 };

@@ -164,6 +164,8 @@ void ATrap::Attack_Implementation(){
 		TrapMesh->PlayAnimation(AttackAnimation, false);
 	}
 
+	AudioComp->Play();
+
 	for(int i = 0; i < AIArray.Num(); i++){
 		AIArray[i]->ReceiveTrapEffect(Data);
 	}

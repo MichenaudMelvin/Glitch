@@ -13,6 +13,8 @@ class GLITCHUE_API UTchat : public UUserWidget{
 	GENERATED_BODY()
 
 protected:
+	virtual void NativeOnInitialized() override;
+
 	virtual void NativeConstruct() override;
 
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (BindWidgetAnim), Category = "Animation")
@@ -51,6 +53,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void CloseTchat();
+
+	UFUNCTION(BlueprintCallable)
+	void CloseTchatDelay();
 
 	void AddTchatLineDelay();
 

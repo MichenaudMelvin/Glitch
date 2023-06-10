@@ -42,7 +42,10 @@ protected:
 	float MaxInvestigateTime = 2;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	bool bDrawFX = true;
+	bool bDrawFX = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Visiblity")
+	bool bDynamicVisibility = false;
 
 	// can only be the player
 	AActor* SightActor;

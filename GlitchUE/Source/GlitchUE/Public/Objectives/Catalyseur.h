@@ -103,7 +103,7 @@ protected:
 	/**
 	 * @brief Timer in seconds
 	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Time", meta = (ClampMin = 0))
+	UPROPERTY(EditAnywhere, Category = "Time", meta = (ClampMin = 0))
 	float DesactivationTimer = 60.0f;
 
 	FTimerHandle DesactivationTimerHandle;

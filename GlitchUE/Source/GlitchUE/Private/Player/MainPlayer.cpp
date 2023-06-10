@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Player/MainPlayer.h"
+
+#include "FMODBlueprintStatics.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -75,6 +77,11 @@ AMainPlayer::AMainPlayer(){
 
 	ZeroToOneCurve = Curve.Object;
 
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> SmoothCurve(TEXT("/Game/Blueprint/Curves/FC_SmoothZeroToOneCurve"));
+	check(SmoothCurve.Succeeded());
+
+	SmoothZeroToOneCurve = SmoothCurve.Object;
+
 	#pragma endregion
 
 	SoundFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Run FX"));
@@ -86,10 +93,30 @@ AMainPlayer::AMainPlayer(){
 	SoundFX->SetupAttachment(GetMesh());
 	SoundFX->bPlayOnLoad = false;
 
+	LoseGoldsFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Lose Gold FX"));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> GoldEffect(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_LoseGold"));
+	check(GoldEffect.Succeeded());
+
+	LoseGoldsFX->SetEffect(GoldEffect.Object);
+	LoseGoldsFX->SetupAttachment(GetMesh());
+	LoseGoldsFX->SetRelativeLocation(FVector(0, 0, 80));
+	LoseGoldsFX->bPlayOnLoad = false;
+
 	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> FX(TEXT("/Game/VFX/Particles/FX_Avatar/Pk_TPDash"));
 	check(FX.Succeeded());
 
 	GlitchDashFXReference = FX.Object;
+
+	// static ConstructorHelpers::FObjectFinder<UFMODEvent> StartSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_Start"));
+	// check(StartSFX.Succeeded());
+	//
+	// TPStart = StartSFX.Object;
+	//
+	// static ConstructorHelpers::FObjectFinder<UFMODEvent> EndSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_End"));
+	// check(EndSFX.Succeeded());
+	//
+	// TPEnd = EndSFX.Object;
 }
 
 void AMainPlayer::BeginPlay(){
@@ -101,8 +128,18 @@ void AMainPlayer::BeginPlay(){
 	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
+
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->OnSwitchPhases.AddDynamic(this, &AMainPlayer::OnSwitchPhases);
+
+	WheelCamera = Cast<ATargetCameraLocation>(UGameplayStatics::GetActorOfClass(GetWorld(), ATargetCameraLocation::StaticClass()));
+
+#if WITH_EDITOR
+	if(!IsValid(WheelCamera)){
+		GEngine->AddOnScreenDebugMessage(-1, 9999999999.0f, FColor::Yellow, TEXT("AUCUNE TARGETCAMERALOCATION N'EST PLACE DANS LA SCENE"));
+		UE_LOG(LogTemp, Warning, TEXT("AUCUNE TARGETCAMERALOCATION N'EST PLACE DANS LA SCENE"));
+	}
+#endif
 
 	HalfHeight = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 
@@ -118,7 +155,7 @@ void AMainPlayer::BeginPlay(){
 	UpdateEvent.BindDynamic(this, &AMainPlayer::CameraAimUpdate);
 	FinishedEvent.BindDynamic(this, &AMainPlayer::CameraAimFinished);
 
-	CameraAimTransition.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+	CameraAimTransition.AddInterpFloat(bUseSmoothAim ? SmoothZeroToOneCurve : ZeroToOneCurve, UpdateEvent);
 	CameraAimTransition.SetTimelineFinishedFunc(FinishedEvent);
 	CameraAimTransition.SetPlayRate(1/CameraAimTime);
 
@@ -187,6 +224,8 @@ void AMainPlayer::BeginPlay(){
 		return;
 	}
 #endif
+
+	MainPlayerController->BindPause();
 	MakeThePlayerAppear();
 }
 
@@ -327,6 +366,7 @@ void AMainPlayer::UpdateGolds(int Amount, const EGoldsUpdateMethod GoldsUpdateMe
 			break;
 		case EGoldsUpdateMethod::TakeDamages:
 			Amount = - Amount;
+			LoseGoldsFX->StartEmitter();
 			break;
 		case EGoldsUpdateMethod::ReceiveGolds:
 			// code here
@@ -354,8 +394,14 @@ bool AMainPlayer::CanUpdateGolds() const{
 	return bGoldsCanBeUpdated;
 }
 
-void AMainPlayer::Loose_Implementation(){
+void AMainPlayer::Loose(){
 	StopRecord();
+	MainPlayerController->GetLooseScreen()->AddToViewport();
+}
+
+void AMainPlayer::Win(){
+	StopRecord();
+	MainPlayerController->GetWinScreen()->AddToViewport();
 }
 
 #pragma endregion
@@ -648,6 +694,10 @@ void AMainPlayer::SetInGlitchZone(const bool bNewValue){
 
 #pragma region Mark
 
+ATargetCameraLocation* AMainPlayer::GetWheelCamera() const{
+	return WheelCamera;
+}
+
 void AMainPlayer::LaunchMark(){
 	FTransform MarkTransform;
 	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Head"));
@@ -696,7 +746,7 @@ void AMainPlayer::TPToMark() {
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
 
 	// Play sound start of the teleportation
-	UGameplayStatics::SpawnSound2D(this, TPStart);
+	UFMODBlueprintStatics::PlayEvent2D(GetWorld(), TPStart, true);
 
 	FRotator CapsuleRotation = FRotator::ZeroRotator;
 	CapsuleRotation.Yaw = Mark->GetActorRotation().Yaw;
@@ -724,8 +774,10 @@ void AMainPlayer::UseGlitchPressed(){
 void AMainPlayer::CanLaunchMark(){
 	if(!UUsefulFunctions::IsEventActionPressed("UseGlitch", MainPlayerController)){
 		GetWorldTimerManager().ClearTimer(CanLaunchMarkTimerHandle);
-		CameraAimReverse();
 		LaunchMark();
+
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::CameraAimReverse, BackToNormalCamAfterLaunchMarkTime, false);
 	}
 }
 
@@ -1010,13 +1062,11 @@ void AMainPlayer::SetGlitchMaterialParameter(const int MaterialIndex, const floa
 void AMainPlayer::EndTL(){
 
 	// Play sound final of the teleportation
-	UGameplayStatics::SpawnSound2D(this, TPFinal);
+	UFMODBlueprintStatics::PlayEvent2D(GetWorld(), TPEnd, true);
 
 	GlitchCameraTrace();
 
 	GlitchTrace();
-
-	GameMode->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 	ResetMovement();
 
@@ -1032,6 +1082,9 @@ void AMainPlayer::EndTL(){
 		MainPlayerController->BindCamera();
 		MainPlayerController->SetCanSave(true);
 		bCanBeAttachedToEdge = true;
+		bGoldsCanBeUpdated = true;
+
+		GameMode->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 		ResetOverlappedMeshes();
 
@@ -1043,8 +1096,6 @@ void AMainPlayer::EndTL(){
 		}
 
 		GetCharacterMovement()->GravityScale = OriginalGravityScale;
-
-		bGoldsCanBeUpdated = true;
 
 		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange, SoundFX);
 	}, 0.2f, false);

@@ -52,6 +52,10 @@ void AMainPlayerController::CreatePlayerWidgets(){
 	PopUpWidget = Cast<UPopUpWidget>(CreateWidget(this, PopUpWidgetClass));
 
 	WaypointIndicationWidget = Cast<UWaypointIndication>(CreateWidget(this, WaypointIndicationWidgetClass));
+
+	LooseScreenWidget = Cast<ULooseScreen>(CreateWidget(this, LooseScreenWidgetClass));
+
+	WinScreenWidget = Cast<UWinScreen>(CreateWidget(this, WinScreenWidgetClass));
 }
 
 #pragma region Bind
@@ -337,6 +341,14 @@ UAdditionalMessage* AMainPlayerController::GetAdditionalMessageWidget() const{
 
 UWaypointIndication* AMainPlayerController::GetWaypointIndicationWidget() const{
 	return WaypointIndicationWidget;
+}
+
+ULooseScreen* AMainPlayerController::GetLooseScreen() const{
+	return LooseScreenWidget;
+}
+
+UWinScreen* AMainPlayerController::GetWinScreen() const{
+	return WinScreenWidget;
 }
 
 

@@ -4,6 +4,12 @@
 #include "UI/Gameplay/Tchat/Tchat.h"
 #include "UI/Gameplay/Tchat/TchatLineData.h"
 
+void UTchat::NativeOnInitialized(){
+	Super::NativeOnInitialized();
+
+	AppearanceDuration /= 1;
+}
+
 void UTchat::NativeConstruct(){
 	Super::NativeConstruct();
 
@@ -48,10 +54,12 @@ void UTchat::OpenTchat(){
 void UTchat::CloseTchat(){
 	PlayAnimation(AppearAnimation, GetAnimationCurrentTime(AppearAnimation), 1, EUMGSequencePlayMode::Reverse, AppearanceDuration, false);
 
-	GetWorld()->GetTimerManager().SetTimer(DisappearTimer, [&]() {
-		IsOpenByUser = false;
-		RemoveFromParent();
-	}, 1/AppearanceDuration, false);
+	//CloseTchatDelay() is call in blueprint
+}
+
+void UTchat::CloseTchatDelay(){
+	IsOpenByUser = false;
+	RemoveFromParent();
 }
 
 void UTchat::AddTchatLineDelay(){

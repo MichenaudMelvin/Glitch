@@ -68,7 +68,8 @@ void UAttackTarget::Attack(APawn* AIPawn, AMainAIController* AIController, AActo
 }
 
 void UAttackTarget::PlayAttackFX(APawn* AIPawn, const AActor* Target){
-	UPopcornFXEmitterComponent* AttackFX = Cast<AFocusAICharacter>(AIPawn)->GetAttackFX();
+	const AFocusAICharacter* FocusAI = Cast<AFocusAICharacter>(AIPawn);
+	UPopcornFXEmitterComponent* AttackFX = FocusAI->GetAttackFX();
 
 	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(AttackFX, "Target");
 
@@ -77,5 +78,6 @@ void UAttackTarget::PlayAttackFX(APawn* AIPawn, const AActor* Target){
 	AttackFX->OnEmissionStops.Clear();
 	AttackFX->OnEmissionStops.AddDynamic(this, &UAttackTarget::OnFinishAttackFX);
 
+	FocusAI->GetAttackAudioComp()->Play();
 	AttackFX->StartEmitter();
 }

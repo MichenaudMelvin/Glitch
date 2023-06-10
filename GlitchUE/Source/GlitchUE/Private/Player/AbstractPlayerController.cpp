@@ -18,6 +18,12 @@ void AAbstractPlayerController::BeginPlay(){
 void AAbstractPlayerController::Destroyed(){
 	Super::Destroyed();
 
+	#if WITH_EDITOR
+		if(!IsValid(GameplaySave)){
+			return;
+		}
+	#endif
+
 	UUsefulFunctions::SaveToSlot(GameplaySave, 0);
 }
 

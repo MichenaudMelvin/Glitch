@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
 #include "Helpers/UsefulEnums.h"
+#include "Player/TargetCameraLocation.h"
 #include "Saves/Settings/GameplaySettingsSave.h"
 #include "MainPlayer.generated.h"
 
@@ -60,7 +61,7 @@ protected:
 	virtual void Tick(float deltaTime) override;
 	virtual void Destroyed() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX")
 	UPopcornFXEmitterComponent* SoundFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Compass")
@@ -100,7 +101,10 @@ protected:
 	FTimeline CameraAimTransition;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
-	float CameraAimTime = 0.5;
+	bool bUseSmoothAim = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Aim")
+	float CameraAimTime = 0.5f;
 
 	ETimelineDirection::Type CameraAimTimelineDirection;
 
@@ -321,7 +325,10 @@ public:
 	void SetSensitivity(const float NewSensitivity);
 
 protected:
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Construction")
+	UPROPERTY(EditDefaultsOnly, Category = "Golds")
+	UPopcornFXEmitterComponent* LoseGoldsFX;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Construction")
 	int Golds = 1000;
 
 	UPROPERTY(BlueprintReadWrite)
@@ -363,8 +370,11 @@ public:
 
 	bool CanUpdateGolds() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Loose")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Loose")
 	void Loose();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Loose")
+	void Win();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
 	int RemovedGlitchGolds = 100;
@@ -409,19 +419,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch Dash")
 	float GlitchDashCameraTransition = 1;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY()
 	AMark* Mark;
 
+	UPROPERTY()
+	ATargetCameraLocation* WheelCamera;
+
 public:
+	ATargetCameraLocation* GetWheelCamera() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void LaunchMark();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	USoundBase* TPStart;
+	UPROPERTY()
+	UFMODEvent* TPStart;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	USoundBase* TPFinal;
+	UPROPERTY()
+	UFMODEvent* TPEnd;
 
 	FQuat FindMarkLaunchRotation() const;
 
@@ -439,11 +453,14 @@ public:
 
 	FTimerHandle CanLaunchMarkTimerHandle;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Aim")
+	float BackToNormalCamAfterLaunchMarkTime = 0.5f;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
 	AMark* GetMark() const { return Mark; }
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
-	float GlitchDashValue;
+	float GlitchDashValue = 400;
 
 	void SetMark(AMark* NewMark);
 
@@ -576,6 +593,8 @@ public:
 	#pragma region Others
 
 	UCurveFloat* ZeroToOneCurve;
+
+	UCurveFloat* SmoothZeroToOneCurve;
 
 	#pragma endregion
 

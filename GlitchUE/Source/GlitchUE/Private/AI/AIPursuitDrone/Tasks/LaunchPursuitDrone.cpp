@@ -21,6 +21,11 @@ EBTNodeResult::Type ULaunchPursuitDrone::ExecuteTask(UBehaviorTreeComponent& Own
 
 	const APursuitDrone* Drone = Cast<APursuitDrone>(Controller->GetPawn());
 
+	if(bSkipAnim){
+		bLaunch ? Drone->ForceStartAnim() : Drone->ForceInDock();
+		return EBTNodeResult::Succeeded;
+	}
+
 	Drone->PlayStartAnim(!bLaunch);
 
 	Drone->GetIdleFX()->SetVisibility(bLaunch);

@@ -21,7 +21,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "TimerText",  meta = (BindWidget))
 	UTextBlock* TimerText;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* Fade;
 
 	UPROPERTY(EditDefaultsOnly, Category = "LooseTimeText",  meta = (BindWidget))

@@ -120,6 +120,15 @@ void ANexus::UpdateDissolver(){
 	Dissolver->DissolveTo(CatalyseurCompletionPercent * Dissolver->GetMaxRadius() / 100.0f);
 }
 
+void ANexus::SetCanInteractWithNexus(const bool bCanInteract) const{
+	if(bCanInteract){
+		InteractableComp->AddInteractable(MeshObjectif);
+	} else {
+		InteractableComp->Unfeedback();
+		InteractableComp->RemoveInteractable(MeshObjectif);
+	}
+}
+
 AActor* ANexus::GetFarestActivatedCatalyseur(){
 	TArray<AActor*> ActivatedCatalyseurList;
 
@@ -148,10 +157,12 @@ void ANexus::ActiveObjectif(){
 	UPopcornFXAttributeFunctions::SetAttributeAsBool(TechFXEmitter, Index, true);
 
 	MedFXEmitter->StartEmitter();
+
+	SetCanInteractWithNexus(false);
 }
 
 void ANexus::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	if (!ActivableComp->IsActivated() && GameMode->CanStartTowerDefense()){
+	if(GameMode->CanStartTowerDefense()){
 		ActivableComp->ActivateObject();
 	}
 }

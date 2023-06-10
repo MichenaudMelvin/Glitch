@@ -297,6 +297,12 @@ void AGlitchUEGameMode::ForceEndStealthPhase() const{
 
 void AGlitchUEGameMode::UpdateActivatedCatalyseurAmount(const bool Increase){
 	Increase ? CurrentActivatedCatalyseurs++ : CurrentActivatedCatalyseurs--;
+
+	if(CurrentPhase == EPhases::TowerDefense){
+		return;
+	}
+
+	Nexus->SetCanInteractWithNexus(CanStartTowerDefense());
 }
 
 int AGlitchUEGameMode::GetActivatedCatalyseurNum() const{

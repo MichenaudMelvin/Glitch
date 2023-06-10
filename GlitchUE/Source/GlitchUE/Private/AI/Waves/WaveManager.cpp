@@ -163,6 +163,7 @@ void AWaveManager::EndWave(){
 
 	if (CurrentWaveNumber == NumberOfWaves){
 		PlayerMessageWidget->AddMessageToScreen("Finish all Waves");
+		Player->Win();
 		return;
 	}
 

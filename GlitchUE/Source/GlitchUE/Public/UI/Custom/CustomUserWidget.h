@@ -40,6 +40,10 @@ protected:
 
 	int LastFocusWidgetIndex = 0;
 
+	/**
+	 * @brief true mean it will clear the focust list at DestructWidget
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Focus")
 	bool bIsDynamicFocusList = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Focus")

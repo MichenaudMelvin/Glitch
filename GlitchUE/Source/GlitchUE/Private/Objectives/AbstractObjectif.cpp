@@ -43,7 +43,6 @@ void AAbstractObjectif::BeginPlay(){
 	ActivableComp->OnActivated.AddDynamic(this, &AAbstractObjectif::ActiveObjectif);
 	ActivableComp->OnDesactivated.AddDynamic(this, &AAbstractObjectif::DesactivateObjectif);
 
-	InteractableComp->AddInteractable(MeshObjectif);
 	InteractableComp->OnInteract.AddDynamic(this, &AAbstractObjectif::Interact);
 
 	HealthComp->OnReciveDamages.AddDynamic(this, &AAbstractObjectif::TakeDamages);

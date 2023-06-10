@@ -16,7 +16,9 @@ AAudioManager::AAudioManager(){
 
 	StealthMusic = StMusic.Object;
 
-	FMODAudioComp->Event = StealthMusic;
+	StartMusic = StealthMusic;
+
+	FMODAudioComp->Event = StartMusic;
 
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> StAlarm(TEXT("/Game/FMOD/Events/SFX/SFX_detected_alarm"));
 	check(StAlarm.Succeeded());
@@ -60,6 +62,12 @@ void AAudioManager::Tick(float DeltaSeconds){
 
 	VolumeTimeline.TickTimeline(DeltaSeconds);
 	ParameterTimeline.TickTimeline(DeltaSeconds);
+}
+
+void AAudioManager::OnConstruction(const FTransform& Transform){
+	Super::OnConstruction(Transform);
+
+	FMODAudioComp->SetEvent(StartMusic);
 }
 
 void AAudioManager::FadeVolume(float Alpha){

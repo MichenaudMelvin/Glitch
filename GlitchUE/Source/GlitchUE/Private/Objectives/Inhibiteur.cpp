@@ -44,6 +44,8 @@ AInhibiteur::AInhibiteur(){
 void AInhibiteur::BeginPlay(){
 	Super::BeginPlay();
 
+	InteractableComp->AddInteractable(MeshObjectif);
+
 	LockerFX->OnEmissionStops.AddDynamic(this, &AInhibiteur::DestroyFX);
 
 #if WITH_EDITOR
@@ -77,6 +79,9 @@ void AInhibiteur::ActiveObjectif(){
 	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
 
 	OwnerCatalyseur->AddInhibiteurToActivatedList(this);
+
+	InteractableComp->Unfeedback();
+	InteractableComp->RemoveInteractable(MeshObjectif);
 
 	if(IsValid(CompassIcon)){
 		CompassIcon->DestroyComponent();

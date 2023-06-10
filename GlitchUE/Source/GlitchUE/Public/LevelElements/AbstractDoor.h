@@ -7,6 +7,7 @@
 #include "Components/InteractableComponent.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
+#include "FMODAudioComponent.h"
 #include "Navigation/NavLinkProxy.h"
 #include "AbstractDoor.generated.h"
 
@@ -50,6 +51,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
 	UStaticMeshComponent* TechDoor;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	UFMODAudioComponent* DoorAudioComp;
+
+	UPROPERTY()
+	UFMODEvent* OpenDoorSFX;
+
+	UPROPERTY()
+	UFMODEvent* CloseDoorSFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Navigation")
 	UChildActorComponent* NavLinkProxy;

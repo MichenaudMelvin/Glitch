@@ -18,6 +18,7 @@ public:
 	APatrolCharacter();
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Behavior")
@@ -28,6 +29,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Sight")
 	UWidgetComponent* SightWidget;
+
+	UFUNCTION()
+	void OnSwitchLevelState(ELevelState NewLevelState);
 
 public:
 	TArray<APatrolPoint*> GetPatrolPointList() const;

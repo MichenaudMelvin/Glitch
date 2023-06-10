@@ -20,7 +20,7 @@ public:
 protected:
 	virtual void SynchronizeProperties() override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Data")
 	UPlacableActorData* Data;
 
 	UPROPERTY()

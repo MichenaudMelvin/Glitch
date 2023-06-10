@@ -27,4 +27,7 @@ private:
 	// Set as false will reverse animations
 	UPROPERTY(EditAnywhere, Category = "Behavior")
 	bool bLaunch = true;
+
+	UPROPERTY(EditAnywhere, Category = "Behavior")
+	bool bSkipAnim = false;
 };

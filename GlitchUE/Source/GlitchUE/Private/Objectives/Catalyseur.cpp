@@ -90,8 +90,6 @@ USkeletalMeshComponent* ACatalyseur::GetTechMesh() const{
 void ACatalyseur::BeginPlay(){
 	Super::BeginPlay();
 
-	InteractableComp->AddInteractable(TECHMesh);
-
 	IdleFX->OnEmissionStops.AddDynamic(this, &ACatalyseur::DestroyFX);
 
 	TArray<AActor*> NexusTemp;
@@ -144,8 +142,6 @@ void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);
 
-	DesactivationFX->StopEmitter();
-
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
 	}
@@ -161,10 +157,16 @@ void ACatalyseur::ActiveObjectif(){
 
 			break;
 		case EPhases::TowerDefense:
+			DesactivationFX->StopEmitter();
+
 			StartGeneratingMoney();
 			Nexus->UpdateDissolver();
 			HealthComp->ResetHealth();
 			DesactivationBillboard->DrawWaypoint(false);
+
+			InteractableComp->Unfeedback();
+			InteractableComp->RemoveInteractable(MeshObjectif);
+			InteractableComp->RemoveInteractable(TECHMesh);
 			break;
 	}
 }
@@ -175,7 +177,7 @@ void ACatalyseur::DesactivateObjectif(){
 
 	DesactivationFX->StartEmitter();
 	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
-	UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CannotInteractWithColor, true);
+	UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CannotInteractWithColor, false);
 
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
@@ -192,9 +194,6 @@ void ACatalyseur::DesactivateObjectif(){
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
 			Nexus->UpdateDissolver();
 
-			InteractableComp->RemoveInteractable(MeshObjectif);
-			InteractableComp->RemoveInteractable(TECHMesh);
-
 			DesactivationBillboard->DrawWaypoint(true);
 			StartDesactivationTimer(DesactivationTimer);
 			break;
@@ -207,7 +206,7 @@ void ACatalyseur::StartDesactivationTimer(const float Timer){
 		InteractableComp->AddInteractable(TECHMesh);
 
 		const int ColorIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
-		UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, true);
+		UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, false);
 	}, Timer, false);
 }
 
@@ -232,13 +231,10 @@ void ACatalyseur::OnSwitchPhases(EPhases CurrentPhase){
 		break;
 	case EPhases::TowerDefense:
 		Compass->DestroyComponent();
+		IdleFX->StopEmitter(true);
 
 		if(ActivableComp->IsActivated()){
 			StartGeneratingMoney();
-		} else{
-			// for now it work, needs to be tested with saves
-			InteractableComp->RemoveInteractable(MeshObjectif);
-			InteractableComp->RemoveInteractable(TECHMesh);
 		}
 
 		break;

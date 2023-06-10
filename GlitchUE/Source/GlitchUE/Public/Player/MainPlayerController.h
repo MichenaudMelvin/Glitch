@@ -13,6 +13,8 @@
 #include "UI/Gameplay/PopUpWidget.h"
 #include "UI/Gameplay/SightWidget.h"
 #include "UI/Gameplay/WaypointIndication.h"
+#include "UI/Gameplay/ConditionScreen/LooseScreen.h"
+#include "UI/Gameplay/ConditionScreen/WinScreen.h"
 #include "UI/Gameplay/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -259,8 +261,6 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Pause")
 	void PauseGame();
 
-	FTimerHandle PreviewObjectTimerHandle;
-
 #pragma region Widgets
 
 protected:
@@ -324,6 +324,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UWaypointIndication> WaypointIndicationWidgetClass;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	ULooseScreen* LooseScreenWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<ULooseScreen> LooseScreenWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
+	UWinScreen* WinScreenWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UWinScreen> WinScreenWidgetClass;
+
 public:
 	UFUNCTION()
 	void OpenWheel();
@@ -351,6 +363,10 @@ public:
 	UAdditionalMessage* GetAdditionalMessageWidget() const;
 
 	UWaypointIndication* GetWaypointIndicationWidget() const;
+
+	ULooseScreen* GetLooseScreen() const;
+
+	UWinScreen* GetWinScreen() const;
 
 #pragma endregion
 };

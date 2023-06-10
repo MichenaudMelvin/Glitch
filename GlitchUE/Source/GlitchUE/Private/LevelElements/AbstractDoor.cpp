@@ -33,6 +33,20 @@ AAbstractDoor::AAbstractDoor(){
 	TechDoor->SetupAttachment(TechFrame);
 	TechDoor->SetCanEverAffectNavigation(false);
 
+	DoorAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Door Audio"));
+	DoorAudioComp->SetupAttachment(RootComp);
+	DoorAudioComp->SetRelativeLocation(FVector(0, 0, 150));
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> OpenSFX(TEXT("/Game/FMOD/Events/SFX/SFX_door_open"));
+	check(OpenSFX.Succeeded());
+
+	OpenDoorSFX = OpenSFX.Object;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> CloseSFX(TEXT("/Game/FMOD/Events/SFX/SFX_door_close"));
+	check(CloseSFX.Succeeded());
+
+	CloseDoorSFX = CloseSFX.Object;
+
 	NavLinkProxy = CreateDefaultSubobject<UChildActorComponent>(TEXT("Nav Link Proxy"));
 	NavLinkProxy->SetupAttachment(RootComp);
 	NavLinkProxy->SetMobility(EComponentMobility::Static);
@@ -83,10 +97,16 @@ void AAbstractDoor::OpenAndCloseDoor(){
 
 void AAbstractDoor::OpenDoor(){
 	OpenDoorTimeline.Play();
+
+	DoorAudioComp->SetEvent(OpenDoorSFX);
+	DoorAudioComp->Play();
 }
 
 void AAbstractDoor::CloseDoor(){
 	OpenDoorTimeline.Reverse();
+
+	DoorAudioComp->SetEvent(CloseDoorSFX);
+	DoorAudioComp->Play();
 }
 
 void AAbstractDoor::OpenDoorUpdate(float Alpha){}

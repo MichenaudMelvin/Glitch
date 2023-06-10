@@ -46,6 +46,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category =  "Stats|Behavior")
 	float InvestigatingTime = 1;
 
+	/**
+	 * @brief Also used as alerted speed for patrol
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "GlitchStats")
 	float GlitchSpeed = 500;
 
@@ -60,6 +63,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category =  "GlitchStats|Behavior")
 	float GlitchDamages = 5;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	UFMODEvent* IdleSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "SFX")
 	UFMODEvent* DeathSound;

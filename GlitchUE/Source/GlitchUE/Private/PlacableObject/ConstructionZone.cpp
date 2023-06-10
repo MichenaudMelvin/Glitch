@@ -64,6 +64,14 @@ AConstructionZone::AConstructionZone() {
 	check(ActivAnim.Succeeded());
 
 	ActivationAnim = ActivAnim.Object;
+
+	#if WITH_EDITORONLY_DATA
+
+		CameraWheelDirection = CreateEditorOnlyDefaultSubobject<UArrowComponent>(TEXT("CameraWheelDirection"));
+		CameraWheelDirection->SetupAttachment(RootComponent);
+		CameraWheelDirection->bIsEditorOnly = true;
+
+	#endif
 }
 
 USkeletalMeshComponent* AConstructionZone::GetTechMesh() const{
@@ -90,11 +98,13 @@ void AConstructionZone::BeginPlay(){
 		ActivableComp->DesactivateObject();
 		break;
 	}
+}
 
-#if WITH_EDITOR
-	if(!IsValid(CameraTargetLocation)){
-		UE_LOG(LogTemp, Warning, TEXT("LA %s NE POSSEDE AUCUN CAMERA LOCATION"), *this->GetName());
-	}
+void AConstructionZone::OnConstruction(const FTransform& Transform){
+	Super::OnConstruction(Transform);
+
+#if WITH_EDITORONLY_DATA
+	CameraWheelDirection->SetRelativeTransform(CameraWheelTransform);
 #endif
 }
 
@@ -138,7 +148,11 @@ void AConstructionZone::DesactivateObjectif(){
 void AConstructionZone::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	MainPlayer->OpenConstructionZone(this);
 	MainPlayerController->OpenWheel();
-	MainPlayerController->CameraBlend(CameraTargetLocation, ConstructionZoneBlend);
+
+	MainPlayer->GetWheelCamera()->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+	MainPlayer->GetWheelCamera()->SetActorRelativeTransform(CameraWheelTransform);
+
+	MainPlayerController->CameraBlend(MainPlayer->GetWheelCamera(), ConstructionZoneBlend);
 }
 
 void AConstructionZone::SwitchPhases(EPhases NewPhases){
@@ -178,15 +192,6 @@ UActivableComponent* AConstructionZone::GetActivableComp(){
 
 void AConstructionZone::DestroyCurrentUnit(){
 	UnitInZone->SellObject();
-}
-
-void AConstructionZone::SpawnCamera(){
-	if(!IsValid(CameraTargetLocation)){
-		FVector TargetLocation = GetActorLocation();
-		TargetLocation += FVector(0, 0, 500);
-
-		CameraTargetLocation = 	GetWorld()->SpawnActor<ATargetCameraLocation>(ATargetCameraLocation::StaticClass(), TargetLocation, FRotator(-90, 0, 0), FActorSpawnParameters());
-	}
 }
 
 #if WITH_EDITORONLY_DATA

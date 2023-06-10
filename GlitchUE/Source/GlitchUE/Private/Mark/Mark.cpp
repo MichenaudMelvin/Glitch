@@ -169,6 +169,7 @@ bool AMark::GetIsMarkPlaced() const{
 
 void AMark::PlaceMark(){
 	StopProjectile();
+	DistanceFromTheMarkTimeline.Stop();
 	bIsMarkPlaced = true;
 }
 
@@ -191,8 +192,6 @@ void AMark::Launch(const FTransform StartTransform){
 void AMark::DistanceTimer(){
 	if(GetDistanceTo(Player) > MaxLaunchDistance){
 		GetWorldTimerManager().ClearTimer(DistanceTimerHandle);
-
-		Player->GetMainPlayerController()->OnUseGlitchPressed.Clear();
 
 		LastPosition = GetActorLocation();
 
