@@ -3,6 +3,8 @@
 
 #include "LevelElements/BanLog.h"
 
+#include "Kismet/GameplayStatics.h"
+
 ABanLog::ABanLog(){
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -44,6 +46,7 @@ ABanLog::ABanLog(){
 	TechMesh->SetMobility(EComponentMobility::Static);
 
 	InteractableComp = CreateDefaultSubobject<UInteractableComponent>(TEXT("Interacable Comp"));
+	ActivableComp = CreateDefaultSubobject<UActivableComponent>(TEXT("Activable Comp"));
 }
 
 void ABanLog::BeginPlay(){
@@ -52,6 +55,15 @@ void ABanLog::BeginPlay(){
 	InteractableComp->AddInteractable(MedMesh);
 	InteractableComp->AddInteractable(TechMesh);
 	InteractableComp->OnInteract.AddDynamic(this, &ABanLog::Interact);
+
+	ActivableComp->OnActivated.AddDynamic(this, &ABanLog::ActivateBanLog);
+
+#if WITH_EDITOR
+	if(TchatMessageList.Num() == 0){
+		GEngine->AddOnScreenDebugMessage(-1, 9999999.0f, FColor::Yellow,FString::Printf(TEXT("LA MESSAGE LIST DE %s EST VIDE"), *GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("LA MESSAGE LIST DE %s EST VIDE"), *GetName());
+	}
+#endif
 }
 
 void ABanLog::OnConstruction(const FTransform& Transform){
@@ -64,12 +76,13 @@ void ABanLog::OnConstruction(const FTransform& Transform){
 void ABanLog::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	CurrenController = MainPlayerController;
 
+	ActivableComp->ActivateObject();
+}
+
+void ABanLog::ActivateBanLog(){
 	WriteMessages();
 
-	InteractableComp->Unfeedback();
-	InteractableComp->RemoveInteractable(MedMesh);
-	InteractableComp->RemoveInteractable(TechMesh);
-	InteractableComp->OnInteract.RemoveDynamic(this, &ABanLog::Interact);
+	RemoveInteraction();
 }
 
 void ABanLog::WriteMessages(){
@@ -86,4 +99,17 @@ void ABanLog::WriteMessages(){
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ABanLog::WriteMessages, TchatMessageList[Index - 1].DelayForNextMessage, false);
 }
 
+bool ABanLog::IsActivated() const{
+	return ActivableComp->IsActivated();
+}
+
+void ABanLog::RemoveInteraction() const{
+	InteractableComp->Unfeedback();
+	InteractableComp->RemoveInteractable(MedMesh);
+	InteractableComp->RemoveInteractable(TechMesh);
+	InteractableComp->OnInteract.RemoveDynamic(this, &ABanLog::Interact);
+
+	ActivableComp->OnActivated.Clear();
+	ActivableComp->ActivateObject();
+}
 

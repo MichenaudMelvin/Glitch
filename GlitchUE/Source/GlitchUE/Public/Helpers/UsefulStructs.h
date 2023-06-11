@@ -10,6 +10,10 @@ struct FTchatStruct {
 	GENERATED_BODY()
 
 public:
+	FTchatStruct();
+
+	FTchatStruct(FString NewSpeaker, FString NewTextMessage, FLinearColor NewSpeakerColor, float NewDelayForNextMessage);
+
 	UPROPERTY(EditAnywhere, Category = "Tchat")
 	FString Speaker;
 

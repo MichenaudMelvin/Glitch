@@ -586,7 +586,16 @@ void AMainPlayer::OnSwitchPhases(EPhases NewPhase){
 
 		const float RemainTime = GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed() : GameMode->GetStealthTimer();
 
-		UpdateGolds(RemainTime * GameMode->GetGoldTimerMultiplier(), EGoldsUpdateMethod::ReceiveGolds);
+		if(GameMode->OptionsString == ""){
+			UpdateGolds(RemainTime * GameMode->GetGoldTimerMultiplier(), EGoldsUpdateMethod::ReceiveGolds);
+		}
+
+#if !UE_BUILD_SHIPPING
+		// for launch game
+		else if(GameMode->OptionsString == "?Name=Player"){
+			UpdateGolds(RemainTime * GameMode->GetGoldTimerMultiplier(), EGoldsUpdateMethod::ReceiveGolds);
+		}
+#endif
 
 		GetMainPlayerController()->GetTimerWidget()->ForceFinishTimer(false, false);
 		GetMainPlayerController()->SetCanSave(false);

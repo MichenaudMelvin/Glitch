@@ -18,12 +18,14 @@
 #include "Helpers/Debug/DebugPawn.h"
 #include "Curves/CurveLinearColor.h"
 #include "FX/Dissolver.h"
+#include "LevelElements/BanLog.h"
 #include "LevelElements/BasicDoor.h"
 #include "Mark/Mark.h"
 #include "Objectives/Inhibiteur.h"
 #include "Saves/StealthSave.h"
 #include "Saves/TowerDefenseSave.h"
 #include "Saves/WorldSave.h"
+#include "UI/Gameplay/Tchat/TchatTriggerBox.h"
 
 AGlitchUEGameMode::AGlitchUEGameMode(){
 	PrimaryActorTick.bCanEverTick = true;
@@ -136,6 +138,10 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 
 	AddGlitch(CurrentSave->GlitchValue);
 
+	for(int i = 0; i < CurrentSave->TchatLinesList.Num(); i++){
+		MainPlayer->GetMainPlayerController()->GetTchatWidget()->AddTchatLineWithATchatStruct(CurrentSave->TchatLinesList[i]);
+	}
+
 	// Doors
 	TArray<AActor*> DoorList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABasicDoor::StaticClass(), DoorList);
@@ -150,6 +156,44 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 				ABasicDoor* CurrentDoor = Cast<ABasicDoor>(DoorList[i]);
 
 				CurrentDoor->InitializeDoor(CurrentSave->DoorDataList.FindRef(DoorList[i]->GetName()));
+			}
+		}
+	}
+
+	// Tchat Box
+	TArray<AActor*> TchatBox;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATchatTriggerBox::StaticClass(), TchatBox);
+
+	FStringArray = CurrentSave->TchatTriggerNameList;
+
+	for(int i = 0; i < TchatBox.Num(); i++){
+		bool bFindTchatBox = false;
+
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(TchatBox[i]->GetName() == FStringArray[j]){
+				bFindTchatBox = true;
+				break;
+			}
+		}
+
+		if(!bFindTchatBox){
+			TchatBox[i]->Destroy();
+		}
+	}
+
+	// Ban logs
+	TArray<AActor*> BanLogList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABanLog::StaticClass(), BanLogList);
+
+	FStringArray.Empty();
+	CurrentSave->BanLogList.GetKeys(FStringArray);
+
+	for(int i = 0; i < BanLogList.Num(); i++){
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(BanLogList[i]->GetName() == FStringArray[j]){
+				if(CurrentSave->BanLogList.FindRef(FStringArray[j])){
+					Cast<ABanLog>(BanLogList[i])->RemoveInteraction();
+				}
 			}
 		}
 	}
@@ -214,6 +258,8 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	CurrentSave->PlayerCameraRotation = MainPlayer->GetController()->GetControlRotation();
 	CurrentSave->PlayerGolds = MainPlayer->GetGolds();
 
+	CurrentSave->TchatLinesList = MainPlayer->GetMainPlayerController()->GetTchatWidget()->GetAllTchatLines();
+
 	if(MainPlayer->GetMark()->GetIsMarkPlaced()){
 		CurrentSave->MarkTransform = MainPlayer->GetMark()->GetActorTransform();
 		CurrentSave->bIsMarkPlaced = true;
@@ -230,6 +276,28 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 		const ABasicDoor* CurrentDoor = Cast<ABasicDoor>(DoorList[i]);
 
 		CurrentSave->DoorDataList.Add(CurrentDoor->GetName(), CurrentDoor->SaveDoor());
+	}
+
+	//Tchat Box
+	TArray<AActor*> TchaBoxList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATchatTriggerBox::StaticClass(), TchaBoxList);
+
+	CurrentSave->TchatTriggerNameList.Empty();
+	for(int i = 0; i < TchaBoxList.Num(); i++){
+		const ATchatTriggerBox* CurrentTchatBox = Cast<ATchatTriggerBox>(TchaBoxList[i]);
+
+		CurrentSave->TchatTriggerNameList.Add(CurrentTchatBox->GetName());
+	}
+
+	//Ban Logs
+	TArray<AActor*> BanLogList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABanLog::StaticClass(), BanLogList);
+
+	CurrentSave->BanLogList.Empty();
+	for(int i = 0; i < BanLogList.Num(); i++){
+		const ABanLog* CurrentBanLog = Cast<ABanLog>(BanLogList[i]);
+
+		CurrentSave->BanLogList.Add(CurrentBanLog->GetName(), CurrentBanLog->IsActivated());
 	}
 
 	CurrentSave->GlitchValue = GlitchValue;
@@ -349,6 +417,8 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 
 	CastedSave->CurrentActivatedCatalyseurNumber = CurrentActivatedCatalyseurs;
 
+	CastedSave->PlayerCrystalName = IsValid(MainPlayer->GetCurrentDrone()) ? MainPlayer->GetCurrentDrone()->GetName() : "";
+
 	TArray<AActor*> PlacableList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableList);
 
@@ -374,6 +444,20 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldSave(UWorldSave* CurrentSave){
 		ACatalyseur* CurrentCatalyseur = Cast<ACatalyseur>(CatalyseurList[i]);
 
 		CastedSave->CatalyseurDataList.Add(CurrentCatalyseur->GetName(), CurrentCatalyseur->SaveCatalyseur());
+	}
+
+	TArray<AActor*> CrystalList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APursuitDrone::StaticClass(), CrystalList);
+
+	CastedSave->CrystalTransformList.Empty();
+	for(int i = 0; i < CrystalList.Num(); i++){
+
+		const APursuitDrone* CurrentCrystal = Cast<APursuitDrone>(CrystalList[i]);
+
+		// if the crystal isn't attached to a placable or the player
+		if(!IsValid(CurrentCrystal->GetAttachParentActor())){
+			CastedSave->CrystalTransformList.Add(CurrentCrystal->GetName(), CurrentCrystal->GetActorTransform());
+		}
 	}
 
 	CastedSave->NexusHealth = Nexus->GetHealthComp()->GetCurrentHealth();
@@ -462,6 +546,25 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 		CurrentPlacableActor->SetMissingData(Nexus, MainPlayer);
 	}
 
+	TArray<FString> FStringArray;
+	CastedSave->CrystalTransformList.GetKeys(FStringArray);
+
+	for(int i = 0; i < PursuitDroneList.Num(); i++){
+		if(CastedSave->PlayerCrystalName == PursuitDroneList[i]->GetName()){
+			APursuitDrone* PlayerDrone = Cast<APursuitDrone>(PursuitDroneList[i]);
+			MainPlayer->SetCurrentDrone(PlayerDrone);
+			PlayerDrone->EnableSpinBehavior();
+			continue;
+		}
+
+		for(int j = 0; j < FStringArray.Num(); j++){
+			if(PursuitDroneList[i]->GetName() == FStringArray[j]){
+				PursuitDroneList[i]->SetActorTransform(CastedSave->CrystalTransformList.FindRef(FStringArray[j]));
+				break;
+			}
+		}
+	}
+
 	TArray<AActor*> CatalyseurList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACatalyseur::StaticClass(), CatalyseurList);
 
@@ -469,7 +572,7 @@ UWorldSave* AGlitchUEGameMode::TowerDefenseWorldLoad(UWorldSave* CurrentSave){
 
 	Dissolver->ForceDissolverValue(CatalyseurCompletionPercent * Dissolver->GetMaxRadius() / 100.0f);
 
-	TArray<FString> FStringArray;
+	FStringArray.Empty();
 	CastedSave->CatalyseurDataList.GetKeys(FStringArray);
 
 	for(int i = 0; i < CatalyseurList.Num(); i++){

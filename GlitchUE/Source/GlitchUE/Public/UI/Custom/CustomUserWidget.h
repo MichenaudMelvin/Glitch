@@ -32,7 +32,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Focus")
 	void Refocus();
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Controller")
 	AAbstractPlayerController* CurrentController;
 
 	UPROPERTY()

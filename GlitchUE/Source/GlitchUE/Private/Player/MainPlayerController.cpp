@@ -62,6 +62,15 @@ void AMainPlayerController::CreatePlayerWidgets(){
 
 #pragma region Movement
 
+void AMainPlayerController::BindOpenTchat(){
+	UnBindOpenTchat();
+	Tchat->IsOpenByUser() ? OnOpenTchat.AddDynamic(Tchat, &UTchat::CloseTchat) : OnOpenTchat.AddDynamic(Tchat, &UTchat::OpenTchat);
+}
+
+void AMainPlayerController::UnBindOpenTchat(){
+	OnOpenTchat.Clear();
+}
+
 void AMainPlayerController::BindFastSaveAndLoad(){
 	UnbindFastSaveAndLoad();
 	OnFastSave.AddDynamic(this, &AMainPlayerController::FastSave);
@@ -223,6 +232,7 @@ void AMainPlayerController::BindNormalMode(){
 	BindInteraction();
 	BindGlitch();
 	BindMouseScroll();
+	BindOpenTchat();
 	SetCanSave(bCanSave);
 }
 
@@ -261,6 +271,7 @@ void AMainPlayerController::UnbindAll(const bool bUnbindPause){
 	UnbindInteraction();
 	UnbindGlitch();
 	UnbindMouseScroll();
+	UnBindOpenTchat();
 	UnbindFastSaveAndLoad();
 
 	if(bUnbindPause){
@@ -269,8 +280,9 @@ void AMainPlayerController::UnbindAll(const bool bUnbindPause){
 }
 
 void AMainPlayerController::PauseGame(){
-	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
+	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(this));
 
+	UGameplayStatics::IsGamePaused(this) ? UnbindAll() : BindNormalMode();
 	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
 
 	ShowMouseCursor(!bShowMouseCursor, PauseWidget);

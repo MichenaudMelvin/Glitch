@@ -17,6 +17,8 @@ public:
 	ATchatTriggerBox();
 
 protected:
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere, Category = "Tchat")
 	TArray<FTchatStruct> TchatMessageList;
 

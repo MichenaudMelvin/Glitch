@@ -13,6 +13,9 @@ class GLITCHUE_API UMainAIData : public UDataAsset{
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "Name")
+	FString DroneName;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Appearence")
 	USkeletalMesh* AIMesh;
 

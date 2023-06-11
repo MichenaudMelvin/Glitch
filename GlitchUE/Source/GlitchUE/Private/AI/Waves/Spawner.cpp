@@ -68,6 +68,16 @@ void ASpawner::ActivateSpawner(){
 	SpawnerFX->StartEmitter();
 	CompassIcon->SetAllowDraw(true);
 	SpawnerAudio->Play();
+
+	if(Gamemode->OptionsString != ""){
+		FTimerHandle TimerHandle;
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+			if(!SpawnerFX->IsEmitterStarted()){
+				SpawnerFX->StartEmitter();
+			}
+		}, 0.1f, false);
+	}
 }
 
 void ASpawner::DesactivateSpawner(){

@@ -62,6 +62,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchPressed);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnUseGlitchReleased);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnOpenTchat);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastSave);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFastLoad);
@@ -154,10 +156,19 @@ public:
 	FKOnUseGlitchReleased OnUseGlitchReleased;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
+	FKOnOpenTchat OnOpenTchat;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
 	FKOnFastSave OnFastSave;
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|SpecialAbilities")
 	FKOnFastLoad OnFastLoad;
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Tchat")
+	void BindOpenTchat();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Tchat")
+	void UnBindOpenTchat();
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Saves")
 	void BindFastSaveAndLoad();
@@ -264,13 +275,13 @@ public:
 #pragma region Widgets
 
 protected:
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
 	USightWidget* SightWidget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<USightWidget> SightWidgetClass;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
 	UTchat* Tchat;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")

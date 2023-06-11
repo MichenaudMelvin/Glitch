@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Root")
 	USceneComponent* SceneComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Root")
+	UActivableComponent* ActivableComp;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
 	UStaticMeshComponent* MedMesh;
 
@@ -47,7 +50,15 @@ protected:
 	AMainPlayerController* CurrenController;
 
 	UFUNCTION()
-	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
+	UFUNCTION()
+	void ActivateBanLog();
 
 	void WriteMessages();
+
+public:
+	bool IsActivated() const;
+
+	void RemoveInteraction() const;
 };
