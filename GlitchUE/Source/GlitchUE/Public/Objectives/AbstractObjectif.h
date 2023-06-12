@@ -10,6 +10,7 @@
 #include "FMODEvent.h"
 #include "Components/BoxComponent.h"
 #include "Gamemodes/GlitchUEGameMode.h"
+#include "FMODAudioComponent.h"
 #include "AbstractObjectif.generated.h"
 
 UCLASS(Abstract)
@@ -39,6 +40,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Navigation")
 	UBoxComponent* NavModifier;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Audio")
+	UFMODAudioComponent* FMODAudioComp;
 
 	UFUNCTION()
 	virtual void ActiveObjectif();

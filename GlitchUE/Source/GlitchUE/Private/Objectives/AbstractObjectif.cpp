@@ -35,6 +35,9 @@ AAbstractObjectif::AAbstractObjectif(){
 	check(SFXActivation.Succeeded());
 
 	ActivationSFX = SFXActivation.Object;
+
+	FMODAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("FMOD Audio"));
+	FMODAudioComp->SetupAttachment(MeshObjectif);
 }
 
 void AAbstractObjectif::BeginPlay(){
@@ -47,6 +50,8 @@ void AAbstractObjectif::BeginPlay(){
 
 	HealthComp->OnReciveDamages.AddDynamic(this, &AAbstractObjectif::TakeDamages);
 	HealthComp->OnHealthNull.AddDynamic(this, &AAbstractObjectif::HealthNull);
+
+	FMODAudioComp->Stop();
 
 	if(UGameplayStatics::GetGameMode(GetWorld())->IsA(AGlitchUEGameMode::StaticClass())){
 		GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));

@@ -29,6 +29,7 @@ public:
 	void LoadCatalyseur(const FCatalyseurData NewData);
 
 protected:
+	
 	virtual void BeginPlay() override;
 
 	virtual void Destroyed() override;
@@ -80,6 +81,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Inhibiteur", meta = (ExposeOnSpawn = "true"))
 	TArray<AInhibiteur*> LinkedInhibiteur;
+
+	UPROPERTY()
+	UFMODEvent* SoundsGolds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Construction", meta = (ExposeOnSpawn = "true"))
 	TArray<AConstructionZone*> ConstructionZoneList;

@@ -76,7 +76,8 @@ void AInhibiteur::ActiveObjectif(){
 	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(LockerFX, "Unlocking");
 	UPopcornFXAttributeFunctions::SetAttributeAsBool(LockerFX, TargetIndex, true);
 
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
+	FMODAudioComp->SetEvent(ActivationSFX);
+	FMODAudioComp->Play();
 
 	OwnerCatalyseur->AddInhibiteurToActivatedList(this);
 

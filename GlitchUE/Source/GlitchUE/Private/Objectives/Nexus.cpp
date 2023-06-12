@@ -8,7 +8,6 @@
 #include "Objectives/Catalyseur.h"
 #include "Audio/AudioManager.h"
 #include "FX/Dissolver.h"
-#include "FMODBlueprintStatics.h"
 #include "Player/MainPlayerController.h"
 
 ANexus::ANexus() {
@@ -148,7 +147,8 @@ void ANexus::ActiveObjectif(){
 
 	UpdateDissolver();
 
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), ActivationSFX, GetActorTransform(), true);
+	FMODAudioComp->SetEvent(ActivationSFX);
+	FMODAudioComp->Play();
 
 	AudioManager->SwitchToTowerDefenseMusic();
 
