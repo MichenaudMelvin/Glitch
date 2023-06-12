@@ -4,5 +4,5 @@
 #include "Saves/Settings/GameplaySettingsSave.h"
 
 UGameplaySettingsSave::UGameplaySettingsSave(){
-	SlotName = "GameplaySave";
+	SlotName = "GameplaySettingsSave";
 }

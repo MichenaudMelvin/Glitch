@@ -2,7 +2,19 @@
 
 
 #include "UI/Gameplay/Tchat/Tchat.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Player/MainPlayerController.h"
 #include "UI/Gameplay/Tchat/TchatLineData.h"
+
+void UTchat::NativeOnInitialized(){
+	Super::NativeOnInitialized();
+
+	AppearanceDuration /= 1;
+	ExtendDuration /= 1;
+
+	AddWidgetToFocusList(TchatList);
+}
 
 void UTchat::NativeConstruct(){
 	Super::NativeConstruct();
@@ -34,7 +46,15 @@ void UTchat::ResetDestructTimer(){
 }
 
 void UTchat::OpenTchat(){
-	IsOpenByUser = true;
+	bIsOpenByUser = true;
+
+	PlayAnimation(ExtendTchatAnim, 0, 1, EUMGSequencePlayMode::Forward, ExtendDuration, false);
+
+	AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
+	CastedController->UnbindAll();
+	CastedController->BindOpenTchat();
+
+	UGameplayStatics::SetGamePaused(CurrentController,true);
 
 	if(IsInViewport()){
 		StopDestructTimer();
@@ -47,12 +67,17 @@ void UTchat::OpenTchat(){
 
 void UTchat::CloseTchat(){
 	PlayAnimation(AppearAnimation, GetAnimationCurrentTime(AppearAnimation), 1, EUMGSequencePlayMode::Reverse, AppearanceDuration, false);
+	if(bIsOpenByUser){
+		bIsOpenByUser = false;
+		PlayAnimation(ExtendTchatAnim, 0, 1, EUMGSequencePlayMode::Reverse, ExtendDuration, false);
+		UGameplayStatics::SetGamePaused(CurrentController,false);
 
-	GetWorld()->GetTimerManager().SetTimer(DisappearTimer, [&]() {
-		IsOpenByUser = false;
-		RemoveFromParent();
-	}, 1/AppearanceDuration, false);
+		Cast<AMainPlayerController>(CurrentController)->BindNormalMode();
+	}
+
+	//RemoveFromParent() is call in blueprint
 }
+
 
 void UTchat::AddTchatLineDelay(){
 	UTchatLineData* TchatLine = NewObject<UTchatLineData>();
@@ -69,6 +94,7 @@ void UTchat::AddTchatLineDelay(){
 
 	TchatLine->SpeakerColor = FSlateColor(CurrentSpeakerColor);
 
+	AllTchatLines.Add(FTchatStruct(CurrentSpeaker, CurrentMessage, CurrentSpeakerColor, 0));
 	TchatList->AddItem(TchatLine);
 
 	TchatList->ScrollToBottom();
@@ -77,12 +103,12 @@ void UTchat::AddTchatLineDelay(){
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TchatList, &UListView::ScrollToBottom, 0.001f, false);
 }
 
-void UTchat::RebuildList(){
+void UTchat::RebuildList() const{
 	TchatList->AddItem(LastItem);
 }
 
 void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
-	if(!IsOpenByUser){
+	if(!bIsOpenByUser){
 		if(!IsInViewport()){
 			AddToViewport();
 			StartDestructTimer();
@@ -118,4 +144,25 @@ void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, co
 	// forced to use a timer because the display entry list is not updated instantly
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::AddTchatLineDelay, 0.002f, false);
+}
+
+bool UTchat::IsOpenByUser() const{
+	return bIsOpenByUser;
+}
+
+TArray<FTchatStruct> UTchat::GetAllTchatLines() const{
+	return AllTchatLines;
+}
+
+void UTchat::AddTchatLineWithATchatStruct(FTchatStruct TchatStruct){
+	UTchatLineData* TchatLine = NewObject<UTchatLineData>();
+
+	TchatLine->Speaker = TchatStruct.Speaker + ": ";
+
+	TchatLine->Message = TchatStruct.TextMessage;
+
+	TchatLine->SpeakerColor = FSlateColor(TchatStruct.SpeakerColor);
+
+	AllTchatLines.Add(TchatStruct);
+	TchatList->AddItem(TchatLine);
 }

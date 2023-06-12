@@ -68,6 +68,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "FX")
 	UPopcornFXEmitterComponent* AttackFX;
 
+	UPROPERTY(BlueprintReadOnly, Category = "FX")
+	UPopcornFXEmitterComponent* CrystalUpgradeFX;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Animation")
 	UAnimSequenceBase* AttackAnimation;
 

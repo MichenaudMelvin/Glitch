@@ -21,14 +21,28 @@ protected:
 	UFUNCTION()
 	void UpdateWidgetHealth();
 
+	virtual void SetCurrentData(UMainAIData* NewData) override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	UBillboardWidgetComponent* HealthWidget;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX")
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* AttackFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* HitFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UFMODAudioComponent* AttackAudioComp;
+
+	UPROPERTY()
 	UEnemyHealthBar* EnemyHealthBarWidget;
+
+	UFUNCTION()
+	void TakeDamages();
 
 public:
 	UPopcornFXEmitterComponent* GetAttackFX() const;
+
+	UFMODAudioComponent* GetAttackAudioComp() const;
 };

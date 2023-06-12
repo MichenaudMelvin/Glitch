@@ -26,6 +26,9 @@ AMainAICharacter::AMainAICharacter(){
 	IdleFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("IdleFX"));
 	IdleFX->SetupAttachment(GetMesh());
 
+	IdleAudioComp = CreateDefaultSubobject<UFMODAudioComponent>(TEXT("Idle Audio"));
+	IdleAudioComp->SetupAttachment(GetMesh());
+
 	HealthComp->OnHealthNull.AddDynamic(this, &AMainAICharacter::HealthNull);
 
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
@@ -42,7 +45,10 @@ void AMainAICharacter::BeginPlay(){
 	const FAttachmentTransformRules FXAttachmentRules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, false);
 
 	SightComp->AttachToComponent(GetMesh(), SightAttachmentRules, "Drone_Head");
-	IdleFX->AttachToComponent(GetMesh(), FXAttachmentRules, "Drone_Root");
+
+	// this avoid a warns
+	// also destroying component may improve performances if unused
+	IsValid(IdleFX->Effect) ? IdleFX->AttachToComponent(GetMesh(), FXAttachmentRules, "Drone_Root") : IdleFX->DestroyComponent();
 
 	AIController = Cast<AMainAIController>(GetController());
 	Blackboard = AIController->GetBlackboardComponent();
@@ -58,8 +64,7 @@ void AMainAICharacter::Destroyed(){
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(AIController);
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), CurrentData->DeathSound, GetActorTransform(), true);
-	UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->DeathFX, "PopcornFX_DefaultScene", GetActorLocation(), GetActorRotation());
+	TriggerDeathEffects();
 
 	Super::Destroyed();
 }
@@ -74,6 +79,9 @@ void AMainAICharacter::SetCurrentData(UMainAIData* NewData){
 	GetMesh()->SetSkeletalMesh(CurrentData->AIMesh);
 
 	IdleFX->SetEffect(CurrentData->IdleFX);
+	IdleAudioComp->SetEvent(CurrentData->IdleSound);
+	IdleAudioComp->Play();
+
 	SightComp->SetStaticMesh(CurrentData->SightMesh);
 	SightComp->SetWorldScale3D(CurrentData->SightDetectionScale);
 
@@ -86,6 +94,11 @@ UBlackboardComponent* AMainAICharacter::GetBlackBoard() const{
 
 UPopcornFXEmitterComponent* AMainAICharacter::GetIdleFX() const{
 	return IdleFX;
+}
+
+void AMainAICharacter::TriggerDeathEffects() const{
+	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), CurrentData->DeathSound, GetActorTransform(), true);
+	UPopcornFXFunctions::SpawnEmitterAtLocation(GetWorld(), CurrentData->DeathFX, "PopcornFX_DefaultScene", GetActorLocation(), GetActorRotation());
 }
 
 void AMainAICharacter::StunAI() {

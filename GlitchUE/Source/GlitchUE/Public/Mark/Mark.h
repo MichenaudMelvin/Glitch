@@ -26,6 +26,9 @@ protected:
 
 	void DetachToPlayer();
 
+	UPROPERTY(EditAnywhere, Category = "Behavior")
+	bool bCanBeAttached = true;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Location")
 	FVector RelativeLocation = FVector(-50, 0, 130);
 
@@ -34,8 +37,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	UPopcornFXEmitterComponent* MarkFX;
-
-	FTimerHandle SwitchMeshTimer;
 
 	AMainPlayer* Player;
 
@@ -46,6 +47,9 @@ protected:
 
 	UFUNCTION()
 	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
+
+	UFUNCTION(BlueprintCallable, Category = "Behavior")
+	void ReattachToPlayer();
 
 #pragma region Projectile
 
@@ -65,8 +69,6 @@ public:
 
 protected:
 	bool LocationTrace(const float UpTraceValue, FVector& OutImpactPoint);
-
-	FVector LaunchLocation;
 
 	UFUNCTION()
 	void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
@@ -102,8 +104,6 @@ public:
 #pragma region Distance
 
 protected:
-	float GetDistanceToLaunchPoint() const;
-
 	void DistanceTimer();
 
 	FTimerHandle DistanceTimerHandle;

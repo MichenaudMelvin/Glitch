@@ -11,6 +11,9 @@ UCLASS()
 class GLITCHUE_API UCustomButton : public UButton, public IUIFocus{
 	GENERATED_BODY()
 
+public:
+	UCustomButton();
+
 protected:
 	virtual void SynchronizeProperties() override;
 

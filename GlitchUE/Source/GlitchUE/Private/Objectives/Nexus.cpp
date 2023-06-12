@@ -44,6 +44,8 @@ void ANexus::BeginPlay(){
 	HealthComp->OnReciveDamages.RemoveDynamic(this, &ANexus::TakeDamages);
 	HealthComp->OnHealthChange.AddDynamic(this, &ANexus::TakeDamages);
 
+	TechFXEmitter->OnEmissionStops.AddDynamic(this, &ANexus::DestroyFX);
+
 	TArray<AActor*> DissolverArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
@@ -117,6 +119,15 @@ void ANexus::UpdateDissolver(){
 	Dissolver->DissolveTo(CatalyseurCompletionPercent * Dissolver->GetMaxRadius() / 100.0f);
 }
 
+void ANexus::SetCanInteractWithNexus(const bool bCanInteract) const{
+	if(bCanInteract){
+		InteractableComp->AddInteractable(MeshObjectif);
+	} else {
+		InteractableComp->Unfeedback();
+		InteractableComp->RemoveInteractable(MeshObjectif);
+	}
+}
+
 AActor* ANexus::GetFarestActivatedCatalyseur(){
 	TArray<AActor*> ActivatedCatalyseurList;
 
@@ -147,15 +158,11 @@ void ANexus::ActiveObjectif(){
 
 	MedFXEmitter->StartEmitter();
 
-	FTimerHandle TimerHandle;
-
-	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
-		TechFXEmitter->StopEmitter(true);
-	}, 2, false);
+	SetCanInteractWithNexus(false);
 }
 
 void ANexus::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	if (!ActivableComp->IsActivated() && GameMode->CanStartTowerDefense()){
+	if(GameMode->CanStartTowerDefense()){
 		ActivableComp->ActivateObject();
 	}
 }

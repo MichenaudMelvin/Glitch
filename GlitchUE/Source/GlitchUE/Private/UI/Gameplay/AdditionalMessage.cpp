@@ -5,12 +5,12 @@
 #include "Components/TextBlock.h"
 
 void UAdditionalMessage::AddMessageToScreen(const FString NewMessage){
-	IsVisible() ? GetWorld()->GetTimerManager().ClearTimer(AnimTimerHandle) : AddToViewport();
+	if(!IsVisible()){
+		AddToViewport();
+	}
 
 	AdditionalMessageText->SetText(FText::FromString(NewMessage));
 	PlayAnimation(AdditionalMessageAnim, 0, 1, EUMGSequencePlayMode::Forward, AdditionalMessageAnimSpeed, true);
 
-	GetWorld()->GetTimerManager().SetTimer(AnimTimerHandle, [&](){
-		RemoveFromParent();
-	}, 1/AdditionalMessageAnimSpeed, false);
+	// remove from parent will be call by the animation, otherwise it can crash the editor with a timer
 }

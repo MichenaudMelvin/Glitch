@@ -52,11 +52,24 @@ void AMainPlayerController::CreatePlayerWidgets(){
 	PopUpWidget = Cast<UPopUpWidget>(CreateWidget(this, PopUpWidgetClass));
 
 	WaypointIndicationWidget = Cast<UWaypointIndication>(CreateWidget(this, WaypointIndicationWidgetClass));
+
+	LooseScreenWidget = Cast<ULooseScreen>(CreateWidget(this, LooseScreenWidgetClass));
+
+	WinScreenWidget = Cast<UWinScreen>(CreateWidget(this, WinScreenWidgetClass));
 }
 
 #pragma region Bind
 
 #pragma region Movement
+
+void AMainPlayerController::BindOpenTchat(){
+	UnBindOpenTchat();
+	Tchat->IsOpenByUser() ? OnOpenTchat.AddDynamic(Tchat, &UTchat::CloseTchat) : OnOpenTchat.AddDynamic(Tchat, &UTchat::OpenTchat);
+}
+
+void AMainPlayerController::UnBindOpenTchat(){
+	OnOpenTchat.Clear();
+}
 
 void AMainPlayerController::BindFastSaveAndLoad(){
 	UnbindFastSaveAndLoad();
@@ -219,6 +232,7 @@ void AMainPlayerController::BindNormalMode(){
 	BindInteraction();
 	BindGlitch();
 	BindMouseScroll();
+	BindOpenTchat();
 	SetCanSave(bCanSave);
 }
 
@@ -257,6 +271,7 @@ void AMainPlayerController::UnbindAll(const bool bUnbindPause){
 	UnbindInteraction();
 	UnbindGlitch();
 	UnbindMouseScroll();
+	UnBindOpenTchat();
 	UnbindFastSaveAndLoad();
 
 	if(bUnbindPause){
@@ -265,8 +280,9 @@ void AMainPlayerController::UnbindAll(const bool bUnbindPause){
 }
 
 void AMainPlayerController::PauseGame(){
-	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
+	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(this));
 
+	UGameplayStatics::IsGamePaused(this) ? UnbindAll() : BindNormalMode();
 	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
 
 	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
@@ -275,7 +291,7 @@ void AMainPlayerController::PauseGame(){
 #pragma endregion
 
 void AMainPlayerController::OpenWheel(){
-	UnbindAll();
+	UnbindAll(true);
 	WheelWidget->AddToViewport();
 
 	OnPause.AddDynamic(this, &AMainPlayerController::CloseWheel);
@@ -337,6 +353,14 @@ UAdditionalMessage* AMainPlayerController::GetAdditionalMessageWidget() const{
 
 UWaypointIndication* AMainPlayerController::GetWaypointIndicationWidget() const{
 	return WaypointIndicationWidget;
+}
+
+ULooseScreen* AMainPlayerController::GetLooseScreen() const{
+	return LooseScreenWidget;
+}
+
+UWinScreen* AMainPlayerController::GetWinScreen() const{
+	return WinScreenWidget;
 }
 
 

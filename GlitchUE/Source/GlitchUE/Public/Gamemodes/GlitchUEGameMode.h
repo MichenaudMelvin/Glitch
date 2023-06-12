@@ -63,6 +63,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnSwitchPhases, EPhases, NewPhases
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnSwitchLevelState, ELevelState, NewState);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnStartStealthTimer);
+
 UCLASS(minimalapi)
 class AGlitchUEGameMode : public AMainGamemode, public ISaveInterface{
 	GENERATED_BODY()
@@ -106,6 +108,9 @@ public:
 	 */
 	UFUNCTION(Exec)
 	virtual void LaunchStealthTimer(float TimerValue = 0);
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnStartStealthTimer OnStartStealthTimer;
 
 	float GetStealthTimer() const;
 

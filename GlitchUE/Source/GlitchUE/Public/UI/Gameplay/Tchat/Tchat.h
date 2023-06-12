@@ -4,19 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "TchatLine.h"
-#include "Blueprint/UserWidget.h"
 #include "Components/ListView.h"
+#include "Helpers/UsefulStructs.h"
+#include "UI/Custom/CustomUserWidget.h"
 #include "Tchat.generated.h"
 
 UCLASS(Abstract)
-class GLITCHUE_API UTchat : public UUserWidget{
+class GLITCHUE_API UTchat : public UCustomUserWidget{
 	GENERATED_BODY()
 
 protected:
+	virtual void NativeOnInitialized() override;
+
 	virtual void NativeConstruct() override;
 
 	UPROPERTY(BlueprintReadOnly, Transient, meta = (BindWidgetAnim), Category = "Animation")
 	UWidgetAnimation* AppearAnimation;
+
+	UPROPERTY(BlueprintReadOnly, Transient, meta = (BindWidgetAnim), Category = "Animation")
+	UWidgetAnimation* ExtendTchatAnim;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Tchat")
 	UListView* TchatList;
@@ -26,6 +32,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Appearance")
 	float AppearanceDuration = 2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Appearance")
+	float ExtendDuration = 2;
 
 	FTimerHandle DestructTimer;
 
@@ -38,7 +47,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	float DestructTime = 3;
 
-	bool IsOpenByUser;
+	bool bIsOpenByUser;
 
 	void StartDestructTimer();
 
@@ -46,15 +55,17 @@ protected:
 
 	void ResetDestructTimer();
 
+public:
 	UFUNCTION(BlueprintCallable)
 	void OpenTchat();
 
 	UFUNCTION(BlueprintCallable)
 	void CloseTchat();
 
+protected:
 	void AddTchatLineDelay();
 
-	void RebuildList();
+	void RebuildList() const;
 
 	UObject* LastItem;
 
@@ -64,7 +75,17 @@ protected:
 
 	FLinearColor CurrentSpeakerColor;
 
+	UPROPERTY()
+	TArray<FTchatStruct> AllTchatLines;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Tchat")
 	void AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor);
+
+	bool IsOpenByUser() const;
+
+	TArray<FTchatStruct> GetAllTchatLines() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Tchat")
+	void AddTchatLineWithATchatStruct(FTchatStruct TchatStruct);
 };

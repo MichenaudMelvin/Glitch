@@ -13,4 +13,7 @@ class GLITCHUE_API UFocusAIData : public UMainAIData{
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Stats|Behavior");
 	float AttackDistance = 250;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	UFMODEvent* AttackSound;
 };

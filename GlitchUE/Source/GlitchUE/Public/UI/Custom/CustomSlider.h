@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Slider")
 	float FractionalDigits = 0;
 
+	UPROPERTY(EditAnywhere, Category = "Slider")
+	float StepSize = 0.1f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Slider", meta = (BindWidget))
 	UTextBlock* SliderValue;
 

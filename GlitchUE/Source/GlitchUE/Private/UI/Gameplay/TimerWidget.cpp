@@ -12,11 +12,7 @@ void UTimerWidget::NativeConstruct(){
 void UTimerWidget::RemoveWidget(){
 	PlayAnimation(Fade, 0, 1, EUMGSequencePlayMode::Reverse, FadeTime);
 
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		RemoveFromParent();
-	}, FadeTime, false);
+	// remove from parent will be call in blueprint
 }
 
 FString UTimerWidget::SelectString(const int IntValue){
@@ -107,7 +103,7 @@ void UTimerWidget::FinishTimer(const bool RemoveTimer){
 	}
 
 	if(RemoveTimer){
-		RemoveFromParent();
+		RemoveWidget();
 	}
 }
 

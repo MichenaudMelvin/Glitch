@@ -29,6 +29,15 @@ ACatalyseur::ACatalyseur(){
 
 	DesactivationFX->SetEffect(ShutDownFX.Object);
 
+	IdleFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Idle FX"));
+	IdleFX->SetupAttachment(RootComponent);
+	IdleFX->SetRelativeLocation(FVector(0, 0, 90));
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> CatalyseurFX(TEXT("/Game/VFX/Particles/FX_Environment/Pk_Catalyseur"));
+	check(CatalyseurFX.Succeeded());
+
+	IdleFX->SetEffect(CatalyseurFX.Object);
+
 	GoldsGenerationFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Gold Generation FX"));
 	GoldsGenerationFX->SetupAttachment(RootComponent);
 	GoldsGenerationFX->bPlayOnLoad = false;
@@ -86,7 +95,7 @@ USkeletalMeshComponent* ACatalyseur::GetTechMesh() const{
 void ACatalyseur::BeginPlay(){
 	Super::BeginPlay();
 
-	InteractableComp->AddInteractable(TECHMesh);
+	IdleFX->OnEmissionStops.AddDynamic(this, &ACatalyseur::DestroyFX);
 
 	TArray<AActor*> NexusTemp;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusTemp);
@@ -138,8 +147,6 @@ void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);
 
-	DesactivationFX->StopEmitter();
-
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
 	}
@@ -152,13 +159,21 @@ void ACatalyseur::ActiveObjectif(){
 	switch (GameMode->GetPhases()){
 		case EPhases::Infiltration:
 			bWasActivatedInStealthPhase = true;
+
+			UPopcornFXAttributeFunctions::SetAttributeAsBool(IdleFX, UPopcornFXAttributeFunctions::FindAttributeIndex(IdleFX, "FreePseudos"), true);
+
 			break;
 		case EPhases::TowerDefense:
+			DesactivationFX->StopEmitter();
+
 			StartGeneratingMoney();
 			Nexus->UpdateDissolver();
 			HealthComp->ResetHealth();
-			ToggleActivatedInhibiteursState(true);
 			DesactivationBillboard->DrawWaypoint(false);
+
+			InteractableComp->Unfeedback();
+			InteractableComp->RemoveInteractable(MeshObjectif);
+			InteractableComp->RemoveInteractable(TECHMesh);
 			break;
 	}
 }
@@ -169,7 +184,7 @@ void ACatalyseur::DesactivateObjectif(){
 
 	DesactivationFX->StartEmitter();
 	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
-	UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CannotInteractWithColor, true);
+	UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, TargetIndex, CannotInteractWithColor, false);
 
 	for (int i = 0; i < ConstructionZoneList.Num(); i++){
 		ConstructionZoneList[i]->GetActivableComp()->DesactivateObject();
@@ -189,9 +204,6 @@ void ACatalyseur::DesactivateObjectif(){
 			GetWorld()->GetTimerManager().ClearTimer(MoneyTimerHandle);
 			Nexus->UpdateDissolver();
 
-			InteractableComp->RemoveInteractable(MeshObjectif);
-			InteractableComp->RemoveInteractable(TECHMesh);
-
 			DesactivationBillboard->DrawWaypoint(true);
 			StartDesactivationTimer(DesactivationTimer);
 			break;
@@ -204,14 +216,8 @@ void ACatalyseur::StartDesactivationTimer(const float Timer){
 		InteractableComp->AddInteractable(TECHMesh);
 
 		const int ColorIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DesactivationFX, "Color_1");
-		UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, true);
+		UPopcornFXAttributeFunctions::SetAttributeAsLinearColor(DesactivationFX, ColorIndex, CanInteractWithColor, false);
 	}, Timer, false);
-}
-
-void ACatalyseur::ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs){
-	for(int i = 0; i < ActivatedInhibiteursList.Num(); i++){
-		ActivateInhibiteurs ? ActivatedInhibiteursList[i]->GetActivableComp()->ActivateObject() : ActivatedInhibiteursList[i]->GetActivableComp()->DesactivateObject();
-	}
 }
 
 void ACatalyseur::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
@@ -235,13 +241,10 @@ void ACatalyseur::OnSwitchPhases(EPhases CurrentPhase){
 		break;
 	case EPhases::TowerDefense:
 		Compass->DestroyComponent();
+		IdleFX->StopEmitter(true);
 
 		if(ActivableComp->IsActivated()){
 			StartGeneratingMoney();
-		} else{
-			// for now it work, needs to be tested with saves
-			InteractableComp->RemoveInteractable(MeshObjectif);
-			InteractableComp->RemoveInteractable(TECHMesh);
 		}
 
 		break;

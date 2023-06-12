@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "FX/Dissolver.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayer.h"
 
 APursuitDrone::APursuitDrone(){
@@ -145,13 +146,21 @@ void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor
 	if(OtherActor->IsA(AMainPlayer::StaticClass())){
 		AMainPlayer* Player = Cast<AMainPlayer>(OtherActor);
 
-		if(Blackboard->GetValueAsBool("IsDocked")){
+		if(Blackboard->GetValueAsBool("IsDocked") || Blackboard->GetValueAsBool("IsLoading")){
 			return;
 		}
 
 		if(!Player->IsInGlitchZone() && Player->CanUpdateGolds()){
 			Player->UpdateGolds(AIController->GetDamages(), EGoldsUpdateMethod::TakeDamages);
-			Destroy();
+			TriggerDeathEffects();
+
+			Blackboard->SetValueAsBool("ReceiveAlert", false);
+			Blackboard->SetValueAsBool("IsLoading", true);
+
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+				Blackboard->SetValueAsBool("IsLoading", false);
+			}, LoadingTime, false);
 		}
 	}
 }

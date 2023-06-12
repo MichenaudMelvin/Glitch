@@ -44,8 +44,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateDissolver();
 
+	void SetCanInteractWithNexus(const bool bCanInteract) const;
+
 protected:
 	AActor* GetFarestActivatedCatalyseur();
+
 
 	virtual void ActiveObjectif() override;
 

@@ -7,6 +7,7 @@
 #include "Objectives/Nexus.h"
 #include "AI/Waves/Spawner.h"
 #include "EngineUtils.h"
+#include "AI/AIFocusCatalyseur/FocusCatalyseurCharacter.h"
 #include "Audio/AudioManager.h"
 #include "UI/Gameplay/PlayerStats.h"
 #include "Player/MainPlayerController.h"
@@ -91,8 +92,36 @@ void AWaveManager::BeginPlay(){
 
 		PlayerTimerWidget = PlayerController->GetTimerWidget();
 		PlayerMessageWidget = PlayerController->GetAdditionalMessageWidget();
+		PlayerTchatWidget = PlayerController->GetTchatWidget();
 		OnStartWave.AddDynamic(PlayerController->GetPlayerStatsWidget(), &UPlayerStats::UpdateWaveNumber);
 	}, 0.1f, false);
+}
+
+void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave){
+	PlayerTchatWidget->AddTchatLine("I.V.A.N.", "The next wave contain:", TchatSpeakerColor);
+
+	TchatTargetWave = TargetWave;
+	TchatIndex = 0;
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
+
+}
+
+void AWaveManager::WriteMessages(){
+	const FString DroneType = TchatTargetWave.AIToSpawnList[TchatIndex].AIToSpawn.GetDefaultObject()->IsA(AFocusCatalyseurCharacter::StaticClass()) ? "Focus Catalyser" : "Focus Nexus";
+	const FString Message = FString::FromInt(TchatTargetWave.AIToSpawnList[TchatIndex].NumberToSpawn) + " " + DroneType + " " + TchatTargetWave.AIToSpawnList[TchatIndex].AIData->DroneName;
+
+	PlayerTchatWidget->AddTchatLine("I.V.A.N.", Message, TchatSpeakerColor);
+
+	TchatIndex++;
+
+	if(TchatIndex + 1 > TchatTargetWave.AIToSpawnList.Num()){
+		return;
+	}
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
 }
 
 void AWaveManager::EnableSpawners(){
@@ -120,6 +149,8 @@ void AWaveManager::DisableSpawner(){
 }
 
 void AWaveManager::StartPrepareTimer(){
+	WriteWhatTheNextWaveContain(GetCurrentWaveData());
+
 	FKOnFinishTimer FinishEvent;
 	FinishEvent.BindDynamic(this, &AWaveManager::StartWave);
 	PlayerTimerWidget->StartTimer(PrepareTime, FinishEvent);
@@ -161,13 +192,16 @@ void AWaveManager::EndWave(){
 
 	OnEndWave.Broadcast(CurrentWaveNumber);
 
-	if (CurrentWaveNumber == NumberOfWaves){
+	if(CurrentWaveNumber == NumberOfWaves - 1){
 		PlayerMessageWidget->AddMessageToScreen("Finish all Waves");
+		Player->Win();
 		return;
 	}
 
 	PlayerMessageWidget->AddMessageToScreen("Finish Wave: " + FString::FromInt(CurrentWaveNumber));
-	if (GetCurrentWaveData().bStopAtEnd){
+	WriteWhatTheNextWaveContain(GetNextWaveData());
+
+	if(GetCurrentWaveData().bStopAtEnd){
 		bIsStopped = true;
 		return;
 	}
@@ -198,6 +232,10 @@ void AWaveManager::SpawnEnemies(){
 
 FWave AWaveManager::GetCurrentWaveData() const{
 	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber - 1], "");
+}
+
+FWave AWaveManager::GetNextWaveData() const{
+	return *WavesData->FindRow<FWave>(WavesData->GetRowNames()[CurrentWaveNumber], "");
 }
 
 FWave AWaveManager::GetTargetWaveData(const int Target) const{

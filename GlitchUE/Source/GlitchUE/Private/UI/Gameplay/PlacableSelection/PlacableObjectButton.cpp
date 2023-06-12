@@ -48,6 +48,8 @@ void UPlacableObjectButton::OnClick(){
 	if(MainPlayer->GetPreviewPlacableActor()->CanBePlaced()){
 		MainPlayer->PlacePlacableActor();
 		MainPlayerController->CloseWheel();
+
+		Wheel->ResetLastFocusWidgetIndex();
 	}
 }
 

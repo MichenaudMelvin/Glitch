@@ -4,6 +4,8 @@
 #include "AI/AIPatrol/PatrolCharacter.h"
 #include "Components/SplineMeshComponent.h"
 #include "Engine/Selection.h"
+#include "AI/MainAIData.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -37,12 +39,29 @@ APatrolCharacter::APatrolCharacter(){
 #endif
 }
 
+void APatrolCharacter::BeginPlay(){
+	Super::BeginPlay();
+
+	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()))->OnSwitchLevelState.AddDynamic(this, &APatrolCharacter::OnSwitchLevelState);
+}
+
 void APatrolCharacter::Destroyed(){
 	Super::Destroyed();
 
 	#if WITH_EDITORONLY_DATA
 		OutlineLinkedObjects(false);
 	#endif
+}
+
+void APatrolCharacter::OnSwitchLevelState(ELevelState NewLevelState){
+	switch (NewLevelState){
+		case ELevelState::Normal:
+			GetCharacterMovement()->MaxWalkSpeed = CurrentData->Speed;
+			break;
+		case ELevelState::Alerted:
+			GetCharacterMovement()->MaxWalkSpeed = CurrentData->GlitchSpeed;
+			break;
+	}
 }
 
 TArray<APatrolPoint*> APatrolCharacter::GetPatrolPointList() const{

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Objectives/AbstractObjectif.h"
+#include "PopcornFXEmitterComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavAreas/NavArea_Obstacle.h"
 
@@ -45,7 +46,6 @@ void AAbstractObjectif::BeginPlay(){
 	ActivableComp->OnActivated.AddDynamic(this, &AAbstractObjectif::ActiveObjectif);
 	ActivableComp->OnDesactivated.AddDynamic(this, &AAbstractObjectif::DesactivateObjectif);
 
-	InteractableComp->AddInteractable(MeshObjectif);
 	InteractableComp->OnInteract.AddDynamic(this, &AAbstractObjectif::Interact);
 
 	HealthComp->OnReciveDamages.AddDynamic(this, &AAbstractObjectif::TakeDamages);
@@ -70,6 +70,10 @@ void AAbstractObjectif::TakeDamages(){}
 void AAbstractObjectif::HealthNull(){}
 
 void AAbstractObjectif::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){}
+
+void AAbstractObjectif::DestroyFX(UPopcornFXEmitterComponent* EmitterComponent, FVector Location, FVector Rotation){
+	EmitterComponent->DestroyComponent();
+}
 
 UActivableComponent* AAbstractObjectif::GetActivableComp()  const{
 	return ActivableComp;
