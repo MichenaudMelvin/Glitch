@@ -20,4 +20,8 @@ public:
 	virtual void ReceiveFocus();
 
 	virtual void UnReceiveFocus();
+
+	virtual void AllowFocus();
+
+	virtual void DenyFocus();
 };

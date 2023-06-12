@@ -210,13 +210,13 @@ void AMainAICharacter::ResetBurnEffect(){
 }
 
 void AMainAICharacter::ReceiveFreezeEffect(const float EffectDuration){
-	Blackboard->SetValueAsBool("DoingExternalActions", true);
+	Blackboard->SetValueAsBool("StopAI", true);
 
 	GetWorld()->GetTimerManager().SetTimer(TrapTimer, this, &AMainAICharacter::ResetTrapEffect, EffectDuration, false);
 }
 
 void AMainAICharacter::ResetFreezeEffect(){
-	Blackboard->SetValueAsBool("DoingExternalActions", false);
+	Blackboard->SetValueAsBool("StopAI", false);
 }
 
 void AMainAICharacter::ReceivePoisonEffect(const float EffectDuration){

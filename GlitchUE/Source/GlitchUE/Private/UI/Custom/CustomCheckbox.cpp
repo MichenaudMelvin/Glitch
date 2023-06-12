@@ -46,3 +46,15 @@ void UCustomCheckbox::UnReceiveFocus(){
 
 	IsChecked() ? WidgetStyle.CheckedImage = SavedStyle.CheckedImage : WidgetStyle.UncheckedImage = SavedStyle.UncheckedImage;
 }
+
+void UCustomCheckbox::AllowFocus(){
+	IUIFocus::AllowFocus();
+
+	IsFocusable = true;
+}
+
+void UCustomCheckbox::DenyFocus(){
+	IUIFocus::DenyFocus();
+
+	IsFocusable = false;
+}

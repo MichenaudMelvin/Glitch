@@ -108,15 +108,15 @@ AMainPlayer::AMainPlayer(){
 
 	GlitchDashFXReference = FX.Object;
 
-	// static ConstructorHelpers::FObjectFinder<UFMODEvent> StartSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_Start"));
-	// check(StartSFX.Succeeded());
-	//
-	// TPStart = StartSFX.Object;
-	//
-	// static ConstructorHelpers::FObjectFinder<UFMODEvent> EndSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_End"));
-	// check(EndSFX.Succeeded());
-	//
-	// TPEnd = EndSFX.Object;
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> StartSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_Start"));
+	check(StartSFX.Succeeded());
+
+	TPStart = StartSFX.Object;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> EndSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_End"));
+	check(EndSFX.Succeeded());
+
+	TPEnd = EndSFX.Object;
 }
 
 void AMainPlayer::BeginPlay(){

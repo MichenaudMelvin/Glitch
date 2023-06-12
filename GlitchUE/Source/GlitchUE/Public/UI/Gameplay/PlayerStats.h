@@ -14,13 +14,8 @@ class GLITCHUE_API UPlayerStats : public UUserWidget{
 	GENERATED_BODY()
 
 protected:
-	virtual void NativeConstruct() override;
-
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
 	UTextBlock* GoldsText;
-
-	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
-	UTextBlock* WaveText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
 	UTextBlock* NexusHealth;
@@ -32,16 +27,10 @@ protected:
 	UTextBlock* ObjectiveText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
-	UTextBlock* TutorialText;
-
-	UFUNCTION()
-	void SwitchPhases(EPhases NewPhase);
+	UTextBlock* AdditionalText;
 
 public:
 	void UpdateDisplayGolds(int Golds) const;
-
-	UFUNCTION()
-	void UpdateWaveNumber(int CurrentWave);
 
 	void UpdateNexusHealth(const float NewHealth, const float NexusMaxHealth)const;
 
@@ -49,5 +38,5 @@ public:
 	void UpdateObjectivesText(const FString NewObjective) const;
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateTutorialText(const FString NewTutorial) const;
+	void UpdateAdditionalText(const FString NewMessage) const;
 };

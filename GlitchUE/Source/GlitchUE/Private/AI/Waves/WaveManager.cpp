@@ -93,8 +93,26 @@ void AWaveManager::BeginPlay(){
 		PlayerTimerWidget = PlayerController->GetTimerWidget();
 		PlayerMessageWidget = PlayerController->GetAdditionalMessageWidget();
 		PlayerTchatWidget = PlayerController->GetTchatWidget();
-		OnStartWave.AddDynamic(PlayerController->GetPlayerStatsWidget(), &UPlayerStats::UpdateWaveNumber);
+		PlayerStatsWidget = PlayerController->GetPlayerStatsWidget();
 	}, 0.1f, false);
+}
+
+void AWaveManager::UpdatePlayerObjectives(){
+	if(!IsValid(PlayerMessageWidget) || !IsValid(PlayerStatsWidget)){
+		// only useful on load save
+
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::UpdatePlayerObjectives, 0.1f, false);
+	}
+
+	PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
+
+	if(!GameMode->UseAutoObjectivesForPlayer()){
+		return;
+	}
+
+	PlayerStatsWidget->UpdateObjectivesText("Current Wave: " + FString::FromInt(CurrentWaveNumber));
+	PlayerStatsWidget->UpdateAdditionalText("");
 }
 
 void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave){
@@ -154,6 +172,13 @@ void AWaveManager::StartPrepareTimer(){
 	FKOnFinishTimer FinishEvent;
 	FinishEvent.BindDynamic(this, &AWaveManager::StartWave);
 	PlayerTimerWidget->StartTimer(PrepareTime, FinishEvent);
+
+	if(!GameMode->UseAutoObjectivesForPlayer()){
+		return;
+	}
+
+	PlayerStatsWidget->UpdateObjectivesText(PrepareObjectiveText);
+	PlayerStatsWidget->UpdateAdditionalText(PrepareAdditionalText);
 }
 
 void AWaveManager::StartWave(){
@@ -165,19 +190,7 @@ void AWaveManager::StartWave(){
 
 	OnStartWave.Broadcast(CurrentWaveNumber);
 
-	// only useful on load save
-	if(IsValid(PlayerMessageWidget)){
-		PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
-	} else{
-		FTimerHandle TimerHandle;
-
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-			// should be valid after a short delay
-			if(IsValid(PlayerMessageWidget)){
-				PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
-			}
-		}, 0.1f, false);
-	}
+	UpdatePlayerObjectives();
 
 	EnableSpawners();
 
@@ -192,7 +205,7 @@ void AWaveManager::EndWave(){
 
 	OnEndWave.Broadcast(CurrentWaveNumber);
 
-	if(CurrentWaveNumber == NumberOfWaves - 1){
+	if(CurrentWaveNumber == NumberOfWaves){
 		PlayerMessageWidget->AddMessageToScreen("Finish all Waves");
 		Player->Win();
 		return;
@@ -264,36 +277,30 @@ void AWaveManager::RemoveAIFromList(const AMainAICharacter* AIToRemove){
 }
 
 void AWaveManager::NextWave(){
-// je le garde pour plutard pour des debug functions
-// #if !UE_BUILD_SHIPPING
-//
-// 	// used for skip wave in debug
-// 	if(!bIsStopped){
-// 		for (int i = 0; i < ActiveSpawnerList.Num(); i++){
-// 			ActiveSpawnerList[i]->ForceEndSpawn();
-// 		}
-// 	
-// 		TArray<AMainAICharacter*> AIList = WaveAIList.Array();
-// 	
-// 		for (int i = 0; i < AIList.Num(); i++){
-// 			AIList[i]->GetHealthComp()->TakeMaxDamages();
-// 		}
-// 	
-// 		return;
-// 	}
-//
-// #endif
-
 	CurrentWaveNumber++;
 
 	AudioManager->UpdateTowerDefenseMusic();
 
-	if(CurrentWaveNumber >= NumberOfWaves){
-		//GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Blue, TEXT("Les vagues sont terminées"));
-		return;
-	}
-
 	SetWave(CurrentWaveNumber);
+}
+
+void AWaveManager::ForceNextWave(){
+#if !UE_BUILD_SHIPPING
+	// used for skip wave in debug
+	if(!bIsStopped){
+		for (int i = 0; i < ActiveSpawnerList.Num(); i++){
+			ActiveSpawnerList[i]->ForceEndSpawn();
+		}
+
+		TArray<AMainAICharacter*> AIList = WaveAIList.Array();
+
+		for (int i = 0; i < AIList.Num(); i++){
+			AIList[i]->GetHealthComp()->TakeMaxDamages();
+		}
+
+		NextWave();
+	}
+#endif
 }
 
 void AWaveManager::SetWave(const int NewWave){
