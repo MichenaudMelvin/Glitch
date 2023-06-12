@@ -13,7 +13,7 @@ void UTchat::NativeOnInitialized(){
 	AppearanceDuration /= 1;
 	ExtendDuration /= 1;
 
-	AddWidgetToFocusList(TchatList);
+	//AddWidgetToFocusList(TchatList);
 }
 
 void UTchat::NativeConstruct(){

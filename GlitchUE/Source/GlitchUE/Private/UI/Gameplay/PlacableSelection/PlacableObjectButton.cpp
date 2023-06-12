@@ -7,16 +7,19 @@
 #include "Player/MainPlayerController.h"
 
 UPlacableObjectButton::UPlacableObjectButton(){
-	static ConstructorHelpers::FObjectFinder<UTexture> Texture(TEXT("/Game/UI/Wheel/T_ConstructionButton"));
-	check(Texture.Succeeded());
+	static ConstructorHelpers::FObjectFinder<UTexture> TextureNormal(TEXT("/Game/UI/Wheel/T_WheelTurretButton"));
+	check(TextureNormal.Succeeded());
 
-	WidgetStyle.Normal.SetResourceObject(Texture.Object);
+	WidgetStyle.Normal.SetResourceObject(TextureNormal.Object);
 	WidgetStyle.Normal.DrawAs = ESlateBrushDrawType::Image;
 
-	WidgetStyle.Hovered.SetResourceObject(Texture.Object);
+	static ConstructorHelpers::FObjectFinder<UTexture> TextureHovered(TEXT("/Game/UI/Wheel/T_WheelTurretButtonHovered"));
+	check(TextureHovered.Succeeded());
+
+	WidgetStyle.Hovered.SetResourceObject(TextureHovered.Object);
 	WidgetStyle.Hovered.DrawAs = ESlateBrushDrawType::Image;
 
-	WidgetStyle.Pressed.SetResourceObject(Texture.Object);
+	WidgetStyle.Pressed.SetResourceObject(TextureHovered.Object);
 	WidgetStyle.Pressed.DrawAs = ESlateBrushDrawType::Image;
 }
 

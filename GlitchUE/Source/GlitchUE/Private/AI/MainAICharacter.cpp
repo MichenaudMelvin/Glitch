@@ -247,7 +247,7 @@ void AMainAICharacter::ResetTrapEffect(){
 
 	// temporary check
 	if(IsValid(TrapEffectFX)){
-		TrapEffectFX->DestroyComponent();
+		TrapEffectFX->StopEmitter();
 	}
 
 	switch (CurrentTrapEffect) {

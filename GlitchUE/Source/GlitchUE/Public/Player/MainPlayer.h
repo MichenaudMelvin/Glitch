@@ -33,6 +33,8 @@ enum class EGoldsUpdateMethod : uint8{
 	ReceiveGolds,
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnEndAppear);
+
 UCLASS(config=Game)
 class AMainPlayer : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
@@ -566,6 +568,9 @@ protected:
 	float AppearTime = 0.25f;
 
 	FTimeline AppearTimeline;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Appear")
+	FKOnEndAppear OnEndAppear;
 
 #if WITH_EDITORONLY_DATA
 	/**

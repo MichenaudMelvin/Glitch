@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "PlayerStats.generated.h"
 
@@ -25,6 +26,9 @@ protected:
 	UTextBlock* NexusHealth;
 
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
+	UProgressBar* NexusHealthBar;
+
+	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
 	UTextBlock* ObjectiveText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
@@ -39,7 +43,7 @@ public:
 	UFUNCTION()
 	void UpdateWaveNumber(int CurrentWave);
 
-	void UpdateNexusHealth(const float NewHealth)const;
+	void UpdateNexusHealth(const float NewHealth, const float NexusMaxHealth)const;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateObjectivesText(const FString NewObjective) const;

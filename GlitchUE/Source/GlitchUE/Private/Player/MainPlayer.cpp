@@ -1015,6 +1015,8 @@ void AMainPlayer::AppearUpdate(float Value){
 }
 
 void AMainPlayer::EndAppear(){
+	OnEndAppear.Broadcast();
+
 	MainPlayerController->BindNormalMode();
 
 	for(int i = 0; i < RealPlayerMaterialList.Num(); i++){

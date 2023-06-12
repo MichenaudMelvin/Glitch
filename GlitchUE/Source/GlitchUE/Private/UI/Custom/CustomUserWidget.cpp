@@ -124,8 +124,10 @@ void UCustomUserWidget::UnFocusAll(){
 void UCustomUserWidget::Refocus(){
 	bIsFocusNeeded = true;
 
-	FocusList[LastFocusWidgetIndex]->SetKeyboardFocus();
-	FocusWidgets();
+	if(FocusList.IsValidIndex(LastFocusWidgetIndex)){
+		FocusList[LastFocusWidgetIndex]->SetKeyboardFocus();
+		FocusWidgets();
+	}
 }
 
 void UCustomUserWidget::AddWidgetToFocusList(UWidget* WidgetToAdd){

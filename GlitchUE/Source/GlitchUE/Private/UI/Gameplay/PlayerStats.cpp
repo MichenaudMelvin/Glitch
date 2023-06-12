@@ -13,7 +13,6 @@ void UPlayerStats::NativeConstruct(){
 void UPlayerStats::SwitchPhases(EPhases NewPhase){
 	if(NewPhase == EPhases::TowerDefense){
 		WaveText->SetVisibility(ESlateVisibility::Visible);
-		NexusHealth->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
@@ -26,8 +25,9 @@ void UPlayerStats::UpdateWaveNumber(int CurrentWave){
 	WaveText->SetText(FText::FromString("Current Wave: " + FString::FromInt(CurrentWave)));
 }
 
-void UPlayerStats::UpdateNexusHealth(const float NewHealth) const{
-	NexusHealth->SetText(FText::FromString("Nexus Health: " + FString::FromInt(NewHealth)));
+void UPlayerStats::UpdateNexusHealth(const float NewHealth, const float NexusMaxHealth) const{
+	NexusHealth->SetText(FText::FromString(FString::FromInt(NewHealth)));
+	NexusHealthBar->SetPercent(NewHealth / NexusMaxHealth);
 }
 
 void UPlayerStats::UpdateObjectivesText(const FString NewObjective) const{
