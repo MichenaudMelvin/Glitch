@@ -97,8 +97,8 @@ void AAudioManager::SetStealthAudio(const ELevelState LevelState){
 			FadeParameter("Stealth", false);
 			break;
 		case ELevelState::Alerted:
-			FMODAudioComp->SetEvent(StealthAlarm);
-			FMODAudioComp->Play();
+			//FMODAudioComp->SetEvent(StealthAlarm);
+			//FMODAudioComp->Play();
 			FadeParameter("Stealth");
 			break;
 	}
