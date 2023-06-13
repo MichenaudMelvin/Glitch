@@ -31,6 +31,9 @@ protected:
 
 	AGlitchUEGameMode* GameMode;
 
+	UPROPERTY()
+	AMainPlayer* Player;
+
 	FTimeline VolumeTimeline;
 
 	FTimeline ParameterTimeline;
