@@ -26,7 +26,7 @@ protected:
 
 	void DetachToPlayer();
 
-	UPROPERTY(EditAnywhere, Category = "Behavior")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior")
 	bool bCanBeAttached = true;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Location")
