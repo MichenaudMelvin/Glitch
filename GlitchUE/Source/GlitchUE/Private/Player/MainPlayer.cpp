@@ -532,8 +532,6 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 
 void AMainPlayer::AddControllerYawInput(float Val){
 	Super::AddControllerYawInput(Val * Sensitivity);
-
-	MakeMovementNoise();
 }
 
 void AMainPlayer::AddControllerPitchInput(float Rate){
@@ -542,8 +540,6 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 	}
 
 	Super::AddControllerPitchInput(Rate * Sensitivity);
-
-	MakeMovementNoise();
 }
 
 void AMainPlayer::Dash_Implementation(){}
@@ -604,7 +600,7 @@ void AMainPlayer::OnSwitchPhases(EPhases NewPhase){
 	}
 }
 
-void AMainPlayer::MakeMovementNoise(){
+void AMainPlayer::MakeMovementNoise(const float InputRate){
 	if(!UUsefulFunctions::IsCharacterMovingOnGround(this)){
 		return;
 	}
@@ -623,7 +619,7 @@ void AMainPlayer::MakeMovementNoise(){
 		break;
 	}
 
-	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius, SoundFX);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius * FMath::Abs(InputRate), SoundFX);
 }
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
@@ -643,6 +639,7 @@ void AMainPlayer::MoveForward(const float Value){
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
+		MakeMovementNoise(Value);
 	}
 }
 
@@ -655,6 +652,7 @@ void AMainPlayer::MoveRight(const float Value){
 		// get right vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
+		MakeMovementNoise(Value);
 	}
 }
 
@@ -893,6 +891,8 @@ void AMainPlayer::ResetOverlappedMeshes(){
 	OverlappedMeshesCollisionResponse.Empty();
 }
 
+void AMainPlayer::FinishGlitchDash_Implementation(){}
+
 void AMainPlayer::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
 
@@ -1095,9 +1095,13 @@ void AMainPlayer::EndTL(){
 		bCanBeAttachedToEdge = true;
 		bGoldsCanBeUpdated = true;
 
+		GetCharacterMovement()->GravityScale = OriginalGravityScale;
+
 		GameMode->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 		ResetOverlappedMeshes();
+
+		FinishGlitchDash();
 
 		GetMesh()->SetVisibility(true, true);
 		Mark->ResetMark();
@@ -1106,10 +1110,8 @@ void AMainPlayer::EndTL(){
 			CurrentDrone->GetMesh()->SetVisibility(true, true);
 		}
 
-		GetCharacterMovement()->GravityScale = OriginalGravityScale;
-
 		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange, SoundFX);
-	}, 0.2f, false);
+	}, GlitchDashDuration, false);
 }
 
 #pragma endregion

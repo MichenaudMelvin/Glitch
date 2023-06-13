@@ -53,6 +53,11 @@ void UTchat::OpenTchat(){
 	AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
 	CastedController->UnbindAll();
 	CastedController->BindOpenTchat();
+	CastedController->GetPlayerStatsWidget()->RemoveFromParent();
+
+	if(CastedController->GetTimerWidget()->IsTimerRunning()){
+		CastedController->GetTimerWidget()->RemoveFromParent();
+	}
 
 	UGameplayStatics::SetGamePaused(CurrentController,true);
 
@@ -72,7 +77,14 @@ void UTchat::CloseTchat(){
 		PlayAnimation(ExtendTchatAnim, 0, 1, EUMGSequencePlayMode::Reverse, ExtendDuration, false);
 		UGameplayStatics::SetGamePaused(CurrentController,false);
 
-		Cast<AMainPlayerController>(CurrentController)->BindNormalMode();
+		AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
+
+		CastedController->BindNormalMode();
+		CastedController->GetPlayerStatsWidget()->AddToViewport();
+
+		if(CastedController->GetTimerWidget()->IsTimerRunning()){
+			CastedController->GetTimerWidget()->AddToViewport();
+		}
 	}
 
 	//RemoveFromParent() is call in blueprint

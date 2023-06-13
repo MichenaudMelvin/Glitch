@@ -31,10 +31,7 @@ void UCustomUserWidget::NativeConstruct(){
 	}
 
 	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		Refocus();
-	}, 0.1f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UCustomUserWidget::Refocus, 0.1f, false);
 }
 
 void UCustomUserWidget::NativeDestruct(){
@@ -53,7 +50,7 @@ void UCustomUserWidget::NativeDestruct(){
 	}
 	#endif
 
-	Cast<IUIFocus>(FocusList[LastFocusWidgetIndex])->UnReceiveFocus();
+	UnFocusAll();
 
 	if(bIsDynamicFocusList){
 		FocusList.Empty();
@@ -132,53 +129,21 @@ void UCustomUserWidget::Refocus(){
 
 void UCustomUserWidget::AddWidgetToFocusList(UWidget* WidgetToAdd){
 	FocusList.Add(WidgetToAdd);
-	
-	#if WITH_EDITOR
-		if(!CheckValidity(WidgetToAdd)){
-			return;
-		}
-	#endif
-
-	Cast<IUIFocus>(WidgetToAdd)->AllowFocus();
 }
 
 void UCustomUserWidget::AddWidgetsToFocusList(TArray<UWidget*> WidgetsToAdd){
 	for(int i = 0; i < WidgetsToAdd.Num(); i++){
 		FocusList.Add(WidgetsToAdd[i]);
-
-		#if WITH_EDITOR
-			if(!CheckValidity(WidgetsToAdd[i])){
-				continue;
-			}
-		#endif
-
-		Cast<IUIFocus>(WidgetsToAdd[i])->AllowFocus();
 	}
 }
 
 void UCustomUserWidget::RemoveWidgetToFocusList(UWidget* WidgetToRemove){
 	FocusList.Remove(WidgetToRemove);
-	
-	#if WITH_EDITOR
-		if(!CheckValidity(WidgetToRemove)){
-			return;
-		}
-	#endif
-
-	Cast<IUIFocus>(WidgetToRemove)->DenyFocus();
 }
 
 void UCustomUserWidget::RemoveWidgetsToFocusList(TArray<UWidget*> WidgetsToRemove){
 	for(int i = 0; i < WidgetsToRemove.Num(); i++){
 		FocusList.Remove(WidgetsToRemove[i]);
-
-		#if WITH_EDITOR
-			if(!CheckValidity(WidgetsToRemove[i])){
-				continue;
-			}
-		#endif
-
-		Cast<IUIFocus>(WidgetsToRemove[i])->DenyFocus();
 	}
 }
 

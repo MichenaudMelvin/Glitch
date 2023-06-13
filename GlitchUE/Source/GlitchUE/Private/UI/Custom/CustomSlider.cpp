@@ -28,18 +28,6 @@ void UCustomSlider::UnReceiveFocus(){
 	IUIFocus::UnReceiveFocus();
 }
 
-void UCustomSlider::AllowFocus(){
-	IUIFocus::AllowFocus();
-
-	Slider->IsFocusable = true;
-}
-
-void UCustomSlider::DenyFocus(){
-	IUIFocus::DenyFocus();
-
-	Slider->IsFocusable = false;
-}
-
 void UCustomSlider::SetValue(const float Value){
 	Slider->SetValue(Value);
 	UpdateText(Value);

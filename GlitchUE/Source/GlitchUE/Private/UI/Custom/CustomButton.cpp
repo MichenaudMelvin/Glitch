@@ -42,15 +42,3 @@ void UCustomButton::UnReceiveFocus(){
 	WidgetStyle.Normal = SavedStyle.Normal;
 	SetStyle(WidgetStyle);
 }
-
-void UCustomButton::AllowFocus(){
-	IUIFocus::AllowFocus();
-
-	IsFocusable = true;
-}
-
-void UCustomButton::DenyFocus(){
-	IUIFocus::DenyFocus();
-
-	IsFocusable = false;
-}

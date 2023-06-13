@@ -4,16 +4,17 @@
 #include "UI/Gameplay/PlacableSelection/PlacableObjectButton.h"
 #include "UI/Gameplay/PlacableSelection/Wheel.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/Font.h"
 #include "Player/MainPlayerController.h"
 
 UPlacableObjectButton::UPlacableObjectButton(){
-	static ConstructorHelpers::FObjectFinder<UTexture> TextureNormal(TEXT("/Game/UI/Wheel/T_WheelTurretButton"));
+	static ConstructorHelpers::FObjectFinder<UTexture> TextureNormal(TEXT("/Game/UI/Wheel/T_WheelButtonLeft"));
 	check(TextureNormal.Succeeded());
 
 	WidgetStyle.Normal.SetResourceObject(TextureNormal.Object);
 	WidgetStyle.Normal.DrawAs = ESlateBrushDrawType::Image;
 
-	static ConstructorHelpers::FObjectFinder<UTexture> TextureHovered(TEXT("/Game/UI/Wheel/T_WheelTurretButtonHovered"));
+	static ConstructorHelpers::FObjectFinder<UTexture> TextureHovered(TEXT("/Game/UI/Wheel/T_WheelButtonLeftHovered"));
 	check(TextureHovered.Succeeded());
 
 	WidgetStyle.Hovered.SetResourceObject(TextureHovered.Object);
@@ -21,6 +22,13 @@ UPlacableObjectButton::UPlacableObjectButton(){
 
 	WidgetStyle.Pressed.SetResourceObject(TextureHovered.Object);
 	WidgetStyle.Pressed.DrawAs = ESlateBrushDrawType::Image;
+
+	static ConstructorHelpers::FObjectFinder<UFont> Font(TEXT("/Game/UI/Fonts/FONT_MenuFont"));
+	check(Font.Succeeded());
+
+	TextFont.FontObject = Font.Object;
+	TextFont.TypefaceFontName = "Bold";
+	TextFont.Size = 26;
 }
 
 void UPlacableObjectButton::SynchronizeProperties(){
@@ -37,13 +45,13 @@ void UPlacableObjectButton::SynchronizeProperties(){
 	Wheel = MainPlayerController->GetWheelWidget();
 
 	if(IsValid(Data)){
-		const FString ShowName = Data->Name.ToString() + " (Cost: " + FString::FromInt(Data->Cost) + ")";
+		const FString ShowName = Data->Name.ToString() + "\nCost: " + FString::FromInt(Data->Cost);
 		Name = NewObject<UTextBlock>();
 		AddChild(Name);
 		Name->SetText(FText::FromString(ShowName));
 		Name->SetAutoWrapText(true);
 		Name->SetJustification(ETextJustify::Center);
-		Name->Font.OutlineSettings.OutlineSize = 1;
+		Name->SetFont(TextFont);
 	}
 }
 
@@ -58,12 +66,12 @@ void UPlacableObjectButton::OnClick(){
 
 void UPlacableObjectButton::Select(){
 	MainPlayer->SetPlacableActorData(Data);
-	Wheel->SetDescription(Data->Description);
+	Wheel->SetDescription(Data);
 }
 
 void UPlacableObjectButton::UnSelect(){
 	MainPlayer->SetPlacableActorData(nullptr);
-	Wheel->SetDescription(FText::FromString(""));
+	Wheel->SetDescription(nullptr);
 }
 
 void UPlacableObjectButton::BindButtons(){

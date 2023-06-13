@@ -7,7 +7,3 @@
 void IUIFocus::ReceiveFocus(){}
 
 void IUIFocus::UnReceiveFocus(){}
-
-void IUIFocus::AllowFocus(){}
-
-void IUIFocus::DenyFocus(){}

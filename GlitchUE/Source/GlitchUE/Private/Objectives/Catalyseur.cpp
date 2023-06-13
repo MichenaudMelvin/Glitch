@@ -241,7 +241,10 @@ void ACatalyseur::OnSwitchPhases(EPhases CurrentPhase){
 		break;
 	case EPhases::TowerDefense:
 		Compass->DestroyComponent();
-		IdleFX->StopEmitter(true);
+
+		if(IsValid(IdleFX)){
+			IdleFX->StopEmitter(true);
+		}
 
 		if(ActivableComp->IsActivated()){
 			StartGeneratingMoney();

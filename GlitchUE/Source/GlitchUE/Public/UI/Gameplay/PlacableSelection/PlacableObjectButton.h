@@ -26,6 +26,8 @@ protected:
 	UPROPERTY()
 	UTextBlock* Name;
 
+	FSlateFontInfo TextFont;
+
 	UWheel* Wheel;
 
 	AMainPlayer* MainPlayer;

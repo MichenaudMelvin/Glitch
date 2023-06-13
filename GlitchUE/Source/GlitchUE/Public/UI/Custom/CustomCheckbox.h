@@ -25,8 +25,4 @@ public:
 	virtual void ReceiveFocus() override;
 
 	virtual void UnReceiveFocus() override;
-
-	virtual void AllowFocus() override;
-
-	virtual void DenyFocus() override;
 };

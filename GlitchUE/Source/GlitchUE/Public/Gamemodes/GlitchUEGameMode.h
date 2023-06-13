@@ -97,7 +97,7 @@ protected:
 
 	AWaveManager* WaveManager;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Objectives")
 	bool bUseAutoObjectivesForPlayer = true;
 
 	/**

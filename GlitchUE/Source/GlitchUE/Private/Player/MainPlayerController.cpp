@@ -282,8 +282,24 @@ void AMainPlayerController::UnbindAll(const bool bUnbindPause){
 void AMainPlayerController::PauseGame(){
 	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(this));
 
-	UGameplayStatics::IsGamePaused(this) ? UnbindAll() : BindNormalMode();
-	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
+	if(UGameplayStatics::IsGamePaused(this)){
+		UnbindAll();
+		PauseWidget->AddToViewport();
+		PlayerStatsWidget->RemoveFromParent();
+		Tchat->RemoveFromParent();
+
+		if(TimerWidget->IsTimerRunning()){
+			TimerWidget->RemoveFromParent();
+		}
+	} else{
+		BindNormalMode();
+		PauseWidget->RemoveFromParent();
+		PlayerStatsWidget->AddToViewport();
+
+		if(TimerWidget->IsTimerRunning()){
+			TimerWidget->AddToViewport();
+		}
+	}
 
 	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
 }
@@ -297,6 +313,13 @@ void AMainPlayerController::OpenWheel(){
 	OnPause.AddDynamic(this, &AMainPlayerController::CloseWheel);
 	OnUseGlitchPressed.AddDynamic(this, &AMainPlayerController::CloseWheel);
 
+	PlayerStatsWidget->RemoveFromParent();
+	Tchat->RemoveFromParent();
+
+	if(TimerWidget->IsTimerRunning()){
+		TimerWidget->RemoveFromParent();
+	}
+
 	ShowMouseCursor(true, WheelWidget);
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WheelTimeDilation);
 }
@@ -307,6 +330,12 @@ void AMainPlayerController::CloseWheel(){
 	OnUseGlitchReleased.AddDynamic(this, &AMainPlayerController::BindGlitch);
 
 	WheelWidget->RemoveFromParent();
+	PlayerStatsWidget->AddToViewport();
+
+	if(TimerWidget->IsTimerRunning()){
+		TimerWidget->AddToViewport();
+	}
+
 	CameraBlend(MainPlayer, CloseWheelBlend);
 	MainPlayer->GetPreviewPlacableActor()->ResetActor();
 

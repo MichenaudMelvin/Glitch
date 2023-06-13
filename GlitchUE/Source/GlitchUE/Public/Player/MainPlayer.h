@@ -185,7 +185,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float JumpNoiseRangeFactor = 2;
 
-	void MakeMovementNoise();
+	void MakeMovementNoise(const float InputRate);
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -506,6 +506,10 @@ public:
 	void GlitchTrace();
 
 	void ResetOverlappedMeshes();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void FinishGlitchDash();
+	virtual void FinishGlitchDash_Implementation();
 
 	UPROPERTY(EditDefaultsOnly)
 	float GlitchUpgradeDuration = 0.5;

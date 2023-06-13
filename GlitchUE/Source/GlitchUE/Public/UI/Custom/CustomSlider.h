@@ -49,10 +49,6 @@ public:
 
 	virtual void UnReceiveFocus() override;
 
-	virtual void AllowFocus() override;
-
-	virtual void DenyFocus() override;
-
 	void SetValue(const float Value);
 
 	USlider* GetSlider() const;
