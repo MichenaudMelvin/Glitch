@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
 #include "UI/Custom/CustomButton.h"
 #include "Player/MainPlayer.h"
 #include "PlacableObjectButton.generated.h"
@@ -23,10 +24,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Data")
 	UPlacableActorData* Data;
 
-	UPROPERTY()
-	UTextBlock* Name;
+	UVerticalBox* TextHolder;
+
+	UTextBlock* PlacableName;
+
+	UTextBlock* CostText;
 
 	FSlateFontInfo TextFont;
+
+	FSlateFontInfo NumberFont;
 
 	UWheel* Wheel;
 
@@ -49,6 +55,8 @@ public:
 	virtual void UnbindButtons();
 
 	bool CompareData(const UPlacableActorData* DataToCompare) const;
+
+	bool CanBuyObject(const int Golds) const;
 
 	void SetWheel(UWheel* NewWheel);
 

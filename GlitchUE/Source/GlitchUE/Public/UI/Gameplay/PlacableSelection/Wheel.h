@@ -54,6 +54,9 @@ protected:
 	AMainPlayer* MainPlayer;
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	UTextBlock* GoldsText;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	UCanvasPanel* DescriptionPanel;
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
@@ -75,6 +78,9 @@ protected:
 	void ClickOnDestructButton();
 
 public:
+	UFUNCTION()
+	void UpdateDisplayGolds(int Golds);
+
 	void ClickOnDestructButtonDelay();
 
 	UFUNCTION(BlueprintNativeEvent)

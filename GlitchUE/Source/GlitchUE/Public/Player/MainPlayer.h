@@ -35,6 +35,8 @@ enum class EGoldsUpdateMethod : uint8{
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnEndAppear);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnUpdateGolds, int, Golds);
+
 UCLASS(config=Game)
 class AMainPlayer : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
@@ -363,6 +365,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Golds")
 	void UpdateGolds(int Amount = 0, const EGoldsUpdateMethod GoldsUpdateMethod = EGoldsUpdateMethod::ReceiveGolds);
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Golds")
+	FKOnUpdateGolds OnUpdateGolds;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Golds")
 	void SetGolds(const int Amount = 1000);

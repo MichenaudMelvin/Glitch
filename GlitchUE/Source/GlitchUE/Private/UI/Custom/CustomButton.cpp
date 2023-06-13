@@ -26,19 +26,43 @@ UCustomButton::UCustomButton(){
 void UCustomButton::SynchronizeProperties(){
 	Super::SynchronizeProperties();
 
-	SavedStyle = WidgetStyle;
+	NormalStyle = WidgetStyle;
+}
+
+void UCustomButton::BlockButton(const bool bUnbindHovering){
+	bIsBlocked = true;
+	bUnbindHovering ? SetVisibility(ESlateVisibility::HitTestInvisible) : SetVisibility(ESlateVisibility::Visible);
+
+	NormalStyle.Normal.TintColor = BlockedColor;
+	NormalStyle.Hovered.TintColor = BlockedColor;
+	NormalStyle.Pressed.TintColor = BlockedColor;
+	SetStyle(NormalStyle);
+}
+
+void UCustomButton::UnblockButton(){
+	bIsBlocked = false;
+	SetVisibility(ESlateVisibility::Visible);
+
+	NormalStyle.Normal.TintColor = FSlateColor(FLinearColor::White);
+	NormalStyle.Hovered.TintColor = FSlateColor(FLinearColor::White);
+	NormalStyle.Pressed.TintColor = FSlateColor(FLinearColor::White);
+	SetStyle(NormalStyle);
+}
+
+bool UCustomButton::IsBlocked() const{
+	return bIsBlocked;
 }
 
 void UCustomButton::ReceiveFocus(){
 	IUIFocus::ReceiveFocus();
 
-	WidgetStyle.Normal = SavedStyle.Hovered;
+	WidgetStyle.Normal = NormalStyle.Hovered;
 	SetStyle(WidgetStyle);
 }
 
 void UCustomButton::UnReceiveFocus(){
 	IUIFocus::UnReceiveFocus();
 
-	WidgetStyle.Normal = SavedStyle.Normal;
+	WidgetStyle.Normal = NormalStyle.Normal;
 	SetStyle(WidgetStyle);
 }
