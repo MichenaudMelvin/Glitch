@@ -3,6 +3,10 @@
 
 #include "Gamemodes/TutorialGameMode.h"
 
+ATutorialGameMode::ATutorialGameMode(){
+	bUseAutoObjectivesForPlayer = false;
+}
+
 void ATutorialGameMode::LaunchStealthTimer(float TimerValue){
 	if(CanLaunchStealthTimer){
 		Super::LaunchStealthTimer(TimerValue);

@@ -33,6 +33,8 @@ enum class EGoldsUpdateMethod : uint8{
 	ReceiveGolds,
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnEndAppear);
+
 UCLASS(config=Game)
 class AMainPlayer : public ACharacter, public IGlitchInterface{
 	GENERATED_BODY()
@@ -183,7 +185,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Noise")
 	float JumpNoiseRangeFactor = 2;
 
-	void MakeMovementNoise();
+	void MakeMovementNoise(const float InputRate);
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -505,6 +507,10 @@ public:
 
 	void ResetOverlappedMeshes();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void FinishGlitchDash();
+	virtual void FinishGlitchDash_Implementation();
+
 	UPROPERTY(EditDefaultsOnly)
 	float GlitchUpgradeDuration = 0.5;
 
@@ -566,6 +572,9 @@ protected:
 	float AppearTime = 0.25f;
 
 	FTimeline AppearTimeline;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Appear")
+	FKOnEndAppear OnEndAppear;
 
 #if WITH_EDITORONLY_DATA
 	/**

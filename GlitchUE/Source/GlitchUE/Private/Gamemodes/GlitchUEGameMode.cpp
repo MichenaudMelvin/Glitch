@@ -2,6 +2,8 @@
 
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Player/MainPlayer.h"
+#include "Player/MainPlayerController.h"
+#include "UI/Gameplay/PlayerStats.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 #include "PlacableObject/PlacableActor.h"
@@ -45,6 +47,7 @@ void AGlitchUEGameMode::BeginPlay() {
 	Super::BeginPlay();
 
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 
 	TArray<AWaveManager*> WaveManagerArray;
 	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
@@ -96,7 +99,7 @@ void AGlitchUEGameMode::BeginPlay() {
 	FTimerHandle TimerHandle;
 
 	#if WITH_EDITOR
-		if(!IsValid(MainPlayer)){
+		if(!IsValid(MainPlayer) || !IsValid(MainPlayerController)){
 			return;
 		}
 	#endif
@@ -112,6 +115,9 @@ void AGlitchUEGameMode::Tick(float deltaTime){
 }
 
 void AGlitchUEGameMode::InitializeWorld(){
+	PlayerStatsWidget = MainPlayerController->GetPlayerStatsWidget();
+	UpdatePlayerObjectives();
+
 	if(OptionsString == ""){
 		return;
 	}
@@ -139,7 +145,7 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	AddGlitch(CurrentSave->GlitchValue);
 
 	for(int i = 0; i < CurrentSave->TchatLinesList.Num(); i++){
-		MainPlayer->GetMainPlayerController()->GetTchatWidget()->AddTchatLineWithATchatStruct(CurrentSave->TchatLinesList[i]);
+		MainPlayerController->GetTchatWidget()->AddTchatLineWithATchatStruct(CurrentSave->TchatLinesList[i]);
 	}
 
 	// Doors
@@ -215,6 +221,16 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	UUsefulFunctions::SaveToSlot(CurrentSave, SlotIndex);
 }
 
+void AGlitchUEGameMode::UpdatePlayerObjectives() const{
+	if(!bUseAutoObjectivesForPlayer){
+		return;
+	}
+
+	const int RemainingCatalyseursToActivate = FMath::Clamp(MaxCatalyseurToActivate - CurrentActivatedCatalyseurs, 0, MaxCatalyseurToActivate);
+	PlayerStatsWidget->UpdateObjectivesText(FString::FromInt(RemainingCatalyseursToActivate) + " " + StealthMessage);
+	PlayerStatsWidget->UpdateAdditionalText(RemainingCatalyseursToActivate > 0 ? AdditionalStealthMessage : AdditionalStealthEndMessage);
+}
+
 void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	if(OptionsString != ""){
 		return;
@@ -258,7 +274,7 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	CurrentSave->PlayerCameraRotation = MainPlayer->GetController()->GetControlRotation();
 	CurrentSave->PlayerGolds = MainPlayer->GetGolds();
 
-	CurrentSave->TchatLinesList = MainPlayer->GetMainPlayerController()->GetTchatWidget()->GetAllTchatLines();
+	CurrentSave->TchatLinesList = MainPlayerController->GetTchatWidget()->GetAllTchatLines();
 
 	if(MainPlayer->GetMark()->GetIsMarkPlaced()){
 		CurrentSave->MarkTransform = MainPlayer->GetMark()->GetActorTransform();
@@ -331,7 +347,7 @@ void AGlitchUEGameMode::GlobalWorldLoad(const int Index){
 }
 
 void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
-	if(MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning()){
+	if(MainPlayerController->GetTimerWidget()->IsTimerRunning()){
 		return;
 	}
 
@@ -344,7 +360,7 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
-	MainPlayer->GetMainPlayerController()->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
+	MainPlayerController->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
 }
 
 float AGlitchUEGameMode::GetStealthTimer() const{
@@ -371,10 +387,15 @@ void AGlitchUEGameMode::UpdateActivatedCatalyseurAmount(const bool Increase){
 	}
 
 	Nexus->SetCanInteractWithNexus(CanStartTowerDefense());
+	UpdatePlayerObjectives();
 }
 
 int AGlitchUEGameMode::GetActivatedCatalyseurNum() const{
 	return CurrentActivatedCatalyseurs;
+}
+
+bool AGlitchUEGameMode::UseAutoObjectivesForPlayer() const{
+	return bUseAutoObjectivesForPlayer;
 }
 
 UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
@@ -403,10 +424,10 @@ UWorldSave* AGlitchUEGameMode::StealthWorldSave(UWorldSave* CurrentSave){
 
 	CastedSave->LevelState = LevelState;
 
-	CastedSave->bIsStealthTimeRunning = MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning();
+	CastedSave->bIsStealthTimeRunning = MainPlayerController->GetTimerWidget()->IsTimerRunning();
 
 	if(CastedSave->bIsStealthTimeRunning){
-		CastedSave->RemainingStealthTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed();
+		CastedSave->RemainingStealthTime = MainPlayerController->GetTimerWidget()->GetTimerElapsed();
 	}
 
 	return CastedSave;
@@ -699,7 +720,7 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 		switch (CurrentPhase){
 			case EPhases::Infiltration:
-				RandomGlitchType = static_cast<Glitch::EGlitchEvents>(FMath::RandRange(MainPlayer->GetMainPlayerController()->GetTimerWidget()->IsTimerRunning() ? 0 : Glitch::StealthIndex, Glitch::BothIndex));
+				RandomGlitchType = static_cast<Glitch::EGlitchEvents>(FMath::RandRange(MainPlayerController->GetTimerWidget()->IsTimerRunning() ? 0 : Glitch::StealthIndex, Glitch::BothIndex));
 				break;
 			case EPhases::TowerDefense:
 				RandomGlitchType = static_cast<Glitch::EGlitchEvents>(FMath::RandRange(Glitch::StealthIndex, Glitch::TowerDefenseIndex));
@@ -784,11 +805,11 @@ void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 }
 
 void AGlitchUEGameMode::GlitchUpgradeWorld() const{
-	const float CurrentTime = MainPlayer->GetMainPlayerController()->GetTimerWidget()->GetTimerElapsed();
+	const float CurrentTime = MainPlayerController->GetTimerWidget()->GetTimerElapsed();
 
 	const float NewTime = FMath::Clamp(CurrentTime - GlitchReduceStealthTimer, 1.0f, StealthTimer);
 
-	MainPlayer->GetMainPlayerController()->GetTimerWidget()->ChangeTimerValue(NewTime);
+	MainPlayerController->GetTimerWidget()->ChangeTimerValue(NewTime);
 }
 
 void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
@@ -833,7 +854,7 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 		}
 
 		Cast<APawn>(ActorList[0])->Controller->Possess(MainPlayer);
-		MainPlayer->GetMainPlayerController()->BindNormalMode();
+		MainPlayerController->BindNormalMode();
 
 		ActorList[0]->Destroy();
 	}

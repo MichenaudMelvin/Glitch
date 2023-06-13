@@ -31,10 +31,7 @@ void UCustomUserWidget::NativeConstruct(){
 	}
 
 	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-		Refocus();
-	}, 0.1f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UCustomUserWidget::Refocus, 0.1f, false);
 }
 
 void UCustomUserWidget::NativeDestruct(){
@@ -53,7 +50,7 @@ void UCustomUserWidget::NativeDestruct(){
 	}
 	#endif
 
-	Cast<IUIFocus>(FocusList[LastFocusWidgetIndex])->UnReceiveFocus();
+	UnFocusAll();
 
 	if(bIsDynamicFocusList){
 		FocusList.Empty();
@@ -124,8 +121,10 @@ void UCustomUserWidget::UnFocusAll(){
 void UCustomUserWidget::Refocus(){
 	bIsFocusNeeded = true;
 
-	FocusList[LastFocusWidgetIndex]->SetKeyboardFocus();
-	FocusWidgets();
+	if(FocusList.IsValidIndex(LastFocusWidgetIndex)){
+		FocusList[LastFocusWidgetIndex]->SetKeyboardFocus();
+		FocusWidgets();
+	}
 }
 
 void UCustomUserWidget::AddWidgetToFocusList(UWidget* WidgetToAdd){

@@ -12,6 +12,8 @@
 
 class AAudioManager;
 class AMainPlayer;
+class AMainPlayerController;
+class UPlayerStats;
 class ANexus;
 class AWaveManager;
 class UWorldSave;
@@ -80,14 +82,44 @@ protected:
 
 	void InitializeWorldSave(TArray<FString> LevelSettings);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Glitch")
+	UPROPERTY()
 	AMainPlayer* MainPlayer;
+
+	UPROPERTY()
+	AMainPlayerController* MainPlayerController;
+
+	UPROPERTY()
+	UPlayerStats* PlayerStatsWidget;
 
 	EPhases CurrentPhase = EPhases::Infiltration;
 
 	ELevelState LevelState = ELevelState::Normal;
 
 	AWaveManager* WaveManager;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Objectives")
+	bool bUseAutoObjectivesForPlayer = true;
+
+	/**
+	 * @brief will show up X + Stealth Message, with default variable : X more generators to find,
+	 * don't use upper case for the first word + don't use a space before the first word
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
+	FString StealthMessage = "more generators to find";
+
+	/**
+	 * @brief show up on stealth phase
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
+	FString AdditionalStealthMessage = "Find padlock to unlock them";
+
+	/**
+	 * @brief show up when you can interact with the nexus
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
+	FString AdditionalStealthEndMessage = "You can now interact with the nexus";
+
+	void UpdatePlayerObjectives() const;
 
 public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|World")
@@ -124,6 +156,8 @@ public:
 	void UpdateActivatedCatalyseurAmount(const bool Increase = true);
 
 	int GetActivatedCatalyseurNum() const;
+
+	bool UseAutoObjectivesForPlayer() const;
 
 protected:
 	UWorldSave* StealthWorldSave(UWorldSave* CurrentSave);

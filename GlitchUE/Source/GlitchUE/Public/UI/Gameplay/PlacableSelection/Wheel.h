@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PlacableObjectButton.h"
+#include "Components/CanvasPanel.h"
 #include "UI/Custom/CustomButton.h"
 #include "UI/Custom/CustomUserWidget.h"
 #include "Wheel.generated.h"
@@ -21,9 +22,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
 	UCustomButton* DestructButton;
-
-	UPROPERTY(EditDefaultsOnly, meta=(BindWidget))
-	UTextBlock* PlacableDescription;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UPlacableObjectButton* PlacableButton1;
@@ -52,15 +50,34 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<UPlacableObjectButton*> ButtonList;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY()
 	AMainPlayer* MainPlayer;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	UCanvasPanel* DescriptionPanel;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	UTextBlock* DescriptionText;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	UTextBlock* DamagesText;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	UTextBlock* AttackSpeedText;
+
+	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
+	UTextBlock* RangeText;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (BindWidget))
+	UTextBlock* WallText;
 
 	UFUNCTION()
 	void ClickOnDestructButton();
 
 public:
-
 	void ClickOnDestructButtonDelay();
 
-	void SetDescription(const FText NewDescription) const;
+	UFUNCTION(BlueprintNativeEvent)
+	void SetDescription(const UPlacableActorData* Data) const;
+	virtual void SetDescription_Implementation(const UPlacableActorData* Data) const;
 };

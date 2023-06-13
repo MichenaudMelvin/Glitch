@@ -10,6 +10,9 @@ UCLASS(Abstract)
 class GLITCHUE_API ATutorialGameMode : public AGlitchUEGameMode{
 	GENERATED_BODY()
 
+public:
+	ATutorialGameMode();
+
 protected:
 	virtual void LaunchStealthTimer(float TimerValue) override;
 

@@ -55,22 +55,23 @@ protected:
 	int GetMinutes(const float Time) const;
 
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void StartTimer(const float Timer, const FKOnFinishTimer FinishEvent, const bool RemoveTimerAtEnd = true);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void ChangeTimerValue(const float NewValue);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void FinishTimer(const bool RemoveTimer);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void ForceFinishTimer(const bool ExecuteFinishedEvent = true, const bool RemoveTimer = true);
 
 	FKOnFinishTimer OnFinishTimer;
 
+	UFUNCTION(BlueprintCallable, Category = "Timer")
 	bool IsTimerRunning() const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Timer")
 	float GetTimerElapsed() const;
 };

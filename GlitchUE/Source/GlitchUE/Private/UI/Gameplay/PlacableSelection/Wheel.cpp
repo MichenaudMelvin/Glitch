@@ -4,6 +4,8 @@
 #include "UI/Gameplay/PlacableSelection/Wheel.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Kismet/KismetTextLibrary.h"
+#include "PlacableObject/TurretData.h"
 #include "Player/MainPlayerController.h"
 
 void UWheel::NativeOnInitialized(){
@@ -45,9 +47,7 @@ void UWheel::NativeConstruct(){
 		ButtonList[i]->UnSelect();
 		bIsCurrentSlotOccupied ? ButtonList[i]->UnbindButtons() : ButtonList[i]->BindButtons();
 
-		if(!bIsCurrentSlotOccupied){
-			AddWidgetToFocusList(ButtonList[i]);
-		}
+		bIsCurrentSlotOccupied ? ButtonList[i]->SetVisibility(ESlateVisibility::HitTestInvisible) : AddWidgetToFocusList(ButtonList[i]); 
 	}
 
 	const ESlateVisibility TargetVisibility = bIsCurrentSlotOccupied ? ESlateVisibility::Visible : ESlateVisibility::Hidden; 
@@ -56,6 +56,7 @@ void UWheel::NativeConstruct(){
 
 	if(bIsCurrentSlotOccupied){
 		AddWidgetToFocusList(DestructButton);
+		SetDescription(MainPlayer->GetCurrentConstructionZone()->GetUnit()->GetData());
 	}
 
 	DestructButton->OnClicked.Clear();
@@ -106,6 +107,7 @@ void UWheel::ClickOnDestructButtonDelay(){
 	for(int i = 0; i < ButtonList.Num(); i++){
 		ButtonList[i]->BindButtons();
 		AddWidgetToFocusList(ButtonList[i]);
+		ButtonList[i]->SetVisibility(ESlateVisibility::Visible);
 	}
 
 	if(CurrentController->IsUsingGamepad()){
@@ -113,6 +115,28 @@ void UWheel::ClickOnDestructButtonDelay(){
 	}
 }
 
-void UWheel::SetDescription(FText NewDescription) const{
-	PlacableDescription->SetText(NewDescription);
+void UWheel::SetDescription_Implementation(const UPlacableActorData* Data) const{
+	if(!IsValid(Data)){
+		DescriptionPanel->SetVisibility(ESlateVisibility::Hidden);
+		return;
+	}
+
+	DescriptionPanel->SetVisibility(ESlateVisibility::Visible);
+
+	DescriptionText->SetText(Data->Description);
+
+	DamagesText->SetText(FText::AsNumber(Data->Damages));
+	AttackSpeedText->SetText(FText::AsNumber(Data->AttackRate));
+	RangeText->SetText(FText::AsNumber(Data->AttackRange));
+
+	// this one is only working on blueprint
+	// FString WallBoolean = "✗";
+	//
+	// if(Data->IsA(UTurretData::StaticClass())){
+	// 	if(Cast<UTurretData>(Data)->CanSeeThroughWalls){
+	// 		WallBoolean = "✓";
+	// 	}
+	// }
+	//
+	// WallText->SetText(FText::FromString(WallBoolean));
 }

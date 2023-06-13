@@ -80,6 +80,23 @@ protected:
 	UPROPERTY()
 	UTchat* PlayerTchatWidget;
 
+	UPROPERTY()
+	UPlayerStats* PlayerStatsWidget;
+
+	void UpdatePlayerObjectives();
+
+	/**
+	 * @brief show up only on prepare time
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
+	FString PrepareObjectiveText = "Prepare your defenses";
+
+	/**
+	 * @brief show up only on prepare time
+	 */
+	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
+	FString PrepareAdditionalText = "Start building towers near the nexus";
+
 	void WriteWhatTheNextWaveContain(const FWave TargetWave);
 
 	UFUNCTION()
@@ -158,6 +175,8 @@ public:
 
 	UFUNCTION()
 	void NextWave();
+
+	void ForceNextWave();
 
 	void SetWave(const int NewWave);
 
