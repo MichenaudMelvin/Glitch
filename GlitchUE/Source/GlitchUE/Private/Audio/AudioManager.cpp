@@ -96,7 +96,16 @@ void AAudioManager::SetTowerDefenseMusic() {
 }
 
 void AAudioManager::SetStealthAudio(const ELevelState LevelState){
-	UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), StealthAlarm, Player->GetActorTransform(), true);
+
+	switch (LevelState) {
+	case ELevelState::Normal:
+		FadeParameter("Stealth", false);
+		break;
+	case ELevelState::Alerted:
+		UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), StealthAlarm, Player->GetActorTransform(), true);
+		FadeParameter("Stealth");
+		break;
+	}
 }
 
 void AAudioManager::FadeParameter(const FName Param, const bool bFadeIn){
