@@ -19,7 +19,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
 	UFMODAudioComponent* FMODAudioComp;
@@ -43,6 +46,9 @@ protected:
 	// used when switching to stealth to tower defense
 	UPROPERTY(EditDefaultsOnly, Category = "Phases")
 	float FadePhaseTransition = 1;
+
+	UPROPERTY(EditAnywhere, Category = "Music")
+	UFMODEvent* StartMusic;
 
 	UPROPERTY()
 	UFMODEvent* StealthMusic;

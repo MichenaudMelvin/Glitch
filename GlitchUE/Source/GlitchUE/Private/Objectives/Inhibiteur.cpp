@@ -44,6 +44,10 @@ AInhibiteur::AInhibiteur(){
 void AInhibiteur::BeginPlay(){
 	Super::BeginPlay();
 
+	InteractableComp->AddInteractable(MeshObjectif);
+
+	LockerFX->OnEmissionStops.AddDynamic(this, &AInhibiteur::DestroyFX);
+
 #if WITH_EDITOR
 
 	FTimerHandle TimerHandle;
@@ -76,6 +80,9 @@ void AInhibiteur::ActiveObjectif(){
 	FMODAudioComp->Play();
 
 	OwnerCatalyseur->AddInhibiteurToActivatedList(this);
+
+	InteractableComp->Unfeedback();
+	InteractableComp->RemoveInteractable(MeshObjectif);
 
 	if(IsValid(CompassIcon)){
 		CompassIcon->DestroyComponent();

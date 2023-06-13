@@ -8,6 +8,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/SightComponent.h"
 #include "PlacableObject/Trap.h"
+#include "FMODAudioComponent.h"
 #include "MainAICharacter.generated.h"
 
 class AWaveManager;
@@ -35,6 +36,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* IdleFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UFMODAudioComponent* IdleAudioComp;
+
 public:
 	UBlackboardComponent* GetBlackBoard() const;
 
@@ -53,6 +57,8 @@ protected:
 	AWaveManager* WaveManager;
 
 	ETrapEffect CurrentTrapEffect = ETrapEffect::None;
+
+	void TriggerDeathEffects() const;
 
 public:
 	UFUNCTION(BlueprintCallable)

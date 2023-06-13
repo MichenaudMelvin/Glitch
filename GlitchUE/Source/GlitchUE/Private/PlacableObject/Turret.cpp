@@ -14,6 +14,7 @@ ATurret::ATurret() {
 	SetRootComponent(TurretBase);
 
 	AudioComp->SetupAttachment(RootComponent);
+	CrystalUpgradeFX->SetupAttachment(RootComponent);
 
 	TurretPillar = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pillar"));
 	TurretPillar->SetupAttachment(TurretBase);

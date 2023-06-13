@@ -4,24 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TriggerBox.h"
+#include "Helpers/UsefulStructs.h"
 #include "TchatTriggerBox.generated.h"
 
 class AMainPlayerController;
-
-USTRUCT(BlueprintType)
-struct FTchatStruct {
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, Category = "Tchat")
-	FString Speaker;
-
-	UPROPERTY(EditAnywhere, Category = "Tchat")
-	FString TextMessage;
-
-	UPROPERTY(EditAnywhere, Category = "Tchat")
-	FLinearColor SpeakerColor = FLinearColor(0, 0, 0, 1);
-};
 
 UCLASS()
 class GLITCHUE_API ATchatTriggerBox : public ATriggerBox{
@@ -31,11 +17,10 @@ public:
 	ATchatTriggerBox();
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Tchat")
-	TArray<FTchatStruct> TchatMessageList;
+	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, Category = "Tchat")
-	float DelayBetweenEachMessage = 0.5f;
+	TArray<FTchatStruct> TchatMessageList;
 
 	AMainPlayerController* CurrentController;
 

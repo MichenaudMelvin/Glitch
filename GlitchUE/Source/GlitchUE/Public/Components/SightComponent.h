@@ -21,6 +21,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	virtual void OnComponentDestroyed(bool bDestroyingHierarchy) override;
 
 	void Check();
@@ -39,7 +42,10 @@ protected:
 	float MaxInvestigateTime = 2;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	bool bDrawFX = true;
+	bool bDrawFX = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Visiblity")
+	bool bDynamicVisibility = false;
 
 	// can only be the player
 	AActor* SightActor;
@@ -49,6 +55,8 @@ protected:
 	FTimerHandle SightTimer;
 
 	FTimerHandle LooseSightTimer;
+
+	FVector OriginalScale;
 
 public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
@@ -65,6 +73,8 @@ protected:
 	void ExitSight(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	bool bIsPlayerInSight = false;
+
+	void SetMeshDistance();
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)

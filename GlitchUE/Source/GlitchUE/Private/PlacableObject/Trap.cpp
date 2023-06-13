@@ -13,6 +13,7 @@ ATrap::ATrap(){
 	SetRootComponent(TrapMesh);
 
 	AudioComp->SetupAttachment(RootComponent);
+	CrystalUpgradeFX->SetupAttachment(RootComponent);
 
 	TrapMesh->SetCollisionResponseToAllChannels(ECR_Block);
 
@@ -162,6 +163,8 @@ void ATrap::Attack_Implementation(){
 	if(IsValid(AttackAnimation)){
 		TrapMesh->PlayAnimation(AttackAnimation, false);
 	}
+
+	AudioComp->Play();
 
 	for(int i = 0; i < AIArray.Num(); i++){
 		AIArray[i]->ReceiveTrapEffect(Data);

@@ -26,14 +26,15 @@ void UWaypoint::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	CheckComponentRender();
 }
 
-bool UWaypoint::IsVisible() const{
+bool UWaypoint::IsVisibleOnScreen() const{
 	FVector2D ScreenPosition;
 	UGameplayStatics::ProjectWorldToScreen(MainPlayerController, GetComponentLocation(), ScreenPosition);
 
 	const FVector2D ViewportSize = UWidgetLayoutLibrary::GetViewportSize(GetOwner());
 
 	const bool bOnScreen = ScreenPosition > FVector2D::ZeroVector && ScreenPosition < ViewportSize;
-	return Super::IsVisible() && bOnScreen;
+
+	return bOnScreen;
 }
 
 void UWaypoint::CheckComponentRender(){
@@ -44,16 +45,16 @@ void UWaypoint::CheckComponentRender(){
 		}
 	#endif
 
-	if(!bDrawWayPoint){
+	if(!bDrawWayPoint || !IsVisible()){
 		MainPlayerController->GetWaypointIndicationWidget()->RemoveIndication(this);
 		return;
 	}
 
-	if(IsVisible()){
+	if(IsVisibleOnScreen()){
 		MainPlayerController->GetWaypointIndicationWidget()->RemoveIndication(this);
 	}
 
-	else if(!IsVisible()){
+	else if(!IsVisibleOnScreen()){
 		MainPlayerController->GetWaypointIndicationWidget()->AddIndication(this);
 	}
 }

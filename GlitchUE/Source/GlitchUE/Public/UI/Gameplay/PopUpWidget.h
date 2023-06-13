@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "UI/Custom/CustomButton.h"
+#include "UI/Custom/CustomUserWidget.h"
 #include "PopUpWidget.generated.h"
 
 class AMainPlayerController;
 
 UCLASS(Abstract)
-class GLITCHUE_API UPopUpWidget : public UUserWidget{
+class GLITCHUE_API UPopUpWidget : public UCustomUserWidget{
 	GENERATED_BODY()
 
 protected:
@@ -25,7 +25,7 @@ protected:
 	UTextBlock* PopUpText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Buttons", meta = (BindWidget))
-	UButton* BackButton;
+	UCustomButton* BackButton;
 
 	TArray<FString> CurrentPopUpArray;
 

@@ -20,9 +20,10 @@ protected:
 
 	TArray<UWaypoint*> WaypointsList;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Waypoint")
 	FSlateBrush ImageBrush;
 
-	void SetWaypointImageLayout(const UImage* TargetImageWaypoint, const bool AtLeft) const;
+	void SetWaypointImageLayout(UImage* TargetImageWaypoint, const bool AtLeft) const;
 
 #pragma region LayoutVariables
 

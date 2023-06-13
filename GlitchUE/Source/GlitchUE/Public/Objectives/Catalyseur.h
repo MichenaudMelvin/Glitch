@@ -40,8 +40,6 @@ protected:
 
 	void StartDesactivationTimer(const float Timer);
 
-	void ToggleActivatedInhibiteursState(const bool ActivateInhibiteurs = true);
-
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
 
 	virtual void OnSwitchPhases(EPhases CurrentPhase) override;
@@ -54,6 +52,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UPopcornFXEmitterComponent* DesactivationFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "FX")
+	UPopcornFXEmitterComponent* IdleFX;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Feedback")
 	UWaypoint* DesactivationBillboard;
@@ -106,7 +107,7 @@ protected:
 	/**
 	 * @brief Timer in seconds
 	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Time", meta = (ClampMin = 0))
+	UPROPERTY(EditAnywhere, Category = "Time", meta = (ClampMin = 0))
 	float DesactivationTimer = 60.0f;
 
 	FTimerHandle DesactivationTimerHandle;

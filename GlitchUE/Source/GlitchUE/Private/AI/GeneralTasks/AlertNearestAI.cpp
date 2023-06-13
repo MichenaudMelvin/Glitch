@@ -21,13 +21,22 @@ EBTNodeResult::Type UAlertNearestAI::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 	AIList = UUsefulFunctions::SortActorsByDistanceToActor(AIList, OwnerComp.GetAIOwner()->GetPawn());
 
-	for(int i = 0; i < NumberOfAIToCall; i++){
-		if(i > AIList.Num() - 1){
-			break;
+	int AICalled = 0;
+
+	for(int i = 0; i < AIList.Num(); i++){
+		UBlackboardComponent* CurrentBlackboardComp = Cast<APursuitDrone>(AIList[i])->GetBlackBoard();
+
+		if(CurrentBlackboardComp->GetValueAsBool("IsLoading") || CurrentBlackboardComp->GetValueAsBool("ReceiveAlert")){
+			continue;
 		}
 
-		UBlackboardComponent* CurrentBlackboardComp = Cast<APursuitDrone>(AIList[i])->GetBlackBoard();
+		AICalled++;
+
 		CurrentBlackboardComp->SetValueAsBool("ReceiveAlert", true);
+
+		if(NumberOfAIToCall == AICalled){
+			break;
+		}
 	}
 
 	return EBTNodeResult::Succeeded;

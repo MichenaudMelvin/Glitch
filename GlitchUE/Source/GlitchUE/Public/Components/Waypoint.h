@@ -22,7 +22,7 @@ protected:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	virtual bool IsVisible() const override;
+	bool IsVisibleOnScreen() const;
 
 	AMainPlayerController* MainPlayerController;
 

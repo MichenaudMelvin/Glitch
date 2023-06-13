@@ -6,9 +6,9 @@
 #include "Components/ActivableComponent.h"
 #include "PlacableActor.h"
 #include "Animation/SkeletalMeshActor.h"
+#include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Gamemodes/GlitchUEGameMode.h"
-#include "Player/TargetCameraLocation.h"
 #include "ConstructionZone.generated.h"
 
 UCLASS()
@@ -23,14 +23,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TechMesh;
 
-	UPROPERTY(EditAnywhere, Category = "Camera")
-	ATargetCameraLocation* CameraTargetLocation;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	UInteractableComponent* InteractableComponent;
+
+#if WITH_EDITORONLY_DATA
+	UArrowComponent* CameraWheelDirection;
+#endif
 
 	UAnimationAsset* ActivationAnim;
 
@@ -51,6 +54,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
 	EState InitialState;
+
+	UPROPERTY(EditAnywhere, Category = "Camera", meta = (MakeEditWidget = true))
+	FTransform CameraWheelTransform = FTransform(FRotator(-90, 0, 0), FVector(0, 0, 500), FVector(1, 1, 1));
 
 	UFUNCTION()
 	void ActiveObjectif();
@@ -86,10 +92,6 @@ public:
 
 	UFUNCTION()
 	void DestroyCurrentUnit();
-
-	//Call in editor cannot be in WITH_EDITORONLY_DATA directive
-	UFUNCTION(CallInEditor, Category = "Camera")
-	void SpawnCamera();
 
 #if WITH_EDITORONLY_DATA
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

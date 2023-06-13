@@ -9,6 +9,7 @@
 #include "Engine/DataTable.h"
 #include "UI/Gameplay/AdditionalMessage.h"
 #include "UI/Gameplay/TimerWidget.h"
+#include "UI/Gameplay/Tchat/Tchat.h"
 #include "WaveManager.generated.h"
 
 class AMainAICharacter;
@@ -77,6 +78,24 @@ protected:
 	UAdditionalMessage* PlayerMessageWidget;
 
 	UPROPERTY()
+	UTchat* PlayerTchatWidget;
+
+	void WriteWhatTheNextWaveContain(const FWave TargetWave);
+
+	UFUNCTION()
+	void WriteMessages();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
+	FLinearColor TchatSpeakerColor = FLinearColor::Yellow;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
+	float MessagesDelay = 0.5f;
+
+	FWave TchatTargetWave;
+
+	int TchatIndex = 0;
+
+	UPROPERTY()
 	ANexus* Nexus;
 
 	UPROPERTY()
@@ -106,6 +125,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	FWave GetCurrentWaveData() const;
+
+	FWave GetNextWaveData() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	FWave GetTargetWaveData(const int Target) const;

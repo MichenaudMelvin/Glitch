@@ -77,6 +77,10 @@ void AMark::Tick(float DeltaSeconds){
 }
 
 void AMark::AttachToPlayer(){
+	if(!bCanBeAttached){
+		return;
+	}
+
 	AttachToComponent(Player->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false));
 	MarkFX->StartEmitter();
 	MarkMesh->SetVisibility(false, false);
@@ -84,6 +88,10 @@ void AMark::AttachToPlayer(){
 }
 
 void AMark::DetachToPlayer(){
+	if(!bCanBeAttached){
+		return;
+	}
+
 	DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	MarkMesh->SetVisibility(true, false);
 	MarkFX->StopEmitter();
@@ -91,6 +99,12 @@ void AMark::DetachToPlayer(){
 
 void AMark::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
 	ResetMark();
+}
+
+void AMark::ReattachToPlayer(){
+	bCanBeAttached = true;
+
+	AttachToPlayer();
 }
 
 void AMark::StartProjectile() const{
@@ -155,6 +169,7 @@ bool AMark::GetIsMarkPlaced() const{
 
 void AMark::PlaceMark(){
 	StopProjectile();
+	DistanceFromTheMarkTimeline.Stop();
 	bIsMarkPlaced = true;
 }
 
@@ -170,20 +185,13 @@ void AMark::ResetMark(){
 void AMark::Launch(const FTransform StartTransform){
 	DetachToPlayer();
 	SetActorRotation(StartTransform.Rotator());
-	LaunchLocation = GetActorLocation();
 	StartProjectile();
-	GetWorldTimerManager().SetTimer(DistanceTimerHandle, this, &AMark::DistanceTimer, 0.001f, true);
-}
-
-float AMark::GetDistanceToLaunchPoint() const{
-	return FVector::Dist(LaunchLocation, GetActorLocation());
+	GetWorldTimerManager().SetTimer(DistanceTimerHandle, this, &AMark::DistanceTimer, 0.1f, true);
 }
 
 void AMark::DistanceTimer(){
 	if(GetDistanceTo(Player) > MaxLaunchDistance){
 		GetWorldTimerManager().ClearTimer(DistanceTimerHandle);
-
-		Player->GetMainPlayerController()->OnUseGlitchPressed.Clear();
 
 		LastPosition = GetActorLocation();
 

@@ -5,7 +5,11 @@
 #include "Components/CanvasPanelSlot.h"
 
 UWaypointIndication::UWaypointIndication(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer){
-	//ImageBrush.SetResourceObject();
+	static ConstructorHelpers::FObjectFinder<UTexture> OffscreenImage(TEXT("/Game/UI/Objectives/T_CatalyseurWaypointIconOffscreen"));
+	check(OffscreenImage.Succeeded());
+
+	ImageBrush.SetResourceObject(OffscreenImage.Object);
+	ImageBrush.SetImageSize(FVector2D(124.25f, 109.75f));
 }
 
 void UWaypointIndication::NativeTick(const FGeometry& MyGeometry, float InDeltaTime){
@@ -16,12 +20,14 @@ void UWaypointIndication::NativeTick(const FGeometry& MyGeometry, float InDeltaT
 	}
 }
 
-void UWaypointIndication::SetWaypointImageLayout(const UImage* TargetImageWaypoint, const bool AtLeft) const{
+void UWaypointIndication::SetWaypointImageLayout(UImage* TargetImageWaypoint, const bool AtLeft) const{
 	UCanvasPanelSlot* ImageSlot = Cast<UCanvasPanelSlot>(TargetImageWaypoint->Slot);
 
 	ImageSlot->SetAnchors(AtLeft ? LeftAnchors : RightAnchors);
 	ImageSlot->SetAlignment(AtLeft ? LeftAlignment : RightAlignment);
 	ImageSlot->SetPosition(AtLeft ? LeftPosition : RightPosition);
+
+	TargetImageWaypoint->SetRenderScale(FVector2D(AtLeft ? 1 : -1, 1));
 }
 
 void UWaypointIndication::AddIndication(UWaypoint* WaypointToAdd){
@@ -40,6 +46,8 @@ void UWaypointIndication::AddIndication(UWaypoint* WaypointToAdd){
 		WaypointToAdd->SetImage(NewImage);
 
 		Cast<UCanvasPanel>(GetRootWidget())->AddChild(NewImage);
+
+		Cast<UCanvasPanelSlot>(NewImage->Slot)->SetAutoSize(true);
 
 		SetWaypointImageLayout(NewImage, true);
 		NewImage->SetBrush(ImageBrush);

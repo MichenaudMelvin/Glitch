@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Helpers/UsefulStructs.h"
 #include "LevelElements/AbstractDoor.h"
 #include "Saves/AbstractSave.h"
 #include "WorldSave.generated.h"
@@ -43,4 +44,13 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Door")
 	TMap<FString, FBasicDoorData> DoorDataList;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Tchat")
+	TArray<FString> TchatTriggerNameList;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Tchat")
+	TArray<FTchatStruct> TchatLinesList;
+
+	UPROPERTY(BlueprintReadWrite, Category = "BanLogs")
+	TMap<FString, bool> BanLogList;
 };

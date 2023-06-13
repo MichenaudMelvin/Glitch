@@ -62,6 +62,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Catalyseur")
 	TMap<FString, FCatalyseurData> CatalyseurDataList;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Crystal")
+	FString PlayerCrystalName;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Crystal")
+	TMap<FString, FTransform> CrystalTransformList;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Catalyseur")
 	int CurrentActivatedCatalyseurNumber;
 

@@ -9,6 +9,8 @@ void UPopUpWidget::NativeOnInitialized(){
 	Super::NativeOnInitialized();
 
 	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	AddWidgetToFocusList(BackButton);
 }
 
 void UPopUpWidget::NativeDestruct(){
