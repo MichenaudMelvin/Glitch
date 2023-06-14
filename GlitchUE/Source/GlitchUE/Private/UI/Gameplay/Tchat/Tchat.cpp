@@ -122,8 +122,11 @@ void UTchat::RebuildList() const{
 void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
 	if(!bIsOpenByUser){
 		if(!IsInViewport()){
-			AddToViewport();
-			StartDestructTimer();
+			if(!Cast<AMainPlayerController>(CurrentController)->IsWheelOpened()){
+				AddToViewport();
+				StartDestructTimer();
+			}
+
 		} else{
 			CheckDisappearance();
 			ResetDestructTimer();

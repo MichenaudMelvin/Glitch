@@ -48,7 +48,7 @@ void UWheel::NativeConstruct(){
 		bIsCurrentSlotOccupied ? ButtonList[i]->UnbindButtons() : ButtonList[i]->BindButtons();
 
 		if(bIsCurrentSlotOccupied){
-			ButtonList[i]->BlockButton(false);
+			ButtonList[i]->BlockButton(true);
 		} else{
 			AddWidgetToFocusList(ButtonList[i]);
 			ButtonList[i]->CanBuyObject(MainPlayer->GetGolds()) ? ButtonList[i]->UnblockButton() : ButtonList[i]->BlockButton(false);

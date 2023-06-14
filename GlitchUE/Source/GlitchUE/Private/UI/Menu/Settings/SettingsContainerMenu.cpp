@@ -12,6 +12,7 @@ void USettingsContainerMenu::NativeOnInitialized(){
 		USettingsMenu* CurrentWidget = Cast<USettingsMenu>(CreateWidget(this, SettingsWidgetsClasses[i]));
 
 		AllSettingsWidgets.Add(CurrentWidget);
+		CurrentWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 
 		UButtonCategoryData* CurrentData = NewObject<UButtonCategoryData>();
 
@@ -22,8 +23,7 @@ void USettingsContainerMenu::NativeOnInitialized(){
 		SettingsButtonCategories->AddItem(CurrentData);
 	}
 
-	AddWidgetToFocusList(ApplySettingsButton);
-	AddWidgetToFocusList(ResetToDefaultButton);
+	bIsDynamicFocusList = true;
 }
 
 void USettingsContainerMenu::NativeConstruct(){
@@ -31,9 +31,9 @@ void USettingsContainerMenu::NativeConstruct(){
 
 	SetCurrentShownWidget(AllSettingsWidgets[0]);
 
-	for(int i = 1; i < AllSettingsWidgets.Num(); i++){
-		AllSettingsWidgets[i]->RemoveFromParent();
-	}
+	AddWidgetToFocusList(ApplySettingsButton);
+	AddWidgetToFocusList(ResetToDefaultButton);
+	AddWidgetToFocusList(BackButton);
 }
 
 void USettingsContainerMenu::BindButtons(){
