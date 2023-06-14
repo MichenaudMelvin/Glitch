@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animations")
 	float FadeTime = 2;
 
+	bool bIsTimerRunning = false;
+
 	FString SelectString(const int IntValue);
 
 	float CurrentDisplayTime;

@@ -22,7 +22,7 @@
 #include "FX/Dissolver.h"
 #include "LevelElements/BanLog.h"
 #include "LevelElements/BasicDoor.h"
-#include "Mark/Mark.h"
+#include "Mark/GlitchMark.h"
 #include "Objectives/Inhibiteur.h"
 #include "Saves/StealthSave.h"
 #include "Saves/TowerDefenseSave.h"

@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Player/MainPlayer.h"
-
 #include "FMODBlueprintStatics.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -22,7 +21,7 @@
 #include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
-#include "Mark/Mark.h"
+#include "Mark/GlitchMark.h"
 #include "Components/CompassComponent.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "PlacableObject/ConstructionZone.h"
@@ -235,7 +234,7 @@ void AMainPlayer::Destroyed(){
 	Super::Destroyed();
 }
 
-void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced){
+void AMainPlayer::InitializePlayer_Implementation(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced){
 	SetActorTransform(StartTransform);
 	Controller->SetControlRotation(CameraRotation);
 
@@ -709,19 +708,16 @@ ATargetCameraLocation* AMainPlayer::GetWheelCamera() const{
 }
 
 void AMainPlayer::LaunchMark(){
-	FTransform MarkTransform;
-	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Head"));
-
-	MarkTransform.SetRotation(FindMarkLaunchRotation());
-	Mark->Launch(MarkTransform);
+	Mark->GetFakeMark()->SetActorLocation(FollowCamera->GetComponentLocation());
+	Mark->GetFakeMark()->Launch(FindMarkLaunchRotation());
 
 	MainPlayerController->UnbindGlitch();
 	MainPlayerController->OnUseGlitchPressed.AddDynamic(this, &AMainPlayer::TPToMark);
 }
 
-FQuat AMainPlayer::FindMarkLaunchRotation() const{
+FRotator AMainPlayer::FindMarkLaunchRotation() const{
 	FHitResult HitResult;
-	const FVector StartLocation = FollowCamera->GetComponentLocation();
+	const FVector StartLocation = Mark->GetFakeMark()->GetActorLocation();
 	const FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxLaunchDistance()) + StartLocation;
 
 	FCollisionQueryParams QueryParams;
@@ -731,12 +727,11 @@ FQuat AMainPlayer::FindMarkLaunchRotation() const{
 
 	if(GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams, ResponseParam)){
 		TargetLocation = HitResult.ImpactPoint;
-		//Mark->SetHitSomething(true);
 	}
 
-	Mark->SetTargetLocation(TargetLocation);
+	Mark->GetFakeMark()->SetTargetPosition(TargetLocation);
 
-	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Head"), TargetLocation).Quaternion();
+	return UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
 }
 
 void AMainPlayer::TPToMark() {
@@ -791,6 +786,8 @@ void AMainPlayer::CanLaunchMark(){
 	}
 }
 
+void AMainPlayer::ForceStopSneak_Implementation(){}
+
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
 
@@ -802,7 +799,7 @@ void AMainPlayer::Tick(float deltaTime){
 	AppearTimeline.TickTimeline(deltaTime);
 }
 
-void AMainPlayer::SetMark(AMark* NewMark){
+void AMainPlayer::SetMark(AGlitchMark* NewMark){
 	Mark = NewMark;
 }
 
@@ -1080,6 +1077,7 @@ void AMainPlayer::SetGlitchMaterialParameter(const int MaterialIndex, const floa
 
 
 void AMainPlayer::EndTL(){
+	ForceStopSneak();
 
 	// Play sound final of the teleportation
 	UFMODBlueprintStatics::PlayEvent2D(GetWorld(), TPEnd, true);
