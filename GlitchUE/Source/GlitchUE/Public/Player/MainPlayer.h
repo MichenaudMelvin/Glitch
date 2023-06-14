@@ -597,7 +597,11 @@ protected:
 	UFUNCTION()
 	void EndAppear();
 
+	bool bIsAppearing = false;
+
 public:
+	bool IsAppearing() const;
+
 	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue) const;
 
 	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value) const;

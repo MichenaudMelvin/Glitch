@@ -227,6 +227,10 @@ void AMainPlayerController::UnbindCamera(){
 #pragma region Modes
 
 void AMainPlayerController::BindNormalMode(){
+	if(MainPlayer->IsAppearing()){
+		return;
+	}
+
 	UnbindAll();
 	BindPause();
 	BindMovement();

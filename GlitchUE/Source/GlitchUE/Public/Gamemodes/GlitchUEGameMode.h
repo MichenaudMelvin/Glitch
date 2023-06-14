@@ -131,7 +131,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GlobalWorldSave(const int Index);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Save")
 	virtual void GlobalWorldLoad(const int Index) override;
 
 	/**

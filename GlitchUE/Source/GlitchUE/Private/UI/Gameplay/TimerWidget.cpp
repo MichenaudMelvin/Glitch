@@ -105,6 +105,10 @@ float UTimerWidget::GetTimerElapsed() const{
 	return CurrentDisplayTime;
 }
 
+void UTimerWidget::PauseTimer(const bool bPause){
+	bPause ? GetWorld()->GetTimerManager().ClearTimer(DisplayTimer) : GetWorld()->GetTimerManager().SetTimer(DisplayTimer, this, &UTimerWidget::UpdateTimer, 0.1f, true);
+}
+
 void UTimerWidget::FinishTimer(const bool RemoveTimer){
 	GetWorld()->GetTimerManager().ClearTimer(DisplayTimer);
 

@@ -118,8 +118,6 @@ void AGlitchUEGameMode::InitializeWorld(){
 	PlayerStatsWidget = MainPlayerController->GetPlayerStatsWidget();
 	UpdatePlayerObjectives();
 
-	LaunchStealthTimer(StealthTimer);
-
 	if(OptionsString == ""){
 		return;
 	}

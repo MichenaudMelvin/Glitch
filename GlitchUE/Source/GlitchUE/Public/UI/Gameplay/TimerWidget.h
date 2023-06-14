@@ -85,4 +85,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	float GetTimerElapsed() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Timer")
+	void PauseTimer(const bool bPause);
 };

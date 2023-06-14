@@ -509,6 +509,7 @@ void AMainPlayer::Jump(){
 
 	Super::Jump();
 
+	MainPlayerController->SetCanSave(false);
 	MainPlayerController->UnbindSneak();
 
 	if(bUseCoyoteTime){
@@ -521,6 +522,7 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 	Super::OnWalkingOffLedge_Implementation(PreviousFloorImpactNormal, PreviousFloorContactNormal, PreviousLocation,TimeDelta);
 
 	bUseCoyoteTime = true;
+	MainPlayerController->SetCanSave(false);
 	MainPlayerController->UnbindSneak();
 
 	FTimerHandle TimerHandle;
@@ -571,6 +573,7 @@ bool AMainPlayer::CanStandUp(){
 void AMainPlayer::Landed(const FHitResult& Hit){
 	Super::Landed(Hit);
 
+	MainPlayerController->SetCanSave(true);
 	MainPlayerController->BindSneak();
 
 	const float FallingVelocity = GetCharacterMovement()->Velocity.Z;
@@ -1006,6 +1009,7 @@ void AMainPlayer::EndFadeIn(){
 
 void AMainPlayer::MakeThePlayerAppear(){
 	GetMesh()->SetScalarParameterValueOnMaterials("PercentageApparition", 0);
+	bIsAppearing = true;
 
 	AppearTimeline.Play();
 }
@@ -1015,13 +1019,18 @@ void AMainPlayer::AppearUpdate(float Value){
 }
 
 void AMainPlayer::EndAppear(){
-	OnEndAppear.Broadcast();
-
+	bIsAppearing = false;
 	MainPlayerController->BindNormalMode();
+
+	OnEndAppear.Broadcast();
 
 	for(int i = 0; i < RealPlayerMaterialList.Num(); i++){
 		GetMesh()->SetMaterial(i, RealPlayerMaterialList[i]);
 	}
+}
+
+bool AMainPlayer::IsAppearing() const{
+	return bIsAppearing;
 }
 
 void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue) const{
