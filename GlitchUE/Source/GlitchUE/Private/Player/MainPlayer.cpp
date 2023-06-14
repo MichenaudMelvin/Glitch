@@ -369,12 +369,12 @@ void AMainPlayer::UpdateGolds(int Amount, const EGoldsUpdateMethod GoldsUpdateMe
 			LoseGoldsFX->StartEmitter();
 			break;
 		case EGoldsUpdateMethod::ReceiveGolds:
-			// code here
 			break;
 	}
+	
 
 	Golds += Amount;
-	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
+	OnUpdateGolds.Broadcast(Golds);
 
 	if(Golds < 0){
 		Loose();
@@ -383,7 +383,7 @@ void AMainPlayer::UpdateGolds(int Amount, const EGoldsUpdateMethod GoldsUpdateMe
 
 void AMainPlayer::SetGolds(const int Amount){
 	Golds = Amount;
-	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
+	OnUpdateGolds.Broadcast(Golds);
 }
 
 void AMainPlayer::KillPlayer(){

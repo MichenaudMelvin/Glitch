@@ -17,9 +17,23 @@ public:
 protected:
 	virtual void SynchronizeProperties() override;
 
-	FButtonStyle SavedStyle;
+	FButtonStyle NormalStyle;
+
+	UPROPERTY(EditAnywhere, Category = "Appearance");
+	FSlateColor BlockedColor = FSlateColor(FLinearColor(0.1f, 0.1f, 0.1f));
+
+	bool bIsBlocked = false;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Button")
+	virtual void BlockButton(const bool bUnbindHovering);
+
+	UFUNCTION(BlueprintCallable, Category = "Button")
+	virtual void UnblockButton();
+
+	UFUNCTION(BlueprintCallable, Category = "Button")
+	bool IsBlocked() const;
+
 	virtual void ReceiveFocus() override;
 
 	virtual void UnReceiveFocus() override;

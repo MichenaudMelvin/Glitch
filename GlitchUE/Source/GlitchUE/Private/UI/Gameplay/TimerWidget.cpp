@@ -2,6 +2,14 @@
 
 
 #include "UI/Gameplay/TimerWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/MainPlayerController.h"
+
+void UTimerWidget::NativeOnInitialized(){
+	Super::NativeOnInitialized();
+
+	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+}
 
 void UTimerWidget::NativeConstruct(){
 	Super::NativeConstruct();
@@ -60,7 +68,9 @@ int UTimerWidget::GetMinutes(const float Time) const{
 
 void UTimerWidget::StartTimer(const float Timer, const FKOnFinishTimer FinishEvent, const bool RemoveTimerAtEnd){
 	if(!IsVisible()){
-		AddToViewport();
+		if(!MainPlayerController->IsWheelOpened()){
+			AddToViewport();
+		}
 	}
 
 	RemoveWidgetAtEnd = RemoveTimerAtEnd;

@@ -42,8 +42,10 @@ void AMainPlayerController::CreatePlayerWidgets(){
 	PlayerStatsWidget = Cast<UPlayerStats>(CreateWidget(this, PlayerStatsWidgetClass));
 	PlayerStatsWidget->AddToViewport();
 	PlayerStatsWidget->UpdateDisplayGolds(MainPlayer->GetGolds());
+	MainPlayer->OnUpdateGolds.AddDynamic(PlayerStatsWidget, &UPlayerStats::UpdateDisplayGolds);
 
 	WheelWidget = Cast<UWheel>(CreateWidget(this, WheelWidgetWidgetClass));
+	MainPlayer->OnUpdateGolds.AddDynamic(WheelWidget, &UWheel::UpdateDisplayGolds);
 
 	PauseWidget = Cast<UPauseMenu>(CreateWidget(this, PauseWidgetClass));
 

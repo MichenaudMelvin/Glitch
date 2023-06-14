@@ -258,6 +258,10 @@ private:
 	UFUNCTION()
 	void BlinkingFinished();
 
+public:
+	UFUNCTION(BlueprintCallable)
+	void RemoveStealthTime(const float RemovedTime) const;
+
 protected:
 	UFUNCTION(Exec, Category = "Glitch")
 	void GlitchUpgradeAlliesUnits() const;

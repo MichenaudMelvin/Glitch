@@ -118,6 +118,8 @@ void AGlitchUEGameMode::InitializeWorld(){
 	PlayerStatsWidget = MainPlayerController->GetPlayerStatsWidget();
 	UpdatePlayerObjectives();
 
+	LaunchStealthTimer(StealthTimer);
+
 	if(OptionsString == ""){
 		return;
 	}
@@ -666,9 +668,6 @@ void AGlitchUEGameMode::SetLevelState(const ELevelState NewState){
 		LevelStateTimelineDirection = ETimelineDirection::Backward;
 		break;
 	case ELevelState::Alerted:
-
-		LaunchStealthTimer(StealthTimer);
-
 		LevelStateTimeline.Play();
 		LevelStateTimelineDirection = ETimelineDirection::Forward;
 		break;
@@ -706,6 +705,18 @@ void AGlitchUEGameMode::BlinkingFinished(){
 		BlinkingTimelineDirection = ETimelineDirection::Forward;
 		break;
 	}
+}
+
+void AGlitchUEGameMode::RemoveStealthTime(const float RemoveTime) const{
+	if(!MainPlayerController->GetTimerWidget()->IsTimerRunning()){
+		return;
+	}
+
+	const float CurrentTime = MainPlayerController->GetTimerWidget()->GetTimerElapsed();
+
+	const float NewTime = FMath::Clamp(CurrentTime - RemoveTime, 1.0f, StealthTimer);
+
+	MainPlayerController->GetTimerWidget()->ChangeTimerValue(NewTime);
 }
 
 void AGlitchUEGameMode::AddGlitch(const float AddedValue){
@@ -805,11 +816,7 @@ void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 }
 
 void AGlitchUEGameMode::GlitchUpgradeWorld() const{
-	const float CurrentTime = MainPlayerController->GetTimerWidget()->GetTimerElapsed();
-
-	const float NewTime = FMath::Clamp(CurrentTime - GlitchReduceStealthTimer, 1.0f, StealthTimer);
-
-	MainPlayerController->GetTimerWidget()->ChangeTimerValue(NewTime);
+	RemoveStealthTime(GlitchReduceStealthTimer);
 }
 
 void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
