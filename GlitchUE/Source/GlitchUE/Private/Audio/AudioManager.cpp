@@ -102,7 +102,6 @@ void AAudioManager::SetStealthAudio(const ELevelState LevelState){
 		FadeParameter("Stealth", false);
 		break;
 	case ELevelState::Alerted:
-		UFMODBlueprintStatics::PlayEventAtLocation(GetWorld(), StealthAlarm, Player->GetActorTransform(), true);
 		FadeParameter("Stealth");
 		break;
 	}
