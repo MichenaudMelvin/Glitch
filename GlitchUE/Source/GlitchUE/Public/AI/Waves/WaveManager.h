@@ -19,6 +19,8 @@ class ANexus;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnRefreshAIList);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFinishAllWaves);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnStartWave, int, CurrentWave);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnEndWave, int, CurrentWave);
@@ -97,13 +99,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
 	FString PrepareAdditionalText = "Start building towers near the nexus";
 
-	void WriteWhatTheNextWaveContain(const FWave TargetWave);
+	void WriteWhatTheNextWaveContain(const FWave TargetWave, const int TargetWaveIndex);
 
 	UFUNCTION()
 	void WriteMessages();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
 	FLinearColor TchatSpeakerColor = FLinearColor::Yellow;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
+	FString Speaker = "I.V.A.N.";
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
 	float MessagesDelay = 0.5f;
@@ -148,10 +153,15 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	FWave GetTargetWaveData(const int Target) const;
 
-	UPROPERTY(BlueprintCallable, BlueprintAssignable)
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "AI")
 	FKOnRefreshAIList OnRefreshAIList;
 
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "AI")
+	FKOnFinishAllWaves OnFinishAllWaves;
+
 	bool bIsStopped = false;
+
+	int GetActiveSpawnersAtWave(const int TargetWave) const;
 
 public:
 	void StartPrepareTimer();

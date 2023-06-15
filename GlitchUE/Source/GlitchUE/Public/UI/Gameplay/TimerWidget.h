@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animations")
 	float FadeTime = 2;
 
+	bool bIsTimerRunning = false;
+
 	FString SelectString(const int IntValue);
 
 	float CurrentDisplayTime;
@@ -85,4 +87,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	float GetTimerElapsed() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Timer")
+	void PauseTimer(const bool bPause);
 };

@@ -13,6 +13,8 @@ class AAudioManager;
 class ADissolver;
 class UPlayerStats;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFreeEnoughCatalyseur);
+
 UCLASS()
 class GLITCHUE_API ANexus : public AAbstractObjectif{
 	GENERATED_BODY()
@@ -45,6 +47,9 @@ public:
 	void UpdateDissolver();
 
 	void SetCanInteractWithNexus(const bool bCanInteract) const;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnFreeEnoughCatalyseur OnFreeEnoughCatalyseur;
 
 protected:
 	AActor* GetFarestActivatedCatalyseur();

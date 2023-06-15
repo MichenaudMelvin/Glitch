@@ -22,7 +22,7 @@
 #include "FX/Dissolver.h"
 #include "LevelElements/BanLog.h"
 #include "LevelElements/BasicDoor.h"
-#include "Mark/Mark.h"
+#include "Mark/GlitchMark.h"
 #include "Objectives/Inhibiteur.h"
 #include "Saves/StealthSave.h"
 #include "Saves/TowerDefenseSave.h"
@@ -117,8 +117,6 @@ void AGlitchUEGameMode::Tick(float deltaTime){
 void AGlitchUEGameMode::InitializeWorld(){
 	PlayerStatsWidget = MainPlayerController->GetPlayerStatsWidget();
 	UpdatePlayerObjectives();
-
-	LaunchStealthTimer(StealthTimer);
 
 	if(OptionsString == ""){
 		return;
@@ -215,6 +213,7 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	CurrentSave->LoadedTime++;
 
 	if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
+		MainPlayerController->GetTchatWidget()->AddTchatLine("Console", "Your save have been corrupted", FLinearColor::Blue);
 		UUsefulFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
 		return;
 	}
@@ -362,7 +361,7 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
-	MainPlayerController->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
+	MainPlayerController->GetTimerWidget()->StartTimer(TimerValue, EndEvent, false);
 }
 
 float AGlitchUEGameMode::GetStealthTimer() const{

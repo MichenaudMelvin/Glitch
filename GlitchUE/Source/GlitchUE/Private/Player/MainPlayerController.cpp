@@ -6,7 +6,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "Mark/Mark.h"
+#include "Mark/GlitchMark.h"
 
 void AMainPlayerController::BeginPlay(){
 	Super::BeginPlay();
@@ -227,6 +227,10 @@ void AMainPlayerController::UnbindCamera(){
 #pragma region Modes
 
 void AMainPlayerController::BindNormalMode(){
+	if(MainPlayer->IsAppearing()){
+		return;
+	}
+
 	UnbindAll();
 	BindPause();
 	BindMovement();

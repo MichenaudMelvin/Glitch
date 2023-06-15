@@ -119,6 +119,17 @@ void UTchat::RebuildList() const{
 	TchatList->AddItem(LastItem);
 }
 
+void UTchat::WriteMessageList(){
+	AddTchatLine(CurrentListToAdd[0].Speaker, CurrentListToAdd[0].TextMessage, CurrentListToAdd[0].SpeakerColor);
+
+	if(CurrentListToAdd.Num() == 1){
+		return;
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(MultipleMessagesTimerHandle, this, &UTchat::WriteMessageList, CurrentListToAdd[0].DelayForNextMessage, false);
+	CurrentListToAdd.RemoveAt(0);
+}
+
 void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
 	if(!bIsOpenByUser){
 		if(!IsInViewport()){
@@ -159,6 +170,14 @@ void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, co
 	// forced to use a timer because the display entry list is not updated instantly
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::AddTchatLineDelay, 0.002f, false);
+}
+
+void UTchat::AddMultipleTchatLines(TArray<FTchatStruct> TchatLines){
+	for(int i = 0; i < TchatLines.Num(); i++){
+		CurrentListToAdd.Add(TchatLines[i]);
+	}
+
+	WriteMessageList();
 }
 
 bool UTchat::IsOpenByUser() const{

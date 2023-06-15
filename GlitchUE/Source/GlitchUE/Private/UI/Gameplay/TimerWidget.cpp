@@ -76,6 +76,8 @@ void UTimerWidget::StartTimer(const float Timer, const FKOnFinishTimer FinishEve
 	RemoveWidgetAtEnd = RemoveTimerAtEnd;
 	CurrentDisplayTime = Timer;
 
+	bIsTimerRunning = true;
+
 	GetWorld()->GetTimerManager().SetTimer(DisplayTimer, this, &UTimerWidget::UpdateTimer, 0.1f, true);
 	OnFinishTimer = FinishEvent;
 }
@@ -98,11 +100,19 @@ void UTimerWidget::ChangeTimerValue(const float NewValue){
 }
 
 bool UTimerWidget::IsTimerRunning() const{
-	return GetWorld()->GetTimerManager().IsTimerActive(DisplayTimer);
+	return bIsTimerRunning;
 }
 
 float UTimerWidget::GetTimerElapsed() const{
 	return CurrentDisplayTime;
+}
+
+void UTimerWidget::PauseTimer(const bool bPause){
+	if(!bIsTimerRunning){
+		return;
+	}
+
+	bPause ? GetWorld()->GetTimerManager().ClearTimer(DisplayTimer) : GetWorld()->GetTimerManager().SetTimer(DisplayTimer, this, &UTimerWidget::UpdateTimer, 0.1f, true);
 }
 
 void UTimerWidget::FinishTimer(const bool RemoveTimer){
@@ -111,6 +121,8 @@ void UTimerWidget::FinishTimer(const bool RemoveTimer){
 	if(OnFinishTimer.IsBound()){
 		OnFinishTimer.Execute();
 	}
+
+	bIsTimerRunning = false;
 
 	if(RemoveTimer){
 		RemoveWidget();

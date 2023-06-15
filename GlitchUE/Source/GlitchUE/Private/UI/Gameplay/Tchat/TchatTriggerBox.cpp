@@ -22,24 +22,8 @@ void ATchatTriggerBox::BeginPlay(){
 }
 
 void ATchatTriggerBox::EnterTriggerBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){
-	if(OtherActor->IsA(AMainPlayer::StaticClass()) && Index == 0){
-		CurrentController = Cast<AMainPlayer>(OtherActor)->GetMainPlayerController();
-		WriteMessages();
-	}
-}
-
-void ATchatTriggerBox::WriteMessages(){
-
-	CurrentController->GetTchatWidget()->AddTchatLine(TchatMessageList[Index].Speaker, TchatMessageList[Index].TextMessage, TchatMessageList[Index].SpeakerColor);
-
-	Index++;
-
-	if(Index + 1 > TchatMessageList.Num()){
+	if(OtherActor->IsA(AMainPlayer::StaticClass())){
+		Cast<AMainPlayer>(OtherActor)->GetMainPlayerController()->GetTchatWidget()->AddMultipleTchatLines(TchatMessageList);
 		Destroy();
-		return;
 	}
-
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATchatTriggerBox::WriteMessages, TchatMessageList[Index - 1].DelayForNextMessage, false);
 }

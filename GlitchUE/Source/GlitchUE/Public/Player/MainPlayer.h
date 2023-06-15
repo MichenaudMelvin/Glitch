@@ -14,7 +14,7 @@
 #include "MainPlayer.generated.h"
 
 class AMainPlayerController;
-class AMark;
+class AGlitchMark;
 class AMainAICharacter;
 class APursuitDrone;
 class UCompassComponent;
@@ -36,6 +36,8 @@ enum class EGoldsUpdateMethod : uint8{
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnEndAppear);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnUpdateGolds, int, Golds);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnInitPlayer);
 
 UCLASS(config=Game)
 class AMainPlayer : public ACharacter, public IGlitchInterface{
@@ -79,7 +81,9 @@ protected:
 	float RunFXLifeTimeDeviation;
 
 public:
+	UFUNCTION(BlueprintNativeEvent, Category = "Saves")
 	void InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced);
+	void InitializePlayer_Implementation(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced);
 
 	#pragma region Camera
 
@@ -427,7 +431,7 @@ protected:
 	float GlitchDashCameraTransition = 1;
 
 	UPROPERTY()
-	AMark* Mark;
+	AGlitchMark* Mark;
 
 	UPROPERTY()
 	ATargetCameraLocation* WheelCamera;
@@ -444,7 +448,7 @@ public:
 	UPROPERTY()
 	UFMODEvent* TPEnd;
 
-	FQuat FindMarkLaunchRotation() const;
+	FRotator FindMarkLaunchRotation() const;
 
 	UFUNCTION(BlueprintCallable, Exec, Category = "Mark")
 	void TPToMark();
@@ -458,18 +462,22 @@ public:
 	UFUNCTION()
 	void CanLaunchMark();
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Exec, Category = "Movement")
+	void ForceStopSneak();
+	virtual void ForceStopSneak_Implementation();
+
 	FTimerHandle CanLaunchMarkTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float BackToNormalCamAfterLaunchMarkTime = 0.5f;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
-	AMark* GetMark() const { return Mark; }
+	AGlitchMark* GetMark() const { return Mark; }
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
 	float GlitchDashValue = 400;
 
-	void SetMark(AMark* NewMark);
+	void SetMark(AGlitchMark* NewMark);
 
 	FVector CurrentCameraPosition;
 
@@ -597,7 +605,11 @@ protected:
 	UFUNCTION()
 	void EndAppear();
 
+	bool bIsAppearing = false;
+
 public:
+	bool IsAppearing() const;
+
 	void UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue) const;
 
 	void SetGlitchMaterialParameter(const int MaterialIndex, const float Value) const;

@@ -103,6 +103,7 @@ void AWaveManager::UpdatePlayerObjectives(){
 
 		FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::UpdatePlayerObjectives, 0.1f, false);
+		return;
 	}
 
 	PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
@@ -115,31 +116,27 @@ void AWaveManager::UpdatePlayerObjectives(){
 	PlayerStatsWidget->UpdateAdditionalText("");
 }
 
-void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave){
+void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave, const int TargetWaveIndex){
 	PlayerTchatWidget->AddTchatLine("I.V.A.N.", "The next wave contain:", TchatSpeakerColor);
 
 	TchatTargetWave = TargetWave;
-	TchatIndex = 0;
+	TchatIndex = GetActiveSpawnersAtWave(TargetWaveIndex);
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
-
 }
 
 void AWaveManager::WriteMessages(){
-	const FString DroneType = TchatTargetWave.AIToSpawnList[TchatIndex].AIToSpawn.GetDefaultObject()->IsA(AFocusCatalyseurCharacter::StaticClass()) ? "Focus Catalyser" : "Focus Nexus";
-	const FString Message = FString::FromInt(TchatTargetWave.AIToSpawnList[TchatIndex].NumberToSpawn) + " " + DroneType + " " + TchatTargetWave.AIToSpawnList[TchatIndex].AIData->DroneName;
+	TArray<FTchatStruct> MessageList;
 
-	PlayerTchatWidget->AddTchatLine("I.V.A.N.", Message, TchatSpeakerColor);
+	for(int i = 0; i < TchatTargetWave.AIToSpawnList.Num(); i ++){
+		const FString DroneType = TchatTargetWave.AIToSpawnList[i].AIToSpawn.GetDefaultObject()->IsA(AFocusCatalyseurCharacter::StaticClass()) ? "Focus Catalyser" : "Focus Nexus";
+		const FString Message = FString::FromInt(TchatTargetWave.AIToSpawnList[i].NumberToSpawn * TchatIndex) + " " + DroneType + " " + TchatTargetWave.AIToSpawnList[i].AIData->DroneName;
 
-	TchatIndex++;
-
-	if(TchatIndex + 1 > TchatTargetWave.AIToSpawnList.Num()){
-		return;
+		MessageList.Add(FTchatStruct(Speaker, Message, TchatSpeakerColor, MessagesDelay));
 	}
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
+	PlayerTchatWidget->AddMultipleTchatLines(MessageList);
 }
 
 void AWaveManager::EnableSpawners(){
@@ -166,8 +163,22 @@ void AWaveManager::DisableSpawner(){
 	}
 }
 
+int AWaveManager::GetActiveSpawnersAtWave(const int TargetWave) const{
+	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
+
+	int ActiveSpawnerNumber = 0;
+
+	for (int i = 0; i < SpawnerArray.Num(); i++){
+		if(SpawnerArray[i]->GetStateAtWave().EnableAtWave <= TargetWave && SpawnerArray[i]->GetStateAtWave().DisableAtWave >= TargetWave){
+			ActiveSpawnerNumber++;
+		}
+	}
+
+	return ActiveSpawnerNumber;
+}
+
 void AWaveManager::StartPrepareTimer(){
-	WriteWhatTheNextWaveContain(GetCurrentWaveData());
+	WriteWhatTheNextWaveContain(GetCurrentWaveData(), CurrentWaveNumber);
 
 	FKOnFinishTimer FinishEvent;
 	FinishEvent.BindDynamic(this, &AWaveManager::StartWave);
@@ -206,13 +217,13 @@ void AWaveManager::EndWave(){
 	OnEndWave.Broadcast(CurrentWaveNumber);
 
 	if(CurrentWaveNumber == NumberOfWaves){
+		OnFinishAllWaves.Broadcast();
 		PlayerMessageWidget->AddMessageToScreen("Finish all Waves");
-		Player->Win();
 		return;
 	}
 
 	PlayerMessageWidget->AddMessageToScreen("Finish Wave: " + FString::FromInt(CurrentWaveNumber));
-	WriteWhatTheNextWaveContain(GetNextWaveData());
+	WriteWhatTheNextWaveContain(GetNextWaveData(), CurrentWaveNumber + 1);
 
 	if(GetCurrentWaveData().bStopAtEnd){
 		bIsStopped = true;
@@ -236,9 +247,8 @@ void AWaveManager::SpawnEnemies(){
 #endif
 
 	for (int i = 0; i < ListOfAIToSpawn.Num(); i++){
-		const int NumberToSpawnForEachSpawners = ListOfAIToSpawn[i].NumberToSpawn / ActiveSpawnerList.Num();
 		for (int j = 0; j < ActiveSpawnerList.Num(); j++){
-			ActiveSpawnerList[j]->BeginSpawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn, ListOfAIToSpawn[i].AIData);
+			ActiveSpawnerList[j]->BeginSpawn(ListOfAIToSpawn[i].NumberToSpawn, ListOfAIToSpawn[i].AIToSpawn, ListOfAIToSpawn[i].AIData);
 		}
 	}
 }

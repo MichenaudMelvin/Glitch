@@ -183,10 +183,11 @@ public:
 	void FastLoad();
 
 protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Saves")
+	UPROPERTY(BlueprintReadOnly, Category = "Save")
 	bool bCanSave = true;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Save")
 	void SetCanSave(const bool bValue);
 
 	bool CanSave() const;

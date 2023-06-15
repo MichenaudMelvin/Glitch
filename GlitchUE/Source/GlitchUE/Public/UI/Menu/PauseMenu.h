@@ -12,16 +12,13 @@ UCLASS(Abstract)
 class GLITCHUE_API UPauseMenu : public UCustomUserWidget{
 	GENERATED_BODY()
 
+public:
+	UPauseMenu(const FObjectInitializer& ObjectInitializer);
+
 protected:
 	virtual void NativeOnInitialized() override;
 
 	virtual void NativeConstruct() override;
-
-	UPROPERTY()
-	USaveSelection* SaveSelectionWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Class")
-	TSubclassOf<USaveSelection> SaveSelectionWidgetClass;
 
 	UPROPERTY()
 	USettingsContainerMenu* SettingsWidget;
@@ -31,11 +28,16 @@ protected:
 
 	AMainPlayerController* MainPlayerController;
 
+	AGlitchUEGameMode* GameMode;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
 	UCustomButton* ContinueButton;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
-	UCustomButton* SaveAndLoadButton;
+	UCustomButton* SaveButton;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
+	UCustomButton* LoadButton;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
 	UCustomButton* SettingsButton;
@@ -43,14 +45,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Buttons", meta = (BindWidget))
 	UCustomButton* BackButton;
 
-	UPROPERTY(EditDefaultsOnly, Category = "MainMenu")
+	UPROPERTY()
 	TSoftObjectPtr<UWorld> MainMenu;
 
 	UFUNCTION()
 	void ContinueGame();
 
 	UFUNCTION()
-	void OpenSaveMenu();
+	void Save();
+
+	UFUNCTION()
+	void Load();
 
 	UFUNCTION()
 	void OpenSettings();
