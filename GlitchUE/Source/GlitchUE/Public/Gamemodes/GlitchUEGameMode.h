@@ -135,10 +135,10 @@ public:
 	virtual void GlobalWorldLoad(const int Index) override;
 
 	/**
-	 * @brief 
-	 * @param TimerValue if TimerValue is equal to 0 it will uses the stealth timer variable
+	 * @brief if TimerValue is equal to 0 it will uses the stealth timer variable
+	 * @param TimerValue else this variable will be used for the timer
 	 */
-	UFUNCTION(Exec)
+	UFUNCTION(BlueprintCallable, Exec, Category = "Timer")
 	virtual void LaunchStealthTimer(float TimerValue = 0);
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")

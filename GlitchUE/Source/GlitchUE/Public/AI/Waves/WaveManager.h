@@ -99,13 +99,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
 	FString PrepareAdditionalText = "Start building towers near the nexus";
 
-	void WriteWhatTheNextWaveContain(const FWave TargetWave);
+	void WriteWhatTheNextWaveContain(const FWave TargetWave, const int TargetWaveIndex);
 
 	UFUNCTION()
 	void WriteMessages();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
 	FLinearColor TchatSpeakerColor = FLinearColor::Yellow;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
+	FString Speaker = "I.V.A.N.";
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
 	float MessagesDelay = 0.5f;
@@ -157,6 +160,8 @@ protected:
 	FKOnFinishAllWaves OnFinishAllWaves;
 
 	bool bIsStopped = false;
+
+	int GetActiveSpawnersAtWave(const int TargetWave) const;
 
 public:
 	void StartPrepareTimer();

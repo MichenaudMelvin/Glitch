@@ -361,7 +361,7 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
-	MainPlayerController->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
+	MainPlayerController->GetTimerWidget()->StartTimer(TimerValue, EndEvent, false);
 }
 
 float AGlitchUEGameMode::GetStealthTimer() const{
