@@ -222,6 +222,8 @@ void AWaveManager::EndWave(){
 		return;
 	}
 
+	AudioManager->SwitchToPauseMusic();
+
 	PlayerMessageWidget->AddMessageToScreen("Finish Wave: " + FString::FromInt(CurrentWaveNumber));
 	WriteWhatTheNextWaveContain(GetNextWaveData(), CurrentWaveNumber + 1);
 
@@ -288,8 +290,8 @@ void AWaveManager::RemoveAIFromList(const AMainAICharacter* AIToRemove){
 
 void AWaveManager::NextWave(){
 	CurrentWaveNumber++;
-
-	AudioManager->UpdateTowerDefenseMusic();
+	
+	AudioManager->SwitchToTowerDefenseMusic();
 
 	SetWave(CurrentWaveNumber);
 }
