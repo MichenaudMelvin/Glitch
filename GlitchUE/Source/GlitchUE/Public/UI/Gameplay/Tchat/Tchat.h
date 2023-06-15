@@ -9,6 +9,12 @@
 #include "UI/Custom/CustomUserWidget.h"
 #include "Tchat.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFinishWritingMessageList);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnTchatExtendStart, bool, Forward);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnTchatExtendEnd, bool, Forward);
+
 UCLASS(Abstract)
 class GLITCHUE_API UTchat : public UCustomUserWidget{
 	GENERATED_BODY()
@@ -56,6 +62,15 @@ protected:
 	void ResetDestructTimer();
 
 public:
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnFinishWritingMessageList OnFinishWritingMessageList;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnTchatExtendStart OnTchatExtendStart;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnTchatExtendEnd OnTchatExtendEnd;
+
 	UFUNCTION(BlueprintCallable)
 	void OpenTchat();
 

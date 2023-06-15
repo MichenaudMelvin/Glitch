@@ -100,7 +100,7 @@ void AAudioManager::SetTowerDefenseMusic() {
 	UpdateTowerDefenseMusic();
 }
 
-void AAudioManager::SetPauseMusic() {
+void AAudioManager::SetPauseMusic(){
 	FMODAudioComp->SetEvent(PauseMusic);
 	FMODAudioComp->Play();
 }
@@ -160,23 +160,22 @@ void AAudioManager::SwitchToPauseMusic() {
 }
 
 void AAudioManager::UpdateTowerDefenseMusic(){
-	// Tableau pour stocker les valeurs possibles
-	TArray<int> valeurs = { 0, 1, 2 };
-
-	// Mélange des valeurs dans le tableau
-	for (int i = 0; i < valeurs.Num(); i++) {
-		int j = valeurs[FMath::FRandRange(0, valeurs.Num() - 1)];
-		valeurs.Swap(valeurs[i], valeurs[j]);
+	// MÃ©lange des valeurs dans le tableau
+	for (int i = 0; i < TowerDefenseLayerValues.Num(); i++) {
+		const int j = TowerDefenseLayerValues[FMath::FRandRange(0, TowerDefenseLayerValues.Num() - 1)];
+		TowerDefenseLayerValues.Swap(TowerDefenseLayerValues[i], TowerDefenseLayerValues[j]);
 	}
 
 	// Attribution des valeurs aux variables
-	FMODAudioComp->SetParameter("Accom", valeurs[0]);
-	FMODAudioComp->SetParameter("Melod", valeurs[1]);
-	FMODAudioComp->SetParameter("Perc", valeurs[2]);
-
-	//FMODAudioComp->SetParameter("TowerDefense", TowerDefenseLayer);
+	FMODAudioComp->SetParameter("Accom", TowerDefenseLayerValues[0]);
+	FMODAudioComp->SetParameter("Melod", TowerDefenseLayerValues[1]);
+	FMODAudioComp->SetParameter("Perc", TowerDefenseLayerValues[2]);
 }
 
 UFMODAudioComponent* AAudioManager::GetAudioComp() const{
 	return FMODAudioComp;
+}
+
+float AAudioManager::GetFadeDuration() const{
+	return FadePhaseTransition;
 }

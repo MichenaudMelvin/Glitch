@@ -74,7 +74,10 @@ protected:
 	UFUNCTION()
 	void SetStealthAudio(const ELevelState LevelState);
 
-	float TowerDefenseLayer = 0;
+	UFUNCTION()
+	void SetPauseMusic();
+
+	TArray<int> TowerDefenseLayerValues = { 0, 1, 2 };
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
@@ -89,9 +92,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
 	void FadeOutMusic(const FOnTimelineEvent FinishEvent, const float FadeDuration);
 
-	UFUNCTION()
-	void SetPauseMusic();
-
 	void SwitchToTowerDefenseMusic();
 
 	void SwitchToPauseMusic();
@@ -99,4 +99,6 @@ public:
 	void UpdateTowerDefenseMusic();
 
 	UFMODAudioComponent* GetAudioComp() const;
+
+	float GetFadeDuration() const;
 };
