@@ -27,7 +27,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Root")
 	UActivableComponent* ActivableComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
 	UStaticMeshComponent* MedMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Mesh")
@@ -39,23 +39,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Mesh")
 	UStaticMesh* TechMeshObject;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Interacable")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interacable")
 	UInteractableComponent* InteractableComp;
 
 	UPROPERTY(EditAnywhere, Category = "Tchat")
 	TArray<FTchatStruct> TchatMessageList;
-
-	int Index = 0;
-
-	AMainPlayerController* CurrenController;
 
 	UFUNCTION()
 	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 	UFUNCTION()
 	void ActivateBanLog();
-
-	void WriteMessages();
 
 public:
 	bool IsActivated() const;

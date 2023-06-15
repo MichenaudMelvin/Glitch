@@ -1,7 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Audio/AudioManager.h"
+
+#include "FMODBlueprintStatics.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/MainPlayer.h"
 
 AAudioManager::AAudioManager(){
 	PrimaryActorTick.bCanEverTick = true;
@@ -27,8 +30,12 @@ AAudioManager::AAudioManager(){
 
 	static ConstructorHelpers::FObjectFinder<UFMODEvent> TWDMusic(TEXT("/Game/FMOD/Events/MUSIC/MUSIC_TowerDefense"));
 	check(TWDMusic.Succeeded());
-
 	TowerDefenseMusic = TWDMusic.Object;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> PMusic(TEXT("/Game/FMOD/Events/MUSIC/MUSIC_Pause"));
+	check(PMusic.Succeeded());
+
+	PauseMusic = PMusic.Object;
 
 	static ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(TEXT("/Game/Blueprint/Curves/FC_ZeroToOneCurve"));
 	check(Curve.Succeeded());
@@ -55,6 +62,8 @@ void AAudioManager::BeginPlay(){
 	UpdateEvent.BindDynamic(this, &AAudioManager::FadeParameterValue);
 
 	ParameterTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
+
+	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 }
 
 void AAudioManager::Tick(float DeltaSeconds){
@@ -88,20 +97,23 @@ void AAudioManager::SetTowerDefenseMusic() {
 
 	const FOnTimelineEvent EmptyEvent;
 	FadeInMusic(EmptyEvent, FadePhaseTransition);
+	UpdateTowerDefenseMusic();
+}
+
+void AAudioManager::SetPauseMusic() {
+	FMODAudioComp->SetEvent(PauseMusic);
+	FMODAudioComp->Play();
 }
 
 void AAudioManager::SetStealthAudio(const ELevelState LevelState){
 
-	switch (LevelState){
-		case ELevelState::Normal:
-			FadeParameter("Stealth", false);
-			break;
-		case ELevelState::Alerted:
-			//FMODAudioComp->SetEvent(StealthAlarm);
-			//FMODAudioComp->Play();
-			//FMODAudioComp->OnEventStopped.AddDynamic(this, &AAudioManager::SetStealthMusic);
-			FadeParameter("Stealth");
-			break;
+	switch (LevelState) {
+	case ELevelState::Normal:
+		FadeParameter("Stealth", false);
+		break;
+	case ELevelState::Alerted:
+		FadeParameter("Stealth");
+		break;
 	}
 }
 
@@ -139,18 +151,32 @@ void AAudioManager::SwitchToTowerDefenseMusic(){
 	FadeOutMusic(SwitchMusicEvent, FadePhaseTransition);
 }
 
-void AAudioManager::UpdateTowerDefenseMusic() {
-	TowerDefenseLayer++;
+void AAudioManager::SwitchToPauseMusic() {
+	FOnTimelineEvent SwitchMusicEvent;
 
-	if (TowerDefenseLayer == 4){
-		TowerDefenseLayer = 0;
-		FMODAudioComp->Play();
+	SwitchMusicEvent.BindDynamic(this, &AAudioManager::SetPauseMusic);
+
+	FadeOutMusic(SwitchMusicEvent, FadePhaseTransition);
+}
+
+void AAudioManager::UpdateTowerDefenseMusic(){
+	// Tableau pour stocker les valeurs possibles
+	TArray<int> valeurs = { 0, 1, 2 };
+
+	// Mélange des valeurs dans le tableau
+	for (int i = 0; i < valeurs.Num(); i++) {
+		int j = valeurs[FMath::FRandRange(0, valeurs.Num() - 1)];
+		valeurs.Swap(valeurs[i], valeurs[j]);
 	}
 
-	FMODAudioComp->SetParameter("TowerDefense", TowerDefenseLayer);
+	// Attribution des valeurs aux variables
+	FMODAudioComp->SetParameter("Accom", valeurs[0]);
+	FMODAudioComp->SetParameter("Melod", valeurs[1]);
+	FMODAudioComp->SetParameter("Perc", valeurs[2]);
+
+	//FMODAudioComp->SetParameter("TowerDefense", TowerDefenseLayer);
 }
 
 UFMODAudioComponent* AAudioManager::GetAudioComp() const{
 	return FMODAudioComp;
 }
-

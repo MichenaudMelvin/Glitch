@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Player/MainPlayer.h"
-
 #include "FMODBlueprintStatics.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -22,7 +21,7 @@
 #include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Player/MainPlayerController.h"
-#include "Mark/Mark.h"
+#include "Mark/GlitchMark.h"
 #include "Components/CompassComponent.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "PlacableObject/ConstructionZone.h"
@@ -108,15 +107,15 @@ AMainPlayer::AMainPlayer(){
 
 	GlitchDashFXReference = FX.Object;
 
-	// static ConstructorHelpers::FObjectFinder<UFMODEvent> StartSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_Start"));
-	// check(StartSFX.Succeeded());
-	//
-	// TPStart = StartSFX.Object;
-	//
-	// static ConstructorHelpers::FObjectFinder<UFMODEvent> EndSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_End"));
-	// check(EndSFX.Succeeded());
-	//
-	// TPEnd = EndSFX.Object;
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> StartSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_Start"));
+	check(StartSFX.Succeeded());
+
+	TPStart = StartSFX.Object;
+
+	static ConstructorHelpers::FObjectFinder<UFMODEvent> EndSFX(TEXT("/Game/FMOD/Events/SFX/SFX_glitch_dash_End"));
+	check(EndSFX.Succeeded());
+
+	TPEnd = EndSFX.Object;
 }
 
 void AMainPlayer::BeginPlay(){
@@ -235,7 +234,7 @@ void AMainPlayer::Destroyed(){
 	Super::Destroyed();
 }
 
-void AMainPlayer::InitializePlayer(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced){
+void AMainPlayer::InitializePlayer_Implementation(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced){
 	SetActorTransform(StartTransform);
 	Controller->SetControlRotation(CameraRotation);
 
@@ -369,12 +368,12 @@ void AMainPlayer::UpdateGolds(int Amount, const EGoldsUpdateMethod GoldsUpdateMe
 			LoseGoldsFX->StartEmitter();
 			break;
 		case EGoldsUpdateMethod::ReceiveGolds:
-			// code here
 			break;
 	}
+	
 
 	Golds += Amount;
-	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
+	OnUpdateGolds.Broadcast(Golds);
 
 	if(Golds < 0){
 		Loose();
@@ -383,7 +382,7 @@ void AMainPlayer::UpdateGolds(int Amount, const EGoldsUpdateMethod GoldsUpdateMe
 
 void AMainPlayer::SetGolds(const int Amount){
 	Golds = Amount;
-	MainPlayerController->GetPlayerStatsWidget()->UpdateDisplayGolds(Golds);
+	OnUpdateGolds.Broadcast(Golds);
 }
 
 void AMainPlayer::KillPlayer(){
@@ -509,6 +508,7 @@ void AMainPlayer::Jump(){
 
 	Super::Jump();
 
+	MainPlayerController->SetCanSave(false);
 	MainPlayerController->UnbindSneak();
 
 	if(bUseCoyoteTime){
@@ -521,6 +521,7 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 	Super::OnWalkingOffLedge_Implementation(PreviousFloorImpactNormal, PreviousFloorContactNormal, PreviousLocation,TimeDelta);
 
 	bUseCoyoteTime = true;
+	MainPlayerController->SetCanSave(false);
 	MainPlayerController->UnbindSneak();
 
 	FTimerHandle TimerHandle;
@@ -532,8 +533,6 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 
 void AMainPlayer::AddControllerYawInput(float Val){
 	Super::AddControllerYawInput(Val * Sensitivity);
-
-	MakeMovementNoise();
 }
 
 void AMainPlayer::AddControllerPitchInput(float Rate){
@@ -542,8 +541,6 @@ void AMainPlayer::AddControllerPitchInput(float Rate){
 	}
 
 	Super::AddControllerPitchInput(Rate * Sensitivity);
-
-	MakeMovementNoise();
 }
 
 void AMainPlayer::Dash_Implementation(){}
@@ -575,6 +572,7 @@ bool AMainPlayer::CanStandUp(){
 void AMainPlayer::Landed(const FHitResult& Hit){
 	Super::Landed(Hit);
 
+	MainPlayerController->SetCanSave(true);
 	MainPlayerController->BindSneak();
 
 	const float FallingVelocity = GetCharacterMovement()->Velocity.Z;
@@ -604,7 +602,7 @@ void AMainPlayer::OnSwitchPhases(EPhases NewPhase){
 	}
 }
 
-void AMainPlayer::MakeMovementNoise(){
+void AMainPlayer::MakeMovementNoise(const float InputRate){
 	if(!UUsefulFunctions::IsCharacterMovingOnGround(this)){
 		return;
 	}
@@ -623,7 +621,7 @@ void AMainPlayer::MakeMovementNoise(){
 		break;
 	}
 
-	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius, SoundFX);
+	HearingTrigger->MakeNoise(this, GetActorLocation(), NoiseRadius * FMath::Abs(InputRate), SoundFX);
 }
 
 EPlayerMovementMode AMainPlayer::GetMovementMode() const{
@@ -643,6 +641,7 @@ void AMainPlayer::MoveForward(const float Value){
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
+		MakeMovementNoise(Value);
 	}
 }
 
@@ -655,6 +654,7 @@ void AMainPlayer::MoveRight(const float Value){
 		// get right vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
+		MakeMovementNoise(Value);
 	}
 }
 
@@ -708,19 +708,16 @@ ATargetCameraLocation* AMainPlayer::GetWheelCamera() const{
 }
 
 void AMainPlayer::LaunchMark(){
-	FTransform MarkTransform;
-	MarkTransform.SetLocation(GetMesh()->GetSocketLocation("Head"));
-
-	MarkTransform.SetRotation(FindMarkLaunchRotation());
-	Mark->Launch(MarkTransform);
+	Mark->GetFakeMark()->SetActorLocation(FollowCamera->GetComponentLocation());
+	Mark->GetFakeMark()->Launch(FindMarkLaunchRotation());
 
 	MainPlayerController->UnbindGlitch();
 	MainPlayerController->OnUseGlitchPressed.AddDynamic(this, &AMainPlayer::TPToMark);
 }
 
-FQuat AMainPlayer::FindMarkLaunchRotation() const{
+FRotator AMainPlayer::FindMarkLaunchRotation() const{
 	FHitResult HitResult;
-	const FVector StartLocation = FollowCamera->GetComponentLocation();
+	const FVector StartLocation = Mark->GetFakeMark()->GetActorLocation();
 	const FVector EndLocation = (FollowCamera->GetForwardVector() * Mark->GetMaxLaunchDistance()) + StartLocation;
 
 	FCollisionQueryParams QueryParams;
@@ -730,12 +727,11 @@ FQuat AMainPlayer::FindMarkLaunchRotation() const{
 
 	if(GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, QueryParams, ResponseParam)){
 		TargetLocation = HitResult.ImpactPoint;
-		//Mark->SetHitSomething(true);
 	}
 
-	Mark->SetTargetLocation(TargetLocation);
+	Mark->GetFakeMark()->SetTargetPosition(TargetLocation);
 
-	return UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation("Head"), TargetLocation).Quaternion();
+	return UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
 }
 
 void AMainPlayer::TPToMark() {
@@ -790,6 +786,8 @@ void AMainPlayer::CanLaunchMark(){
 	}
 }
 
+void AMainPlayer::ForceStopSneak_Implementation(){}
+
 void AMainPlayer::Tick(float deltaTime){
 	Super::Tick(deltaTime);
 
@@ -801,7 +799,7 @@ void AMainPlayer::Tick(float deltaTime){
 	AppearTimeline.TickTimeline(deltaTime);
 }
 
-void AMainPlayer::SetMark(AMark* NewMark){
+void AMainPlayer::SetMark(AGlitchMark* NewMark){
 	Mark = NewMark;
 }
 
@@ -892,6 +890,8 @@ void AMainPlayer::ResetOverlappedMeshes(){
 	OverlappedMeshes.Empty();
 	OverlappedMeshesCollisionResponse.Empty();
 }
+
+void AMainPlayer::FinishGlitchDash_Implementation(){}
 
 void AMainPlayer::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
@@ -1006,6 +1006,7 @@ void AMainPlayer::EndFadeIn(){
 
 void AMainPlayer::MakeThePlayerAppear(){
 	GetMesh()->SetScalarParameterValueOnMaterials("PercentageApparition", 0);
+	bIsAppearing = true;
 
 	AppearTimeline.Play();
 }
@@ -1015,11 +1016,18 @@ void AMainPlayer::AppearUpdate(float Value){
 }
 
 void AMainPlayer::EndAppear(){
+	bIsAppearing = false;
 	MainPlayerController->BindNormalMode();
+
+	OnEndAppear.Broadcast();
 
 	for(int i = 0; i < RealPlayerMaterialList.Num(); i++){
 		GetMesh()->SetMaterial(i, RealPlayerMaterialList[i]);
 	}
+}
+
+bool AMainPlayer::IsAppearing() const{
+	return bIsAppearing;
 }
 
 void AMainPlayer::UpdateGlitchGaugeFeedback(const float GlitchValue, const float GlitchMaxValue) const{
@@ -1069,6 +1077,7 @@ void AMainPlayer::SetGlitchMaterialParameter(const int MaterialIndex, const floa
 
 
 void AMainPlayer::EndTL(){
+	ForceStopSneak();
 
 	// Play sound final of the teleportation
 	UFMODBlueprintStatics::PlayEvent2D(GetWorld(), TPEnd, true);
@@ -1087,27 +1096,27 @@ void AMainPlayer::EndTL(){
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 
-		MainPlayerController->BindMovement();
-		MainPlayerController->BindCamera();
+		MainPlayerController->BindNormalMode();
+		GetMesh()->SetVisibility(true, true);
+		Mark->ResetMark();
 		MainPlayerController->SetCanSave(true);
 		bCanBeAttachedToEdge = true;
 		bGoldsCanBeUpdated = true;
+
+		GetCharacterMovement()->GravityScale = OriginalGravityScale;
 
 		GameMode->AddGlitch(GlitchDashValue + OverlappedMeshes.Num() + OverlappedAICharacters.Num());
 
 		ResetOverlappedMeshes();
 
-		GetMesh()->SetVisibility(true, true);
-		Mark->ResetMark();
+		FinishGlitchDash();
 
 		if(IsValid(CurrentDrone)){
 			CurrentDrone->GetMesh()->SetVisibility(true, true);
 		}
 
-		GetCharacterMovement()->GravityScale = OriginalGravityScale;
-
 		HearingTrigger->MakeNoise(this, GetActorLocation(), GlitchDashNoiseRange, SoundFX);
-	}, 0.2f, false);
+	}, GlitchDashDuration, false);
 }
 
 #pragma endregion

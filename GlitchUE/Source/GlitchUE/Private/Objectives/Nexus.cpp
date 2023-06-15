@@ -83,7 +83,7 @@ void ANexus::BeginPlay(){
 			HealthComp->OnHealthNull.AddDynamic(MainPlayer, &AMainPlayer::Loose);
 
 			PlayerStatsWidget = MainPlayer->GetMainPlayerController()->GetPlayerStatsWidget();
-			PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
+			PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth(), HealthComp->GetMaxHealth());
 		}
 	}, 0.01f, false);
 }
@@ -109,7 +109,7 @@ void ANexus::TakeDamages(){
 	Super::TakeDamages();
 
 	if(IsValid(PlayerStatsWidget)){
-		PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth());
+		PlayerStatsWidget->UpdateNexusHealth(HealthComp->GetCurrentHealth(), HealthComp->GetMaxHealth());
 	}
 }
 
@@ -121,6 +121,7 @@ void ANexus::UpdateDissolver(){
 
 void ANexus::SetCanInteractWithNexus(const bool bCanInteract) const{
 	if(bCanInteract){
+		OnFreeEnoughCatalyseur.Broadcast();
 		InteractableComp->AddInteractable(MeshObjectif);
 	} else {
 		InteractableComp->Unfeedback();

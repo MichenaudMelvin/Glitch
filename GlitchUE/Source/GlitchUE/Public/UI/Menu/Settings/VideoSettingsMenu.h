@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ComboBoxString.h"
 #include "UI/Custom/CustomCheckbox.h"
+#include "UI/Custom/CustomComboBoxString.h"
 #include "UI/Menu/Settings/SettingsMenu.h"
 #include "VideoSettingsMenu.generated.h"
 
@@ -33,13 +33,13 @@ protected:
 	void ToggleVolumetricLightingCheckBox(bool IsChecked);
 
 	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UComboBoxString* ResolutionBox;
+	UCustomComboBoxString* ResolutionBox;
 
 	UFUNCTION()
 	void ChangeResolution(FString SelectedItem, ESelectInfo::Type SelectionType);
 
 	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
-	UComboBoxString* WindowModeBox;
+	UCustomComboBoxString* WindowModeBox;
 
 	UFUNCTION()
 	void ChangeWindowMode(FString SelectedItem, ESelectInfo::Type SelectionType);

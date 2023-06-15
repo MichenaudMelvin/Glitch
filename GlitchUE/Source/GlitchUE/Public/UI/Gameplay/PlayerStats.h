@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Gamemodes/GlitchUEGameMode.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "PlayerStats.generated.h"
 
@@ -13,37 +14,30 @@ class GLITCHUE_API UPlayerStats : public UUserWidget{
 	GENERATED_BODY()
 
 protected:
-	virtual void NativeConstruct() override;
-
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
 	UTextBlock* GoldsText;
-
-	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
-	UTextBlock* WaveText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
 	UTextBlock* NexusHealth;
 
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
+	UProgressBar* NexusHealthBar;
+
+	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
 	UTextBlock* ObjectiveText;
 
 	UPROPERTY(EditDefaultsOnly, Category = "StatsWidgets", meta = (BindWidget))
-	UTextBlock* TutorialText;
-
-	UFUNCTION()
-	void SwitchPhases(EPhases NewPhase);
+	UTextBlock* AdditionalText;
 
 public:
-	void UpdateDisplayGolds(int Golds) const;
-
 	UFUNCTION()
-	void UpdateWaveNumber(int CurrentWave);
+	void UpdateDisplayGolds(int Golds);
 
-	void UpdateNexusHealth(const float NewHealth)const;
+	void UpdateNexusHealth(const float NewHealth, const float NexusMaxHealth)const;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateObjectivesText(const FString NewObjective) const;
 
 	UFUNCTION(BlueprintCallable)
-	void UpdateTutorialText(const FString NewTutorial) const;
+	void UpdateAdditionalText(const FString NewMessage) const;
 };

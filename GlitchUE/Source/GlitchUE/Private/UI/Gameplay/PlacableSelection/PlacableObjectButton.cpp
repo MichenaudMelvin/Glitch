@@ -2,22 +2,41 @@
 
 
 #include "UI/Gameplay/PlacableSelection/PlacableObjectButton.h"
+#include "Components/ButtonSlot.h"
+#include "Components/VerticalBoxSlot.h"
 #include "UI/Gameplay/PlacableSelection/Wheel.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/Font.h"
 #include "Player/MainPlayerController.h"
 
 UPlacableObjectButton::UPlacableObjectButton(){
-	static ConstructorHelpers::FObjectFinder<UTexture> Texture(TEXT("/Game/UI/Wheel/T_ConstructionButton"));
-	check(Texture.Succeeded());
+	static ConstructorHelpers::FObjectFinder<UTexture> TextureNormal(TEXT("/Game/UI/Wheel/T_WheelButtonLeft"));
+	check(TextureNormal.Succeeded());
 
-	WidgetStyle.Normal.SetResourceObject(Texture.Object);
+	WidgetStyle.Normal.SetResourceObject(TextureNormal.Object);
 	WidgetStyle.Normal.DrawAs = ESlateBrushDrawType::Image;
 
-	WidgetStyle.Hovered.SetResourceObject(Texture.Object);
+	static ConstructorHelpers::FObjectFinder<UTexture> TextureHovered(TEXT("/Game/UI/Wheel/T_WheelButtonLeftHovered"));
+	check(TextureHovered.Succeeded());
+
+	WidgetStyle.Hovered.SetResourceObject(TextureHovered.Object);
 	WidgetStyle.Hovered.DrawAs = ESlateBrushDrawType::Image;
 
-	WidgetStyle.Pressed.SetResourceObject(Texture.Object);
+	WidgetStyle.Pressed.SetResourceObject(TextureHovered.Object);
 	WidgetStyle.Pressed.DrawAs = ESlateBrushDrawType::Image;
+
+	static ConstructorHelpers::FObjectFinder<UFont> FontTXT(TEXT("/Game/UI/Fonts/FONT_MenuFont"));
+	check(FontTXT.Succeeded());
+
+	TextFont.FontObject = FontTXT.Object;
+	TextFont.TypefaceFontName = "Bold";
+	TextFont.Size = 26;
+
+	static ConstructorHelpers::FObjectFinder<UFont> FontNBR(TEXT("/Game/UI/Fonts/FONT_NumberFont"));
+	check(FontNBR.Succeeded());
+
+	NumberFont.FontObject = FontNBR.Object;
+	NumberFont.Size = 26;
 }
 
 void UPlacableObjectButton::SynchronizeProperties(){
@@ -33,14 +52,48 @@ void UPlacableObjectButton::SynchronizeProperties(){
 
 	Wheel = MainPlayerController->GetWheelWidget();
 
-	if(IsValid(Data)){
-		const FString ShowName = Data->Name.ToString() + " (Cost: " + FString::FromInt(Data->Cost) + ")";
-		Name = NewObject<UTextBlock>();
-		AddChild(Name);
-		Name->SetText(FText::FromString(ShowName));
-		Name->SetAutoWrapText(true);
-		Name->SetJustification(ETextJustify::Center);
-		Name->Font.OutlineSettings.OutlineSize = 1;
+	if(!IsValid(Data)){
+		return;
+	}
+
+	const FString ShowName = Data->Name.ToString();
+	const FString Cost = "Cost: " + FString::FromInt(Data->Cost);
+
+	if(!IsValid(TextHolder)){
+		TextHolder = NewObject<UVerticalBox>();
+		AddChild(TextHolder);
+
+		UButtonSlot* TextHolderSlot = Cast<UButtonSlot>(TextHolder->Slot);
+		TextHolderSlot->SetHorizontalAlignment(HAlign_Fill);
+		TextHolderSlot->SetVerticalAlignment(VAlign_Fill);
+	}
+
+	if(!IsValid(PlacableName)){
+		PlacableName = NewObject<UTextBlock>();
+		TextHolder->AddChild(PlacableName);
+		PlacableName->SetText(FText::FromString(ShowName));
+		PlacableName->SetAutoWrapText(true);
+		PlacableName->SetJustification(ETextJustify::Center);
+		PlacableName->SetFont(TextFont);
+
+		UVerticalBoxSlot* PlacableNameSlot = Cast<UVerticalBoxSlot>(PlacableName->Slot);
+		PlacableNameSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+		PlacableNameSlot->SetHorizontalAlignment(HAlign_Fill);
+		PlacableNameSlot->SetVerticalAlignment(VAlign_Bottom);
+	}
+
+	if(!IsValid(CostText)){
+		CostText = NewObject<UTextBlock>();
+		TextHolder->AddChild(CostText);
+		CostText->SetText(FText::FromString(Cost));
+		CostText->SetAutoWrapText(true);
+		CostText->SetJustification(ETextJustify::Center);
+		CostText->SetFont(NumberFont);
+
+		UVerticalBoxSlot* CostTextSlot = Cast<UVerticalBoxSlot>(CostText->Slot);
+		CostTextSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+		CostTextSlot->SetHorizontalAlignment(HAlign_Fill);
+		CostTextSlot->SetVerticalAlignment(VAlign_Top);
 	}
 }
 
@@ -55,12 +108,12 @@ void UPlacableObjectButton::OnClick(){
 
 void UPlacableObjectButton::Select(){
 	MainPlayer->SetPlacableActorData(Data);
-	Wheel->SetDescription(Data->Description);
+	Wheel->SetDescription(Data);
 }
 
 void UPlacableObjectButton::UnSelect(){
 	MainPlayer->SetPlacableActorData(nullptr);
-	Wheel->SetDescription(FText::FromString(""));
+	Wheel->SetDescription(nullptr);
 }
 
 void UPlacableObjectButton::BindButtons(){
@@ -77,6 +130,10 @@ void UPlacableObjectButton::UnbindButtons(){
 
 bool UPlacableObjectButton::CompareData(const UPlacableActorData* DataToCompare) const{
 	return DataToCompare->Name == Data->Name;
+}
+
+bool UPlacableObjectButton::CanBuyObject(const int Golds) const{
+	return Golds >= Data->Cost;
 }
 
 void UPlacableObjectButton::SetWheel(UWheel* NewWheel){

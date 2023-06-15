@@ -4,6 +4,8 @@
 #include "UI/Gameplay/PlacableSelection/Wheel.h"
 #include "PlacableObject/ConstructionZone.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Kismet/KismetTextLibrary.h"
+#include "PlacableObject/TurretData.h"
 #include "Player/MainPlayerController.h"
 
 void UWheel::NativeOnInitialized(){
@@ -45,8 +47,11 @@ void UWheel::NativeConstruct(){
 		ButtonList[i]->UnSelect();
 		bIsCurrentSlotOccupied ? ButtonList[i]->UnbindButtons() : ButtonList[i]->BindButtons();
 
-		if(!bIsCurrentSlotOccupied){
+		if(bIsCurrentSlotOccupied){
+			ButtonList[i]->BlockButton(true);
+		} else{
 			AddWidgetToFocusList(ButtonList[i]);
+			ButtonList[i]->CanBuyObject(MainPlayer->GetGolds()) ? ButtonList[i]->UnblockButton() : ButtonList[i]->BlockButton(false);
 		}
 	}
 
@@ -56,6 +61,7 @@ void UWheel::NativeConstruct(){
 
 	if(bIsCurrentSlotOccupied){
 		AddWidgetToFocusList(DestructButton);
+		SetDescription(MainPlayer->GetCurrentConstructionZone()->GetUnit()->GetData());
 	}
 
 	DestructButton->OnClicked.Clear();
@@ -99,6 +105,25 @@ void UWheel::ClickOnDestructButton(){
 	DestructButton->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void UWheel::UpdateDisplayGolds(int Golds){
+	Golds = FMath::Clamp(Golds, 0, 999999999);
+	GoldsText->SetText(FText::FromString(FString::FromInt(Golds)));
+
+	if(!IsInViewport()){
+		return;
+	}
+
+	const bool bIsCurrentSlotOccupied = MainPlayer->GetCurrentConstructionZone()->IsSlotOccupied();
+
+	if(bIsCurrentSlotOccupied){
+		return;
+	}
+
+	for(int i = 0; i < ButtonList.Num(); i++){
+		ButtonList[i]->CanBuyObject(Golds) ? ButtonList[i]->UnblockButton() : ButtonList[i]->BlockButton(false);
+	}
+}
+
 void UWheel::ClickOnDestructButtonDelay(){
 	MainPlayer->GetPreviewPlacableActor()->SetShouldRangeUpdate(true);
 	MainPlayer->GetPreviewPlacableActor()->SetData(nullptr);
@@ -106,6 +131,7 @@ void UWheel::ClickOnDestructButtonDelay(){
 	for(int i = 0; i < ButtonList.Num(); i++){
 		ButtonList[i]->BindButtons();
 		AddWidgetToFocusList(ButtonList[i]);
+		ButtonList[i]->CanBuyObject(MainPlayer->GetGolds()) ? ButtonList[i]->UnblockButton() : ButtonList[i]->BlockButton(false);
 	}
 
 	if(CurrentController->IsUsingGamepad()){
@@ -113,6 +139,28 @@ void UWheel::ClickOnDestructButtonDelay(){
 	}
 }
 
-void UWheel::SetDescription(FText NewDescription) const{
-	PlacableDescription->SetText(NewDescription);
+void UWheel::SetDescription_Implementation(const UPlacableActorData* Data) const{
+	if(!IsValid(Data)){
+		DescriptionPanel->SetVisibility(ESlateVisibility::Hidden);
+		return;
+	}
+
+	DescriptionPanel->SetVisibility(ESlateVisibility::Visible);
+
+	DescriptionText->SetText(Data->Description);
+
+	DamagesText->SetText(FText::AsNumber(Data->Damages));
+	AttackSpeedText->SetText(FText::AsNumber(Data->AttackRate));
+	RangeText->SetText(FText::AsNumber(Data->AttackRange));
+
+	// this one is only working on blueprint
+	// FString WallBoolean = "✗";
+	//
+	// if(Data->IsA(UTurretData::StaticClass())){
+	// 	if(Cast<UTurretData>(Data)->CanSeeThroughWalls){
+	// 		WallBoolean = "✓";
+	// 	}
+	// }
+	//
+	// WallText->SetText(FText::FromString(WallBoolean));
 }

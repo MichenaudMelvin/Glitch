@@ -6,7 +6,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "Mark/Mark.h"
+#include "Mark/GlitchMark.h"
 
 void AMainPlayerController::BeginPlay(){
 	Super::BeginPlay();
@@ -42,8 +42,10 @@ void AMainPlayerController::CreatePlayerWidgets(){
 	PlayerStatsWidget = Cast<UPlayerStats>(CreateWidget(this, PlayerStatsWidgetClass));
 	PlayerStatsWidget->AddToViewport();
 	PlayerStatsWidget->UpdateDisplayGolds(MainPlayer->GetGolds());
+	MainPlayer->OnUpdateGolds.AddDynamic(PlayerStatsWidget, &UPlayerStats::UpdateDisplayGolds);
 
 	WheelWidget = Cast<UWheel>(CreateWidget(this, WheelWidgetWidgetClass));
+	MainPlayer->OnUpdateGolds.AddDynamic(WheelWidget, &UWheel::UpdateDisplayGolds);
 
 	PauseWidget = Cast<UPauseMenu>(CreateWidget(this, PauseWidgetClass));
 
@@ -225,6 +227,10 @@ void AMainPlayerController::UnbindCamera(){
 #pragma region Modes
 
 void AMainPlayerController::BindNormalMode(){
+	if(MainPlayer->IsAppearing()){
+		return;
+	}
+
 	UnbindAll();
 	BindPause();
 	BindMovement();
@@ -282,8 +288,24 @@ void AMainPlayerController::UnbindAll(const bool bUnbindPause){
 void AMainPlayerController::PauseGame(){
 	UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(this));
 
-	UGameplayStatics::IsGamePaused(this) ? UnbindAll() : BindNormalMode();
-	PauseWidget->IsInViewport() ? PauseWidget->RemoveFromParent() : PauseWidget->AddToViewport();
+	if(UGameplayStatics::IsGamePaused(this)){
+		UnbindAll();
+		PauseWidget->AddToViewport();
+		PlayerStatsWidget->RemoveFromParent();
+		Tchat->RemoveFromParent();
+
+		if(TimerWidget->IsTimerRunning()){
+			TimerWidget->RemoveFromParent();
+		}
+	} else{
+		BindNormalMode();
+		PauseWidget->RemoveFromParent();
+		PlayerStatsWidget->AddToViewport();
+
+		if(TimerWidget->IsTimerRunning()){
+			TimerWidget->AddToViewport();
+		}
+	}
 
 	ShowMouseCursor(!bShowMouseCursor, PauseWidget);
 }
@@ -297,6 +319,13 @@ void AMainPlayerController::OpenWheel(){
 	OnPause.AddDynamic(this, &AMainPlayerController::CloseWheel);
 	OnUseGlitchPressed.AddDynamic(this, &AMainPlayerController::CloseWheel);
 
+	PlayerStatsWidget->RemoveFromParent();
+	Tchat->RemoveFromParent();
+
+	if(TimerWidget->IsTimerRunning()){
+		TimerWidget->RemoveFromParent();
+	}
+
 	ShowMouseCursor(true, WheelWidget);
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WheelTimeDilation);
 }
@@ -307,6 +336,12 @@ void AMainPlayerController::CloseWheel(){
 	OnUseGlitchReleased.AddDynamic(this, &AMainPlayerController::BindGlitch);
 
 	WheelWidget->RemoveFromParent();
+	PlayerStatsWidget->AddToViewport();
+
+	if(TimerWidget->IsTimerRunning()){
+		TimerWidget->AddToViewport();
+	}
+
 	CameraBlend(MainPlayer, CloseWheelBlend);
 	MainPlayer->GetPreviewPlacableActor()->ResetActor();
 

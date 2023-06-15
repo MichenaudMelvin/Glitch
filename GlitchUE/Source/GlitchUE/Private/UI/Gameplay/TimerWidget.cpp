@@ -2,6 +2,14 @@
 
 
 #include "UI/Gameplay/TimerWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/MainPlayerController.h"
+
+void UTimerWidget::NativeOnInitialized(){
+	Super::NativeOnInitialized();
+
+	MainPlayerController = Cast<AMainPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+}
 
 void UTimerWidget::NativeConstruct(){
 	Super::NativeConstruct();
@@ -60,11 +68,15 @@ int UTimerWidget::GetMinutes(const float Time) const{
 
 void UTimerWidget::StartTimer(const float Timer, const FKOnFinishTimer FinishEvent, const bool RemoveTimerAtEnd){
 	if(!IsVisible()){
-		AddToViewport();
+		if(!MainPlayerController->IsWheelOpened()){
+			AddToViewport();
+		}
 	}
 
 	RemoveWidgetAtEnd = RemoveTimerAtEnd;
 	CurrentDisplayTime = Timer;
+
+	bIsTimerRunning = true;
 
 	GetWorld()->GetTimerManager().SetTimer(DisplayTimer, this, &UTimerWidget::UpdateTimer, 0.1f, true);
 	OnFinishTimer = FinishEvent;
@@ -88,11 +100,19 @@ void UTimerWidget::ChangeTimerValue(const float NewValue){
 }
 
 bool UTimerWidget::IsTimerRunning() const{
-	return GetWorld()->GetTimerManager().IsTimerActive(DisplayTimer);
+	return bIsTimerRunning;
 }
 
 float UTimerWidget::GetTimerElapsed() const{
 	return CurrentDisplayTime;
+}
+
+void UTimerWidget::PauseTimer(const bool bPause){
+	if(!bIsTimerRunning){
+		return;
+	}
+
+	bPause ? GetWorld()->GetTimerManager().ClearTimer(DisplayTimer) : GetWorld()->GetTimerManager().SetTimer(DisplayTimer, this, &UTimerWidget::UpdateTimer, 0.1f, true);
 }
 
 void UTimerWidget::FinishTimer(const bool RemoveTimer){
@@ -101,6 +121,8 @@ void UTimerWidget::FinishTimer(const bool RemoveTimer){
 	if(OnFinishTimer.IsBound()){
 		OnFinishTimer.Execute();
 	}
+
+	bIsTimerRunning = false;
 
 	if(RemoveTimer){
 		RemoveWidget();

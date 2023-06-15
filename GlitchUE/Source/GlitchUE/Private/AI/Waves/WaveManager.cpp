@@ -93,35 +93,50 @@ void AWaveManager::BeginPlay(){
 		PlayerTimerWidget = PlayerController->GetTimerWidget();
 		PlayerMessageWidget = PlayerController->GetAdditionalMessageWidget();
 		PlayerTchatWidget = PlayerController->GetTchatWidget();
-		OnStartWave.AddDynamic(PlayerController->GetPlayerStatsWidget(), &UPlayerStats::UpdateWaveNumber);
+		PlayerStatsWidget = PlayerController->GetPlayerStatsWidget();
 	}, 0.1f, false);
 }
 
-void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave){
-	PlayerTchatWidget->AddTchatLine("I.V.A.N.", "The next wave contain:", TchatSpeakerColor);
+void AWaveManager::UpdatePlayerObjectives(){
+	if(!IsValid(PlayerMessageWidget) || !IsValid(PlayerStatsWidget)){
+		// only useful on load save
 
-	TchatTargetWave = TargetWave;
-	TchatIndex = 0;
-
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
-
-}
-
-void AWaveManager::WriteMessages(){
-	const FString DroneType = TchatTargetWave.AIToSpawnList[TchatIndex].AIToSpawn.GetDefaultObject()->IsA(AFocusCatalyseurCharacter::StaticClass()) ? "Focus Catalyser" : "Focus Nexus";
-	const FString Message = FString::FromInt(TchatTargetWave.AIToSpawnList[TchatIndex].NumberToSpawn) + " " + DroneType + " " + TchatTargetWave.AIToSpawnList[TchatIndex].AIData->DroneName;
-
-	PlayerTchatWidget->AddTchatLine("I.V.A.N.", Message, TchatSpeakerColor);
-
-	TchatIndex++;
-
-	if(TchatIndex + 1 > TchatTargetWave.AIToSpawnList.Num()){
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::UpdatePlayerObjectives, 0.1f, false);
 		return;
 	}
 
+	PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
+
+	if(!GameMode->UseAutoObjectivesForPlayer()){
+		return;
+	}
+
+	PlayerStatsWidget->UpdateObjectivesText("Current Wave: " + FString::FromInt(CurrentWaveNumber));
+	PlayerStatsWidget->UpdateAdditionalText("");
+}
+
+void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave, const int TargetWaveIndex){
+	PlayerTchatWidget->AddTchatLine("I.V.A.N.", "The next wave contain:", TchatSpeakerColor);
+
+	TchatTargetWave = TargetWave;
+	TchatIndex = GetActiveSpawnersAtWave(TargetWaveIndex);
+
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
+}
+
+void AWaveManager::WriteMessages(){
+	TArray<FTchatStruct> MessageList;
+
+	for(int i = 0; i < TchatTargetWave.AIToSpawnList.Num(); i ++){
+		const FString DroneType = TchatTargetWave.AIToSpawnList[i].AIToSpawn.GetDefaultObject()->IsA(AFocusCatalyseurCharacter::StaticClass()) ? "Focus Catalyser" : "Focus Nexus";
+		const FString Message = FString::FromInt(TchatTargetWave.AIToSpawnList[i].NumberToSpawn * TchatIndex) + " " + DroneType + " " + TchatTargetWave.AIToSpawnList[i].AIData->DroneName;
+
+		MessageList.Add(FTchatStruct(Speaker, Message, TchatSpeakerColor, MessagesDelay));
+	}
+
+	PlayerTchatWidget->AddMultipleTchatLines(MessageList);
 }
 
 void AWaveManager::EnableSpawners(){
@@ -148,12 +163,33 @@ void AWaveManager::DisableSpawner(){
 	}
 }
 
+int AWaveManager::GetActiveSpawnersAtWave(const int TargetWave) const{
+	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
+
+	int ActiveSpawnerNumber = 0;
+
+	for (int i = 0; i < SpawnerArray.Num(); i++){
+		if(SpawnerArray[i]->GetStateAtWave().EnableAtWave <= TargetWave && SpawnerArray[i]->GetStateAtWave().DisableAtWave >= TargetWave){
+			ActiveSpawnerNumber++;
+		}
+	}
+
+	return ActiveSpawnerNumber;
+}
+
 void AWaveManager::StartPrepareTimer(){
-	WriteWhatTheNextWaveContain(GetCurrentWaveData());
+	WriteWhatTheNextWaveContain(GetCurrentWaveData(), CurrentWaveNumber);
 
 	FKOnFinishTimer FinishEvent;
 	FinishEvent.BindDynamic(this, &AWaveManager::StartWave);
 	PlayerTimerWidget->StartTimer(PrepareTime, FinishEvent);
+
+	if(!GameMode->UseAutoObjectivesForPlayer()){
+		return;
+	}
+
+	PlayerStatsWidget->UpdateObjectivesText(PrepareObjectiveText);
+	PlayerStatsWidget->UpdateAdditionalText(PrepareAdditionalText);
 }
 
 void AWaveManager::StartWave(){
@@ -165,19 +201,7 @@ void AWaveManager::StartWave(){
 
 	OnStartWave.Broadcast(CurrentWaveNumber);
 
-	// only useful on load save
-	if(IsValid(PlayerMessageWidget)){
-		PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
-	} else{
-		FTimerHandle TimerHandle;
-
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-			// should be valid after a short delay
-			if(IsValid(PlayerMessageWidget)){
-				PlayerMessageWidget->AddMessageToScreen("Starting Wave: " + FString::FromInt(CurrentWaveNumber));
-			}
-		}, 0.1f, false);
-	}
+	UpdatePlayerObjectives();
 
 	EnableSpawners();
 
@@ -192,14 +216,16 @@ void AWaveManager::EndWave(){
 
 	OnEndWave.Broadcast(CurrentWaveNumber);
 
-	if(CurrentWaveNumber == NumberOfWaves - 1){
+	if(CurrentWaveNumber == NumberOfWaves){
+		OnFinishAllWaves.Broadcast();
 		PlayerMessageWidget->AddMessageToScreen("Finish all Waves");
-		Player->Win();
 		return;
 	}
 
+	AudioManager->SwitchToPauseMusic();
+
 	PlayerMessageWidget->AddMessageToScreen("Finish Wave: " + FString::FromInt(CurrentWaveNumber));
-	WriteWhatTheNextWaveContain(GetNextWaveData());
+	WriteWhatTheNextWaveContain(GetNextWaveData(), CurrentWaveNumber + 1);
 
 	if(GetCurrentWaveData().bStopAtEnd){
 		bIsStopped = true;
@@ -223,9 +249,8 @@ void AWaveManager::SpawnEnemies(){
 #endif
 
 	for (int i = 0; i < ListOfAIToSpawn.Num(); i++){
-		const int NumberToSpawnForEachSpawners = ListOfAIToSpawn[i].NumberToSpawn / ActiveSpawnerList.Num();
 		for (int j = 0; j < ActiveSpawnerList.Num(); j++){
-			ActiveSpawnerList[j]->BeginSpawn(NumberToSpawnForEachSpawners, ListOfAIToSpawn[i].AIToSpawn, ListOfAIToSpawn[i].AIData);
+			ActiveSpawnerList[j]->BeginSpawn(ListOfAIToSpawn[i].NumberToSpawn, ListOfAIToSpawn[i].AIToSpawn, ListOfAIToSpawn[i].AIData);
 		}
 	}
 }
@@ -264,36 +289,30 @@ void AWaveManager::RemoveAIFromList(const AMainAICharacter* AIToRemove){
 }
 
 void AWaveManager::NextWave(){
-// je le garde pour plutard pour des debug functions
-// #if !UE_BUILD_SHIPPING
-//
-// 	// used for skip wave in debug
-// 	if(!bIsStopped){
-// 		for (int i = 0; i < ActiveSpawnerList.Num(); i++){
-// 			ActiveSpawnerList[i]->ForceEndSpawn();
-// 		}
-// 	
-// 		TArray<AMainAICharacter*> AIList = WaveAIList.Array();
-// 	
-// 		for (int i = 0; i < AIList.Num(); i++){
-// 			AIList[i]->GetHealthComp()->TakeMaxDamages();
-// 		}
-// 	
-// 		return;
-// 	}
-//
-// #endif
-
 	CurrentWaveNumber++;
-
-	AudioManager->UpdateTowerDefenseMusic();
-
-	if(CurrentWaveNumber >= NumberOfWaves){
-		//GEngine->AddOnScreenDebugMessage(-1, 100000.0f, FColor::Blue, TEXT("Les vagues sont terminées"));
-		return;
-	}
+	
+	AudioManager->SwitchToTowerDefenseMusic();
 
 	SetWave(CurrentWaveNumber);
+}
+
+void AWaveManager::ForceNextWave(){
+#if !UE_BUILD_SHIPPING
+	// used for skip wave in debug
+	if(!bIsStopped){
+		for (int i = 0; i < ActiveSpawnerList.Num(); i++){
+			ActiveSpawnerList[i]->ForceEndSpawn();
+		}
+
+		TArray<AMainAICharacter*> AIList = WaveAIList.Array();
+
+		for (int i = 0; i < AIList.Num(); i++){
+			AIList[i]->GetHealthComp()->TakeMaxDamages();
+		}
+
+		NextWave();
+	}
+#endif
 }
 
 void AWaveManager::SetWave(const int NewWave){

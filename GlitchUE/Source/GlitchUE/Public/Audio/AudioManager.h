@@ -31,6 +31,9 @@ protected:
 
 	AGlitchUEGameMode* GameMode;
 
+	UPROPERTY()
+	AMainPlayer* Player;
+
 	FTimeline VolumeTimeline;
 
 	FTimeline ParameterTimeline;
@@ -59,9 +62,12 @@ protected:
 	UPROPERTY()
 	UFMODEvent* TowerDefenseMusic;
 
+	UPROPERTY()
+	UFMODEvent* PauseMusic;
+
 	UFUNCTION()
 	void SetTowerDefenseMusic();
-	
+
 	UFUNCTION()
 	void SetStealthMusic();
 
@@ -83,7 +89,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
 	void FadeOutMusic(const FOnTimelineEvent FinishEvent, const float FadeDuration);
 
+	UFUNCTION()
+	void SetPauseMusic();
+
 	void SwitchToTowerDefenseMusic();
+
+	void SwitchToPauseMusic();
 
 	void UpdateTowerDefenseMusic();
 
