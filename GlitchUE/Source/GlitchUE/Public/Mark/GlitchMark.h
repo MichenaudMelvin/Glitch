@@ -42,7 +42,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Behavior")
 	void ReattachToPlayer();
 
-	UPROPERTY(EditAnywhere, Category = "Behavior")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior")
 	bool bCanBeAttached = true;
 
 	UFUNCTION()
