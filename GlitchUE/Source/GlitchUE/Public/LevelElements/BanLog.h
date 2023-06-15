@@ -45,17 +45,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Tchat")
 	TArray<FTchatStruct> TchatMessageList;
 
-	int Index = 0;
-
-	AMainPlayerController* CurrenController;
-
 	UFUNCTION()
 	void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 
 	UFUNCTION()
 	void ActivateBanLog();
-
-	void WriteMessages();
 
 public:
 	bool IsActivated() const;

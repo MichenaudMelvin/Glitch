@@ -22,12 +22,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Tchat")
 	TArray<FTchatStruct> TchatMessageList;
 
-	AMainPlayerController* CurrentController;
-
-	int Index = 0;
-
 	UFUNCTION()
 	void EnterTriggerBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	void WriteMessages();
 };

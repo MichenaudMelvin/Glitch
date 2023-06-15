@@ -47,7 +47,12 @@ void UWheel::NativeConstruct(){
 		ButtonList[i]->UnSelect();
 		bIsCurrentSlotOccupied ? ButtonList[i]->UnbindButtons() : ButtonList[i]->BindButtons();
 
-		bIsCurrentSlotOccupied ? ButtonList[i]->SetVisibility(ESlateVisibility::HitTestInvisible) : AddWidgetToFocusList(ButtonList[i]); 
+		if(bIsCurrentSlotOccupied){
+			ButtonList[i]->BlockButton(true);
+		} else{
+			AddWidgetToFocusList(ButtonList[i]);
+			ButtonList[i]->CanBuyObject(MainPlayer->GetGolds()) ? ButtonList[i]->UnblockButton() : ButtonList[i]->BlockButton(false);
+		}
 	}
 
 	const ESlateVisibility TargetVisibility = bIsCurrentSlotOccupied ? ESlateVisibility::Visible : ESlateVisibility::Hidden; 
@@ -100,6 +105,25 @@ void UWheel::ClickOnDestructButton(){
 	DestructButton->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void UWheel::UpdateDisplayGolds(int Golds){
+	Golds = FMath::Clamp(Golds, 0, 999999999);
+	GoldsText->SetText(FText::FromString(FString::FromInt(Golds)));
+
+	if(!IsInViewport()){
+		return;
+	}
+
+	const bool bIsCurrentSlotOccupied = MainPlayer->GetCurrentConstructionZone()->IsSlotOccupied();
+
+	if(bIsCurrentSlotOccupied){
+		return;
+	}
+
+	for(int i = 0; i < ButtonList.Num(); i++){
+		ButtonList[i]->CanBuyObject(Golds) ? ButtonList[i]->UnblockButton() : ButtonList[i]->BlockButton(false);
+	}
+}
+
 void UWheel::ClickOnDestructButtonDelay(){
 	MainPlayer->GetPreviewPlacableActor()->SetShouldRangeUpdate(true);
 	MainPlayer->GetPreviewPlacableActor()->SetData(nullptr);
@@ -107,7 +131,7 @@ void UWheel::ClickOnDestructButtonDelay(){
 	for(int i = 0; i < ButtonList.Num(); i++){
 		ButtonList[i]->BindButtons();
 		AddWidgetToFocusList(ButtonList[i]);
-		ButtonList[i]->SetVisibility(ESlateVisibility::Visible);
+		ButtonList[i]->CanBuyObject(MainPlayer->GetGolds()) ? ButtonList[i]->UnblockButton() : ButtonList[i]->BlockButton(false);
 	}
 
 	if(CurrentController->IsUsingGamepad()){

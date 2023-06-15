@@ -9,11 +9,15 @@
 
 DECLARE_DYNAMIC_DELEGATE(FKOnFinishTimer);
 
+class AMainPlayerController;
+
 UCLASS(Abstract)
 class GLITCHUE_API UTimerWidget : public UUserWidget{
 	GENERATED_BODY()
 
 protected:
+	virtual void NativeOnInitialized() override;
+
 	virtual void NativeConstruct() override;
 
 	void RemoveWidget();
@@ -30,11 +34,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animations", Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* LooseTimeAnim;
 
+	UPROPERTY()
+	AMainPlayerController* MainPlayerController;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Animations")
 	float LooseAnimSpeed = 1;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animations")
 	float FadeTime = 2;
+
+	bool bIsTimerRunning = false;
 
 	FString SelectString(const int IntValue);
 
@@ -58,6 +67,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void StartTimer(const float Timer, const FKOnFinishTimer FinishEvent, const bool RemoveTimerAtEnd = true);
 
+	/**
+	 * @brief Remove time from time 
+	 * @param NewValue the removed time
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void ChangeTimerValue(const float NewValue);
 
@@ -74,4 +87,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	float GetTimerElapsed() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Timer")
+	void PauseTimer(const bool bPause);
 };

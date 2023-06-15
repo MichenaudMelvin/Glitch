@@ -12,5 +12,6 @@ class GLITCHUE_API AMenuGamemode : public AMainGamemode, public ISaveInterface{
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Save")
 	virtual void GlobalWorldLoad(const int Index) override;
 };

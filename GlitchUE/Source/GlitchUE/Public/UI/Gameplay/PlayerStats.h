@@ -30,7 +30,8 @@ protected:
 	UTextBlock* AdditionalText;
 
 public:
-	void UpdateDisplayGolds(int Golds) const;
+	UFUNCTION()
+	void UpdateDisplayGolds(int Golds);
 
 	void UpdateNexusHealth(const float NewHealth, const float NexusMaxHealth)const;
 

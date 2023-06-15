@@ -6,7 +6,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
-#include "Mark/Mark.h"
+#include "Mark/GlitchMark.h"
 
 void AMainPlayerController::BeginPlay(){
 	Super::BeginPlay();
@@ -42,8 +42,10 @@ void AMainPlayerController::CreatePlayerWidgets(){
 	PlayerStatsWidget = Cast<UPlayerStats>(CreateWidget(this, PlayerStatsWidgetClass));
 	PlayerStatsWidget->AddToViewport();
 	PlayerStatsWidget->UpdateDisplayGolds(MainPlayer->GetGolds());
+	MainPlayer->OnUpdateGolds.AddDynamic(PlayerStatsWidget, &UPlayerStats::UpdateDisplayGolds);
 
 	WheelWidget = Cast<UWheel>(CreateWidget(this, WheelWidgetWidgetClass));
+	MainPlayer->OnUpdateGolds.AddDynamic(WheelWidget, &UWheel::UpdateDisplayGolds);
 
 	PauseWidget = Cast<UPauseMenu>(CreateWidget(this, PauseWidgetClass));
 
@@ -225,6 +227,10 @@ void AMainPlayerController::UnbindCamera(){
 #pragma region Modes
 
 void AMainPlayerController::BindNormalMode(){
+	if(MainPlayer->IsAppearing()){
+		return;
+	}
+
 	UnbindAll();
 	BindPause();
 	BindMovement();

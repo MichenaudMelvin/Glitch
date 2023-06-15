@@ -131,14 +131,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GlobalWorldSave(const int Index);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Save")
 	virtual void GlobalWorldLoad(const int Index) override;
 
 	/**
-	 * @brief 
-	 * @param TimerValue if TimerValue is equal to 0 it will uses the stealth timer variable
+	 * @brief if TimerValue is equal to 0 it will uses the stealth timer variable
+	 * @param TimerValue else this variable will be used for the timer
 	 */
-	UFUNCTION(Exec)
+	UFUNCTION(BlueprintCallable, Exec, Category = "Timer")
 	virtual void LaunchStealthTimer(float TimerValue = 0);
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
@@ -257,6 +257,10 @@ private:
 
 	UFUNCTION()
 	void BlinkingFinished();
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void RemoveStealthTime(const float RemovedTime) const;
 
 protected:
 	UFUNCTION(Exec, Category = "Glitch")

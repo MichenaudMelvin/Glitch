@@ -4,6 +4,7 @@
 #include "GlitchZones/CatalyseurZone.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayer.h"
+#include "Player/MainPlayerController.h"
 
 ACatalyseurZone::ACatalyseurZone(){
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/VFX/Particles/Meshes/SM_Demi_Sphere"));
@@ -23,6 +24,8 @@ void ACatalyseurZone::OnPlayerEnterZone(){
 
 	MainPlayer->EnableSafeEffect(true, PostProcessFadeTime);
 
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->PauseTimer(true);
+
 	if(GameMode->GetLevelState() == ELevelState::Alerted){
 		GetWorld()->GetTimerManager().SetTimer(ZoneTimer, [&]() {
 			GameMode->SetLevelState(ELevelState::Normal);
@@ -34,6 +37,8 @@ void ACatalyseurZone::OnPlayerExitZone(){
 	Super::OnPlayerExitZone();
 
 	MainPlayer->EnableSafeEffect(false, PostProcessFadeTime);
+
+	MainPlayer->GetMainPlayerController()->GetTimerWidget()->PauseTimer(false);
 }
 
 void ACatalyseurZone::OnSwitchPhases(EPhases NewPhase){

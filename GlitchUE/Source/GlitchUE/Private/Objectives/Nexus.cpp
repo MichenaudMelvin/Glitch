@@ -121,6 +121,7 @@ void ANexus::UpdateDissolver(){
 
 void ANexus::SetCanInteractWithNexus(const bool bCanInteract) const{
 	if(bCanInteract){
+		OnFreeEnoughCatalyseur.Broadcast();
 		InteractableComp->AddInteractable(MeshObjectif);
 	} else {
 		InteractableComp->Unfeedback();

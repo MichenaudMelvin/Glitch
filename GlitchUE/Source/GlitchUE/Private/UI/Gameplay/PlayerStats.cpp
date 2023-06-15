@@ -4,7 +4,7 @@
 #include "UI/Gameplay/PlayerStats.h"
 #include "Kismet/GameplayStatics.h"
 
-void UPlayerStats::UpdateDisplayGolds(int Golds) const{
+void UPlayerStats::UpdateDisplayGolds(int Golds){
 	Golds = FMath::Clamp(Golds, 0, 999999999);
 	GoldsText->SetText(FText::FromString(FString::FromInt(Golds)));
 }

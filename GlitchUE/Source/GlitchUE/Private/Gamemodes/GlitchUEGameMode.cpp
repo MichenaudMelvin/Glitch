@@ -22,7 +22,7 @@
 #include "FX/Dissolver.h"
 #include "LevelElements/BanLog.h"
 #include "LevelElements/BasicDoor.h"
-#include "Mark/Mark.h"
+#include "Mark/GlitchMark.h"
 #include "Objectives/Inhibiteur.h"
 #include "Saves/StealthSave.h"
 #include "Saves/TowerDefenseSave.h"
@@ -213,6 +213,7 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	CurrentSave->LoadedTime++;
 
 	if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
+		MainPlayerController->GetTchatWidget()->AddTchatLine("Console", "Your save have been corrupted", FLinearColor::Blue);
 		UUsefulFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
 		return;
 	}
@@ -360,7 +361,7 @@ void AGlitchUEGameMode::LaunchStealthTimer(float TimerValue){
 	FKOnFinishTimer EndEvent;
 	EndEvent.BindDynamic(this, &AGlitchUEGameMode::EndStealthTimer);
 
-	MainPlayerController->GetTimerWidget()->StartTimer(TimerValue, EndEvent);
+	MainPlayerController->GetTimerWidget()->StartTimer(TimerValue, EndEvent, false);
 }
 
 float AGlitchUEGameMode::GetStealthTimer() const{
@@ -666,9 +667,6 @@ void AGlitchUEGameMode::SetLevelState(const ELevelState NewState){
 		LevelStateTimelineDirection = ETimelineDirection::Backward;
 		break;
 	case ELevelState::Alerted:
-
-		LaunchStealthTimer(StealthTimer);
-
 		LevelStateTimeline.Play();
 		LevelStateTimelineDirection = ETimelineDirection::Forward;
 		break;
@@ -706,6 +704,18 @@ void AGlitchUEGameMode::BlinkingFinished(){
 		BlinkingTimelineDirection = ETimelineDirection::Forward;
 		break;
 	}
+}
+
+void AGlitchUEGameMode::RemoveStealthTime(const float RemoveTime) const{
+	if(!MainPlayerController->GetTimerWidget()->IsTimerRunning()){
+		return;
+	}
+
+	const float CurrentTime = MainPlayerController->GetTimerWidget()->GetTimerElapsed();
+
+	const float NewTime = FMath::Clamp(CurrentTime - RemoveTime, 1.0f, StealthTimer);
+
+	MainPlayerController->GetTimerWidget()->ChangeTimerValue(NewTime);
 }
 
 void AGlitchUEGameMode::AddGlitch(const float AddedValue){
@@ -805,11 +815,7 @@ void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 }
 
 void AGlitchUEGameMode::GlitchUpgradeWorld() const{
-	const float CurrentTime = MainPlayerController->GetTimerWidget()->GetTimerElapsed();
-
-	const float NewTime = FMath::Clamp(CurrentTime - GlitchReduceStealthTimer, 1.0f, StealthTimer);
-
-	MainPlayerController->GetTimerWidget()->ChangeTimerValue(NewTime);
+	RemoveStealthTime(GlitchReduceStealthTimer);
 }
 
 void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
