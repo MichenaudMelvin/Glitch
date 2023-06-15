@@ -19,6 +19,8 @@ class ANexus;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnRefreshAIList);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnFinishAllWaves);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnStartWave, int, CurrentWave);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnEndWave, int, CurrentWave);
@@ -148,8 +150,11 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	FWave GetTargetWaveData(const int Target) const;
 
-	UPROPERTY(BlueprintCallable, BlueprintAssignable)
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "AI")
 	FKOnRefreshAIList OnRefreshAIList;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "AI")
+	FKOnFinishAllWaves OnFinishAllWaves;
 
 	bool bIsStopped = false;
 

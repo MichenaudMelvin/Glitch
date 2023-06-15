@@ -74,29 +74,13 @@ void ABanLog::OnConstruction(const FTransform& Transform){
 }
 
 void ABanLog::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	CurrenController = MainPlayerController;
+	MainPlayerController->GetTchatWidget()->AddMultipleTchatLines(TchatMessageList);
 
 	ActivableComp->ActivateObject();
 }
 
 void ABanLog::ActivateBanLog(){
-	WriteMessages();
-
 	RemoveInteraction();
-}
-
-void ABanLog::WriteMessages(){
-	CurrenController->GetTchatWidget()->AddTchatLine(TchatMessageList[Index].Speaker, TchatMessageList[Index].TextMessage, TchatMessageList[Index].SpeakerColor);
-
-	Index++;
-
-	if(Index + 1 > TchatMessageList.Num()){
-		return;
-	}
-
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ABanLog::WriteMessages, TchatMessageList[Index - 1].DelayForNextMessage, false);
 }
 
 bool ABanLog::IsActivated() const{

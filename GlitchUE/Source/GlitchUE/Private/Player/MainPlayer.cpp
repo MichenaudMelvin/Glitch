@@ -1096,8 +1096,9 @@ void AMainPlayer::EndTL(){
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 
-		MainPlayerController->BindMovement();
-		MainPlayerController->BindCamera();
+		MainPlayerController->BindNormalMode();
+		GetMesh()->SetVisibility(true, true);
+		Mark->ResetMark();
 		MainPlayerController->SetCanSave(true);
 		bCanBeAttachedToEdge = true;
 		bGoldsCanBeUpdated = true;
@@ -1109,9 +1110,6 @@ void AMainPlayer::EndTL(){
 		ResetOverlappedMeshes();
 
 		FinishGlitchDash();
-
-		GetMesh()->SetVisibility(true, true);
-		Mark->ResetMark();
 
 		if(IsValid(CurrentDrone)){
 			CurrentDrone->GetMesh()->SetVisibility(true, true);

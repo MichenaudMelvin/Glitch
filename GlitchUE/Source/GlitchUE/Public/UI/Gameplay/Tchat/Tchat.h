@@ -78,9 +78,18 @@ protected:
 	UPROPERTY()
 	TArray<FTchatStruct> AllTchatLines;
 
+	TArray<FTchatStruct> CurrentListToAdd;
+
+	FTimerHandle MultipleMessagesTimerHandle;
+
+	void WriteMessageList();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Tchat")
 	void AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor);
+
+	UFUNCTION(BlueprintCallable, Category = "Tchat")
+	void AddMultipleTchatLines(TArray<FTchatStruct> TchatLines);
 
 	bool IsOpenByUser() const;
 

@@ -207,8 +207,8 @@ void AWaveManager::EndWave(){
 	OnEndWave.Broadcast(CurrentWaveNumber);
 
 	if(CurrentWaveNumber == NumberOfWaves){
+		OnFinishAllWaves.Broadcast();
 		PlayerMessageWidget->AddMessageToScreen("Finish all Waves");
-		Player->Win();
 		return;
 	}
 

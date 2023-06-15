@@ -2,6 +2,7 @@
 
 
 #include "UI/Menu/PauseMenu.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayerController.h"
 
@@ -39,6 +40,10 @@ void UPauseMenu::NativeConstruct(){
 	MainPlayerController->OnPause.AddDynamic(MainPlayerController, &AMainPlayerController::PauseGame);
 
 	MainPlayerController->CanSave() ? SaveButton->UnblockButton() : SaveButton->BlockButton(true);
+
+	const UAbstractSave* Save = UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), 0, false);
+
+	IsValid(Save) ? LoadButton->UnblockButton() : LoadButton->BlockButton(true);
 }
 
 void UPauseMenu::ContinueGame(){

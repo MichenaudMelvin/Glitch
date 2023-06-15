@@ -213,6 +213,7 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 	CurrentSave->LoadedTime++;
 
 	if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
+		MainPlayerController->GetTchatWidget()->AddTchatLine("Console", "Your save have been corrupted", FLinearColor::Blue);
 		UUsefulFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
 		return;
 	}
