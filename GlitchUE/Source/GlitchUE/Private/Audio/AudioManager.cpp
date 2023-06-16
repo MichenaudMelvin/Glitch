@@ -41,6 +41,11 @@ AAudioManager::AAudioManager(){
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> CurveFadeInAndOut(TEXT("/Game/Blueprint/Curves/FC_FadeInAndOut"));
+	check(CurveFadeInAndOut.Succeeded());
+
+	FadeInAndOutCurve = CurveFadeInAndOut.Object;
 }
 
 void AAudioManager::BeginPlay(){
@@ -58,6 +63,8 @@ void AAudioManager::BeginPlay(){
 
 	VolumeTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 
+	FadeInAndOutTimeline.AddInterpFloat(FadeInAndOutCurve, UpdateEvent);
+
 	UpdateEvent.Clear();
 	UpdateEvent.BindDynamic(this, &AAudioManager::FadeParameterValue);
 
@@ -70,6 +77,7 @@ void AAudioManager::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
 
 	VolumeTimeline.TickTimeline(DeltaSeconds);
+	FadeInAndOutTimeline.TickTimeline(DeltaSeconds);
 	ParameterTimeline.TickTimeline(DeltaSeconds);
 }
 
@@ -141,6 +149,19 @@ void AAudioManager::FadeOutMusic(const FOnTimelineEvent FinishEvent, const float
 	VolumeTimeline.SetPlayRate(1/FadeDuration);
 
 	VolumeTimeline.ReverseFromEnd();
+}
+
+void AAudioManager::FadeToMusic(UFMODEvent* NewMusic, const float FadeDuration){
+	TargetMusic = NewMusic;
+
+	FadeInAndOutTimeline.SetPlayRate(1/FadeDuration);
+
+	FadeInAndOutTimeline.PlayFromStart();
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		FMODAudioComp->SetEvent(TargetMusic);
+	}, FadeDuration/2, false);
 }
 
 void AAudioManager::SwitchToTowerDefenseMusic(){

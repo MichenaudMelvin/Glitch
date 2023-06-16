@@ -29,12 +29,16 @@ protected:
 
 	UCurveFloat* ZeroToOneCurve;
 
+	UCurveFloat* FadeInAndOutCurve;
+
 	AGlitchUEGameMode* GameMode;
 
 	UPROPERTY()
 	AMainPlayer* Player;
 
 	FTimeline VolumeTimeline;
+
+	FTimeline FadeInAndOutTimeline;
 
 	FTimeline ParameterTimeline;
 
@@ -65,6 +69,9 @@ protected:
 	UPROPERTY()
 	UFMODEvent* PauseMusic;
 
+	UPROPERTY()
+	UFMODEvent* TargetMusic;
+
 	UFUNCTION()
 	void SetTowerDefenseMusic();
 
@@ -91,6 +98,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
 	void FadeOutMusic(const FOnTimelineEvent FinishEvent, const float FadeDuration);
+
+	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
+	void FadeToMusic(UFMODEvent* NewMusic, const float FadeDuration);
 
 	void SwitchToTowerDefenseMusic();
 
