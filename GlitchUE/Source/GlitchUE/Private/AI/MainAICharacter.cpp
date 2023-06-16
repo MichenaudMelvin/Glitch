@@ -52,6 +52,8 @@ void AMainAICharacter::BeginPlay(){
 
 	AIController = Cast<AMainAIController>(GetController());
 	Blackboard = AIController->GetBlackboardComponent();
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 }
 
 void AMainAICharacter::Destroyed(){
@@ -66,6 +68,10 @@ void AMainAICharacter::Destroyed(){
 
 	TriggerDeathEffects();
 
+	if(IsValid(TrapEffectFX)){
+		TrapEffectFX->StopEmitter();
+	}
+
 	Super::Destroyed();
 }
 
@@ -75,6 +81,8 @@ void AMainAICharacter::SetCurrentData(UMainAIData* NewData){
 	if(!IsValid(CurrentData)){
 		return;
 	}
+
+	HealthComp->SetMaxHealth(CurrentData->Health);
 
 	GetMesh()->SetSkeletalMesh(CurrentData->AIMesh);
 
@@ -94,6 +102,12 @@ UBlackboardComponent* AMainAICharacter::GetBlackBoard() const{
 
 UPopcornFXEmitterComponent* AMainAICharacter::GetIdleFX() const{
 	return IdleFX;
+}
+
+void AMainAICharacter::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(GlitchTimerHandle);
+	World->GetTimerManager().ClearAllTimersForObject(AIController);
+	World->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void AMainAICharacter::TriggerDeathEffects() const{
@@ -145,11 +159,13 @@ void AMainAICharacter::ReceiveGlitchUpgrade(){
 	HealthComp->SetMaxHealth(CurrentData->GlitchHealth);
 	AIController->ToggleGlitchDamages(true);
 
-	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(GlitchTimerHandle, [&]() {
+		UE_LOG(LogTemp, Warning, TEXT("Hello"));
+		UE_LOG(LogTemp, Warning, TEXT("The boolean value is %s"), ( IsValid(AIController) ? TEXT("true") : TEXT("false") ));
 
-	GetWorldTimerManager().SetTimer(TimerHandle, [&]() {
 		//reset à l'upgrade actuelle
 		ResetGlitchUpgrade();
+		UE_LOG(LogTemp, Warning, TEXT("Hello3"));
 	}, CurrentData->GlitchDuration, false);
 }
 
@@ -241,11 +257,9 @@ void AMainAICharacter::ResetSlowEffect(){
 
 void AMainAICharacter::ResetTrapEffect(){
 	if(!IsValid(this)){
-		GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
 		return;
 	}
 
-	// temporary check
 	if(IsValid(TrapEffectFX)){
 		TrapEffectFX->StopEmitter();
 	}

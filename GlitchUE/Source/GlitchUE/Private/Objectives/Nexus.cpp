@@ -6,7 +6,6 @@
 #include "PopcornFXAttributeFunctions.h"
 #include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Objectives/Catalyseur.h"
-#include "Audio/AudioManager.h"
 #include "FX/Dissolver.h"
 #include "Player/MainPlayerController.h"
 
@@ -61,19 +60,6 @@ void ANexus::BeginPlay(){
 	for(int i = 0; i < CatalyseurArray.Num(); i++){
 		CatalyseursList.Add(Cast<ACatalyseur>(CatalyseurArray[i]));
 	}
-
-	TArray<AActor*> AudioManagerArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAudioManager::StaticClass(), AudioManagerArray);
-
-#if WITH_EDITOR
-
-	if(AudioManagerArray.Num() == 0){
-		UE_LOG(LogTemp, Fatal, TEXT("AUCUN AUDIO MANAGER N'EST PLACE DANS LA SCENE"));
-	}
-
-#endif
-
-	AudioManager = Cast<AAudioManager>(AudioManagerArray[0]);
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
@@ -150,8 +136,6 @@ void ANexus::ActiveObjectif(){
 
 	FMODAudioComp->SetEvent(ActivationSFX);
 	FMODAudioComp->Play();
-
-	AudioManager->SwitchToTowerDefenseMusic();
 
 	const int Index = UPopcornFXAttributeFunctions::FindAttributeIndex(TechFXEmitter, "ExplodingChains");
 

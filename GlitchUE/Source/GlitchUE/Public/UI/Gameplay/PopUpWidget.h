@@ -36,10 +36,12 @@ protected:
 	UFUNCTION()
 	void GoToNextPopUp();
 
-public:
-	UFUNCTION(BlueprintCallable)
-	void ShowPopUp(const FString PopUpMessage);
+	bool bRebindAtDestruct = false;
 
-	UFUNCTION(BlueprintCallable)
-	void ShowMultiplePopUps(const TArray<FString> PopUpMessages);
+public:
+	UFUNCTION(BlueprintCallable, Category = "PopUp")
+	void ShowPopUp(const FString PopUpMessage, const bool bRebindAtEnd = false);
+
+	UFUNCTION(BlueprintCallable, Category = "PopUp")
+	void ShowMultiplePopUps(const TArray<FString> PopUpMessages, const bool bRebindAtEnd = false);
 };

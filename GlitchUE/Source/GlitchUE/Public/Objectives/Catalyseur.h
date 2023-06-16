@@ -29,7 +29,6 @@ public:
 	void LoadCatalyseur(const FCatalyseurData NewData);
 
 protected:
-	
 	virtual void BeginPlay() override;
 
 	virtual void Destroyed() override;
@@ -90,6 +89,7 @@ protected:
 
 	TArray<AInhibiteur*> ActivatedInhibiteursList;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Compass")
 	UCompassComponent* Compass;
 
 	FTimerHandle MoneyTimerHandle;

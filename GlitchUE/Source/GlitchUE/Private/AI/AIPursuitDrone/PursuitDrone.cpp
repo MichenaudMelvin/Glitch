@@ -159,6 +159,10 @@ void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor
 
 			FTimerHandle TimerHandle;
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+				if(!IsValid(Blackboard)){
+					return;
+				}
+
 				Blackboard->SetValueAsBool("IsLoading", false);
 			}, LoadingTime, false);
 		}
