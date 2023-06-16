@@ -174,6 +174,10 @@ void ATrap::Attack_Implementation(){
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+		if(!IsValid(ActivableComp)){
+			return;
+		}
+
 		if(ActivableComp->IsActivated()){
 			Attack_Implementation();
 		}

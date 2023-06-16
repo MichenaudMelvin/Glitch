@@ -41,6 +41,11 @@ AAudioManager::AAudioManager(){
 	check(Curve.Succeeded());
 
 	ZeroToOneCurve = Curve.Object;
+
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> CurveFadeInAndOut(TEXT("/Game/Blueprint/Curves/FC_FadeInAndOut"));
+	check(CurveFadeInAndOut.Succeeded());
+
+	FadeInAndOutCurve = CurveFadeInAndOut.Object;
 }
 
 void AAudioManager::BeginPlay(){
@@ -58,6 +63,8 @@ void AAudioManager::BeginPlay(){
 
 	VolumeTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 
+	FadeInAndOutTimeline.AddInterpFloat(FadeInAndOutCurve, UpdateEvent);
+
 	UpdateEvent.Clear();
 	UpdateEvent.BindDynamic(this, &AAudioManager::FadeParameterValue);
 
@@ -70,6 +77,7 @@ void AAudioManager::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
 
 	VolumeTimeline.TickTimeline(DeltaSeconds);
+	FadeInAndOutTimeline.TickTimeline(DeltaSeconds);
 	ParameterTimeline.TickTimeline(DeltaSeconds);
 }
 
@@ -100,7 +108,7 @@ void AAudioManager::SetTowerDefenseMusic() {
 	UpdateTowerDefenseMusic();
 }
 
-void AAudioManager::SetPauseMusic() {
+void AAudioManager::SetPauseMusic(){
 	FMODAudioComp->SetEvent(PauseMusic);
 	FMODAudioComp->Play();
 }
@@ -143,6 +151,19 @@ void AAudioManager::FadeOutMusic(const FOnTimelineEvent FinishEvent, const float
 	VolumeTimeline.ReverseFromEnd();
 }
 
+void AAudioManager::FadeToMusic(UFMODEvent* NewMusic, const float FadeDuration){
+	TargetMusic = NewMusic;
+
+	FadeInAndOutTimeline.SetPlayRate(1/FadeDuration);
+
+	FadeInAndOutTimeline.PlayFromStart();
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		FMODAudioComp->SetEvent(TargetMusic);
+	}, FadeDuration/2, false);
+}
+
 void AAudioManager::SwitchToTowerDefenseMusic(){
 	FOnTimelineEvent SwitchMusicEvent;
 
@@ -160,23 +181,22 @@ void AAudioManager::SwitchToPauseMusic() {
 }
 
 void AAudioManager::UpdateTowerDefenseMusic(){
-	// Tableau pour stocker les valeurs possibles
-	TArray<int> valeurs = { 0, 1, 2 };
-
-	// Mélange des valeurs dans le tableau
-	for (int i = 0; i < valeurs.Num(); i++) {
-		int j = valeurs[FMath::FRandRange(0, valeurs.Num() - 1)];
-		valeurs.Swap(valeurs[i], valeurs[j]);
+	// MÃ©lange des valeurs dans le tableau
+	for (int i = 0; i < TowerDefenseLayerValues.Num(); i++) {
+		const int j = TowerDefenseLayerValues[FMath::FRandRange(0, TowerDefenseLayerValues.Num() - 1)];
+		TowerDefenseLayerValues.Swap(TowerDefenseLayerValues[i], TowerDefenseLayerValues[j]);
 	}
 
 	// Attribution des valeurs aux variables
-	FMODAudioComp->SetParameter("Accom", valeurs[0]);
-	FMODAudioComp->SetParameter("Melod", valeurs[1]);
-	FMODAudioComp->SetParameter("Perc", valeurs[2]);
-
-	//FMODAudioComp->SetParameter("TowerDefense", TowerDefenseLayer);
+	FMODAudioComp->SetParameter("Accom", TowerDefenseLayerValues[0]);
+	FMODAudioComp->SetParameter("Melod", TowerDefenseLayerValues[1]);
+	FMODAudioComp->SetParameter("Perc", TowerDefenseLayerValues[2]);
 }
 
 UFMODAudioComponent* AAudioManager::GetAudioComp() const{
 	return FMODAudioComp;
+}
+
+float AAudioManager::GetFadeDuration() const{
+	return FadePhaseTransition;
 }

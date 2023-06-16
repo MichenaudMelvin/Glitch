@@ -9,7 +9,6 @@
 
 class AWaveManager;
 class ACatalyseur;
-class AAudioManager;
 class ADissolver;
 class UPlayerStats;
 
@@ -28,8 +27,6 @@ protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	ADissolver* Dissolver;
-
-	AAudioManager* AudioManager;
 
 	TArray<ACatalyseur*> CatalyseursList;
 

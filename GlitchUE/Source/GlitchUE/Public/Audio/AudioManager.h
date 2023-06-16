@@ -29,12 +29,16 @@ protected:
 
 	UCurveFloat* ZeroToOneCurve;
 
+	UCurveFloat* FadeInAndOutCurve;
+
 	AGlitchUEGameMode* GameMode;
 
 	UPROPERTY()
 	AMainPlayer* Player;
 
 	FTimeline VolumeTimeline;
+
+	FTimeline FadeInAndOutTimeline;
 
 	FTimeline ParameterTimeline;
 
@@ -65,6 +69,9 @@ protected:
 	UPROPERTY()
 	UFMODEvent* PauseMusic;
 
+	UPROPERTY()
+	UFMODEvent* TargetMusic;
+
 	UFUNCTION()
 	void SetTowerDefenseMusic();
 
@@ -74,7 +81,10 @@ protected:
 	UFUNCTION()
 	void SetStealthAudio(const ELevelState LevelState);
 
-	float TowerDefenseLayer = 0;
+	UFUNCTION()
+	void SetPauseMusic();
+
+	TArray<int> TowerDefenseLayerValues = { 0, 1, 2 };
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
@@ -89,8 +99,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
 	void FadeOutMusic(const FOnTimelineEvent FinishEvent, const float FadeDuration);
 
-	UFUNCTION()
-	void SetPauseMusic();
+	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")
+	void FadeToMusic(UFMODEvent* NewMusic, const float FadeDuration);
 
 	void SwitchToTowerDefenseMusic();
 
@@ -99,4 +109,6 @@ public:
 	void UpdateTowerDefenseMusic();
 
 	UFMODAudioComponent* GetAudioComp() const;
+
+	float GetFadeDuration() const;
 };

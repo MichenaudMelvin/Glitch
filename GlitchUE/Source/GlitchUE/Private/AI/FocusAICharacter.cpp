@@ -61,6 +61,8 @@ void AFocusAICharacter::SetCurrentData(UMainAIData* NewData){
 	const UFocusAIData* FocusData = Cast<UFocusAIData>(CurrentData);
 
 	AttackAudioComp->SetEvent(FocusData->AttackSound);
+
+	UpdateWidgetHealth();
 }
 
 void AFocusAICharacter::TakeDamages(){
