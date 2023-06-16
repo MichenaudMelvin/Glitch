@@ -46,6 +46,8 @@ void APlacableActor::BeginPlay(){
 
 	FadeInAppearance.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 	FadeInAppearance.SetPlayRate(1/AppearanceTime);
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 }
 
 void APlacableActor::Tick(float DeltaTime){
@@ -117,6 +119,11 @@ void APlacableActor::SellObject(){
 void APlacableActor::SetMissingData(ANexus* NewNexus, AMainPlayer* MainPlayer){
 	Nexus = NewNexus;
 	Player = MainPlayer;
+}
+
+void APlacableActor::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(GlitchTimerHandle);
+	World->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void APlacableActor::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){
@@ -251,9 +258,7 @@ void APlacableActor::ReceiveGlitchUpgrade(){
 	Damages += CurrentData->GlitchDamages;
 	AttackRange += CurrentData->GlitchAttackRange;
 
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &APlacableActor::ResetGlitchUpgrade, CurrentData->GlitchUpgradeDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(GlitchTimerHandle, this, &APlacableActor::ResetGlitchUpgrade, CurrentData->GlitchUpgradeDuration, false);
 }
 
 void APlacableActor::ResetGlitchUpgrade(){

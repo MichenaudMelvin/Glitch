@@ -5,6 +5,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayerController.h"
+#include "Player/TransitionPlayerController.h"
 #include "UI/Gameplay/Tchat/TchatLineData.h"
 
 void UTchat::NativeOnInitialized(){
@@ -50,16 +51,18 @@ void UTchat::OpenTchat(){
 
 	PlayAnimation(ExtendTchatAnim, 0, 1, EUMGSequencePlayMode::Forward, ExtendDuration, false);
 
-	AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
-	CastedController->UnbindAll();
-	CastedController->BindOpenTchat();
-	CastedController->GetPlayerStatsWidget()->RemoveFromParent();
+	if(CurrentController->IsA(AMainPlayerController::StaticClass())){
+		AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
+		CastedController->UnbindAll();
+		CastedController->BindOpenTchat();
+		CastedController->GetPlayerStatsWidget()->RemoveFromParent();
 
-	if(CastedController->GetTimerWidget()->IsTimerRunning()){
-		CastedController->GetTimerWidget()->RemoveFromParent();
+		if(CastedController->GetTimerWidget()->IsTimerRunning()){
+			CastedController->GetTimerWidget()->RemoveFromParent();
+		}
+
+		UGameplayStatics::SetGamePaused(CurrentController,true);
 	}
-
-	UGameplayStatics::SetGamePaused(CurrentController,true);
 
 	if(IsInViewport()){
 		StopDestructTimer();
@@ -75,15 +78,18 @@ void UTchat::CloseTchat(){
 	if(bIsOpenByUser){
 		bIsOpenByUser = false;
 		PlayAnimation(ExtendTchatAnim, 0, 1, EUMGSequencePlayMode::Reverse, ExtendDuration, false);
-		UGameplayStatics::SetGamePaused(CurrentController,false);
 
-		AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
+		if(CurrentController->IsA(AMainPlayerController::StaticClass())){
+			UGameplayStatics::SetGamePaused(CurrentController,false);
 
-		CastedController->BindNormalMode();
-		CastedController->GetPlayerStatsWidget()->AddToViewport();
+			AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
 
-		if(CastedController->GetTimerWidget()->IsTimerRunning()){
-			CastedController->GetTimerWidget()->AddToViewport();
+			CastedController->BindNormalMode();
+			CastedController->GetPlayerStatsWidget()->AddToViewport();
+
+			if(CastedController->GetTimerWidget()->IsTimerRunning()){
+				CastedController->GetTimerWidget()->AddToViewport();
+			}
 		}
 	}
 
@@ -123,6 +129,7 @@ void UTchat::WriteMessageList(){
 	AddTchatLine(CurrentListToAdd[0].Speaker, CurrentListToAdd[0].TextMessage, CurrentListToAdd[0].SpeakerColor);
 
 	if(CurrentListToAdd.Num() == 1){
+		OnFinishWritingMessageList.Broadcast();
 		return;
 	}
 
@@ -133,14 +140,20 @@ void UTchat::WriteMessageList(){
 void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
 	if(!bIsOpenByUser){
 		if(!IsInViewport()){
-			if(!Cast<AMainPlayerController>(CurrentController)->IsWheelOpened()){
-				AddToViewport();
-				StartDestructTimer();
+			if(CurrentController->IsA(AMainPlayerController::StaticClass())){
+				if(!Cast<AMainPlayerController>(CurrentController)->IsWheelOpened()){
+					AddToViewport();
+					StartDestructTimer();
+				}
+			} else if(CurrentController->IsA(ATransitionPlayerController::StaticClass())){
+				OpenTchat();
 			}
 
 		} else{
-			CheckDisappearance();
-			ResetDestructTimer();
+			if(CurrentController->IsA(AMainPlayerController::StaticClass())){
+				CheckDisappearance();
+				ResetDestructTimer();
+			}
 		}
 	}
 

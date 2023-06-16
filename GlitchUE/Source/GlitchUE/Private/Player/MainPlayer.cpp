@@ -896,29 +896,18 @@ void AMainPlayer::FinishGlitchDash_Implementation(){}
 void AMainPlayer::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
 
-	const int RandomEvent = FMath::RandRange(0, 1);
+	#if WITH_EDITOR
+		if(GlitchRewindTransformList.Num() == 0){
+			UE_LOG(LogTemp, Warning, TEXT("Liste de position random vide"));
+			return;
+		}
+	#endif
 
-	switch (RandomEvent){
-		case 0:
-			UpdateGolds(RemovedGlitchGolds, EGoldsUpdateMethod::TakeDamages);
-			break;
-		case 1:
+	SelectRandomLocation();
 
-			#if WITH_EDITOR
-				if(GlitchRewindTransformList.Num() == 0){
-					UE_LOG(LogTemp, Warning, TEXT("Liste de position random vide"));
-					return;
-				}
-			#endif
+	FTimerHandle TimerHandle;
 
-			SelectRandomLocation();
-
-			FTimerHandle TimerHandle;
-
-			GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
-
-			break;
-	}
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){

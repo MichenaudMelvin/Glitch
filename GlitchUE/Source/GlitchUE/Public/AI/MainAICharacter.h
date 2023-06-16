@@ -39,10 +39,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UFMODAudioComponent* IdleAudioComp;
 
+	FTimerHandle GlitchTimerHandle;
+
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 public:
 	UBlackboardComponent* GetBlackBoard() const;
 
 	UPopcornFXEmitterComponent* GetIdleFX() const;
+
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)

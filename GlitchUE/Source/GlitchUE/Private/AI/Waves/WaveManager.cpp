@@ -184,12 +184,17 @@ void AWaveManager::StartPrepareTimer(){
 	FinishEvent.BindDynamic(this, &AWaveManager::StartWave);
 	PlayerTimerWidget->StartTimer(PrepareTime, FinishEvent);
 
+	AudioManager->SwitchToPauseMusic();
+
 	if(!GameMode->UseAutoObjectivesForPlayer()){
 		return;
 	}
 
 	PlayerStatsWidget->UpdateObjectivesText(PrepareObjectiveText);
 	PlayerStatsWidget->UpdateAdditionalText(PrepareAdditionalText);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, AudioManager, &AAudioManager::SwitchToTowerDefenseMusic, PrepareTime - AudioManager->GetFadeDuration(), false);
 }
 
 void AWaveManager::StartWave(){
@@ -290,7 +295,7 @@ void AWaveManager::RemoveAIFromList(const AMainAICharacter* AIToRemove){
 
 void AWaveManager::NextWave(){
 	CurrentWaveNumber++;
-	
+
 	AudioManager->SwitchToTowerDefenseMusic();
 
 	SetWave(CurrentWaveNumber);
