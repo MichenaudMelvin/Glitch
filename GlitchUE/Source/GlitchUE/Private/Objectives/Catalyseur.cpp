@@ -133,6 +133,8 @@ void ACatalyseur::BeginPlay(){
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("LE CATALYSEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName()));
 	}
 #endif
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 }
 
 void ACatalyseur::Destroyed(){
@@ -141,6 +143,11 @@ void ACatalyseur::Destroyed(){
 #if WITH_EDITORONLY_DATA
 	OutlineLinkedObjects(false);
 #endif
+}
+
+void ACatalyseur::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(MoneyTimerHandle);
+	World->GetTimerManager().ClearTimer(DesactivationTimerHandle);
 }
 
 void ACatalyseur::ActiveObjectif(){

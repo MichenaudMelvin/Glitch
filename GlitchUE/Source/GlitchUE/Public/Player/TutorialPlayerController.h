@@ -11,6 +11,8 @@ class GLITCHUE_API ATutorialPlayerController : public AMainPlayerController{
 	GENERATED_BODY()
 
 protected:
+	virtual void BeginPlay() override;
+
 	virtual void BindMovement() override;
 
 	virtual void BindCamera() override;
@@ -45,4 +47,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Binds")
 	bool bShouldBindInteraction = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Save")
+	bool bAllowSaving = false;
 };

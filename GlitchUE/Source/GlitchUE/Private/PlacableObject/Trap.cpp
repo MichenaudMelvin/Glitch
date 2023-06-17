@@ -59,11 +59,18 @@ void ATrap::BeginPlay(){
 	ActivableComp->OnDesactivated.AddDynamic(this, &ATrap::OnDesactivateTrap);
 }
 
+void ATrap::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	Super::OnCleanWorld(World, bSessionEnded, bCleanupResources);
+
+	World->GetTimerManager().ClearTimer(AttackTimerHandle);
+	World->GetTimerManager().ClearTimer(ActivationTimerHandle);
+	World->GetTimerManager().ClearTimer(ReactivationTimerHandle);
+}
+
 void ATrap::OnActivateTrap(){
 	Attack();
-	FTimerHandle TimerHandle;
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, ActivableComp, &UActivableComponent::DesactivateObject, TrapDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(ActivationTimerHandle, ActivableComp, &UActivableComponent::DesactivateObject, TrapDuration, false);
 }
 
 void ATrap::OnDesactivateTrap(){
@@ -172,12 +179,7 @@ void ATrap::Attack_Implementation(){
 
 	AttackFX->StartEmitter();
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
-		if(!IsValid(ActivableComp)){
-			return;
-		}
-
+	GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, [&]() {
 		if(ActivableComp->IsActivated()){
 			Attack_Implementation();
 		}

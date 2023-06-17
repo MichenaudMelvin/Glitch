@@ -83,6 +83,9 @@ protected:
 
 	void CreatePlayerWidgets();
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	UPROPERTY(BlueprintReadOnly)
 	AGlitchUEGameMode* GameMode;
 
@@ -188,7 +191,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Save")
-	void SetCanSave(const bool bValue);
+	void SetCanSave(bool bValue);
 
 	bool CanSave() const;
 

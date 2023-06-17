@@ -85,8 +85,9 @@ void AWaveManager::BeginPlay(){
 	}
 #endif
 
-	FTimerHandle TimerHandle;
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 
+	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		const AMainPlayerController* PlayerController = Player->GetMainPlayerController();
 
@@ -97,12 +98,17 @@ void AWaveManager::BeginPlay(){
 	}, 0.1f, false);
 }
 
+void AWaveManager::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(ObjectiveDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(MessageDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(PrepareTimerHandle);
+}
+
 void AWaveManager::UpdatePlayerObjectives(){
 	if(!IsValid(PlayerMessageWidget) || !IsValid(PlayerStatsWidget)){
 		// only useful on load save
 
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::UpdatePlayerObjectives, 0.1f, false);
+		GetWorld()->GetTimerManager().SetTimer(ObjectiveDelayTimerHandle, this, &AWaveManager::UpdatePlayerObjectives, 0.1f, false);
 		return;
 	}
 
@@ -122,8 +128,7 @@ void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave, const int
 	TchatTargetWave = TargetWave;
 	TchatIndex = GetActiveSpawnersAtWave(TargetWaveIndex);
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
+	GetWorld()->GetTimerManager().SetTimer(MessageDelayTimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
 }
 
 void AWaveManager::WriteMessages(){
@@ -193,8 +198,7 @@ void AWaveManager::StartPrepareTimer(){
 	PlayerStatsWidget->UpdateObjectivesText(PrepareObjectiveText);
 	PlayerStatsWidget->UpdateAdditionalText(PrepareAdditionalText);
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, AudioManager, &AAudioManager::SwitchToTowerDefenseMusic, PrepareTime - AudioManager->GetFadeDuration(), false);
+	GetWorld()->GetTimerManager().SetTimer(PrepareTimerHandle, AudioManager, &AAudioManager::SwitchToTowerDefenseMusic, PrepareTime - AudioManager->GetFadeDuration(), false);
 }
 
 void AWaveManager::StartWave(){

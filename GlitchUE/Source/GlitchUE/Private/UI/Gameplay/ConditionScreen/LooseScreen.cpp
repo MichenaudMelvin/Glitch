@@ -2,19 +2,24 @@
 
 
 #include "UI/Gameplay/ConditionScreen/LooseScreen.h"
+#include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayerController.h"
 
 void ULooseScreen::NativeOnInitialized(){
 	Super::NativeOnInitialized();
 
-	LoadButton->OnClicked.AddDynamic(this, &ULooseScreen::OpenLoadWidget);
-
-	SaveSelectionWidget = Cast<USaveSelection>(CreateWidget(this, SaveSelectionWidgetClass));
+	LoadButton->OnClicked.AddDynamic(this, &ULooseScreen::LoadSave);
 
 	AddWidgetToFocusList(LoadButton);
 }
 
-void ULooseScreen::OpenLoadWidget(){
-	SaveSelectionWidget->OpenSaveSelection();
+void ULooseScreen::NativeConstruct(){
+	Super::NativeConstruct();
+
+	IsValid(UUsefulFunctions::LoadSave(UWorldSave::StaticClass(), 0, false)) ? LoadButton->UnblockButton() : LoadButton->BlockButton(true);
+}
+
+void ULooseScreen::LoadSave(){
+	Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(CurrentController))->GlobalWorldLoad(0);
 }

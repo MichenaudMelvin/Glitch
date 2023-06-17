@@ -106,8 +106,8 @@ UPopcornFXEmitterComponent* AMainAICharacter::GetIdleFX() const{
 
 void AMainAICharacter::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
 	World->GetTimerManager().ClearTimer(GlitchTimerHandle);
-	World->GetTimerManager().ClearAllTimersForObject(AIController);
-	World->GetTimerManager().ClearAllTimersForObject(this);
+	World->GetTimerManager().ClearTimer(EffectTimer);
+	World->GetTimerManager().ClearTimer(TrapTimer);
 }
 
 void AMainAICharacter::TriggerDeathEffects() const{
@@ -160,12 +160,8 @@ void AMainAICharacter::ReceiveGlitchUpgrade(){
 	AIController->ToggleGlitchDamages(true);
 
 	GetWorldTimerManager().SetTimer(GlitchTimerHandle, [&]() {
-		UE_LOG(LogTemp, Warning, TEXT("Hello"));
-		UE_LOG(LogTemp, Warning, TEXT("The boolean value is %s"), ( IsValid(AIController) ? TEXT("true") : TEXT("false") ));
-
 		//reset à l'upgrade actuelle
 		ResetGlitchUpgrade();
-		UE_LOG(LogTemp, Warning, TEXT("Hello3"));
 	}, CurrentData->GlitchDuration, false);
 }
 

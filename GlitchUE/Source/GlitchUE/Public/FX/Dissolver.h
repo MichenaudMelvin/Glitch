@@ -54,6 +54,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DissolveTo(const float TargetRadius);
 
+	UFUNCTION(BlueprintCallable)
+	void DissolveToAtSpeed(const float TargetRadius, const float TargetDuration);
+
 	float GetRadius() const;
 
 	UFUNCTION(BlueprintCallable)

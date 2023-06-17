@@ -13,6 +13,7 @@
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
+#include "Audio/AudioManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
@@ -725,7 +726,6 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 	if (GlitchValue == GlitchMaxValue) {
 
-		CheckAvailableGlitchEvents();
 		Glitch::EGlitchEvents RandomGlitchType = Glitch::EGlitchEvents::UpgradePlayer;
 
 		switch (CurrentPhase){
@@ -762,6 +762,45 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 float AGlitchUEGameMode::GetCurrentGlitchValue() const{
 	return GlitchValue;
+}
+
+void AGlitchUEGameMode::CallKeyboardEnding(){
+	MainPlayerController->UnbindPause();
+	MainPlayerController->GetTchatWidget()->AddMultipleTchatLines(KeyboardEndingMessages);
+
+	MainPlayerController->GetTchatWidget()->OnFinishWritingMessageList.AddDynamic(this, &AGlitchUEGameMode::KeyboardMessagesEnd);
+}
+
+void AGlitchUEGameMode::KeyboardMessagesEnd(){
+	MainPlayerController->GetTchatWidget()->OnFinishWritingMessageList.RemoveDynamic(this, &AGlitchUEGameMode::KeyboardMessagesEnd);
+
+	const FOnTimelineEvent EmptyEvent;
+	Cast<AAudioManager>(UGameplayStatics::GetActorOfClass(MainPlayer, AAudioManager::StaticClass()))->FadeOutMusic(EmptyEvent, TransitionDuration);
+
+	FTimerHandle GlitchEffectTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(GlitchEffectTimerHandle, [&](){
+		Cast<UCreditsScreen>(CreateWidget(MainPlayerController, CreditsScreenWidgetClass))->SetEndMessage(EndKeyboardMessage);
+	}, TransitionDuration, false);
+}
+
+void AGlitchUEGameMode::CallNexusEnding(){
+	MainPlayerController->UnbindPause();
+
+	Dissolver->DissolveToAtSpeed(0, EndDissolveDuration);
+
+	const FOnTimelineEvent EmptyEvent;
+	Cast<AAudioManager>(UGameplayStatics::GetActorOfClass(MainPlayer, AAudioManager::StaticClass()))->FadeOutMusic(EmptyEvent, EndDissolveDuration);
+
+	FTimerHandle DissolveTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(DissolveTimerHandle, [&](){
+		MainPlayer->EnableGlitchEffect(true, EndDissolveDuration, 9999);
+
+		FTimerHandle GlitchEffectTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(GlitchEffectTimerHandle, [&](){
+			MainPlayer->EnableGlitchEffect(false, TransitionDuration, 0);
+			Cast<UCreditsScreen>(CreateWidget(MainPlayerController, CreditsScreenWidgetClass))->SetEndMessage(EndNexusMessage);
+		}, TransitionDuration, false);
+	}, EndDissolveDuration, false);
 }
 
 void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
@@ -816,15 +855,6 @@ void AGlitchUEGameMode::GlitchUpgradePlayer() const{
 
 void AGlitchUEGameMode::GlitchUpgradeWorld() const{
 	RemoveStealthTime(GlitchReduceStealthTimer);
-}
-
-void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
-	TArray<AActor*> PlacableActorList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
-
-	TArray<AActor*> AIList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAICharacter::StaticClass(), AIList);
-
 }
 
 #pragma region ConsoleCommands

@@ -35,6 +35,11 @@ void USightComponent::BeginPlay(){
 	OriginalScale = GetComponentScale();
 }
 
+void USightComponent::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(SightTimer);
+	World->GetTimerManager().ClearTimer(LooseSightTimer);
+}
+
 void USightComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction){
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 

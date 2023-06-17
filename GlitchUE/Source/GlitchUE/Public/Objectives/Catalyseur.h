@@ -33,6 +33,9 @@ protected:
 
 	virtual void Destroyed() override;
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	virtual void ActiveObjectif() override;
 
 	virtual void DesactivateObjectif() override;

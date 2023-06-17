@@ -53,7 +53,7 @@ void UTchat::OpenTchat(){
 
 	if(CurrentController->IsA(AMainPlayerController::StaticClass())){
 		AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
-		CastedController->UnbindAll();
+		CastedController->UnbindAll(true);
 		CastedController->BindOpenTchat();
 		CastedController->GetPlayerStatsWidget()->RemoveFromParent();
 
@@ -130,6 +130,8 @@ void UTchat::WriteMessageList(){
 
 	if(CurrentListToAdd.Num() == 1){
 		OnFinishWritingMessageList.Broadcast();
+		CurrentListToAdd.RemoveAt(0);
+		GetWorld()->GetTimerManager().ClearTimer(MultipleMessagesTimerHandle);
 		return;
 	}
 
@@ -163,18 +165,19 @@ void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, co
 
 	const bool bIsSameSpeaker = LastSpeaker == NewSpeaker;
 
-	if(TchatList->GetNumItems() > 0){
-		UTchatLineData* CurrentData = Cast<UTchatLineData>(TchatList->GetItemAt(TchatList->GetNumItems() - 1));
-		CurrentData->bIsMessageRead = true;
-		CurrentData->bShouldHideSpeaker = bIsSameSpeaker;
-
-		LastItem = TchatList->GetListItems()[TchatList->GetNumItems() - 1];
-
-		TchatList->RemoveItem(LastItem);
-
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::RebuildList, 0.001f, false);
-	}
+	// this can causes crashes
+	// if(TchatList->GetNumItems() > 0){
+	// 	UTchatLineData* CurrentData = Cast<UTchatLineData>(TchatList->GetItemAt(TchatList->GetNumItems() - 1));
+	// 	CurrentData->bIsMessageRead = true;
+	// 	CurrentData->bShouldHideSpeaker = bIsSameSpeaker;
+	//
+	// 	LastItem = TchatList->GetListItems()[TchatList->GetNumItems() - 1];
+	//
+	// 	TchatList->RemoveItem(LastItem);
+	//
+	// 	FTimerHandle TimerHandle;
+	// 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::RebuildList, 0.001f, false);
+	// }
 
 	CurrentSpeaker = NewSpeaker;
 	CurrentMessage = NewMessage;
@@ -190,7 +193,9 @@ void UTchat::AddMultipleTchatLines(TArray<FTchatStruct> TchatLines){
 		CurrentListToAdd.Add(TchatLines[i]);
 	}
 
-	WriteMessageList();
+	if(!GetWorld()->GetTimerManager().IsTimerActive(MultipleMessagesTimerHandle)){
+		WriteMessageList();
+	}
 }
 
 bool UTchat::IsOpenByUser() const{

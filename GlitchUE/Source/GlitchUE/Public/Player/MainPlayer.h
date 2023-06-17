@@ -67,6 +67,9 @@ protected:
 	virtual void Tick(float deltaTime) override;
 	virtual void Destroyed() override;
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "FX")
 	UPopcornFXEmitterComponent* SoundFX;
 
@@ -250,6 +253,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float CoyoteTime = 0.15f;
+
+	FTimerHandle CoyoteTimeTimerHandle;
 
 public:
 	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
@@ -466,10 +471,13 @@ public:
 	void ForceStopSneak();
 	virtual void ForceStopSneak_Implementation();
 
+	UPROPERTY(BlueprintReadWrite, Category = "Mark")
 	FTimerHandle CanLaunchMarkTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float BackToNormalCamAfterLaunchMarkTime = 0.5f;
+
+	FTimerHandle BackToNormalCamTimerHandle;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mark")
 	AGlitchMark* GetMark() const { return Mark; }
@@ -500,6 +508,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mark")
 	float GlitchDashDuration = 0.15f;
 
+	FTimerHandle GlitchDashTimerHandle;
+
 	UPopcornFXEffect* GlitchDashFXReference;
 
 	UPROPERTY()
@@ -526,6 +536,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float GlitchUpgradeDuration = 0.5;
+
+	FTimerHandle GlitchUpgradeTimerHandle;
 
 	virtual void ReceiveGlitchUpgrade() override;
 

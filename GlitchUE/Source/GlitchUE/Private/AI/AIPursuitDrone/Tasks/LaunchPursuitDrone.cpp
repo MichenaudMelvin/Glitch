@@ -19,7 +19,7 @@ EBTNodeResult::Type ULaunchPursuitDrone::ExecuteTask(UBehaviorTreeComponent& Own
 
 	const AAIController* Controller = OwnerBehaviorTree->GetAIOwner();
 
-	const APursuitDrone* Drone = Cast<APursuitDrone>(Controller->GetPawn());
+	APursuitDrone* Drone = Cast<APursuitDrone>(Controller->GetPawn());
 
 	if(bSkipAnim){
 		bLaunch ? Drone->ForceStartAnim() : Drone->ForceInDock();

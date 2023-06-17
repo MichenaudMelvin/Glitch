@@ -3,6 +3,12 @@
 
 #include "Player/TutorialPlayerController.h"
 
+void ATutorialPlayerController::BeginPlay(){
+	Super::BeginPlay();
+
+	SetCanSave(bAllowSaving);
+}
+
 void ATutorialPlayerController::BindMovement(){
 	if(bShouldBindMovement){
 		Super::BindMovement();

@@ -27,6 +27,10 @@ void AGlitchZone::BeginPlay(){
 void AGlitchZone::OnPlayerEnterZone(){
 	Super::OnPlayerEnterZone();
 
+	if(!IsValid(MainPlayer)){
+		return;
+	}
+
 	MainPlayer->EnableGlitchEffect(true, PostProcessFadeTime);
 
 	AudioManager->SetParameter("Glitch_Zone", 1);

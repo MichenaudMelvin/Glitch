@@ -38,9 +38,21 @@ void APlayerZone::BeginPlay(){
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	MainPlayer = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
+}
+
+void APlayerZone::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(ZoneTimer);
 }
 
 void APlayerZone::OnPlayerEnterZone(){
+	if(!IsValid(MainPlayer)){
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &APlayerZone::OnPlayerEnterZone, 0.2f, false);
+		return;
+	}
+
 	MainPlayer->SetInGlitchZone(true);
 }
 
