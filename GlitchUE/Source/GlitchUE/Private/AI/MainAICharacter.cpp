@@ -204,7 +204,7 @@ void AMainAICharacter::ReceiveTrapEffect(const UTrapData* TrapData){
 
 void AMainAICharacter::ReceiveBurnEffect(const float EffectDuration, const float EffectTickRate, const float EffectDamages){
 	GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
-		if(!IsValid(this)){
+		if(!IsValid(this) || !IsValid(HealthComp)){
 			GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
 			GetWorld()->GetTimerManager().ClearTimer(EffectTimer);
 			return;

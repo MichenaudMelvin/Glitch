@@ -151,7 +151,3 @@ void ANexus::Interact(AMainPlayerController* MainPlayerController, AMainPlayer* 
 		ActivableComp->ActivateObject();
 	}
 }
-
-void ANexus::OnEndInteract(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer){
-	GameMode->CallNexusEnding();
-}

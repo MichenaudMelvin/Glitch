@@ -60,7 +60,4 @@ protected:
 	UPopcornFXEmitterComponent* MedFXEmitter;
 
 	virtual void Interact(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer) override;
-
-	UFUNCTION()
-	void OnEndInteract(AMainPlayerController* MainPlayerController, AMainPlayer* MainPlayer);
 };

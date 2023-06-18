@@ -58,8 +58,6 @@ void AMainPlayerController::CreatePlayerWidgets(){
 	WaypointIndicationWidget = Cast<UWaypointIndication>(CreateWidget(this, WaypointIndicationWidgetClass));
 
 	LooseScreenWidget = Cast<ULooseScreen>(CreateWidget(this, LooseScreenWidgetClass));
-
-	WinScreenWidget = Cast<UWinScreen>(CreateWidget(this, WinScreenWidgetClass));
 }
 
 void AMainPlayerController::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
@@ -408,9 +406,4 @@ UWaypointIndication* AMainPlayerController::GetWaypointIndicationWidget() const{
 ULooseScreen* AMainPlayerController::GetLooseScreen() const{
 	return LooseScreenWidget;
 }
-
-UWinScreen* AMainPlayerController::GetWinScreen() const{
-	return WinScreenWidget;
-}
-
 

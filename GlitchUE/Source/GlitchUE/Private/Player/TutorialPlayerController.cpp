@@ -50,3 +50,11 @@ void ATutorialPlayerController::BindInteraction(){
 		Super::BindInteraction();
 	}
 }
+
+void ATutorialPlayerController::SetCanSave(bool bValue){
+	if(!bAllowSaving){
+		bValue = false;
+	}
+
+	Super::SetCanSave(bValue);
+}

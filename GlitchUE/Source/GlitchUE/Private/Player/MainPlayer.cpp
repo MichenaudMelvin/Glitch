@@ -414,11 +414,6 @@ void AMainPlayer::Loose(){
 	MainPlayerController->GetLooseScreen()->AddToViewport();
 }
 
-void AMainPlayer::Win(){
-	StopRecord();
-	MainPlayerController->GetWinScreen()->AddToViewport();
-}
-
 #pragma endregion
 
 #pragma region Interaction

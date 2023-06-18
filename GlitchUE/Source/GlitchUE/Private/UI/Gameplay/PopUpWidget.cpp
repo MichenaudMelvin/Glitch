@@ -34,6 +34,10 @@ void UPopUpWidget::NativeDestruct(){
 void UPopUpWidget::InitWidget(){
 	AddToViewport();
 
+	if(MainPlayerController->GetTchatWidget()->IsInViewport()){
+		MainPlayerController->GetTchatWidget()->RemoveFromParent();
+	}
+
 	BackButton->OnClicked.Clear();
 
 	UGameplayStatics::SetGamePaused(GetWorld(), true);

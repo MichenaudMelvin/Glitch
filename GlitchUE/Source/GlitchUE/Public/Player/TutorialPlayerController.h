@@ -50,4 +50,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Save")
 	bool bAllowSaving = false;
+
+public:
+	virtual void SetCanSave(bool bValue) override;
 };

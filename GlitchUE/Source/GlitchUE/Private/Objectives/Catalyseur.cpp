@@ -158,7 +158,9 @@ void ACatalyseur::ActiveObjectif(){
 		ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
 	}
 
-	GameMode->UpdateActivatedCatalyseurAmount();
+	if(GameMode->OptionsString == ""){
+		GameMode->UpdateActivatedCatalyseurAmount();
+	}
 
 	FMODAudioComp->SetEvent(ActivationSFX);
 	FMODAudioComp->Play();

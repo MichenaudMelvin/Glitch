@@ -150,9 +150,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TSet<AMainAICharacter*> WaveAIList;
 
-	void EnableSpawners();
+	void EnableSpawners(const int TargetWave);
 
-	void DisableSpawner();
+	void DisableSpawner(const int TargetWave);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	FWave GetCurrentWaveData() const;

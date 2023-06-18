@@ -15,7 +15,6 @@
 #include "AI/AIPursuitDrone/PursuitDrone.h"
 #include "Audio/AudioManager.h"
 #include "Camera/CameraComponent.h"
-#include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Helpers/Debug/DebugPawn.h"
@@ -53,9 +52,6 @@ void AGlitchUEGameMode::BeginPlay() {
 	TArray<AWaveManager*> WaveManagerArray;
 	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
 
-	TArray<AActor*> SceneCaptureArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
-
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 
@@ -63,20 +59,12 @@ void AGlitchUEGameMode::BeginPlay() {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
 #if WITH_EDITOR
-
 	if (WaveManagerArray.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
 	}
-
-	if(SceneCaptureArray.Num() == 0){
-		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SCENE CAPTURE N'EST PLACE DANS LA SCENE"));
-	}
-
 #endif
 
 	WaveManager = WaveManagerArray[0];
-
-	SceneCapture = Cast<ASceneCapture2D>(SceneCaptureArray[0]);
 
 	Nexus = Cast<ANexus>(NexusArray[0]);
 
@@ -120,6 +108,7 @@ void AGlitchUEGameMode::InitializeWorld(){
 	UpdatePlayerObjectives();
 
 	if(OptionsString == ""){
+		GlobalWorldSave(0);
 		return;
 	}
 
@@ -211,14 +200,6 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 		CurrentSave = TowerDefenseWorldLoad(CurrentSave);
 	}
 
-	CurrentSave->LoadedTime++;
-
-	if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
-		MainPlayerController->GetTchatWidget()->AddTchatLine("Console", "Your save have been corrupted", FLinearColor::Blue);
-		UUsefulFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
-		return;
-	}
-
 	OptionsString = "";
 	UUsefulFunctions::SaveToSlot(CurrentSave, SlotIndex);
 }
@@ -260,16 +241,6 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	}
 
 	CurrentSave->WorldName = GetWorld()->GetName();
-
-	CurrentSave->LoadedTime = 0;
-
-	SceneCapture->SetActorLocation(MainPlayer->GetFollowCamera()->GetComponentLocation());
-	SceneCapture->SetActorRotation(MainPlayer->GetFollowCamera()->GetComponentRotation());
-	SceneCapture->GetCaptureComponent2D()->CaptureScene();
-
-	SceneCapture->GetCaptureComponent2D()->TextureTarget = SaveRenderTarget[0]; // use index
-
-	CurrentSave->SaveImage = SaveMaterials[0]; // use index
 
 	//Player
 	CurrentSave->PlayerTransform = MainPlayer->GetActorTransform();
@@ -864,7 +835,7 @@ void AGlitchUEGameMode::SetSelfTimeDilation(float TimeDilation) const{
 }
 
 void AGlitchUEGameMode::NextWave() const{
-	WaveManager->NextWave();
+	WaveManager->ForceNextWave();
 }
 
 void AGlitchUEGameMode::GoToWave(const int NewWave) const{

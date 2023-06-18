@@ -14,6 +14,9 @@ void UTchat::NativeOnInitialized(){
 	AppearanceDuration /= 1;
 	ExtendDuration /= 1;
 
+	CurrentController->OnSwitchToKeyboard.AddDynamic(this, &UTchat::SetKeyboardInstruction);
+	CurrentController->OnSwitchToGamepad.AddDynamic(this, &UTchat::SetGamepadInstruction);
+
 	//AddWidgetToFocusList(TchatList);
 }
 
@@ -30,6 +33,8 @@ void UTchat::CheckDisappearance(){
 	if(IsAnimationPlaying(AppearAnimation)){
 		GetWorld()->GetTimerManager().ClearTimer(DisappearTimer);
 		PlayAnimation(AppearAnimation, GetAnimationCurrentTime(AppearAnimation), 1, EUMGSequencePlayMode::Forward, AppearanceDuration, false);
+	} else if(TchatList->RenderOpacity <= 0){
+		PlayAnimation(AppearAnimation, 0, 1, EUMGSequencePlayMode::Forward, AppearanceDuration, false);
 	}
 }
 
@@ -46,10 +51,24 @@ void UTchat::ResetDestructTimer(){
 	StartDestructTimer();
 }
 
+void UTchat::SetKeyboardInstruction(){
+	InstructionText->SetText(FText::FromString(GlobalInstruction + " " + KeyboardButton));
+}
+
+void UTchat::SetGamepadInstruction(){
+	InstructionText->SetText(FText::FromString(GlobalInstruction + " " + GamepadButton));
+}
+
 void UTchat::OpenTchat(){
+	if(AllTchatLines.Num() == 0){
+		return;
+	}
+
 	bIsOpenByUser = true;
 
 	PlayAnimation(ExtendTchatAnim, 0, 1, EUMGSequencePlayMode::Forward, ExtendDuration, false);
+
+	CurrentController->IsUsingGamepad() ? SetGamepadInstruction() : SetKeyboardInstruction();
 
 	if(CurrentController->IsA(AMainPlayerController::StaticClass())){
 		AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
@@ -74,69 +93,59 @@ void UTchat::OpenTchat(){
 }
 
 void UTchat::CloseTchat(){
-	PlayAnimation(AppearAnimation, GetAnimationCurrentTime(AppearAnimation), 1, EUMGSequencePlayMode::Reverse, AppearanceDuration, false);
-	if(bIsOpenByUser){
-		bIsOpenByUser = false;
-		PlayAnimation(ExtendTchatAnim, 0, 1, EUMGSequencePlayMode::Reverse, ExtendDuration, false);
+	bRequestManualScroll = false;
 
-		if(CurrentController->IsA(AMainPlayerController::StaticClass())){
-			UGameplayStatics::SetGamePaused(CurrentController,false);
+	if(!bIsOpenByUser){
+		PlayAnimation(AppearAnimation, GetAnimationCurrentTime(AppearAnimation), 1, EUMGSequencePlayMode::Reverse, AppearanceDuration, true);
+		return;
+	}
 
-			AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
+	bIsOpenByUser = false;
+	PlayAnimation(ExtendTchatAnim, 0, 1, EUMGSequencePlayMode::Reverse, ExtendDuration, false);
 
-			CastedController->BindNormalMode();
-			CastedController->GetPlayerStatsWidget()->AddToViewport();
+	if(CurrentController->IsA(AMainPlayerController::StaticClass())){
+		UGameplayStatics::SetGamePaused(CurrentController,false);
 
-			if(CastedController->GetTimerWidget()->IsTimerRunning()){
-				CastedController->GetTimerWidget()->AddToViewport();
-			}
+		AMainPlayerController* CastedController = Cast<AMainPlayerController>(CurrentController);
+
+		CastedController->BindNormalMode();
+		CastedController->GetPlayerStatsWidget()->AddToViewport();
+
+		if(CastedController->GetTimerWidget()->IsTimerRunning()){
+			CastedController->GetTimerWidget()->AddToViewport();
 		}
 	}
 
 	//RemoveFromParent() is call in blueprint
 }
 
-
-void UTchat::AddTchatLineDelay(){
-	UTchatLineData* TchatLine = NewObject<UTchatLineData>();
-
-	TchatLine->Speaker = CurrentSpeaker + ": ";
-
-	const bool bIsSameSpeaker = LastSpeaker == CurrentSpeaker;
-
-	if(!bIsSameSpeaker){
-		LastSpeaker = CurrentSpeaker;
-	}
-
-	TchatLine->Message = CurrentMessage;
-
-	TchatLine->SpeakerColor = FSlateColor(CurrentSpeakerColor);
-
-	AllTchatLines.Add(FTchatStruct(CurrentSpeaker, CurrentMessage, CurrentSpeakerColor, 0));
-	TchatList->AddItem(TchatLine);
-
-	TchatList->ScrollToBottom();
-
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TchatList, &UListView::ScrollToBottom, 0.001f, false);
-}
-
-void UTchat::RebuildList() const{
-	TchatList->AddItem(LastItem);
-}
-
-void UTchat::WriteMessageList(){
+void UTchat::WriteMessageList_Implementation(){
 	AddTchatLine(CurrentListToAdd[0].Speaker, CurrentListToAdd[0].TextMessage, CurrentListToAdd[0].SpeakerColor);
 
 	if(CurrentListToAdd.Num() == 1){
 		OnFinishWritingMessageList.Broadcast();
 		CurrentListToAdd.RemoveAt(0);
-		GetWorld()->GetTimerManager().ClearTimer(MultipleMessagesTimerHandle);
+		bWritingMultipleMessages = false;
+	}
+}
+
+void UTchat::GamepadScroll(float Axis){
+	const int IntAxis = FMath::RoundToInt(Axis);
+
+	if(IntAxis == 0){
 		return;
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(MultipleMessagesTimerHandle, this, &UTchat::WriteMessageList, CurrentListToAdd[0].DelayForNextMessage, false);
-	CurrentListToAdd.RemoveAt(0);
+	bRequestManualScroll = true;
+
+	const int ScrollValue = (ScrollMultiplier * -IntAxis) + TargetScrollIndex;
+
+	TargetScrollIndex = FMath::Clamp(ScrollValue, 0, AllTchatLines.Num() - 1);
+	TchatList->ScrollIndexIntoView(TargetScrollIndex);
+}
+
+void UTchat::MouseScroll(float Axis){
+	bRequestManualScroll = true;
 }
 
 void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, const FLinearColor SpeakerColor){
@@ -163,29 +172,35 @@ void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, co
 
 	TchatLine->Speaker = NewSpeaker + ": ";
 
-	const bool bIsSameSpeaker = LastSpeaker == NewSpeaker;
+	TchatLine->Message = NewMessage;
+	TchatLine->SpeakerColor = SpeakerColor;
 
-	// this can causes crashes
-	// if(TchatList->GetNumItems() > 0){
-	// 	UTchatLineData* CurrentData = Cast<UTchatLineData>(TchatList->GetItemAt(TchatList->GetNumItems() - 1));
-	// 	CurrentData->bIsMessageRead = true;
-	// 	CurrentData->bShouldHideSpeaker = bIsSameSpeaker;
-	//
-	// 	LastItem = TchatList->GetListItems()[TchatList->GetNumItems() - 1];
-	//
-	// 	TchatList->RemoveItem(LastItem);
-	//
-	// 	FTimerHandle TimerHandle;
-	// 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::RebuildList, 0.001f, false);
-	// }
+	AllTchatLines.Add(FTchatStruct(TchatLine->Speaker, TchatLine->Message, SpeakerColor, 0));
+	TchatList->AddItem(TchatLine);
 
-	CurrentSpeaker = NewSpeaker;
-	CurrentMessage = NewMessage;
-	CurrentSpeakerColor = SpeakerColor;
+	if(!bRequestManualScroll){
+		TchatList->ScrollToBottom();
+		TargetScrollIndex = AllTchatLines.Num() - 1;
+	}
 
-	// forced to use a timer because the display entry list is not updated instantly
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UTchat::AddTchatLineDelay, 0.002f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TchatList, &UListView::ScrollToBottom, 0.001f, false);
+}
+
+void UTchat::AddEmptyTchatLine(){
+	UTchatLineData* EmptyLine = NewObject<UTchatLineData>();
+
+	EmptyLine->Speaker = "";
+	EmptyLine->Message = "";
+	EmptyLine->SpeakerColor = FLinearColor::Black;
+
+	AllTchatLines.Add(FTchatStruct("", "", FLinearColor::Black, 0));
+	TchatList->AddItem(EmptyLine);
+
+	TchatList->ScrollToBottom();
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TchatList, &UListView::ScrollToBottom, 0.001f, false);
 }
 
 void UTchat::AddMultipleTchatLines(TArray<FTchatStruct> TchatLines){
@@ -193,9 +208,12 @@ void UTchat::AddMultipleTchatLines(TArray<FTchatStruct> TchatLines){
 		CurrentListToAdd.Add(TchatLines[i]);
 	}
 
-	if(!GetWorld()->GetTimerManager().IsTimerActive(MultipleMessagesTimerHandle)){
-		WriteMessageList();
+	if(bWritingMultipleMessages){
+		return;
 	}
+
+	bWritingMultipleMessages = true;
+	WriteMessageList();
 }
 
 bool UTchat::IsOpenByUser() const{

@@ -389,9 +389,6 @@ public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Loose")
 	void Loose();
 
-	UFUNCTION(BlueprintCallable, Exec, Category = "Loose")
-	void Win();
-
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
 	int RemovedGlitchGolds = 100;
 

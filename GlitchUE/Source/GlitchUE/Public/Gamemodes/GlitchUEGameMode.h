@@ -190,17 +190,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	int CurrentActivatedCatalyseurs = 0;
 
-	ASceneCapture2D* SceneCapture;
-
 	ANexus* Nexus;
 
 	ADissolver* Dissolver;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UTextureRenderTarget2D*> SaveRenderTarget;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UMaterial*> SaveMaterials;
 
 	UPROPERTY(EditDefaultsOnly)
 	int MaxLoadSaveTime = 3;
