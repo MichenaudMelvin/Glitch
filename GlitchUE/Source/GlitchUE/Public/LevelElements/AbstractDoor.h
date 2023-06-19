@@ -37,6 +37,9 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	USceneComponent* RootComp;
 
@@ -98,6 +101,10 @@ protected:
 
 	UFUNCTION()
 	void OpenDoorFinished();
+
+	FTimerHandle OpenDoorAITimerHandle;
+
+	FTimerHandle ResetDoorAITimerHandle;
 
 	// this function cannot be bind in C++, bind it in BeginPlay() in Blueprint
 	UFUNCTION(BlueprintCallable)

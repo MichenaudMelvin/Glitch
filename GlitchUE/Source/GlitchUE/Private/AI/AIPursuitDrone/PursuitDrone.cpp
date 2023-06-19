@@ -96,7 +96,15 @@ void APursuitDrone::OnConstruction(const FTransform& Transform){
 	}
 }
 
-void APursuitDrone::PlayStartAnim(const bool bReverseAnim) const{
+void APursuitDrone::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	Super::OnCleanWorld(World, bSessionEnded, bCleanupResources);
+
+	World->GetTimerManager().ClearTimer(ReverseAnimTimerHandle);
+	World->GetTimerManager().ClearTimer(LoadingTimerHandle);
+	World->GetTimerManager().ClearTimer(DetachTimerHandle);
+}
+
+void APursuitDrone::PlayStartAnim(const bool bReverseAnim){
 	// for some reasons when reversing the anim, it should be looped
 	GetMesh()->PlayAnimation(StartAnim, bReverseAnim);
 	GetMesh()->SetPlayRate(bReverseAnim ? -1 : 1);
@@ -104,9 +112,7 @@ void APursuitDrone::PlayStartAnim(const bool bReverseAnim) const{
 	Pad->PlayAnim(bReverseAnim);
 
 	if(bReverseAnim){
-		FTimerHandle TimerHandle;
-
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, GetMesh(), &USkeletalMeshComponent::Stop, StartAnim->GetMaxCurrentTime() - 0.1f, false);
+		GetWorld()->GetTimerManager().SetTimer(ReverseAnimTimerHandle, GetMesh(), &USkeletalMeshComponent::Stop, StartAnim->GetMaxCurrentTime() - 0.1f, false);
 	}
 }
 
@@ -157,8 +163,7 @@ void APursuitDrone::OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor
 			Blackboard->SetValueAsBool("ReceiveAlert", false);
 			Blackboard->SetValueAsBool("IsLoading", true);
 
-			FTimerHandle TimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+			GetWorld()->GetTimerManager().SetTimer(LoadingTimerHandle, [&](){
 				if(!IsValid(Blackboard)){
 					return;
 				}
@@ -271,10 +276,8 @@ void APursuitDrone::DetachDrone(){
 	}
 
 	else if(GetAttachParentActor()->IsA(APlacableActor::StaticClass())){
-		FTimerHandle TimerHandle;
-
 		// micro delay to avoid a crash
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+		GetWorld()->GetTimerManager().SetTimer(DetachTimerHandle, [&](){
 			if(!GetAttachParentActor()){
 				return;
 			}

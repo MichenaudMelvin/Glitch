@@ -23,6 +23,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tchat")
 	FLinearColor SpeakerColor = FLinearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	UPROPERTY(EditAnywhere, Category = "Tchat")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tchat")
 	float DelayForNextMessage = 0.5f;
 };

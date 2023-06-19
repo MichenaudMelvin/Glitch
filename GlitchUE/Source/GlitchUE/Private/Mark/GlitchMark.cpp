@@ -65,12 +65,18 @@ void AGlitchMark::BeginPlay(){
 	Player->SetMark(this);
 
 	AttachToPlayer();
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 }
 
 void AGlitchMark::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
 
 	DistanceFromTheMarkTimeline.TickTimeline(DeltaSeconds);
+}
+
+void AGlitchMark::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources)	{
+	World->GetTimerManager().ClearTimer(DistanceTimerHandle);
 }
 
 void AGlitchMark::AttachToPlayer(){

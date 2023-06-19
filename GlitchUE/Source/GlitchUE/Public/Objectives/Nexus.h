@@ -51,7 +51,6 @@ public:
 protected:
 	AActor* GetFarestActivatedCatalyseur();
 
-
 	virtual void ActiveObjectif() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")

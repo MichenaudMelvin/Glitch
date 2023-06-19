@@ -109,7 +109,11 @@ void AConstructionZone::OnConstruction(const FTransform& Transform){
 }
 
 void AConstructionZone::ActiveObjectif(){
-	ConstructionFXEmitter->StartEmitter();
+	// for saves
+	if(!IsValid(UnitInZone)){
+		ConstructionFXEmitter->StartEmitter();
+	}
+
 	GetSkeletalMeshComponent()->PlayAnimation(ActivationAnim, false);
 	TechMesh->PlayAnimation(ActivationAnim, false);
 

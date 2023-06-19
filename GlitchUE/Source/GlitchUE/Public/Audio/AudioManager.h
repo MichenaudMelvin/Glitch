@@ -24,6 +24,9 @@ protected:
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
 	UFMODAudioComponent* FMODAudioComp;
 
@@ -85,6 +88,8 @@ protected:
 	void SetPauseMusic();
 
 	TArray<int> TowerDefenseLayerValues = { 0, 1, 2 };
+
+	FTimerHandle FadeToMusicTimerHandle;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Audio|Fade")

@@ -24,6 +24,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Spline")
 	USplineComponent* Spline;
 
@@ -63,6 +66,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Behavior")
 	float LoopDelay = 1.0f;
+
+	FTimerHandle LoopDelayTimerHandle;
 
 	UFUNCTION()
 	void OverlapTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

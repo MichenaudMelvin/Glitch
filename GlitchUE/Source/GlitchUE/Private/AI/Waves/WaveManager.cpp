@@ -85,8 +85,9 @@ void AWaveManager::BeginPlay(){
 	}
 #endif
 
-	FTimerHandle TimerHandle;
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 
+	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		const AMainPlayerController* PlayerController = Player->GetMainPlayerController();
 
@@ -97,12 +98,17 @@ void AWaveManager::BeginPlay(){
 	}, 0.1f, false);
 }
 
+void AWaveManager::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(ObjectiveDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(MessageDelayTimerHandle);
+	World->GetTimerManager().ClearTimer(PrepareTimerHandle);
+}
+
 void AWaveManager::UpdatePlayerObjectives(){
 	if(!IsValid(PlayerMessageWidget) || !IsValid(PlayerStatsWidget)){
 		// only useful on load save
 
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::UpdatePlayerObjectives, 0.1f, false);
+		GetWorld()->GetTimerManager().SetTimer(ObjectiveDelayTimerHandle, this, &AWaveManager::UpdatePlayerObjectives, 0.1f, false);
 		return;
 	}
 
@@ -117,13 +123,13 @@ void AWaveManager::UpdatePlayerObjectives(){
 }
 
 void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave, const int TargetWaveIndex){
+	PlayerTchatWidget->AddEmptyTchatLine();
 	PlayerTchatWidget->AddTchatLine("I.V.A.N.", "The next wave contain:", TchatSpeakerColor);
 
 	TchatTargetWave = TargetWave;
 	TchatIndex = GetActiveSpawnersAtWave(TargetWaveIndex);
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
+	GetWorld()->GetTimerManager().SetTimer(MessageDelayTimerHandle, this, &AWaveManager::WriteMessages, MessagesDelay, false);
 }
 
 void AWaveManager::WriteMessages(){
@@ -139,24 +145,28 @@ void AWaveManager::WriteMessages(){
 	PlayerTchatWidget->AddMultipleTchatLines(MessageList);
 }
 
-void AWaveManager::EnableSpawners(){
+void AWaveManager::EnableSpawners(const int TargetWave){
 	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
 	for (int i = 0; i < SpawnerArray.Num(); i++){
 		if(SpawnerArray[i]->GetActivableComp()->IsActivated()){
 			continue;
 		}
 
-		if(SpawnerArray[i]->GetStateAtWave().EnableAtWave <= CurrentWaveNumber && SpawnerArray[i]->GetStateAtWave().DisableAtWave >= CurrentWaveNumber){
+		if(SpawnerArray[i]->GetStateAtWave().EnableAtWave <= TargetWave && SpawnerArray[i]->GetStateAtWave().DisableAtWave >= TargetWave){
 			SpawnerArray[i]->GetActivableComp()->ActivateObject();
 			ActiveSpawnerList.Add(SpawnerArray[i]);
 		}
 	}
 }
 
-void AWaveManager::DisableSpawner(){
+void AWaveManager::DisableSpawner(const int TargetWave){
 	TArray<ASpawner*> SpawnerArray = SpawnerList.Array();
 	for (int i = 0; i < SpawnerArray.Num(); i++){
-		if (SpawnerArray[i]->GetStateAtWave().DisableAtWave == CurrentWaveNumber){
+		if(!SpawnerArray[i]->GetActivableComp()->IsActivated()){
+			continue;
+		}
+
+		if (SpawnerArray[i]->GetStateAtWave().DisableAtWave == TargetWave){
 			SpawnerArray[i]->GetActivableComp()->DesactivateObject();
 			ActiveSpawnerList.Remove(SpawnerArray[i]);
 		}
@@ -186,15 +196,16 @@ void AWaveManager::StartPrepareTimer(){
 
 	AudioManager->SwitchToPauseMusic();
 
+	EnableSpawners(CurrentWaveNumber);
+
+	GetWorld()->GetTimerManager().SetTimer(PrepareTimerHandle, AudioManager, &AAudioManager::SwitchToTowerDefenseMusic, PrepareTime - AudioManager->GetFadeDuration(), false);
+
 	if(!GameMode->UseAutoObjectivesForPlayer()){
 		return;
 	}
 
 	PlayerStatsWidget->UpdateObjectivesText(PrepareObjectiveText);
 	PlayerStatsWidget->UpdateAdditionalText(PrepareAdditionalText);
-
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, AudioManager, &AAudioManager::SwitchToTowerDefenseMusic, PrepareTime - AudioManager->GetFadeDuration(), false);
 }
 
 void AWaveManager::StartWave(){
@@ -208,14 +219,14 @@ void AWaveManager::StartWave(){
 
 	UpdatePlayerObjectives();
 
-	EnableSpawners();
-
 	SpawnEnemies();
 }
 
 void AWaveManager::EndWave(){
 
-	DisableSpawner();
+	EnableSpawners(CurrentWaveNumber + 1);
+
+	DisableSpawner(CurrentWaveNumber + 1);
 
 	const FWave CurrentWave = GetCurrentWaveData();
 
@@ -315,7 +326,7 @@ void AWaveManager::ForceNextWave(){
 			AIList[i]->GetHealthComp()->TakeMaxDamages();
 		}
 
-		NextWave();
+		//NextWave();
 	}
 #endif
 }

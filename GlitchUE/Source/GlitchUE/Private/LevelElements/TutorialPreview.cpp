@@ -58,12 +58,18 @@ void ATutorialPreview::BeginPlay(){
 
 	FollowTimeline.SetPlayRate(1/SplineSpeed);
 	Wisp->SetWorldLocation(Spline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World));
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 }
 
 void ATutorialPreview::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
 
 	FollowTimeline.TickTimeline(DeltaSeconds);
+}
+
+void ATutorialPreview::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(LoopDelayTimerHandle);
 }
 
 void ATutorialPreview::FollowSpline(){
@@ -82,8 +88,7 @@ void ATutorialPreview::FollowSplineUpdate(float Alpha){
 }
 
 void ATutorialPreview::FollowSplineFinish(){
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATutorialPreview::FollowSpline, LoopDelay, false);
+	GetWorld()->GetTimerManager().SetTimer(LoopDelayTimerHandle, this, &ATutorialPreview::FollowSpline, LoopDelay, false);
 }
 
 void ATutorialPreview::OverlapTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){

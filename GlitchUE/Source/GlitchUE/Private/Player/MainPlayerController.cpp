@@ -26,6 +26,8 @@ void AMainPlayerController::BeginPlay(){
 
 	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
+
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		ShowMouseCursor(false, nullptr);
@@ -56,8 +58,10 @@ void AMainPlayerController::CreatePlayerWidgets(){
 	WaypointIndicationWidget = Cast<UWaypointIndication>(CreateWidget(this, WaypointIndicationWidgetClass));
 
 	LooseScreenWidget = Cast<ULooseScreen>(CreateWidget(this, LooseScreenWidgetClass));
+}
 
-	WinScreenWidget = Cast<UWinScreen>(CreateWidget(this, WinScreenWidgetClass));
+void AMainPlayerController::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(InteractionTimer);
 }
 
 #pragma region Bind
@@ -94,7 +98,11 @@ void AMainPlayerController::FastLoad(){
 	GameMode->GlobalWorldLoad(0);
 }
 
-void AMainPlayerController::SetCanSave(const bool bValue){
+void AMainPlayerController::SetCanSave(bool bValue){
+	if(GameMode->GetPhases() == EPhases::TowerDefense){
+		bValue = false;
+	}
+
 	bCanSave = bValue;
 	bCanSave ? BindFastSaveAndLoad() : UnbindFastSaveAndLoad();
 }
@@ -266,6 +274,11 @@ void AMainPlayerController::BindClingMovement(){
 	UnbindInteraction();
 	UnbindGlitch();
 
+	MainPlayer->CameraAimReverse();
+	MainPlayer->StopJumping();
+
+	SetCanSave(false);
+
 	OnJumpPressed.AddDynamic(MainPlayer, &AMainPlayer::ClingUp);
 	OnMoveForward.AddDynamic(MainPlayer, &AMainPlayer::ClingUpDirection);
 	OnMoveRight.AddDynamic(MainPlayer, &AMainPlayer::ClingRight);
@@ -298,7 +311,7 @@ void AMainPlayerController::PauseGame(){
 			TimerWidget->RemoveFromParent();
 		}
 	} else{
-		BindNormalMode();
+		IsValid(MainPlayer->GetAttachParentActor()) ? BindClingMovement() : BindNormalMode();
 		PauseWidget->RemoveFromParent();
 		PlayerStatsWidget->AddToViewport();
 
@@ -393,9 +406,4 @@ UWaypointIndication* AMainPlayerController::GetWaypointIndicationWidget() const{
 ULooseScreen* AMainPlayerController::GetLooseScreen() const{
 	return LooseScreenWidget;
 }
-
-UWinScreen* AMainPlayerController::GetWinScreen() const{
-	return WinScreenWidget;
-}
-
 

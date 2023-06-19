@@ -26,6 +26,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 
+	UFUNCTION()
+	virtual void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	AMainAIController* AIController;
 
 	UMainAIData* CurrentData;
@@ -40,9 +43,6 @@ protected:
 	UFMODAudioComponent* IdleAudioComp;
 
 	FTimerHandle GlitchTimerHandle;
-
-	UFUNCTION()
-	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
 
 public:
 	UBlackboardComponent* GetBlackBoard() const;

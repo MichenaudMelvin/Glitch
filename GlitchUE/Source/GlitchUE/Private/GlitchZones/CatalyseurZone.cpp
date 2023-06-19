@@ -22,6 +22,10 @@ void ACatalyseurZone::BeginPlay(){
 void ACatalyseurZone::OnPlayerEnterZone(){
 	Super::OnPlayerEnterZone();
 
+	if(!IsValid(MainPlayer)){
+		return;
+	}
+
 	MainPlayer->EnableSafeEffect(true, PostProcessFadeTime);
 
 	MainPlayer->GetMainPlayerController()->GetTimerWidget()->PauseTimer(true);

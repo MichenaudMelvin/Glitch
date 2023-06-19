@@ -15,7 +15,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPause);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSwitchToKeyboard);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnMouseScroll, float, AxisValue);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSwitchToGamepad);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnGamepadAxis, float, Axis);
 
 UCLASS(Abstract)
 class GLITCHUE_API AAbstractPlayerController : public APlayerController{
@@ -47,8 +51,14 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Keyboard")
 	FKOnSwitchToKeyboard OnSwitchToKeyboard;
 
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Keyboard")
+	FKOnMouseScroll OnMouseScroll;
+
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Gamepad")
 	FKOnSwitchToGamepad OnSwitchToGamepad;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Gamepad")
+	FKOnGamepadAxis OnGamepadAxis;
 
 	// the player controller function is not virtual
 	/**
