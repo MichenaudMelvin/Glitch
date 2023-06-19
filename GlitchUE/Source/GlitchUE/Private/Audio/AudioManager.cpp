@@ -71,6 +71,8 @@ void AAudioManager::BeginPlay(){
 	ParameterTimeline.AddInterpFloat(ZeroToOneCurve, UpdateEvent);
 
 	Player = Cast<AMainPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 }
 
 void AAudioManager::Tick(float DeltaSeconds){
@@ -85,6 +87,10 @@ void AAudioManager::OnConstruction(const FTransform& Transform){
 	Super::OnConstruction(Transform);
 
 	FMODAudioComp->SetEvent(StartMusic);
+}
+
+void AAudioManager::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(FadeToMusicTimerHandle);
 }
 
 void AAudioManager::FadeVolume(float Alpha){
@@ -158,8 +164,7 @@ void AAudioManager::FadeToMusic(UFMODEvent* NewMusic, const float FadeDuration){
 
 	FadeInAndOutTimeline.PlayFromStart();
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+	GetWorld()->GetTimerManager().SetTimer(FadeToMusicTimerHandle, [&](){
 		FMODAudioComp->SetEvent(TargetMusic);
 	}, FadeDuration/2, false);
 }

@@ -33,6 +33,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UPopcornFXEmitterComponent* SpawnerFX;
 
@@ -59,6 +62,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float SpawnDelay = 1.0f;
+
+	FTimerHandle SpawnDelayTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 	UFMODEvent* SpawnerSFX;

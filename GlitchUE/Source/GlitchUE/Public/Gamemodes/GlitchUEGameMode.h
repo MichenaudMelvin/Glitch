@@ -7,7 +7,9 @@
 #include "Engine/SceneCapture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Gamemodes/MainGamemode.h"
+#include "Helpers/UsefulStructs.h"
 #include "Saves/SaveInterface.h"
+#include "UI/Gameplay/CreditsScreen.h"
 #include "GlitchUEGameMode.generated.h"
 
 class AAudioManager;
@@ -188,17 +190,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	int CurrentActivatedCatalyseurs = 0;
 
-	ASceneCapture2D* SceneCapture;
-
 	ANexus* Nexus;
 
 	ADissolver* Dissolver;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UTextureRenderTarget2D*> SaveRenderTarget;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UMaterial*> SaveMaterials;
 
 	UPROPERTY(EditDefaultsOnly)
 	int MaxLoadSaveTime = 3;
@@ -263,6 +257,35 @@ public:
 	void RemoveStealthTime(const float RemovedTime) const;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Ending")
+	float TransitionDuration = 3.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ending")
+	TSubclassOf<UCreditsScreen> CreditsScreenWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ending|Keyboard")
+	TArray<FTchatStruct> KeyboardEndingMessages;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ending|Nexus")
+	float EndDissolveDuration = 2.5f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ending|Keyboard")
+	FString EndKeyboardMessage = "The game has been fully corrupted, all the saved games from all of the folders have been corrupted. Nobody will play it again. Congratulations, but now all of these players will be sad, was it the right choice ?";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ending|Nexus")
+	FString EndNexusMessage = "All the players will see their favourite game again. But is it truly good for them ? Was it the right choice ?";
+
+public:
+	UFUNCTION(BlueprintCallable, Exec, Category = "Ending|Keyboard")
+	void CallKeyboardEnding();
+
+	UFUNCTION()
+	void KeyboardMessagesEnd();
+
+	UFUNCTION(BlueprintCallable, Exec, Category = "Ending|Nexus")
+	void CallNexusEnding();
+
+protected:
 	UFUNCTION(Exec, Category = "Glitch")
 	void GlitchUpgradeAlliesUnits() const;
 
@@ -274,8 +297,6 @@ protected:
 
 	UFUNCTION(Exec, Category = "Glitch")
 	void GlitchUpgradeWorld() const;
-
-	void CheckAvailableGlitchEvents() const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Glitch")
 	int NumberOfEnemiesToAffect = 10;

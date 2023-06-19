@@ -14,7 +14,6 @@
 #include "UI/Gameplay/SightWidget.h"
 #include "UI/Gameplay/WaypointIndication.h"
 #include "UI/Gameplay/ConditionScreen/LooseScreen.h"
-#include "UI/Gameplay/ConditionScreen/WinScreen.h"
 #include "UI/Gameplay/Tchat/Tchat.h"
 #include "MainPlayerController.generated.h"
 
@@ -50,8 +49,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnLookUp, float, AxisValue);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnLookUpRate, float, AxisValue);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnMouseScroll, float, AxisValue);
-
 #pragma endregion
 
 #pragma region SpecialAbilities
@@ -82,6 +79,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	void CreatePlayerWidgets();
+
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
 
 	UPROPERTY(BlueprintReadOnly)
 	AGlitchUEGameMode* GameMode;
@@ -137,9 +137,6 @@ public:
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Camera")
 	FKOnLookUpRate OnLookUpRate;
 
-	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Camera")
-	FKOnMouseScroll OnMouseScroll;
-
 	#pragma endregion
 
 	#pragma region SpecialAbilities
@@ -188,7 +185,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Save")
-	void SetCanSave(const bool bValue);
+	virtual void SetCanSave(bool bValue);
 
 	bool CanSave() const;
 
@@ -342,12 +339,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<ULooseScreen> LooseScreenWidgetClass;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Widgets")
-	UWinScreen* WinScreenWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	TSubclassOf<UWinScreen> WinScreenWidgetClass;
-
 public:
 	UFUNCTION()
 	void OpenWheel();
@@ -377,8 +368,6 @@ public:
 	UWaypointIndication* GetWaypointIndicationWidget() const;
 
 	ULooseScreen* GetLooseScreen() const;
-
-	UWinScreen* GetWinScreen() const;
 
 #pragma endregion
 };

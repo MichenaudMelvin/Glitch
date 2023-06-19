@@ -110,7 +110,7 @@ protected:
 	FTimerHandle GlitchTimerHandle;
 
 	UFUNCTION()
-	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+	virtual void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
 
 public:
 	virtual void Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent);

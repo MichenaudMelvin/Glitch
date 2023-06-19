@@ -19,6 +19,9 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	UPopcornFXEmitterComponent* MarkFX;
 

@@ -30,11 +30,16 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Sight")
 	UWidgetComponent* SightWidget;
 
+	UPROPERTY(EditDefaultsOnly, Category = "FX");
+	UPopcornFXEmitterComponent* DetectionFX;
+
 	UFUNCTION()
 	void OnSwitchLevelState(ELevelState NewLevelState);
 
 public:
 	TArray<APatrolPoint*> GetPatrolPointList() const;
+
+	void SetDetectionValue(const float DetectionValue) const;
 
 #if WITH_EDITORONLY_DATA
 	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;

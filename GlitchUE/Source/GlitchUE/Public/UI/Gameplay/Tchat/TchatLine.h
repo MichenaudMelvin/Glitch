@@ -23,10 +23,4 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* MessageText;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Color")
-	FSlateColor ReadMessageColor = FSlateColor(FLinearColor::Gray);
-
-public:
-	void SetLineAsRead(const bool HideSpeaker) const;
 };

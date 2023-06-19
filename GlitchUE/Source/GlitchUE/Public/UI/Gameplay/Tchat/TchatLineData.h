@@ -16,8 +16,4 @@ public:
 	FString Message;
 
 	FSlateColor SpeakerColor;
-
-	bool bIsMessageRead;
-
-	bool bShouldHideSpeaker;
 };
