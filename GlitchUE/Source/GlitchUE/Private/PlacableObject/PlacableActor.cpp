@@ -123,7 +123,6 @@ void APlacableActor::SetMissingData(ANexus* NewNexus, AMainPlayer* MainPlayer){
 
 void APlacableActor::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
 	World->GetTimerManager().ClearTimer(GlitchTimerHandle);
-	World->GetTimerManager().ClearAllTimersForObject(this);
 }
 
 void APlacableActor::Appear(const bool ReverseEffect, const FOnTimelineEvent AppearFinishEvent){

@@ -3,8 +3,10 @@
 
 #include "Components/SightComponent.h"
 #include "PopcornFXFunctions.h"
+#include "AI/AIPatrol/PatrolCharacter.h"
 #include "Helpers/FunctionsLibrary/UsefulFunctions.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/MainPlayer.h"
 
@@ -33,6 +35,11 @@ void USightComponent::BeginPlay(){
 	}
 
 	OriginalScale = GetComponentScale();
+}
+
+void USightComponent::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(SightTimer);
+	World->GetTimerManager().ClearTimer(LooseSightTimer);
 }
 
 void USightComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction){
@@ -87,6 +94,12 @@ void USightComponent::Check(){
 			LooseSight();
 		}
 	}
+
+	if(!GetOwner()->IsA(APatrolCharacter::StaticClass())){
+		return;
+	}
+
+	Cast<APatrolCharacter>(GetOwner())->SetDetectionValue(UKismetMathLibrary::NormalizeToRange(InvestigateTimeElapsed, 0.01f, MaxInvestigateTime));
 }
 
 void USightComponent::LooseSight(){

@@ -29,6 +29,8 @@ protected:
 
 	virtual void Tick(float deltaTime) override;
 
+	virtual void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources) override;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
 	UStaticMeshComponent* TurretBase;
 

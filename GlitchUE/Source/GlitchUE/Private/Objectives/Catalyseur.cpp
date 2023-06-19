@@ -133,6 +133,8 @@ void ACatalyseur::BeginPlay(){
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("LE CATALYSEUR %s N'AFFECTE AUCUNE ZONE DE CONSTRUCTION"), *this->GetName()));
 	}
 #endif
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 }
 
 void ACatalyseur::Destroyed(){
@@ -143,6 +145,11 @@ void ACatalyseur::Destroyed(){
 #endif
 }
 
+void ACatalyseur::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(MoneyTimerHandle);
+	World->GetTimerManager().ClearTimer(DesactivationTimerHandle);
+}
+
 void ACatalyseur::ActiveObjectif(){
 	MeshObjectif->PlayAnimation(ActivationAnim, false);
 	TECHMesh->PlayAnimation(ActivationAnim, false);
@@ -151,7 +158,9 @@ void ACatalyseur::ActiveObjectif(){
 		ConstructionZoneList[i]->GetActivableComp()->ActivateObject();
 	}
 
-	GameMode->UpdateActivatedCatalyseurAmount();
+	if(GameMode->OptionsString == ""){
+		GameMode->UpdateActivatedCatalyseurAmount();
+	}
 
 	FMODAudioComp->SetEvent(ActivationSFX);
 	FMODAudioComp->Play();

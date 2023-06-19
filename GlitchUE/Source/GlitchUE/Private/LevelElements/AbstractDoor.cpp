@@ -83,12 +83,19 @@ void AAbstractDoor::BeginPlay(){
 	DoorInteraction->AddInteractable(TechDoor);
 
 	OpenDoorTimeline.SetPlayRate(1/OpenDoorTime);
+
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
 }
 
 void AAbstractDoor::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
 
 	OpenDoorTimeline.TickTimeline(DeltaTime);
+}
+
+void AAbstractDoor::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(OpenDoorAITimerHandle);
+	World->GetTimerManager().ClearTimer(ResetDoorAITimerHandle);
 }
 
 void AAbstractDoor::OpenAndCloseDoor(){
@@ -137,16 +144,13 @@ void AAbstractDoor::OnAIReachLink(AActor* MovingActor, const FVector& Destinatio
 	CurrentCharacterOpenningDoor = AICharacter;
 	OpenDoor();
 
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+	GetWorld()->GetTimerManager().SetTimer(OpenDoorAITimerHandle, [&](){
 		// if the ai dies
 		if(IsValid(CurrentCharacterOpenningDoor)){
 			Cast<AMainAICharacter>(CurrentCharacterOpenningDoor)->GetBlackBoard()->SetValueAsBool("DoingExternalActions", false);
 		}
 
-		FTimerHandle ResetTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(ResetTimerHandle, this, &AAbstractDoor::ResetReachLink, 1.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(ResetDoorAITimerHandle, this, &AAbstractDoor::ResetReachLink, 1.0f, false);
 	}, OpenDoorTimeline.GetTimelineLength() / OpenDoorTimeline.GetPlayRate(), false);
 }
 

@@ -12,21 +12,4 @@ void UTchatLine::NativeOnListItemObjectSet(UObject* ListItemObject){
 	SpeakerText->SetColorAndOpacity(CurrentData->SpeakerColor);
 
 	MessageText->SetText(FText::FromString(CurrentData->Message));
-
-	if(CurrentData->bIsMessageRead){
-		MessageText->SetColorAndOpacity(ReadMessageColor);
-	}
-
-	if(CurrentData->bShouldHideSpeaker){
-		SpeakerText->SetOpacity(0);
-	}
-}
-
-void UTchatLine::SetLineAsRead(const bool HideSpeaker) const{
-
-	if(HideSpeaker){
-		SpeakerText->SetOpacity(0);
-	}
-
-	MessageText->SetColorAndOpacity(ReadMessageColor);
 }

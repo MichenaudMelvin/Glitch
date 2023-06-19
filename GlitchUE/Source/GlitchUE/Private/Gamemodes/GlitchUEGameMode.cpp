@@ -13,8 +13,8 @@
 #include "AI/MainAICharacter.h"
 #include "AI/MainAIPawn.h"
 #include "AI/AIPursuitDrone/PursuitDrone.h"
+#include "Audio/AudioManager.h"
 #include "Camera/CameraComponent.h"
-#include "Components/SceneCaptureComponent2D.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Helpers/Debug/DebugPawn.h"
@@ -52,9 +52,6 @@ void AGlitchUEGameMode::BeginPlay() {
 	TArray<AWaveManager*> WaveManagerArray;
 	FindAllActors<AWaveManager>(GetWorld(), WaveManagerArray);
 
-	TArray<AActor*> SceneCaptureArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASceneCapture2D::StaticClass(), SceneCaptureArray);
-
 	TArray<AActor*> NexusArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANexus::StaticClass(), NexusArray);
 
@@ -62,20 +59,12 @@ void AGlitchUEGameMode::BeginPlay() {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
 #if WITH_EDITOR
-
 	if (WaveManagerArray.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
 	}
-
-	if(SceneCaptureArray.Num() == 0){
-		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SCENE CAPTURE N'EST PLACE DANS LA SCENE"));
-	}
-
 #endif
 
 	WaveManager = WaveManagerArray[0];
-
-	SceneCapture = Cast<ASceneCapture2D>(SceneCaptureArray[0]);
 
 	Nexus = Cast<ANexus>(NexusArray[0]);
 
@@ -119,6 +108,7 @@ void AGlitchUEGameMode::InitializeWorld(){
 	UpdatePlayerObjectives();
 
 	if(OptionsString == ""){
+		GlobalWorldSave(0);
 		return;
 	}
 
@@ -210,14 +200,6 @@ void AGlitchUEGameMode::InitializeWorldSave(TArray<FString> LevelSettings){
 		CurrentSave = TowerDefenseWorldLoad(CurrentSave);
 	}
 
-	CurrentSave->LoadedTime++;
-
-	if(CurrentSave->LoadedTime >= MaxLoadSaveTime){
-		MainPlayerController->GetTchatWidget()->AddTchatLine("Console", "Your save have been corrupted", FLinearColor::Blue);
-		UUsefulFunctions::DeleteSaveSlot(CurrentSave, SlotIndex);
-		return;
-	}
-
 	OptionsString = "";
 	UUsefulFunctions::SaveToSlot(CurrentSave, SlotIndex);
 }
@@ -259,16 +241,6 @@ void AGlitchUEGameMode::GlobalWorldSave(const int Index){
 	}
 
 	CurrentSave->WorldName = GetWorld()->GetName();
-
-	CurrentSave->LoadedTime = 0;
-
-	SceneCapture->SetActorLocation(MainPlayer->GetFollowCamera()->GetComponentLocation());
-	SceneCapture->SetActorRotation(MainPlayer->GetFollowCamera()->GetComponentRotation());
-	SceneCapture->GetCaptureComponent2D()->CaptureScene();
-
-	SceneCapture->GetCaptureComponent2D()->TextureTarget = SaveRenderTarget[0]; // use index
-
-	CurrentSave->SaveImage = SaveMaterials[0]; // use index
 
 	//Player
 	CurrentSave->PlayerTransform = MainPlayer->GetActorTransform();
@@ -725,7 +697,6 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 	if (GlitchValue == GlitchMaxValue) {
 
-		CheckAvailableGlitchEvents();
 		Glitch::EGlitchEvents RandomGlitchType = Glitch::EGlitchEvents::UpgradePlayer;
 
 		switch (CurrentPhase){
@@ -762,6 +733,45 @@ void AGlitchUEGameMode::AddGlitch(const float AddedValue){
 
 float AGlitchUEGameMode::GetCurrentGlitchValue() const{
 	return GlitchValue;
+}
+
+void AGlitchUEGameMode::CallKeyboardEnding(){
+	MainPlayerController->UnbindPause();
+	MainPlayerController->GetTchatWidget()->AddMultipleTchatLines(KeyboardEndingMessages);
+
+	MainPlayerController->GetTchatWidget()->OnFinishWritingMessageList.AddDynamic(this, &AGlitchUEGameMode::KeyboardMessagesEnd);
+}
+
+void AGlitchUEGameMode::KeyboardMessagesEnd(){
+	MainPlayerController->GetTchatWidget()->OnFinishWritingMessageList.RemoveDynamic(this, &AGlitchUEGameMode::KeyboardMessagesEnd);
+
+	const FOnTimelineEvent EmptyEvent;
+	Cast<AAudioManager>(UGameplayStatics::GetActorOfClass(MainPlayer, AAudioManager::StaticClass()))->FadeOutMusic(EmptyEvent, TransitionDuration);
+
+	FTimerHandle GlitchEffectTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(GlitchEffectTimerHandle, [&](){
+		Cast<UCreditsScreen>(CreateWidget(MainPlayerController, CreditsScreenWidgetClass))->SetEndMessage(EndKeyboardMessage);
+	}, TransitionDuration, false);
+}
+
+void AGlitchUEGameMode::CallNexusEnding(){
+	MainPlayerController->UnbindPause();
+
+	Dissolver->DissolveToAtSpeed(0, EndDissolveDuration);
+
+	const FOnTimelineEvent EmptyEvent;
+	Cast<AAudioManager>(UGameplayStatics::GetActorOfClass(MainPlayer, AAudioManager::StaticClass()))->FadeOutMusic(EmptyEvent, EndDissolveDuration);
+
+	FTimerHandle DissolveTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(DissolveTimerHandle, [&](){
+		MainPlayer->EnableGlitchEffect(true, EndDissolveDuration, 9999);
+
+		FTimerHandle GlitchEffectTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(GlitchEffectTimerHandle, [&](){
+			MainPlayer->EnableGlitchEffect(false, TransitionDuration, 0);
+			Cast<UCreditsScreen>(CreateWidget(MainPlayerController, CreditsScreenWidgetClass))->SetEndMessage(EndNexusMessage);
+		}, TransitionDuration, false);
+	}, EndDissolveDuration, false);
 }
 
 void AGlitchUEGameMode::GlitchUpgradeAlliesUnits() const{
@@ -818,15 +828,6 @@ void AGlitchUEGameMode::GlitchUpgradeWorld() const{
 	RemoveStealthTime(GlitchReduceStealthTimer);
 }
 
-void AGlitchUEGameMode::CheckAvailableGlitchEvents() const{
-	TArray<AActor*> PlacableActorList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlacableActor::StaticClass(), PlacableActorList);
-
-	TArray<AActor*> AIList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMainAICharacter::StaticClass(), AIList);
-
-}
-
 #pragma region ConsoleCommands
 
 void AGlitchUEGameMode::SetSelfTimeDilation(float TimeDilation) const{
@@ -834,7 +835,7 @@ void AGlitchUEGameMode::SetSelfTimeDilation(float TimeDilation) const{
 }
 
 void AGlitchUEGameMode::NextWave() const{
-	WaveManager->NextWave();
+	WaveManager->ForceNextWave();
 }
 
 void AGlitchUEGameMode::GoToWave(const int NewWave) const{

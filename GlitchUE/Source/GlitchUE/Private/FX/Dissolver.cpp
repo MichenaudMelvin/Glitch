@@ -150,6 +150,16 @@ void ADissolver::DissolveTo(const float TargetRadius){
 	PlayFX();
 }
 
+void ADissolver::DissolveToAtSpeed(const float TargetRadius, const float TargetDuration){
+	DissolveTimeline.SetPlayRate(1/TargetDuration);
+
+	FOnTimelineEvent FinishEvent;
+	FinishEvent.BindDynamic(this, &ADissolver::ResetDissolveDuration);
+
+	DissolveTimeline.SetTimelineFinishedFunc(FinishEvent);
+	DissolveTo(TargetRadius);
+}
+
 float ADissolver::GetRadius() const{
 	return Radius;
 }

@@ -18,7 +18,7 @@ public:
 	float GetStartAnimDuration() const;
 
 	UFUNCTION(BlueprintCallable)
-	void PlayStartAnim(const bool bReverseAnim = false) const;
+	void PlayStartAnim(const bool bReverseAnim = false);
 
 	void SetCurrentPad(APursuitDronePad* NewPad);
 
@@ -36,6 +36,8 @@ protected:
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+	virtual void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources) override;
+
 	UPROPERTY(EditAnywhere, Category = "Pad")
 	APursuitDronePad* Pad;
 
@@ -43,6 +45,8 @@ protected:
 	UCompassIcon* CompassIcon;
 
 	UAnimationAsset* StartAnim;
+
+	FTimerHandle ReverseAnimTimerHandle;
 
 	USkeletalMesh* CrystalMesh;
 
@@ -54,6 +58,8 @@ protected:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Behavior")
 	float LoadingTime = 10.0f;
+
+	FTimerHandle LoadingTimerHandle;
 
 	UFUNCTION()
 	void OnTouchSomething(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -73,6 +79,8 @@ protected:
 	void TransformIntoDrone();
 
 	FTimeline SpinTimeline;
+
+	FTimerHandle DetachTimerHandle;
 
 	UCurveFloat* ZeroToOneCurve;
 

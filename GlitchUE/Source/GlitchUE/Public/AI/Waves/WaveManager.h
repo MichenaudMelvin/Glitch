@@ -65,6 +65,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	TSet<ACatalyseur*> CatalyseursList;
 
 	TSet<ASpawner*> SpawnerList;
@@ -86,6 +89,8 @@ protected:
 	UPlayerStats* PlayerStatsWidget;
 
 	void UpdatePlayerObjectives();
+
+	FTimerHandle ObjectiveDelayTimerHandle;
 
 	/**
 	 * @brief show up only on prepare time
@@ -113,6 +118,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Tchat")
 	float MessagesDelay = 0.5f;
 
+	FTimerHandle MessageDelayTimerHandle;
+
 	FWave TchatTargetWave;
 
 	int TchatIndex = 0;
@@ -135,15 +142,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Waves")
 	float PrepareTime = 60;
 
+	FTimerHandle PrepareTimerHandle;
+
 	UPROPERTY(EditAnywhere, Category = "Waves")
 	UDataTable* WavesData;
 
 	UPROPERTY(BlueprintReadOnly)
 	TSet<AMainAICharacter*> WaveAIList;
 
-	void EnableSpawners();
+	void EnableSpawners(const int TargetWave);
 
-	void DisableSpawner();
+	void DisableSpawner(const int TargetWave);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Waves")
 	FWave GetCurrentWaveData() const;

@@ -71,6 +71,12 @@ void ATurret::Tick(float deltaTime){
 	RotateTimeline.TickTimeline(deltaTime);
 }
 
+void ATurret::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	Super::OnCleanWorld(World, bSessionEnded, bCleanupResources);
+
+	World->GetTimerManager().ClearTimer(CanAttackTimer);
+}
+
 void ATurret::LookAtTarget(){
 	SelectTarget();
 	CurrentYawRotation = TurretPillar->GetComponentRotation().Yaw;

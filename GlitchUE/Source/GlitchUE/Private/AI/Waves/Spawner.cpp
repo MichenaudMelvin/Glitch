@@ -58,10 +58,16 @@ void ASpawner::BeginPlay(){
 
 	SpawnerAudio->Stop();
 
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
+
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
 		SpawnerFX->StopEmitter();
 	}, 0.001f, false);
+}
+
+void ASpawner::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(SpawnDelayTimerHandle);
 }
 
 void ASpawner::ActivateSpawner(){
@@ -121,9 +127,7 @@ void ASpawner::SpawnAI() {
 	CurrentNumberOfAISpawned++;
 
 	if (AnyAILeftToSpawn()) {
-		FTimerHandle TimerHandle;
-
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ASpawner::SpawnAI, SpawnDelay, false);
+		GetWorld()->GetTimerManager().SetTimer(SpawnDelayTimerHandle, this, &ASpawner::SpawnAI, SpawnDelay, false);
 	}
 }
 

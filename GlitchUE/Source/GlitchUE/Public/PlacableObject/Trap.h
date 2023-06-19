@@ -29,6 +29,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources) override;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Mesh")
 	USkeletalMeshComponent* TrapMesh;
 
@@ -62,6 +64,8 @@ protected:
 	UFUNCTION()
 	void OnDesactivateTrap();
 
+	FTimerHandle ActivationTimerHandle;
+
 	virtual void ReceiveGlitchUpgrade() override;
 
 	virtual void ResetGlitchUpgrade() override;
@@ -81,6 +85,8 @@ protected:
 	void CheckCanAttack();
 
 	virtual void Attack_Implementation() override;
+
+	FTimerHandle AttackTimerHandle;
 
 	virtual void OnReachVision(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 };

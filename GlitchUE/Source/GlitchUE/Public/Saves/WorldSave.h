@@ -21,12 +21,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Player")
 	int PlayerGolds;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Save")
-	UMaterial* SaveImage;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Save")
-	int LoadedTime = 0; 
-
 	UPROPERTY(BlueprintReadWrite, Category = "Player")
 	FTransform PlayerTransform;
 

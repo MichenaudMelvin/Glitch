@@ -2,6 +2,7 @@
 
 
 #include "AI/AIPatrol/PatrolCharacter.h"
+#include "PopcornFXAttributeFunctions.h"
 #include "Components/SplineMeshComponent.h"
 #include "Engine/Selection.h"
 #include "AI/MainAIData.h"
@@ -27,6 +28,17 @@ APatrolCharacter::APatrolCharacter(){
 	SightWidget->SetDrawSize(FVector2D(1920, 1080));
 
 	SightWidget->SetGenerateOverlapEvents(false);
+
+	DetectionFX = CreateDefaultSubobject<UPopcornFXEmitterComponent>(TEXT("Detection FX"));
+	DetectionFX->SetupAttachment(GetMesh());
+
+	static ConstructorHelpers::FObjectFinder<UPopcornFXEffect> DetectionEffect(TEXT("/Game/VFX/Particles/FX_Enemies/Pk_DroneSpotted"));
+	check(DetectionEffect.Succeeded());
+
+	DetectionFX->SetRelativeRotation(FRotator(0, -90, 0));
+	DetectionFX->bPlayOnLoad = false;
+
+	DetectionFX->SetEffect(DetectionEffect.Object);
 
 #if WITH_EDITORONLY_DATA
 	USelection::SelectObjectEvent.AddUObject(this, &APatrolCharacter::OnObjectSelected);
@@ -66,6 +78,15 @@ void APatrolCharacter::OnSwitchLevelState(ELevelState NewLevelState){
 
 TArray<APatrolPoint*> APatrolCharacter::GetPatrolPointList() const{
 	return PatrolPointsList;
+}
+
+void APatrolCharacter::SetDetectionValue(const float DetectionValue) const{
+	if(!DetectionFX->IsEmitterStarted()){
+		DetectionFX->StartEmitter();
+	}
+
+	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DetectionFX, "GaugeCursor");
+	UPopcornFXAttributeFunctions::SetAttributeAsFloat(DetectionFX, TargetIndex, FMath::Abs(DetectionValue - 1), false);
 }
 
 #if WITH_EDITORONLY_DATA

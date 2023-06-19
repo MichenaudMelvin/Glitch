@@ -217,6 +217,8 @@ void AMainPlayer::BeginPlay(){
 
 	#pragma endregion
 
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
+
 #if WITH_EDITORONLY_DATA
 	if(!bPlayStartAnim){
 		EndAppear();
@@ -229,9 +231,23 @@ void AMainPlayer::BeginPlay(){
 }
 
 void AMainPlayer::Destroyed(){
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	GetWorld()->GetTimerManager().ClearTimer(RewindTimer);
+	GetWorld()->GetTimerManager().ClearTimer(CanLaunchMarkTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(CoyoteTimeTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(BackToNormalCamTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(GlitchUpgradeTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(GlitchDashTimerHandle);
 
 	Super::Destroyed();
+}
+
+void AMainPlayer::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(RewindTimer);
+	World->GetTimerManager().ClearTimer(CanLaunchMarkTimerHandle);
+	World->GetTimerManager().ClearTimer(CoyoteTimeTimerHandle);
+	World->GetTimerManager().ClearTimer(BackToNormalCamTimerHandle);
+	World->GetTimerManager().ClearTimer(GlitchUpgradeTimerHandle);
+	World->GetTimerManager().ClearTimer(GlitchDashTimerHandle);
 }
 
 void AMainPlayer::InitializePlayer_Implementation(const FTransform StartTransform, const FRotator CameraRotation, const FTransform MarkTransform, const bool bIsMarkPlaced){
@@ -398,11 +414,6 @@ void AMainPlayer::Loose(){
 	MainPlayerController->GetLooseScreen()->AddToViewport();
 }
 
-void AMainPlayer::Win(){
-	StopRecord();
-	MainPlayerController->GetWinScreen()->AddToViewport();
-}
-
 #pragma endregion
 
 #pragma region Interaction
@@ -524,9 +535,7 @@ void AMainPlayer::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorI
 	MainPlayerController->SetCanSave(false);
 	MainPlayerController->UnbindSneak();
 
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
+	GetWorld()->GetTimerManager().SetTimer(CoyoteTimeTimerHandle, [&](){
 		bUseCoyoteTime = false;
 	}, CoyoteTime, false);
 }
@@ -781,8 +790,7 @@ void AMainPlayer::CanLaunchMark(){
 		GetWorldTimerManager().ClearTimer(CanLaunchMarkTimerHandle);
 		LaunchMark();
 
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::CameraAimReverse, BackToNormalCamAfterLaunchMarkTime, false);
+		GetWorld()->GetTimerManager().SetTimer(BackToNormalCamTimerHandle, this, &AMainPlayer::CameraAimReverse, BackToNormalCamAfterLaunchMarkTime, false);
 	}
 }
 
@@ -905,9 +913,7 @@ void AMainPlayer::ReceiveGlitchUpgrade(){
 
 	SelectRandomLocation();
 
-	FTimerHandle TimerHandle;
-
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
+	GetWorldTimerManager().SetTimer(GlitchUpgradeTimerHandle, this, &AMainPlayer::ResetGlitchUpgrade, GlitchUpgradeDuration, false);
 }
 
 void AMainPlayer::ResetGlitchUpgrade(){
@@ -1082,9 +1088,7 @@ void AMainPlayer::EndTL(){
 
 	UKismetSystemLibrary::MoveComponentTo(GetCapsuleComponent(), Mark->GetTPLocation(), GetCapsuleComponent()->GetRelativeRotation(), false, false, GlitchDashDuration, false, EMoveComponentAction::Type::Move, LatentInfo);
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&](){
-
+	GetWorld()->GetTimerManager().SetTimer(GlitchDashTimerHandle, [&](){
 		MainPlayerController->BindNormalMode();
 		GetMesh()->SetVisibility(true, true);
 		Mark->ResetMark();

@@ -3,6 +3,12 @@
 
 #include "Player/TutorialPlayerController.h"
 
+void ATutorialPlayerController::BeginPlay(){
+	Super::BeginPlay();
+
+	SetCanSave(bAllowSaving);
+}
+
 void ATutorialPlayerController::BindMovement(){
 	if(bShouldBindMovement){
 		Super::BindMovement();
@@ -43,4 +49,12 @@ void ATutorialPlayerController::BindInteraction(){
 	if(bShouldBindInteraction){
 		Super::BindInteraction();
 	}
+}
+
+void ATutorialPlayerController::SetCanSave(bool bValue){
+	if(!bAllowSaving){
+		bValue = false;
+	}
+
+	Super::SetCanSave(bValue);
 }
