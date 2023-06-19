@@ -12,6 +12,10 @@
 
 class AMainPlayer;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPlayerExitDissolver);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnPlayerEnterDissolver);
+
 UCLASS()
 class GLITCHUE_API ADissolver : public AActor{
 	GENERATED_BODY()
@@ -31,12 +35,14 @@ protected:
 
 	AGlitchUEGameMode* GameMode;
 
+	bool bPlayerInsideDissolver = false;
+
 	void UpdateRadius();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Audio")
 	float MaxBorderDistance = 500;
 
-	void BorderSound() const;
+	void BorderSound();
 
 	bool bAllowBorderSound = false;
 
@@ -113,4 +119,10 @@ protected:
 
 public:
 	float GetMaxRadius() const;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnPlayerExitDissolver OnPlayerExitDissolver;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates")
+	FKOnPlayerEnterDissolver OnPlayerEnterDissolver;
 };

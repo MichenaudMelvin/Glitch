@@ -71,7 +71,7 @@ void ADissolver::UpdateRadius(){
 	DissolveCollider->SetSphereRadius(Radius, true);
 }
 
-void ADissolver::BorderSound() const{
+void ADissolver::BorderSound(){
 	if(!IsValid(MainPlayer)){
 		return;
 	}
@@ -81,6 +81,16 @@ void ADissolver::BorderSound() const{
 	const bool bSupDistance = DistanceFromPlayer > -MaxBorderDistance;
 
 	const bool bInfDistance = DistanceFromPlayer < MaxBorderDistance;
+
+	if (bSupDistance && bPlayerInsideDissolver) {
+		bPlayerInsideDissolver = false;
+		OnPlayerExitDissolver.Broadcast();
+	}
+
+	else if (bInfDistance && !bPlayerInsideDissolver) {
+		bPlayerInsideDissolver = true;
+		OnPlayerEnterDissolver.Broadcast();
+	}
 
 	if(bSupDistance && bInfDistance){
 		const float NormalizedValue = UKismetMathLibrary::NormalizeToRange(DistanceFromPlayer, -MaxBorderDistance, MaxBorderDistance);
@@ -175,4 +185,3 @@ void ADissolver::OnConstruction(const FTransform& Transform){
 float ADissolver::GetMaxRadius() const{
 	return MaxRadius;
 }
-
