@@ -25,14 +25,17 @@ void UAudioSettingsMenu::NativeOnInitialized(){
 
 void UAudioSettingsMenu::UpdateMasterVolumeSlider(float Value){
 	Cast<UAudioSettingsSave>(Settings)->MasterVolume = Value;
+	UpdateSettings();
 }
 
 void UAudioSettingsMenu::UpdateMusicVolumeSlider(float Value){
 	Cast<UAudioSettingsSave>(Settings)->MusicVolume = Value;
+	UpdateSettings();
 }
 
 void UAudioSettingsMenu::UpdateSFXVolumeSlider(float Value){
 	Cast<UAudioSettingsSave>(Settings)->SFXVolume = Value;
+	// Update Settings aren't needed
 }
 
 void UAudioSettingsMenu::InitializeSettings(){

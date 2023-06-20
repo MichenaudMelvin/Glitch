@@ -21,6 +21,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FKOnSwitchToGamepad);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnGamepadAxis, float, Axis);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKOnGamepadTriggers, float, Axis);
+
 UCLASS(Abstract)
 class GLITCHUE_API AAbstractPlayerController : public APlayerController{
 	GENERATED_BODY()
@@ -59,6 +61,9 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Gamepad")
 	FKOnGamepadAxis OnGamepadAxis;
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable, Category = "Delegates|Gamepad")
+	FKOnGamepadTriggers OnGamepadTriggers;
 
 	// the player controller function is not virtual
 	/**
