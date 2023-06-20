@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Audio/AudioManager.h"
-
 #include "FMODBlueprintStatics.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MainPlayer.h"
@@ -56,6 +55,10 @@ void AAudioManager::BeginPlay(){
 
 		GameMode->OnSwitchLevelState.AddDynamic(this, &AAudioManager::SetStealthAudio);
 	}
+
+	Dissolver = Cast<ADissolver>(UGameplayStatics::GetActorOfClass(this, ADissolver::StaticClass()));
+	Dissolver->OnPlayerEnterDissolver.AddDynamic(this, &AAudioManager::OnPlayerEnterDissolver);
+	Dissolver->OnPlayerExitDissolver.AddDynamic(this, &AAudioManager::OnPlayerExitDissolver);
 
 	FOnTimelineFloat UpdateEvent;
 
@@ -117,6 +120,14 @@ void AAudioManager::SetTowerDefenseMusic() {
 void AAudioManager::SetPauseMusic(){
 	FMODAudioComp->SetEvent(PauseMusic);
 	FMODAudioComp->Play();
+}
+
+void AAudioManager::OnPlayerEnterDissolver(){
+	FMODAudioComp->SetParameter("Change", 0);
+}
+
+void AAudioManager::OnPlayerExitDissolver(){
+	FMODAudioComp->SetParameter("Change", 1);
 }
 
 void AAudioManager::SetStealthAudio(const ELevelState LevelState){
@@ -196,6 +207,8 @@ void AAudioManager::UpdateTowerDefenseMusic(){
 	FMODAudioComp->SetParameter("Accom", TowerDefenseLayerValues[0]);
 	FMODAudioComp->SetParameter("Melod", TowerDefenseLayerValues[1]);
 	FMODAudioComp->SetParameter("Perc", TowerDefenseLayerValues[2]);
+
+	FMODAudioComp->SetParameter("Change", bPlayerInsideDissolver ? 1 : 0);
 }
 
 UFMODAudioComponent* AAudioManager::GetAudioComp() const{

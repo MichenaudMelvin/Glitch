@@ -88,4 +88,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetTimerElapsed() const;
+
+	void SetOrignialScale(const FVector NewScale);
 };

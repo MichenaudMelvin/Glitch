@@ -58,6 +58,11 @@ void AGlitchUEGameMode::BeginPlay() {
 	TArray<AActor*> DissolverArray;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADissolver::StaticClass(), DissolverArray);
 
+	TArray<AActor*> CatalyseurList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACatalyseur::StaticClass(), CatalyseurList);
+
+	CatalyseurNumberInLevel = CatalyseurList.Num();
+
 #if WITH_EDITOR
 	if (WaveManagerArray.Num() == 0){
 		UE_LOG(LogTemp, Fatal, TEXT("AUCUN WAVE MANAGER N'EST PLACE DANS LA SCENE"));
@@ -209,9 +214,11 @@ void AGlitchUEGameMode::UpdatePlayerObjectives() const{
 		return;
 	}
 
+	const int RemainingCatalyseurs = FMath::Clamp(CatalyseurNumberInLevel - CurrentActivatedCatalyseurs, 0, CatalyseurNumberInLevel);
 	const int RemainingCatalyseursToActivate = FMath::Clamp(MaxCatalyseurToActivate - CurrentActivatedCatalyseurs, 0, MaxCatalyseurToActivate);
-	PlayerStatsWidget->UpdateObjectivesText(FString::FromInt(RemainingCatalyseursToActivate) + " " + StealthMessage);
-	PlayerStatsWidget->UpdateAdditionalText(RemainingCatalyseursToActivate > 0 ? AdditionalStealthMessage : AdditionalStealthEndMessage);
+
+	PlayerStatsWidget->UpdateObjectivesText(RemainingCatalyseurs > 0 ? "There are " + FString::FromInt(RemainingCatalyseurs) + " generators left in this level" : ObjectiveEndMessage);
+	PlayerStatsWidget->UpdateAdditionalText(RemainingCatalyseursToActivate > 0 ? "You need " + FString::FromInt(RemainingCatalyseursToActivate) + " generators to activate the Nexus" : AdditionalStealthEndMessage);
 }
 
 void AGlitchUEGameMode::GlobalWorldSave(const int Index){

@@ -102,18 +102,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Objectives")
 	bool bUseAutoObjectivesForPlayer = true;
 
-	/**
-	 * @brief will show up X + Stealth Message, with default variable : X more generators to find,
-	 * don't use upper case for the first word + don't use a space before the first word
-	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
-	FString StealthMessage = "more generators to find";
-
-	/**
-	 * @brief show up on stealth phase
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = "Objectives")
-	FString AdditionalStealthMessage = "Find padlock to unlock them";
+	FString ObjectiveEndMessage = "You unlock all generators in the level";
 
 	/**
 	 * @brief show up when you can interact with the nexus
@@ -189,6 +179,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	int CurrentActivatedCatalyseurs = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	int CatalyseurNumberInLevel = 0;
 
 	ANexus* Nexus;
 

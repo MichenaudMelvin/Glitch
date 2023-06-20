@@ -8,6 +8,7 @@
 #include "FMODEvent.h"
 #include "FMODAudioComponent.h"
 #include "Gamemodes/GlitchUEGameMode.h"
+#include "FX/Dissolver.h"
 #include "AudioManager.generated.h"
 
 UCLASS(Abstract)
@@ -35,6 +36,12 @@ protected:
 	UCurveFloat* FadeInAndOutCurve;
 
 	AGlitchUEGameMode* GameMode;
+
+	UPROPERTY()
+	ADissolver* Dissolver;
+
+	UPROPERTY()
+	ADissolver* bPlayerInsideDissolver;
 
 	UPROPERTY()
 	AMainPlayer* Player;
@@ -88,6 +95,12 @@ protected:
 	void SetPauseMusic();
 
 	TArray<int> TowerDefenseLayerValues = { 0, 1, 2 };
+
+	UFUNCTION()
+	void OnPlayerEnterDissolver();
+
+	UFUNCTION()
+	void OnPlayerExitDissolver();
 
 	FTimerHandle FadeToMusicTimerHandle;
 
