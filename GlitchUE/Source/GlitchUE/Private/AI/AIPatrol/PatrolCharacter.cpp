@@ -86,7 +86,14 @@ void APatrolCharacter::SetDetectionValue(const float DetectionValue) const{
 	}
 
 	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DetectionFX, "GaugeCursor");
-	UPopcornFXAttributeFunctions::SetAttributeAsFloat(DetectionFX, TargetIndex, FMath::Abs(DetectionValue - 1), false);
+	float feur;
+	UPopcornFXAttributeFunctions::GetAttributeAsFloat(DetectionFX, TargetIndex, feur, true);
+	UE_LOG(LogTemp, Warning, TEXT("The first value is: %f"), feur);
+
+	UPopcornFXAttributeFunctions::SetAttributeAsFloat(DetectionFX, TargetIndex, FMath::Abs(DetectionValue - 1), true);
+
+	UPopcornFXAttributeFunctions::GetAttributeAsFloat(DetectionFX, TargetIndex, feur, true);
+	UE_LOG(LogTemp, Warning, TEXT("The 2nd value is: %f"), feur);
 }
 
 #if WITH_EDITORONLY_DATA
