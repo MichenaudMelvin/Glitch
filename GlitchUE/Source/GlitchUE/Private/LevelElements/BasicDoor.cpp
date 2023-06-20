@@ -75,6 +75,11 @@ ABasicDoor::ABasicDoor(){
 
 	UpDoorFrameMedMeshes.Add(UpDoorMed5.Object);
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> UpDoorMed6(TEXT("/Game/Meshs/ModuilarKit/Door/SM_Up_Door_Frame_6"));
+	check(UpDoorMed6.Succeeded());
+
+	UpDoorFrameMedMeshes.Add(UpDoorMed6.Object);
+
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> UpDoorMesh(TEXT("/Game/Meshs/ModuilarKit/Door/SM_Up_Door_Frame_Tech"));
 	check(UpDoorMesh.Succeeded());
 
@@ -104,6 +109,11 @@ ABasicDoor::ABasicDoor(){
 	check(UpDoorTech5.Succeeded());
 
 	UpDoorFrameTechMaterial.Add(UpDoorTech5.Object);
+
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> UpDoorTech6(TEXT("/Game/Meshs/Materials/ModularKit/Walls/MI_TECH_Wall_Basement"));
+	check(UpDoorTech6.Succeeded());
+
+	UpDoorFrameTechMaterial.Add(UpDoorTech6.Object);
 
 #pragma endregion
 }
