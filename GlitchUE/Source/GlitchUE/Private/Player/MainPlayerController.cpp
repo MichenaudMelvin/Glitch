@@ -399,6 +399,10 @@ UAdditionalMessage* AMainPlayerController::GetAdditionalMessageWidget() const{
 	return AdditionalMessageWidget;
 }
 
+UPopUpWidget* AMainPlayerController::GetPopUpWidget() const{
+	return PopUpWidget;
+}
+
 UWaypointIndication* AMainPlayerController::GetWaypointIndicationWidget() const{
 	return WaypointIndicationWidget;
 }

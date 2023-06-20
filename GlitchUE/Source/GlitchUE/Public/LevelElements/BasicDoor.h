@@ -28,7 +28,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Door")
 	UStaticMeshComponent* UpDoorFrameTech;
 
-	UPROPERTY(EditAnywhere, Category = "Door", meta = (ClampMin = 0, ClampMax = 4))
+	UPROPERTY(EditAnywhere, Category = "Door", meta = (ClampMin = 0, ClampMax = 5))
 	int UpDoorFrameIndex = 0;
 
 	UPROPERTY(VisibleAnywhere, Category = "Door")

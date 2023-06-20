@@ -81,19 +81,21 @@ TArray<APatrolPoint*> APatrolCharacter::GetPatrolPointList() const{
 }
 
 void APatrolCharacter::SetDetectionValue(const float DetectionValue) const{
-	if(!DetectionFX->IsEmitterStarted()){
-		DetectionFX->StartEmitter();
+	if(Blackboard->GetValueAsBool("ReceiveAlert")){
+		return;
 	}
 
 	const int TargetIndex = UPopcornFXAttributeFunctions::FindAttributeIndex(DetectionFX, "GaugeCursor");
-	float feur;
-	UPopcornFXAttributeFunctions::GetAttributeAsFloat(DetectionFX, TargetIndex, feur, true);
-	UE_LOG(LogTemp, Warning, TEXT("The first value is: %f"), feur);
 
-	UPopcornFXAttributeFunctions::SetAttributeAsFloat(DetectionFX, TargetIndex, FMath::Abs(DetectionValue - 1), true);
+	float Value;
+	UPopcornFXAttributeFunctions::GetAttributeAsFloat(DetectionFX, TargetIndex, Value, false);
 
-	UPopcornFXAttributeFunctions::GetAttributeAsFloat(DetectionFX, TargetIndex, feur, true);
-	UE_LOG(LogTemp, Warning, TEXT("The 2nd value is: %f"), feur);
+	if(Value >= 1){
+		DetectionFX->StopEmitter(true);
+		DetectionFX->StartEmitter();
+	}
+
+	UPopcornFXAttributeFunctions::SetAttributeAsFloat(DetectionFX, TargetIndex, FMath::Abs(DetectionValue - 1), false);
 }
 
 #if WITH_EDITORONLY_DATA

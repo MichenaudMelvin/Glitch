@@ -60,7 +60,7 @@ void UTchat::SetGamepadInstruction(){
 }
 
 void UTchat::OpenTchat(){
-	if(AllTchatLines.Num() == 0){
+	if(AllTchatLines.Num() == 0 && !CurrentController->IsA(ATransitionPlayerController::StaticClass())){
 		return;
 	}
 
@@ -152,7 +152,8 @@ void UTchat::AddTchatLine(const FString NewSpeaker, const FString NewMessage, co
 	if(!bIsOpenByUser){
 		if(!IsInViewport()){
 			if(CurrentController->IsA(AMainPlayerController::StaticClass())){
-				if(!Cast<AMainPlayerController>(CurrentController)->IsWheelOpened()){
+				AMainPlayerController* Controller = Cast<AMainPlayerController>(CurrentController);
+				if(!Controller->IsWheelOpened() && !Controller->GetPopUpWidget()->IsInViewport()){
 					AddToViewport();
 					StartDestructTimer();
 				}

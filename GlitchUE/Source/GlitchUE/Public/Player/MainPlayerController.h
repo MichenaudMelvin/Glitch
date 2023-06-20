@@ -365,6 +365,8 @@ public:
 
 	UAdditionalMessage* GetAdditionalMessageWidget() const;
 
+	UPopUpWidget* GetPopUpWidget() const;
+
 	UWaypointIndication* GetWaypointIndicationWidget() const;
 
 	ULooseScreen* GetLooseScreen() const;
