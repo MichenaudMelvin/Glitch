@@ -48,9 +48,3 @@ void UPopUpImage::NativeDestruct(){
 
 	UGameplayStatics::SetGamePaused(this, false);
 }
-
-void UPopUpImage::ShowPopUpImage(UObject* Image){
-	AddToViewport();
-
-	PopUpIMG->SetBrushResourceObject(Image);
-}

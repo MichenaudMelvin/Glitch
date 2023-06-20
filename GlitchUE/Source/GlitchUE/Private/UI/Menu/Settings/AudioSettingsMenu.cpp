@@ -17,6 +17,10 @@ void UAudioSettingsMenu::NativeOnInitialized(){
 	MasterVolumeSlider->GetSlider()->OnValueChanged.AddDynamic(this, &UAudioSettingsMenu::UpdateMasterVolumeSlider);
 	MusicVolumeSlider->GetSlider()->OnValueChanged.AddDynamic(this, &UAudioSettingsMenu::UpdateMusicVolumeSlider);
 	SFXVolumeSlider->GetSlider()->OnValueChanged.AddDynamic(this, &UAudioSettingsMenu::UpdateSFXVolumeSlider);
+
+	FocusableWidgets.Add(MasterVolumeSlider->GetSlider());
+	FocusableWidgets.Add(MusicVolumeSlider->GetSlider());
+	FocusableWidgets.Add(SFXVolumeSlider->GetSlider());
 }
 
 void UAudioSettingsMenu::UpdateMasterVolumeSlider(float Value){

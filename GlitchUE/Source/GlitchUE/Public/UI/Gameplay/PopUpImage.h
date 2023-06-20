@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/Image.h"
 #include "UI/Custom/CustomButton.h"
 #include "UI/Custom/CustomUserWidget.h"
 #include "PopUpImage.generated.h"
@@ -20,11 +19,5 @@ protected:
 	virtual void NativeDestruct() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Buttons", meta = (BindWidget))
-	UImage* PopUpIMG;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Buttons", meta = (BindWidget))
 	UCustomButton* BackButton;
-
-	UFUNCTION(BlueprintCallable, Category = "PopUp")
-	void ShowPopUpImage(UObject* Image);
 };

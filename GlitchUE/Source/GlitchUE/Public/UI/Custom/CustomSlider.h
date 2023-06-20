@@ -3,25 +3,30 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "FocusableSlider.h"
+#include "Engine/Font.h"
 #include "Components/HorizontalBox.h"
-#include "Components/Slider.h"
 #include "Components/TextBlock.h"
 #include "UI/UIFocus.h"
 #include "CustomSlider.generated.h"
 
-UCLASS(Abstract)
-class GLITCHUE_API UCustomSlider : public UUserWidget, public IUIFocus{
+UCLASS()
+class GLITCHUE_API UCustomSlider : public UHorizontalBox, public IUIFocus{
 	GENERATED_BODY()
 
+public:
+	UCustomSlider();
+
 protected:
-	virtual void NativeOnInitialized() override;
+	virtual void PostLoad() override;
+
+	FSlateFontInfo NumberFont;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Slider", meta = (BindWidget))
 	UHorizontalBox* SliderContainer;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Slider", meta = (BindWidget))
-	USlider* Slider;
+	UFocusableSlider* Slider;
 
 	UPROPERTY(EditAnywhere, Category = "Slider")
 	float SliderMinValue;

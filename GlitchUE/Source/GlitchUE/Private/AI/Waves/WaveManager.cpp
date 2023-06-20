@@ -124,7 +124,7 @@ void AWaveManager::UpdatePlayerObjectives(){
 
 void AWaveManager::WriteWhatTheNextWaveContain(const FWave TargetWave, const int TargetWaveIndex){
 	PlayerTchatWidget->AddEmptyTchatLine();
-	PlayerTchatWidget->AddTchatLine("I.V.A.N.", "The next wave contain:", TchatSpeakerColor);
+	PlayerTchatWidget->AddTchatLine("I.V.A.N.", "The next wave contains:", TchatSpeakerColor);
 
 	TchatTargetWave = TargetWave;
 	TchatIndex = GetActiveSpawnersAtWave(TargetWaveIndex);
