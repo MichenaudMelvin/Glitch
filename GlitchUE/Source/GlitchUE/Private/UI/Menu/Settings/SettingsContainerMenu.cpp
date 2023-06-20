@@ -46,6 +46,7 @@ void USettingsContainerMenu::BindButtons(){
 
 void USettingsContainerMenu::SetCurrentShownWidget(USettingsMenu* NewWidget){
 	if(CurrentShownWidget == NewWidget){
+		AddWidgetsToFocusList(CurrentShownWidget->GetFocusableWidgets());
 		return;
 	}
 

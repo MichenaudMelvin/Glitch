@@ -2,18 +2,51 @@
 
 
 #include "UI/Custom/CustomSlider.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "Kismet/KismetTextLibrary.h"
 
-void UCustomSlider::NativeOnInitialized(){
-	Super::NativeOnInitialized();
+UCustomSlider::UCustomSlider(){
+	static ConstructorHelpers::FObjectFinder<UFont> FontNBR(TEXT("/Game/UI/Fonts/FONT_NumberFont"));
+	check(FontNBR.Succeeded());
 
-	Slider->OnValueChanged.AddDynamic(this, &UCustomSlider::UpdateText);
+	NumberFont.FontObject = FontNBR.Object;
+	NumberFont.Size = 30;
+}
 
-	Slider->SetMinValue(SliderMinValue);
+void UCustomSlider::PostLoad(){
+	Super::PostLoad();
 
-	Slider->SetMaxValue(SliderMaxValue);
+	if(!IsValid(Slider)){
+		Slider = NewObject<UFocusableSlider>();
+		AddChild(Slider);
 
-	Slider->SetStepSize(StepSize);
+		Slider->OnValueChanged.AddDynamic(this, &UCustomSlider::UpdateText);
+
+		Slider->SetMinValue(SliderMinValue);
+
+		Slider->SetMaxValue(SliderMaxValue);
+
+		Slider->SetStepSize(StepSize);
+
+		UHorizontalBoxSlot* SliderSlot = Cast<UHorizontalBoxSlot>(Slider->Slot);
+		SliderSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+		SliderSlot->SetHorizontalAlignment(HAlign_Fill);
+		SliderSlot->SetVerticalAlignment(VAlign_Fill);
+	}
+
+	if(!IsValid(SliderValue)){
+		SliderValue = NewObject<UTextBlock>();
+		AddChild(SliderValue);
+		SliderValue->SetAutoWrapText(true);
+		SliderValue->SetJustification(ETextJustify::Center);
+		SliderValue->SetFont(NumberFont);
+		UpdateText(0);
+
+		UHorizontalBoxSlot* SliderValueSlot = Cast<UHorizontalBoxSlot>(SliderValue->Slot);
+		SliderValueSlot->SetHorizontalAlignment(HAlign_Fill);
+		SliderValueSlot->SetVerticalAlignment(VAlign_Center);
+		SliderValueSlot->SetPadding(FMargin(50, 0, 50, 0));
+	}
 }
 
 void UCustomSlider::UpdateText(float Value){
