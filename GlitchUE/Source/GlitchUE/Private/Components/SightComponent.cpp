@@ -33,8 +33,6 @@ void USightComponent::BeginPlay(){
 	if(bDrawFX){
 		SightFX = UPopcornFXFunctions::SpawnEmitterAttached(SightEffect, this, "PopcornFX_DefaultScene", "None", FVector::ZeroVector, FRotator(0, 90, 0),EAttachLocation::SnapToTarget, true, false);
 	}
-
-	OriginalScale = GetComponentScale();
 }
 
 void USightComponent::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
@@ -178,4 +176,8 @@ bool USightComponent::IsPlayerInSight() const{
 
 float USightComponent::GetTimerElapsed() const{
 	return InvestigateTimeElapsed;
+}
+
+void USightComponent::SetOrignialScale(const FVector NewScale){
+	OriginalScale = NewScale;
 }

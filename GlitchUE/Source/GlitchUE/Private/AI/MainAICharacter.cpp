@@ -92,6 +92,7 @@ void AMainAICharacter::SetCurrentData(UMainAIData* NewData){
 
 	SightComp->SetStaticMesh(CurrentData->SightMesh);
 	SightComp->SetWorldScale3D(CurrentData->SightDetectionScale);
+	SightComp->SetOrignialScale(CurrentData->SightDetectionScale);
 
 	GetCharacterMovement()->MaxWalkSpeed = CurrentData->Speed;
 }
