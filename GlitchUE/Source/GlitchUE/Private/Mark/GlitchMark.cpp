@@ -157,6 +157,8 @@ void AGlitchMark::DistanceTimer(){
 	if(GetDistanceTo(Player) > MaxLaunchDistance){
 		GetWorldTimerManager().ClearTimer(DistanceTimerHandle);
 
+		FakeMark->ResetMark();
+
 		LastPosition = GetActorLocation();
 
 		DistanceFromTheMarkTimeline.PlayFromStart();

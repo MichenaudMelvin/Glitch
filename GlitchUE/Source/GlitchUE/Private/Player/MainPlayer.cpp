@@ -905,12 +905,12 @@ void AMainPlayer::FinishGlitchDash_Implementation(){}
 void AMainPlayer::ReceiveGlitchUpgrade(){
 	IGlitchInterface::ReceiveGlitchUpgrade();
 
-	#if WITH_EDITOR
 		if(GlitchRewindTransformList.Num() == 0){
+		#if WITH_EDITOR
 			UE_LOG(LogTemp, Warning, TEXT("Liste de position random vide"));
+		#endif
 			return;
 		}
-	#endif
 
 	SelectRandomLocation();
 

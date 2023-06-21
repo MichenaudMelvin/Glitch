@@ -189,16 +189,16 @@ void AMainAICharacter::ReceiveTrapEffect(const UTrapData* TrapData){
 
 	switch (CurrentTrapEffect) {
 	case ETrapEffect::Burned:
-		ReceiveBurnEffect(TrapData->TrapDuration, TrapData->EffectTickRate, TrapData->EffectDamages);
+		ReceiveBurnEffect(TrapData->TrapEffectDuration, TrapData->EffectTickRate, TrapData->EffectDamages);
 		break;
 	case ETrapEffect::Frozen:
-		ReceiveFreezeEffect(TrapData->TrapDuration);
+		ReceiveFreezeEffect(TrapData->TrapEffectDuration);
 		break;
 	case ETrapEffect::Poisoned:
-		ReceivePoisonEffect(TrapData->TrapDuration);
+		ReceivePoisonEffect(TrapData->TrapEffectDuration);
 		break;
 	case ETrapEffect::SlowedDown:
-		ReceiveSlowEffect(TrapData->TrapDuration, TrapData->SlowSpeed);
+		ReceiveSlowEffect(TrapData->TrapEffectDuration, TrapData->SlowSpeed);
 		break;
 	}
 }
