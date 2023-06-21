@@ -189,7 +189,7 @@ void AMainAICharacter::ReceiveTrapEffect(const UTrapData* TrapData){
 
 	switch (CurrentTrapEffect) {
 	case ETrapEffect::Burned:
-		ReceiveBurnEffect(TrapData->TrapDuration, TrapData->EffectTickRate, TrapData->Damages);
+		ReceiveBurnEffect(TrapData->TrapDuration, TrapData->EffectTickRate, TrapData->EffectDamages);
 		break;
 	case ETrapEffect::Frozen:
 		ReceiveFreezeEffect(TrapData->TrapDuration);
@@ -204,6 +204,8 @@ void AMainAICharacter::ReceiveTrapEffect(const UTrapData* TrapData){
 }
 
 void AMainAICharacter::ReceiveBurnEffect(const float EffectDuration, const float EffectTickRate, const float EffectDamages){
+	TrapEffectDamages = EffectDamages;
+
 	GetWorld()->GetTimerManager().SetTimer(EffectTimer, [&]() {
 		if(!IsValid(this) || !IsValid(HealthComp)){
 			GetWorld()->GetTimerManager().ClearTimer(TrapTimer);
@@ -211,7 +213,7 @@ void AMainAICharacter::ReceiveBurnEffect(const float EffectDuration, const float
 			return;
 		}
 
-		HealthComp->TakeDamages(EffectDamages);
+		HealthComp->TakeDamages(TrapEffectDamages);
 
 	}, EffectTickRate, true);
 
