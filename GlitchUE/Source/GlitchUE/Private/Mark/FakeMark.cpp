@@ -33,13 +33,12 @@ void AFakeMark::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPri
 }
 
 void AFakeMark::PlaceMark(){
-	if(bIsMarkPlaced){
-		return;
-	}
-
 	Super::PlaceMark();
 
-	GlitchMark->PlaceMark();
+	if(!GlitchMark->GetIsMarkPlaced()){
+		GlitchMark->PlaceMark();
+	}
+
 	GlitchMark->SetActorLocation(GetActorLocation());
 }
 

@@ -753,6 +753,7 @@ void AMainPlayer::TPToMark() {
 
 	StopJumping();
 	Mark->PlaceMark();
+	Mark->GetFakeMark()->PlaceMark();
 	CameraAimReverse();
 
 	bGoldsCanBeUpdated = false;

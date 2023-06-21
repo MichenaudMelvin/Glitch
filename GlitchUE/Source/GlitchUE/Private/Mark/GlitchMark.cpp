@@ -130,13 +130,8 @@ FVector AGlitchMark::GetTPLocation(){
 }
 
 void AGlitchMark::PlaceMark(){
-	if(bIsMarkPlaced){
-		return;
-	}
-
 	Super::PlaceMark();
 
-	FakeMark->PlaceMark();
 	MarkMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	DistanceFromTheMarkTimeline.Stop();
 }
