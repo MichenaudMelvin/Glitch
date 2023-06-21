@@ -90,6 +90,8 @@ void AGlitchUEGameMode::BeginPlay() {
 	BlinkingTimeline.AddInterpLinearColor(BlinkingCurve, UpdateEvent);
 	BlinkingTimeline.SetTimelineFinishedFunc(FinishEvent);
 
+	FWorldDelegates::OnWorldCleanup.AddUFunction(this, "OnCleanWorld");
+
 	FTimerHandle TimerHandle;
 
 	#if WITH_EDITOR
@@ -106,6 +108,11 @@ void AGlitchUEGameMode::Tick(float deltaTime){
 
 	LevelStateTimeline.TickTimeline(deltaTime);
 	BlinkingTimeline.TickTimeline(deltaTime);
+}
+
+void AGlitchUEGameMode::OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources){
+	World->GetTimerManager().ClearTimer(DissolveEndingTimerHandle);
+	World->GetTimerManager().ClearTimer(GlitchEffectEndingTimerHandle);
 }
 
 void AGlitchUEGameMode::InitializeWorld(){
@@ -755,8 +762,7 @@ void AGlitchUEGameMode::KeyboardMessagesEnd(){
 	const FOnTimelineEvent EmptyEvent;
 	Cast<AAudioManager>(UGameplayStatics::GetActorOfClass(MainPlayer, AAudioManager::StaticClass()))->FadeOutMusic(EmptyEvent, TransitionDuration);
 
-	FTimerHandle GlitchEffectTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(GlitchEffectTimerHandle, [&](){
+	GetWorld()->GetTimerManager().SetTimer(GlitchEffectEndingTimerHandle, [&](){
 		Cast<UCreditsScreen>(CreateWidget(MainPlayerController, CreditsScreenWidgetClass))->SetEndMessage(EndKeyboardMessage);
 	}, TransitionDuration, false);
 }
@@ -769,12 +775,10 @@ void AGlitchUEGameMode::CallNexusEnding(){
 	const FOnTimelineEvent EmptyEvent;
 	Cast<AAudioManager>(UGameplayStatics::GetActorOfClass(MainPlayer, AAudioManager::StaticClass()))->FadeOutMusic(EmptyEvent, EndDissolveDuration);
 
-	FTimerHandle DissolveTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DissolveTimerHandle, [&](){
+	GetWorld()->GetTimerManager().SetTimer(DissolveEndingTimerHandle, [&](){
 		MainPlayer->EnableGlitchEffect(true, EndDissolveDuration, 9999);
 
-		FTimerHandle GlitchEffectTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(GlitchEffectTimerHandle, [&](){
+		GetWorld()->GetTimerManager().SetTimer(GlitchEffectEndingTimerHandle, [&](){
 			MainPlayer->EnableGlitchEffect(false, TransitionDuration, 0);
 			Cast<UCreditsScreen>(CreateWidget(MainPlayerController, CreditsScreenWidgetClass))->SetEndMessage(EndNexusMessage);
 		}, TransitionDuration, false);
@@ -876,6 +880,14 @@ void AGlitchUEGameMode::ToggleSpectatorMode(const bool bToggleAtLocation) const{
 
 void AGlitchUEGameMode::Dissolve(const float Value) const{
 	Dissolver->DissolveTo(Value);
+}
+
+void AGlitchUEGameMode::PauseStealthTimer(const bool bPause) const{
+	if(!MainPlayerController->GetTimerWidget()->IsTimerRunning()){
+		return;
+	}
+
+	MainPlayerController->GetTimerWidget()->PauseTimer(bPause);
 }
 
 #pragma endregion

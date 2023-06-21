@@ -16,4 +16,6 @@ public:
 	USettingsMenu* WidgetToShow;
 
 	FText Category;
+
+	int Index;
 };

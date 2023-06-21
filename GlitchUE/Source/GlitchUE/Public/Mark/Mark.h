@@ -53,5 +53,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MarkMovement")
 	virtual void Launch(const FRotator StartRotation);
 
+	bool IsPlaced() const;
+
 #pragma endregion
 };

@@ -17,8 +17,14 @@ void UButtonCategory::NativeOnListItemObjectSet(UObject* ListItemObject){
 	SettingsContainer = CurrentData->SettingsContainer;
 	WidgetToShow = CurrentData->WidgetToShow;
 	CategoryText->SetText(CurrentData->Category);
+	Index = CurrentData->Index;
 }
 
 void UButtonCategory::SelectCategory(){
+	SettingsContainer->SetHorizontalIndex(Index);
 	SettingsContainer->SetCurrentShownWidget(WidgetToShow);
+}
+
+UCustomButton* UButtonCategory::GetButton() const{
+	return Button;
 }

@@ -140,6 +140,7 @@ void AGlitchMark::ResetMark(){
 	Super::ResetMark();
 
 	MarkMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	FakeMark->ResetMark();
 	AttachToPlayer();
 	Player->GetMainPlayerController()->BindGlitch();
 }
@@ -157,6 +158,8 @@ void AGlitchMark::DistanceTimer(){
 	if(GetDistanceTo(Player) > MaxLaunchDistance){
 		GetWorldTimerManager().ClearTimer(DistanceTimerHandle);
 
+		FakeMark->SetMarkCollision(ECR_Ignore);
+
 		LastPosition = GetActorLocation();
 
 		DistanceFromTheMarkTimeline.PlayFromStart();
@@ -165,6 +168,7 @@ void AGlitchMark::DistanceTimer(){
 
 void AGlitchMark::DistanceFromMark(float Value){
 	SetActorLocation(UKismetMathLibrary::VLerp(LastPosition, Player->GetActorLocation(), Value));
+	FakeMark->SetActorLocation(GetActorLocation());
 }
 
 float AGlitchMark::GetMaxLaunchDistance() const{

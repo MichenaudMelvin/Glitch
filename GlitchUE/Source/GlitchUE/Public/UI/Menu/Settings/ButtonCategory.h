@@ -25,13 +25,18 @@ public:
 	UButtonCategoryData* CurrentData;
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
-	UButton* Button;
+	UCustomButton* Button;
 
 	UPROPERTY(EditDefaultsOnly, meta = (BindWidget))
 	UTextBlock* CategoryText;
 
 	USettingsMenu* WidgetToShow;
 
+	int Index = 0;
+
 	UFUNCTION()
 	void SelectCategory();
+
+public:
+	UCustomButton* GetButton() const;
 };

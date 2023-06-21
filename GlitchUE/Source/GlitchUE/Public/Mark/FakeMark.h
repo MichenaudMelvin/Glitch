@@ -24,12 +24,16 @@ protected:
 	UFUNCTION()
 	void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	virtual void PlaceMark() override;
-
 	FVector TargetPosition;
 
 public:
+	virtual void PlaceMark() override;
+
+	virtual void ResetMark() override;
+
 	virtual void Launch(const FRotator StartRotation) override;
 
 	void SetTargetPosition(const FVector NewTargetPosition);
+
+	void SetMarkCollision(const ECollisionResponse CollisionResponse) const;
 };

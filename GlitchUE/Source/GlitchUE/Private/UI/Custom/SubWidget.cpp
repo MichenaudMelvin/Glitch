@@ -8,7 +8,10 @@ void USubWidget::NativeOnInitialized(){
 
 	BackButton->OnClicked.AddDynamic(this, &USubWidget::BackToOwnerWidget);
 
-	AddWidgetToFocusList(BackButton);
+	// a dynamic focus list require the back button to be added in the NativeConstruct
+	if(!bIsDynamicFocusList){
+		AddWidgetToFocusList(BackButton);
+	}
 }
 
 void USubWidget::NativeConstruct(){

@@ -256,13 +256,31 @@ void AWaveManager::EndWave(){
 void AWaveManager::SpawnEnemies(){
 	TArray<FAIToSpawn> ListOfAIToSpawn = GetCurrentWaveData().AIToSpawnList;
 
-#if WITH_EDITOR
-
-	if (ActiveSpawnerList.Num() == 0){
-		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST ACTIF PENDANT LA VAGUE %d"), CurrentWaveNumber);
+	if (GameMode->OptionsString != ""){
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+			EnableSpawners(CurrentWaveNumber);
+			SpawnEnemies();
+		}, 0.2f, false);
+		return;
 	}
 
+
+	if (ActiveSpawnerList.Num() == 0){
+
+#if WITH_EDITOR
+		UE_LOG(LogTemp, Fatal, TEXT("AUCUN SPAWNER EST ACTIF PENDANT LA VAGUE %d"), CurrentWaveNumber);
 #endif
+
+		// this is not supposed to happen but it's a security
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]() {
+			EnableSpawners(CurrentWaveNumber);
+			SpawnEnemies();
+		}, 0.2f, false);
+		return;
+	}
+
 
 	for (int i = 0; i < ListOfAIToSpawn.Num(); i++){
 		for (int j = 0; j < ActiveSpawnerList.Num(); j++){
