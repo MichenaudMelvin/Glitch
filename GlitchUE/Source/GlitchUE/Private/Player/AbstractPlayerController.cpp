@@ -30,6 +30,10 @@ void AAbstractPlayerController::Destroyed(){
 void AAbstractPlayerController::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
 
+	if(!IsGameplaySaveValid()){
+		return;
+	}
+
 	if(!IsUsingGamepad()){
 		return;
 	}

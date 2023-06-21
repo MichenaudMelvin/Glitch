@@ -88,6 +88,8 @@ protected:
 
 	void ReceiveBurnEffect(const float EffectDuration, const float EffectTickRate, const float EffectDamages);
 
+	float TrapEffectDamages;
+
 	void ResetBurnEffect();
 
 	void ReceiveFreezeEffect(const float EffectDuration);
