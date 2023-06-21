@@ -89,12 +89,10 @@ void AMainPlayerController::UnbindFastSaveAndLoad(){
 }
 
 void AMainPlayerController::FastSave(){
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Saving"));
 	GameMode->GlobalWorldSave(0);
 }
 
 void AMainPlayerController::FastLoad(){
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Loading"));
 	GameMode->GlobalWorldLoad(0);
 }
 
@@ -189,7 +187,6 @@ void AMainPlayerController::BindGlitch(){
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::TPToMark);
 	} else{
 		OnUseGlitchPressed.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchPressed);
-		//OnUseGlitchReleased.AddDynamic(MainPlayer, &AMainPlayer::UseGlitchReleassed);
 	}
 }
 
@@ -345,8 +342,6 @@ void AMainPlayerController::OpenWheel(){
 
 void AMainPlayerController::CloseWheel(){
 	BindNormalMode();
-	UnbindGlitch();
-	OnUseGlitchReleased.AddDynamic(this, &AMainPlayerController::BindGlitch);
 
 	WheelWidget->RemoveFromParent();
 	PlayerStatsWidget->AddToViewport();

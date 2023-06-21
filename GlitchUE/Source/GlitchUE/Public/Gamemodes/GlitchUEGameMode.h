@@ -80,6 +80,9 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
 
+	UFUNCTION()
+	virtual void OnCleanWorld(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+
 	void InitializeWorld();
 
 	void InitializeWorldSave(TArray<FString> LevelSettings);
@@ -268,6 +271,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Ending|Nexus")
 	FString EndNexusMessage = "All the players will see their favourite game again. But is it truly good for them ? Was it the right choice ?";
 
+	FTimerHandle DissolveEndingTimerHandle;
+
+	FTimerHandle GlitchEffectEndingTimerHandle;
+
 public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Ending|Keyboard")
 	void CallKeyboardEnding();
@@ -317,6 +324,9 @@ private:
 
 	UFUNCTION(Exec)
 	void Dissolve(const float Value) const;
+
+	UFUNCTION(Exec)
+	void PauseStealthTimer(const bool bPause = true) const;
 
 #pragma endregion
 

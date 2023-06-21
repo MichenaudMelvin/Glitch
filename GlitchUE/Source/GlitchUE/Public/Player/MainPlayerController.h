@@ -340,10 +340,10 @@ protected:
 	TSubclassOf<ULooseScreen> LooseScreenWidgetClass;
 
 public:
-	UFUNCTION()
+	UFUNCTION(Exec)
 	void OpenWheel();
 
-	UFUNCTION(BlueprintCallable, Category = "Widgets")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Widgets")
 	void CloseWheel();
 
 	UFUNCTION(BlueprintCallable, Category = "Widgets")

@@ -123,11 +123,15 @@ void AAudioManager::SetPauseMusic(){
 }
 
 void AAudioManager::OnPlayerEnterDissolver(){
-	FMODAudioComp->SetParameter("Change", 0);
+	if(FMODAudioComp->Event == TowerDefenseMusic){
+		FMODAudioComp->SetParameter("Change", 0);
+	} 
 }
 
 void AAudioManager::OnPlayerExitDissolver(){
-	FMODAudioComp->SetParameter("Change", 1);
+	if(FMODAudioComp->Event == TowerDefenseMusic){
+		FMODAudioComp->SetParameter("Change", 1);
+	}
 }
 
 void AAudioManager::SetStealthAudio(const ELevelState LevelState){

@@ -29,7 +29,11 @@ protected:
 public:
 	virtual void PlaceMark() override;
 
+	virtual void ResetMark() override;
+
 	virtual void Launch(const FRotator StartRotation) override;
 
 	void SetTargetPosition(const FVector NewTargetPosition);
+
+	void SetMarkCollision(const ECollisionResponse CollisionResponse) const;
 };

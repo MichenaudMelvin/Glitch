@@ -7,7 +7,6 @@
 #include "Kismet/KismetMathLibrary.h"
 
 AFakeMark::AFakeMark(){
-	MarkMesh->OnComponentHit.AddDynamic(this, &AFakeMark::OnCompHit);
 	MarkMesh->SetHiddenInGame(true);
 
 	MarkMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -42,6 +41,12 @@ void AFakeMark::PlaceMark(){
 	GlitchMark->SetActorLocation(GetActorLocation());
 }
 
+void AFakeMark::ResetMark(){
+	Super::ResetMark();
+
+	SetMarkCollision(ECR_Block);
+}
+
 void AFakeMark::Launch(const FRotator StartRotation){
 	Super::Launch(StartRotation);
 
@@ -50,4 +55,9 @@ void AFakeMark::Launch(const FRotator StartRotation){
 
 void AFakeMark::SetTargetPosition(const FVector NewTargetPosition){
 	TargetPosition = NewTargetPosition;
+}
+
+void AFakeMark::SetMarkCollision(const ECollisionResponse CollisionResponse) const{
+	MarkMesh->SetCollisionResponseToChannel(ECC_WorldStatic, CollisionResponse);
+	MarkMesh->SetCollisionResponseToChannel(ECC_WorldDynamic, CollisionResponse);
 }
