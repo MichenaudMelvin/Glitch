@@ -7,7 +7,9 @@
 void UMakeLooseTime::PostLoad(){
 	Super::PostLoad();
 
-	GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if(IsValid(GetWorld())){
+		GameMode = Cast<AGlitchUEGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	}
 }
 
 EBTNodeResult::Type UMakeLooseTime::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory){

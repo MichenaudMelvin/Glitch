@@ -15,4 +15,4 @@ You can download the [latest version of the game](https://github.com/MichenaudMe
 
 Run the project in UE4 requires [Microsoft Visual Studio](https://visualstudio.microsoft.com) and C++ extentions, [FMOD Plugin](https://www.fmod.com/download) (account required) and [PopcornFX Plugin for UE](https://www.popcornfx.com/plugin-unreal-engine/).
 
-Plugins needs to be stored in [GlitchUE/Content/Plugins] (You need to create de "Plugins" folder).
+Plugins needs to be stored in [GlitchUE/Content/Plugins] (You need to create the "Plugins" folder).

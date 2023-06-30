@@ -75,7 +75,5 @@ public:
 	void ShowMouseCursor(const bool bShow = false, UUserWidget* WidgetToFocus = nullptr);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gamepad")
-	bool IsUsingGamepad() const;
-
-	bool IsGameplaySaveValid() const;
+	bool IsUsingGamepad();
 };

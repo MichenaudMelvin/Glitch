@@ -12,7 +12,11 @@ void AAbstractPlayerController::BeginPlay(){
 
 	OnAnyKey.AddDynamic(this, &AAbstractPlayerController::PressedAnyKey);
 
-	GameplaySave = Cast<UGameplaySave>(UUsefulFunctions::LoadSave(UGameplaySave::StaticClass(), 0, true));
+	GameplaySave = Cast<UGameplaySave>(UUsefulFunctions::LoadSave(UGameplaySave::StaticClass(), 0, false));
+
+	if(!IsValid(GameplaySave)){
+		GameplaySave = Cast<UGameplaySave>(UUsefulFunctions::CreateSave(UGameplaySave::StaticClass(), 0));
+	}
 }
 
 void AAbstractPlayerController::Destroyed(){
@@ -29,10 +33,6 @@ void AAbstractPlayerController::Destroyed(){
 
 void AAbstractPlayerController::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
-
-	if(!IsGameplaySaveValid()){
-		return;
-	}
 
 	if(!IsUsingGamepad()){
 		return;
@@ -68,10 +68,10 @@ void AAbstractPlayerController::ShowMouseCursor(const bool bShow, UUserWidget* W
 	bShow ? UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(this, WidgetToFocus, EMouseLockMode::DoNotLock, true) : UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
 }
 
-bool AAbstractPlayerController::IsUsingGamepad() const{
-	return GameplaySave->IsUsingGamepad();
-}
+bool AAbstractPlayerController::IsUsingGamepad(){
+	if(!IsValid(GameplaySave)){
+		GameplaySave = Cast<UGameplaySave>(UUsefulFunctions::CreateSave(UGameplaySave::StaticClass(), 0));
+	}
 
-bool AAbstractPlayerController::IsGameplaySaveValid() const{
-	return IsValid(GameplaySave);
+	return GameplaySave->IsUsingGamepad();
 }

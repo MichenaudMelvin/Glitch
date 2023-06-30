@@ -20,11 +20,7 @@ void UCustomUserWidget::NativeConstruct(){
 	CurrentController->OnSwitchToGamepad.AddDynamic(this, &UCustomUserWidget::Refocus);
 
 	//CheckFocusAtStart();
-	if(CurrentController->IsGameplaySaveValid()){
-		bIsFocusNeeded = CurrentController->IsUsingGamepad();
-	} else {
-		bIsFocusNeeded = Cast<UGameplaySave>(UUsefulFunctions::LoadSave(UGameplaySave::StaticClass(), 0, true))->IsUsingGamepad();
-	}
+	bIsFocusNeeded = CurrentController->IsUsingGamepad();
 
 	if(!bIsFocusNeeded){
 		return;
