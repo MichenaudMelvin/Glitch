@@ -17,6 +17,9 @@ public:
 	bool bInvertCamYAxis = false;
 
 	UPROPERTY(BlueprintReadWrite)
+	bool bAutoSlideCamera = true;
+
+	UPROPERTY(BlueprintReadWrite)
 	float CameraFOV = 90;
 
 	UPROPERTY(BlueprintReadWrite)

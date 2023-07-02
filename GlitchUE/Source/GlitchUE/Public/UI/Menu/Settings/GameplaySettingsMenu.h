@@ -26,6 +26,12 @@ protected:
 	UFUNCTION()
 	void ToggleYAxis(bool IsChecked);
 
+	UPROPERTY(EditDefaultsOnly, Category = "SettignsElements", meta = (BindWidget))
+	UCustomCheckbox* AutoSlideCameraCheckBox;
+
+	UFUNCTION()
+	void ToggleAutoSlideCamera(bool IsChecked);
+
 #pragma endregion
 
 #pragma region Sliders

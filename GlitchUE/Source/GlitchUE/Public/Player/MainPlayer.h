@@ -330,10 +330,15 @@ public:
 protected:
 	bool bInvertYAxis;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	bool bAutoSlideCamera;
+
 	float Sensitivity = 1;
 
 public:
 	void SetInvertAxis(const bool bNewValue);
+
+	void SetAutoSlideCamera(const bool bNewValue);
 
 	void SetSensitivity(const float NewSensitivity);
 
@@ -630,13 +635,6 @@ public:
 	UCurveFloat* ZeroToOneCurve;
 
 	UCurveFloat* SmoothZeroToOneCurve;
-
-	#pragma endregion
-
-	#pragma region Saves
-
-	UPROPERTY(BlueprintReadWrite)
-	UGameplaySettingsSave* GameplaySettingsSaveSave;
 
 	#pragma endregion
 

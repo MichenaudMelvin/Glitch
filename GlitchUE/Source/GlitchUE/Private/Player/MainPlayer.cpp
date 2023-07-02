@@ -121,10 +121,12 @@ AMainPlayer::AMainPlayer(){
 void AMainPlayer::BeginPlay(){
 	Super::BeginPlay();
 
-	GameplaySettingsSaveSave = Cast<UGameplaySettingsSave>(UUsefulFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
-	FollowCamera->FieldOfView = GameplaySettingsSaveSave->CameraFOV;
-	Sensitivity = GameplaySettingsSaveSave->CameraSensitivity;
-	bInvertYAxis = GameplaySettingsSaveSave->bInvertCamYAxis;
+	const UGameplaySettingsSave* GameplaySettingsSave = Cast<UGameplaySettingsSave>(UUsefulFunctions::LoadSave(UGameplaySettingsSave::StaticClass(), 0));
+
+	FollowCamera->FieldOfView = GameplaySettingsSave->CameraFOV;
+	Sensitivity = GameplaySettingsSave->CameraSensitivity;
+	bInvertYAxis = GameplaySettingsSave->bInvertCamYAxis;
+	bAutoSlideCamera = GameplaySettingsSave->bAutoSlideCamera;
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 
@@ -692,6 +694,10 @@ void AMainPlayer::ClingUp_Implementation(){}
 
 void AMainPlayer::SetInvertAxis(const bool bNewValue){
 	bInvertYAxis = bNewValue;
+}
+
+void AMainPlayer::SetAutoSlideCamera(const bool bNewValue){
+	bAutoSlideCamera = bNewValue;
 }
 
 void AMainPlayer::SetSensitivity(const float NewSensitivity){
