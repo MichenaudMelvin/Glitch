@@ -2,7 +2,6 @@
 
 
 #include "AI/AIPursuitDrone/PursuitDrone.h"
-
 #include "AI/AIPursuitDrone/PursuitDroneData.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -192,6 +191,7 @@ void APursuitDrone::StopPursuitBehavior(){
 
 	IdleFX->DestroyComponent();
 	CompassIcon->DestroyComponent();
+	HealthComp->SetCanTakeDamages(false);
 }
 
 void APursuitDrone::DroneMeshBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult){

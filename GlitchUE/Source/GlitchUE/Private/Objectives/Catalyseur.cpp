@@ -270,7 +270,7 @@ void ACatalyseur::HealthNull(){
 void ACatalyseur::GenerateMoney(){
 	FMODAudioComp->SetEvent(SoundsGolds);
 	FMODAudioComp->Play();
-	Player->UpdateGolds(GeneratedGolds * ActivatedInhibiteursList.Num(), EGoldsUpdateMethod::ReceiveGolds);
+	Player->UpdateGolds(GeneratedGolds, EGoldsUpdateMethod::ReceiveGolds);
 	GoldsGenerationFX->StartEmitter();
 }
 

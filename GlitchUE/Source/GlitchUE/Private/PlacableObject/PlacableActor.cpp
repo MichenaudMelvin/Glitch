@@ -59,6 +59,10 @@ void APlacableActor::Tick(float DeltaTime){
 void APlacableActor::Destroyed(){
 	if(IsValid(CurrentDrone)){
 		CurrentDrone->DisableSpinBehavior();
+
+		FVector TargetLocation = CurrentDrone->GetActorLocation();
+		TargetLocation.Z += DroneDestroyHeightOffset;
+		CurrentDrone->SetActorLocation(TargetLocation);
 	}
 
 	if(IsValid(AffectedConstructionZone)){

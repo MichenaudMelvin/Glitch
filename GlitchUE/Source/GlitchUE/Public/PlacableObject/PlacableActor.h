@@ -139,6 +139,9 @@ protected:
 	UPROPERTY()
 	APursuitDrone* CurrentDrone;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Drone")
+	float DroneDestroyHeightOffset = 150;
+
 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	virtual void SetObjectMaterial(UMaterialInterface* NewMaterial);
 

@@ -359,6 +359,10 @@ void AMainPlayerController::CloseWheel(){
 }
 
 bool AMainPlayerController::IsWheelOpened() const{
+	if(!IsValid(WheelWidget)){
+		return false;
+	}
+
 	return WheelWidget->IsInViewport();
 }
 
